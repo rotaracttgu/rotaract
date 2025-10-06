@@ -5,6 +5,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Aspirante\AspiranteController;
 use App\Http\Controllers\VoceroController;
 use App\Http\Controllers\TesoreroController;
+// 🚨 Importaciones de los nuevos controladores
+use App\Http\Controllers\VicepresidenteController;
+use App\Http\Controllers\ReporteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -62,5 +65,23 @@ Route::prefix('tesorero')->middleware('auth')->name('tesorero.')->group(function
     Route::get('/calendario', [TesoreroController::class, 'calendario'])->name('calendario');
     Route::get('/finanzas', [TesoreroController::class, 'finanzas'])->name('finanzas');
 });
+
+// ---
+// 🚨 Rutas para el Módulo Vicepresidente (NUEVAS)
+Route::prefix('vicepresidente')->middleware('auth')->name('vicepresidente.')->group(function () {
+
+    // Rutas del VicepresidenteController (vistas de la imagen)
+    Route::get('dashboard', [VicepresidenteController::class, 'dashboard'])->name('dashboard');
+    Route::get('asistencia/proyectos', [VicepresidenteController::class, 'asistenciaProyectos'])->name('asistencia.proyectos');
+    Route::get('asistencia/reuniones', [VicepresidenteController::class, 'asistenciaReuniones'])->name('asistencia.reuniones');
+    Route::get('cartas/formales', [VicepresidenteController::class, 'cartasFormales'])->name('cartas.formales');
+    Route::get('cartas/patrocinio', [VicepresidenteController::class, 'cartasPatrocinio'])->name('cartas.patrocinio');
+
+    // Rutas para el Nuevo Módulo de Reportes (Vicepresidente)
+    Route::get('reportes/dashboard', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
+    Route::get('reportes/mensuales', [ReporteController::class, 'mensuales'])->name('reportes.mensuales');
+});
+
+// ---
 
 require __DIR__.'/auth.php';
