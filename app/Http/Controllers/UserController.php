@@ -137,14 +137,14 @@ class UserController extends Controller
 
             $usuario->update($userData);
 
-            if ($request->has('role') && (auth()->user()->can('gestionar roles') || auth()->user()->hasRole('administrador'))) {
+            //if ($request->has('role') && (auth()->user()->can('gestionar roles') || auth()->user()->hasRole('administrador'))) {
                 if ($request->role) {
                     $usuario->syncRoles([$request->role]);
                 } else {
                     $usuario->syncRoles([]);
                 }
-            }
-            
+            //}
+
             return redirect()->route('usuarios.lista')
                 ->with('success', 'Usuario actualizado exitosamente.')
                 ->with('usuario_actualizado', $usuario->name);
