@@ -9,7 +9,7 @@
             <div class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
                 {{ $totalUsuarios ?? 0 }} {{ $totalUsuarios === 1 ? 'usuario' : 'usuarios' }}
             </div>
-            <a href="{{ route('usuarios.crear') }}" 
+            <a href="{{ route('admin.usuarios.crear') }}" 
                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transition-all duration-200 transform hover:scale-105">
                 <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
@@ -179,7 +179,7 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <div class="flex items-center justify-end space-x-2">
                                                     <!-- Ver -->
-                                                    <a href="{{ route('usuarios.ver', $usuario) }}" 
+                                                    <a href="{{ route('admin.usuarios.ver', $usuario) }}" 
                                                         class="inline-flex items-center p-2 border border-gray-300 rounded-lg text-gray-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200" 
                                                         title="Ver detalles">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +189,7 @@
                                                     </a>
                                                     
                                                     <!-- Editar -->
-                                                    <a href="{{ route('usuarios.editar', $usuario) }}" 
+                                                    <a href="{{ route('admin.usuarios.editar', $usuario) }}" 
                                                         class="inline-flex items-center p-2 border border-blue-300 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200" 
                                                         title="Editar usuario">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,7 +198,7 @@
                                                     </a>
                                                     
                                                     <!-- Eliminar -->
-                                                    <form method="POST" action="{{ route('usuarios.eliminar', $usuario) }}" class="inline-block" 
+                                                    <form method="POST" action="{{ route('admin.usuarios.eliminar', $usuario) }}" class="inline-block" 
                                                           onsubmit="return confirm('¿Está seguro de que desea eliminar el usuario {{ $usuario->name }}? Esta acción no se puede deshacer.');">
                                                         @csrf
                                                         @method('DELETE')
@@ -237,7 +237,7 @@
                                 Aún no se han registrado usuarios en el sistema. Comienza agregando el primer usuario.
                             </p>
                             <div class="mt-8">
-                                <a href="{{ route('usuarios.crear') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transition-all duration-200 transform hover:scale-105">
+                                <a href="{{ route('admin.usuarios.crear') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transition-all duration-200 transform hover:scale-105">
                                     <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
                                     </svg>

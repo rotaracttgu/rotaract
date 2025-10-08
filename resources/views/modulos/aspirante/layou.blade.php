@@ -32,6 +32,13 @@
             background-color: #f8f9fa;
             min-height: 100vh;
         }
+        .user-info {
+            color: white;
+            padding: 15px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            margin: 10px;
+        }
     </style>
 </head>
 <body>
@@ -48,29 +55,38 @@
                         </h4>
                         <small class="text-light">Panel Personal</small>
                     </div>
+
+                    <!-- Información del usuario -->
+                    <div class="user-info text-center mb-3">
+                        <div class="mb-2">
+                            <i class="fas fa-user-circle fa-2x"></i>
+                        </div>
+                        <small><strong>{{ Auth::user()->name }}</strong></small><br>
+                        <small class="text-light">{{ Auth::user()->getRolPrincipal() }}</small>
+                    </div>
                     
                     <!-- Enlaces del menú -->
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link @yield('dashboard-active')" href="/aspirante/dashboard">
+                            <a class="nav-link @yield('dashboard-active')" href="{{ route('aspirante.dashboard') }}">
                                 <i class="fas fa-chart-pie"></i>
                                 Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @yield('calendario-active')" href="/aspirante/calendario">
+                            <a class="nav-link @yield('calendario-active')" href="{{ route('aspirante.calendario-consulta') }}">
                                 <i class="fas fa-calendar-alt"></i>
                                 Calendario
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @yield('proyectos-active')" href="/aspirante/proyectos">
+                            <a class="nav-link @yield('proyectos-active')" href="{{ route('aspirante.mis-proyectos') }}">
                                 <i class="fas fa-project-diagram"></i>
                                 Mis Proyectos
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @yield('reuniones-active')" href="/aspirante/reuniones">
+                            <a class="nav-link @yield('reuniones-active')" href="{{ route('aspirante.mis-reuniones') }}">
                                 <i class="fas fa-users"></i>
                                 Mis Reuniones
                             </a>
@@ -79,13 +95,13 @@
                         <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
                         
                         <li class="nav-item">
-                            <a class="nav-link @yield('secretaria-active')" href="/aspirante/secretaria">
+                            <a class="nav-link @yield('secretaria-active')" href="{{ route('aspirante.comunicacion-secretaria') }}">
                                 <i class="fas fa-envelope"></i>
                                 Chat Secretaría
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @yield('voceria-active')" href="/aspirante/voceria">
+                            <a class="nav-link @yield('voceria-active')" href="{{ route('aspirante.comunicacion-voceria') }}">
                                 <i class="fas fa-bullhorn"></i>
                                 Chat Vocalía
                             </a>
@@ -94,13 +110,13 @@
                         <hr class="my-3" style="border-color: rgba(255,255,255,0.3);">
                         
                         <li class="nav-item">
-                            <a class="nav-link @yield('notas-active')" href="/aspirante/notas">
+                            <a class="nav-link @yield('notas-active')" href="{{ route('aspirante.blog-notas') }}">
                                 <i class="fas fa-sticky-note"></i>
                                 Mis Notas
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @yield('perfil-active')" href="/aspirante/perfil">
+                            <a class="nav-link @yield('perfil-active')" href="{{ route('aspirante.mi-perfil') }}">
                                 <i class="fas fa-user-circle"></i>
                                 Mi Perfil
                             </a>
@@ -119,10 +135,15 @@
                             <i class="fas fa-bell"></i>
                             Notificaciones
                         </button>
-                        <button type="button" class="btn btn-sm btn-primary">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Cerrar Sesión
-                        </button>
+                        
+                        <!-- Formulario de Cerrar Sesión -->
+                        <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Cerrar Sesión
+                            </button>
+                        </form>
                     </div>
                 </div>
 

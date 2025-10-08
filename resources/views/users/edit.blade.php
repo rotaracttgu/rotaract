@@ -3,7 +3,7 @@
 @section('header')
     <div class="flex justify-between items-center">
         <div class="flex items-center space-x-4">
-            <a href="{{ route('usuarios.lista') }}" class="flex items-center text-gray-600 hover:text-gray-900 transition-colors duration-200">
+            <a href="{{ route('admin.usuarios.lista') }}" class="flex items-center text-gray-600 hover:text-gray-900 transition-colors duration-200">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -15,7 +15,7 @@
         </div>
         
         <!-- Botón de Eliminar -->
-        <form method="POST" action="{{ route('usuarios.eliminar', $usuario) }}" class="inline-block" 
+        <form method="POST" action="{{ route('admin.usuarios.eliminar', $usuario) }}" class="inline-block" 
               onsubmit="return confirm('¿Está seguro de que desea eliminar este usuario? Esta acción no se puede deshacer.');">
             @csrf
             @method('DELETE')
@@ -45,7 +45,7 @@
                         <p class="mt-1 text-center text-sm text-gray-600">ID: #{{ $usuario->id }} • Registrado: {{ $usuario->created_at->format('d/m/Y') }}</p>
                     </div>
 
-                    <form method="POST" action="{{ route('usuarios.actualizar', $usuario) }}" class="space-y-6">
+                    <form method="POST" action="{{ route('admin.usuarios.actualizar', $usuario) }}" class="space-y-6">
                         @csrf
                         @method('PUT')
 
@@ -109,20 +109,19 @@
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.25-7a.75.75 0 011.5 0v6.5H21a.75.75 0 010 1.5h-6.5V21a.75.75 0 01-1.5 0v-6.5H7a.75.75 0 010-1.5h6.5V7z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                     </svg>
                                 </div>
                                 <select id="rol" name="role" 
                                     class="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 @error('role') border-red-300 ring-red-500 @enderror bg-white">
                                     <option value="">Sin rol asignado</option>
-                                    @if(class_exists('Spatie\Permission\Models\Role'))
-                                        @foreach(\Spatie\Permission\Models\Role::all() as $role)
-                                            <option value="{{ $role->name }}" 
-                                                {{ (old('role') ?? ($usuario->roles->first()->name ?? '')) == $role->name ? 'selected' : '' }}>
-                                                {{ ucfirst($role->name) }}
-                                            </option>
-                                        @endforeach
-                                    @endif
+                                    <option value="Super Admin" {{ (old('role') ?? ($usuario->roles->first()->name ?? '')) == 'Super Admin' ? 'selected' : '' }}>Super Admin</option>
+                                    <option value="Presidente" {{ (old('role') ?? ($usuario->roles->first()->name ?? '')) == 'Presidente' ? 'selected' : '' }}>Presidente</option>
+                                    <option value="Vicepresidente" {{ (old('role') ?? ($usuario->roles->first()->name ?? '')) == 'Vicepresidente' ? 'selected' : '' }}>Vicepresidente</option>
+                                    <option value="Tesorero" {{ (old('role') ?? ($usuario->roles->first()->name ?? '')) == 'Tesorero' ? 'selected' : '' }}>Tesorero</option>
+                                    <option value="Secretario" {{ (old('role') ?? ($usuario->roles->first()->name ?? '')) == 'Secretario' ? 'selected' : '' }}>Secretario</option>
+                                    <option value="Vocero" {{ (old('role') ?? ($usuario->roles->first()->name ?? '')) == 'Vocero' ? 'selected' : '' }}>Vocero</option>
+                                    <option value="Aspirante" {{ (old('role') ?? ($usuario->roles->first()->name ?? '')) == 'Aspirante' ? 'selected' : '' }}>Aspirante</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,7 +254,7 @@
 
                         <!-- Botones -->
                         <div class="flex items-center justify-between pt-6 border-t border-gray-200">
-                            <a href="{{ route('usuarios.lista') }}" 
+                            <a href="{{ route('admin.usuarios.lista') }}" 
                                 class="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
                                 Cancelar
                             </a>

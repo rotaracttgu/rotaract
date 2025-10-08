@@ -3,7 +3,7 @@
 @section('header')
     <div class="flex justify-between items-center">
         <div class="flex items-center space-x-4">
-            <a href="{{ route('usuarios.lista') }}" class="flex items-center text-gray-600 hover:text-gray-900 transition-colors duration-200">
+            <a href="{{ route('admin.usuarios.lista') }}" class="flex items-center text-gray-600 hover:text-gray-900 transition-colors duration-200">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -16,7 +16,7 @@
         
         <!-- Botones de Acción -->
         <div class="flex items-center space-x-3">
-            <a href="{{ route('usuarios.editar', $usuario) }}" 
+            <a href="{{ route('admin.usuarios.editar', $usuario) }}" 
                 class="inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-xl text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                 <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -24,7 +24,7 @@
                 Editar
             </a>
             
-            <form method="POST" action="{{ route('usuarios.eliminar', $usuario) }}" class="inline-block" 
+            <form method="POST" action="{{ route('admin.usuarios.eliminar', $usuario) }}" class="inline-block" 
                   onsubmit="return confirm('¿Está seguro de que desea eliminar este usuario? Esta acción no se puede deshacer.');">
                 @csrf
                 @method('DELETE')
@@ -56,7 +56,7 @@
                     <div class="text-center mb-8">
                         <h1 class="text-3xl font-bold text-gray-900">{{ $usuario->name }}</h1>
                         <p class="mt-2 text-lg text-gray-600">{{ $usuario->email }}</p>
-                        <div class="mt-4 flex items-center justify-center">
+                        <div class="mt-4 flex items-center justify-center space-x-3">
                             @if($usuario->email_verified_at)
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -70,6 +70,24 @@
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
                                     </svg>
                                     Verificación Pendiente
+                                </span>
+                            @endif
+
+                            @if($usuario->roles->count() > 0)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                    {{ $usuario->roles->first()->name }}
+                                </span>
+                            @endif
+
+                            @if($usuario->two_factor_enabled)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                    2FA Activado
                                 </span>
                             @endif
                         </div>

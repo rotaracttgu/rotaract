@@ -3,7 +3,7 @@
 @section('header')
     <div class="flex justify-between items-center">
         <div class="flex items-center space-x-4">
-            <a href="{{ route('usuarios.lista') }}" class="flex items-center text-gray-600 hover:text-gray-900 transition-colors duration-200">
+            <a href="{{ route('admin.usuarios.lista') }}" class="flex items-center text-gray-600 hover:text-gray-900 transition-colors duration-200">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -33,7 +33,7 @@
                         <p class="mt-2 text-center text-sm text-gray-600">Complete los campos para crear un nuevo usuario</p>
                     </div>
 
-                    <form method="POST" action="{{ route('usuarios.guardar') }}" class="space-y-6">
+                    <form method="POST" action="{{ route('admin.usuarios.guardar') }}" class="space-y-6">
                         @csrf
 
                         <!-- Nombre -->
@@ -130,6 +130,39 @@
                             </div>
                         </div>
 
+                        <!-- Rol del Usuario -->
+                        <div>
+                            <label for="role" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Rol del Usuario
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                </div>
+                                <select id="role" name="role" required
+                                    class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 @error('role') border-red-300 ring-red-500 @enderror">
+                                    <option value="">Seleccione un rol</option>
+                                    <option value="Super Admin" {{ old('role') == 'Super Admin' ? 'selected' : '' }}>Super Admin</option>
+                                    <option value="Presidente" {{ old('role') == 'Presidente' ? 'selected' : '' }}>Presidente</option>
+                                    <option value="Vicepresidente" {{ old('role') == 'Vicepresidente' ? 'selected' : '' }}>Vicepresidente</option>
+                                    <option value="Tesorero" {{ old('role') == 'Tesorero' ? 'selected' : '' }}>Tesorero</option>
+                                    <option value="Secretario" {{ old('role') == 'Secretario' ? 'selected' : '' }}>Secretario</option>
+                                    <option value="Vocero" {{ old('role') == 'Vocero' ? 'selected' : '' }}>Vocero</option>
+                                    <option value="Aspirante" {{ old('role') == 'Aspirante' ? 'selected' : '' }}>Aspirante</option>
+                                </select>
+                            </div>
+                            @error('role')
+                                <p class="mt-2 text-sm text-red-600 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    {{ $message }}
+                                    </p>
+                            @enderror
+                        </div>
+
                         <!-- Estado del Email -->
                         <div class="flex items-start">
                             <div class="flex items-center h-6">
@@ -147,7 +180,7 @@
 
                         <!-- Botones -->
                         <div class="flex items-center justify-between pt-6 border-t border-gray-200">
-                            <a href="{{ route('usuarios.lista') }}" 
+                            <a href="{{ route('admin.usuarios.lista') }}" 
                                 class="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
                                 Cancelar
                             </a>

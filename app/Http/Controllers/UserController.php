@@ -54,6 +54,7 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'email_verified' => ['nullable', 'boolean'],
+            'role' => ['required', 'string', 'exists:roles,name'],
         ]);
 
         try {
@@ -64,8 +65,19 @@ class UserController extends Controller
                 'email_verified_at' => $request->email_verified ? now() : null,
             ]);
 
-            return redirect()->route('usuarios.lista')
-                ->with('success', 'Usuario creado exitosamente.')
+            // ===== HABILITAR 2FA AUTOMÁTICAMENTE =====
+            $user->two_factor_enabled = true;
+            $user->save();
+            // =========================================
+
+            // ===== ASIGNAR ROL AL USUARIO =====
+            if ($request->role) {
+                $user->assignRole($request->role);
+            }
+            // ==================================
+
+            return redirect()->route('admin.usuarios.lista')
+                ->with('success', 'Usuario creado exitosamente con autenticación de dos factores habilitada.')
                 ->with('usuario_creado', $user->name);
 
         } catch (\Exception $e) {
@@ -106,8 +118,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $usuario->id],
             'email_verified' => ['nullable', 'boolean'],
-            'role' => ['nullable', 'string', 'exists:roles,name'], // Agregar validación de rol
-    
+            'role' => ['nullable', 'string', 'exists:roles,name'],
         ];
 
         // Solo validar contraseña si se proporciona
@@ -137,7 +148,7 @@ class UserController extends Controller
 
             $usuario->update($userData);
 
-            if ($request->has('role') && (auth()->user()->can('gestionar roles') || auth()->user()->hasRole('administrador'))) {
+            if ($request->has('role') && (auth()->user()->can('gestionar roles') || auth()->user()->hasRole('Super Admin'))) {
                 if ($request->role) {
                     $usuario->syncRoles([$request->role]);
                 } else {
@@ -145,7 +156,7 @@ class UserController extends Controller
                 }
             }
             
-            return redirect()->route('usuarios.lista')
+            return redirect()->route('admin.usuarios.lista')
                 ->with('success', 'Usuario actualizado exitosamente.')
                 ->with('usuario_actualizado', $usuario->name);
 
@@ -166,7 +177,7 @@ class UserController extends Controller
             $userName = $usuario->name;
             $usuario->delete();
 
-            return redirect()->route('usuarios.lista')
+            return redirect()->route('admin.usuarios.lista')
                 ->with('success', 'Usuario eliminado exitosamente.')
                 ->with('usuario_eliminado', $userName);
 
@@ -187,6 +198,7 @@ class UserController extends Controller
                 'usuarios_no_verificados' => User::whereNull('email_verified_at')->count(),
                 'usuarios_recientes' => User::where('created_at', '>=', now()->subDays(7))->count(),
                 'usuarios_hoy' => User::whereDate('created_at', today())->count(),
+                'usuarios_con_2fa' => User::where('two_factor_enabled', true)->count(),
             ];
 
             return response()->json($stats);
