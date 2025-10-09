@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Admin\SuperAdminUsuariosController;
 use App\Http\Controllers\Aspirante\AspiranteController;
 use App\Http\Controllers\VoceroController;
 use App\Http\Controllers\TesoreroController;
@@ -76,13 +76,13 @@ Route::prefix('admin')->middleware(['auth', RoleMiddleware::class . ':Super Admi
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Gestión de usuarios (solo Super Admin)
-    Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios.lista');
-    Route::get('/usuarios/crear', [UserController::class, 'create'])->name('usuarios.crear');
-    Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.guardar');
-    Route::get('/usuarios/{usuario}', [UserController::class, 'show'])->name('usuarios.ver');
-    Route::get('/usuarios/{usuario}/editar', [UserController::class, 'edit'])->name('usuarios.editar');
-    Route::put('/usuarios/{usuario}', [UserController::class, 'update'])->name('usuarios.actualizar');
-    Route::delete('/usuarios/{usuario}', [UserController::class, 'destroy'])->name('usuarios.eliminar');
+    Route::get('/usuarios', [SuperAdminUsuariosController::class, 'index'])->name('usuarios.lista');
+    Route::get('/usuarios/crear', [SuperAdminUsuariosController::class, 'create'])->name('usuarios.crear');
+    Route::post('/usuarios', [SuperAdminUsuariosController::class, 'store'])->name('usuarios.guardar');
+    Route::get('/usuarios/{id}', [SuperAdminUsuariosController::class, 'show'])->name('usuarios.ver');
+    Route::get('/usuarios/{id}/editar', [SuperAdminUsuariosController::class, 'edit'])->name('usuarios.editar');
+    Route::put('/usuarios/{id}', [SuperAdminUsuariosController::class, 'update'])->name('usuarios.actualizar');
+    Route::delete('/usuarios/{id}', [SuperAdminUsuariosController::class, 'destroy'])->name('usuarios.eliminar');
 });
 
 // ============================================================================
