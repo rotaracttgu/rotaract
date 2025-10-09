@@ -184,7 +184,7 @@ class UserController extends Controller
 
             $usuario->update($userData);
 
-            if ($request->has('role') && (auth()->user()->can('gestionar roles') || auth()->user()->hasRole('administrador'))) {
+            if ($request->has('role') && (auth()->user()->can('gestionar roles') || auth()->user()->hasRole('presidente'))) {
                 if ($request->role) {
                     $usuario->syncRoles([$request->role]);
                 } else {
