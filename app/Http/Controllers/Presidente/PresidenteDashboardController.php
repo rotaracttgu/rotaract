@@ -45,7 +45,7 @@ class PresidenteDashboardController extends Controller
         // Distribución de usuarios por rol
         $usuariosPorRol = $this->obtenerDistribucionRoles();
 
-        return view('modulos.superadmin.usuarios.dashboard', compact(
+        return view('modulos.presidente.usuarios.dashboard', compact(
             'totalUsuarios',
             'usuariosVerificados',
             'usuariosPendientes',
