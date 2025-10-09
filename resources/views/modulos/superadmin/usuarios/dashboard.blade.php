@@ -261,7 +261,7 @@
                     @if($ultimosUsuarios->count() > 0)
                     <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
                         <a href="{{ route('admin.usuarios.lista') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center justify-center">
-                            Ver todos los usuarios
+                            Ver todos los usuarios---##
                             <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>

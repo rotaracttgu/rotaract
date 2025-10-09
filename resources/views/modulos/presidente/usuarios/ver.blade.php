@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('modulos.presidente.usuarios.layout')
 
 @section('header')
     <div class="flex justify-between items-center">

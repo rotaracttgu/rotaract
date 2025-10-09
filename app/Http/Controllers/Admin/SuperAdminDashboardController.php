@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Carbon\Carbon;
 
-class DashboardController extends Controller
+class SuperAdminDashboardController extends Controller
 {
     /**
      * Mostrar el dashboard del Super Admin
