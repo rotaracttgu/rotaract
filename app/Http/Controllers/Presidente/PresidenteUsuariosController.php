@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Presidente;
 
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
 use App\Services\UsuarioServicio;
+use App\Http\Controllers\Controller;
 
-class UserController extends Controller
+class PresidenteUsuariosController extends Controller
 {
     protected $usuarioServicio;
     
@@ -43,7 +44,7 @@ class UserController extends Controller
                     $opciones
                 );
                 
-                return view('users.index', [
+                return view('modulos.presidente.usuarios.index', [
                     'usuarios' => $resultadoBusqueda['usuarios'],
                     'totalUsuarios' => $resultadoBusqueda['total'],
                     'terminoBusqueda' => $request->get('buscar')
@@ -59,12 +60,12 @@ class UserController extends Controller
             // Obtener estadísticas (opcional)
             $estadisticas = $this->usuarioServicio->obtenerEstadisticas();
             
-            return view('users.index', compact('usuarios', 'totalUsuarios', 'estadisticas'));
+            return view('modulos.presidente.usuarios.index', compact('usuarios', 'totalUsuarios', 'estadisticas'));
             
         } catch (\Exception $e) {
             \Log::error('Error en UserController@index: ' . $e->getMessage());
             
-            return view('users.index', [
+            return view('modulos.presidente.usuarios.index', [
                 'usuarios' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10),
                 'totalUsuarios' => 0,
                 'error' => $e->getMessage()
@@ -77,7 +78,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('users.create');
+        return view('modulos.presidente.usuarios.create');
     }
 
     /**
@@ -129,7 +130,7 @@ class UserController extends Controller
     {
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
-        return view('users.ver', compact('usuario'));
+        return view('modulos.presidente.usuarios.ver', compact('usuario'));
     }
 
     /**
@@ -139,7 +140,7 @@ class UserController extends Controller
     {
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
-        return view('users.edit', compact('usuario'));
+        return view('modulos.presidente.usuarios.edit', compact('usuario'));
     }
 
     /**

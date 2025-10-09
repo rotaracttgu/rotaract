@@ -1,14 +1,16 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Admin\SuperAdminUsuariosController;
+use App\Http\Controllers\Presidente\PresidenteUsuariosController;
 use App\Http\Controllers\Aspirante\AspiranteController;
 use App\Http\Controllers\VoceroController;
 use App\Http\Controllers\TesoreroController;
 use App\Http\Controllers\VicepresidenteController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\Auth\TwoFactorController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\SuperAdminDashboardController;
+use App\Http\Controllers\Presidente\PresidenteDashboardController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
@@ -73,27 +75,33 @@ Route::middleware('auth')->group(function () {
 // ============================================================================
 Route::prefix('admin')->middleware(['auth', RoleMiddleware::class . ':Super Admin'])->name('admin.')->group(function () {
     // Dashboard de Super Admin
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
 
     // Gestión de usuarios (solo Super Admin)
-    Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios.lista');
-    Route::get('/usuarios/crear', [UserController::class, 'create'])->name('usuarios.crear');
-    Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.guardar');
-    Route::get('/usuarios/{usuario}', [UserController::class, 'show'])->name('usuarios.ver');
-    Route::get('/usuarios/{usuario}/editar', [UserController::class, 'edit'])->name('usuarios.editar');
-    Route::put('/usuarios/{usuario}', [UserController::class, 'update'])->name('usuarios.actualizar');
-    Route::delete('/usuarios/{usuario}', [UserController::class, 'destroy'])->name('usuarios.eliminar');
+    Route::get('/usuarios', [SuperAdminUsuariosController::class, 'index'])->name('usuarios.lista');
+    Route::get('/usuarios/crear', [SuperAdminUsuariosController::class, 'create'])->name('usuarios.crear');
+    Route::post('/usuarios', [SuperAdminUsuariosController::class, 'store'])->name('usuarios.guardar');
+    Route::get('/usuarios/{id}', [SuperAdminUsuariosController::class, 'show'])->name('usuarios.ver');
+    Route::get('/usuarios/{id}/editar', [SuperAdminUsuariosController::class, 'edit'])->name('usuarios.editar');
+    Route::put('/usuarios/{id}', [SuperAdminUsuariosController::class, 'update'])->name('usuarios.actualizar');
+    Route::delete('/usuarios/{id}', [SuperAdminUsuariosController::class, 'destroy'])->name('usuarios.eliminar');
 });
 
 // ============================================================================
 // RUTAS DEL MÓDULO PRESIDENTE
 // ============================================================================
 Route::prefix('presidente')->middleware(['auth', RoleMiddleware::class . ':Presidente|Super Admin'])->name('presidente.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('presidente.dashboard');
-    })->name('dashboard');
-    
-    // Aquí agregarás más rutas del presidente cuando las necesites
+    // Dashboard de Super Admin
+    Route::get('/dashboard', [PresidenteDashboardController::class, 'index'])->name('dashboard');
+
+    // Gestión de usuarios (Presidente)
+    Route::get('/usuarios', [PresidenteUsuariosController::class, 'index'])->name('usuarios.lista');
+    Route::get('/usuarios/crear', [PresidenteUsuariosController::class, 'create'])->name('usuarios.crear');
+    Route::post('/usuarios', [PresidenteUsuariosController::class, 'store'])->name('usuarios.guardar');
+    Route::get('/usuarios/{id}', [PresidenteUsuariosController::class, 'show'])->name('usuarios.ver');
+    Route::get('/usuarios/{id}/editar', [PresidenteUsuariosController::class, 'edit'])->name('usuarios.editar');
+    Route::put('/usuarios/{id}', [PresidenteUsuariosController::class, 'update'])->name('usuarios.actualizar');
+    Route::delete('/usuarios/{id}', [PresidenteUsuariosController::class, 'destroy'])->name('usuarios.eliminar');
 });
 
 // ============================================================================
