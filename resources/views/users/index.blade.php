@@ -81,40 +81,71 @@
                         </div>
                     </div>
 
-                    <!-- Base de Datos -->
-                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-6 text-white shadow-lg">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-emerald-100">Base de Datos</p>
-                                <p class="text-lg font-semibold truncate">{{ config('database.connections.mysql.database') }}</p>
+                    <!-- Estadísticas adicionales (si están disponibles) -->
+                    @if(isset($estadisticas))
+                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-6 text-white shadow-lg">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-emerald-100">Verificados</p>
+                                    <p class="text-3xl font-bold">{{ $estadisticas->usuarios_verificados ?? 0 }}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Estado de Conexión -->
-                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-lg">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-purple-100">Estado</p>
-                                <p class="text-lg font-semibold">Conectado</p>
+                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-lg">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-purple-100">Pendientes</p>
+                                    <p class="text-3xl font-bold">{{ $estadisticas->usuarios_no_verificados ?? 0 }}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <!-- Base de Datos -->
+                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-6 text-white shadow-lg">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-emerald-100">Base de Datos</p>
+                                    <p class="text-lg font-semibold truncate">{{ config('database.connections.mysql.database') }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estado de Conexión -->
+                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-lg">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-purple-100">Estado</p>
+                                    <p class="text-lg font-semibold">Conectado</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Tabla de Usuarios -->
                 <div class="overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-black/5">
-                    @if($usuarios->count() > 0)
+                    @if(isset($usuarios) && (is_countable($usuarios) ? count($usuarios) : 0) > 0)
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
@@ -143,20 +174,20 @@
                                                 <div class="flex items-center">
                                                     <div class="h-12 w-12 flex-shrink-0">
                                                         <div class="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                                                            {{ strtoupper(substr($usuario->name, 0, 2)) }}
+                                                            {{ strtoupper(substr($usuario->name ?? 'U', 0, 2)) }}
                                                         </div>
                                                     </div>
                                                     <div class="ml-4">
-                                                        <div class="text-sm font-semibold text-gray-900">{{ $usuario->name }}</div>
-                                                        <div class="text-sm text-gray-500">#{{ $usuario->id }}</div>
+                                                        <div class="text-sm font-semibold text-gray-900">{{ $usuario->name ?? 'Sin nombre' }}</div>
+                                                        <div class="text-sm text-gray-500">#{{ $usuario->id ?? 'N/A' }}</div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900">{{ $usuario->email }}</div>
+                                                <div class="text-sm font-medium text-gray-900">{{ $usuario->email ?? 'Sin email' }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                @if($usuario->email_verified_at)
+                                                @if(isset($usuario->email_verified_at) && $usuario->email_verified_at)
                                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                                                         <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
@@ -173,13 +204,21 @@
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <div class="font-medium">{{ $usuario->created_at->format('d/m/Y') }}</div>
-                                                <div class="text-xs opacity-75">{{ $usuario->created_at->format('H:i') }}</div>
+                                                @if(isset($usuario->created_at) && $usuario->created_at)
+                                                    <div class="font-medium">
+                                                        {{ \Carbon\Carbon::parse($usuario->created_at)->format('d/m/Y') }}
+                                                    </div>
+                                                    <div class="text-xs opacity-75">
+                                                        {{ \Carbon\Carbon::parse($usuario->created_at)->format('H:i') }}
+                                                    </div>
+                                                @else
+                                                    <div class="text-xs text-gray-400">Sin fecha</div>
+                                                @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <div class="flex items-center justify-end space-x-2">
                                                     <!-- Ver -->
-                                                    <a href="{{ route('admin.usuarios.ver', $usuario) }}" 
+                                                    <a href="{{ route('usuarios.ver', $usuario->id ?? 0) }}" 
                                                         class="inline-flex items-center p-2 border border-gray-300 rounded-lg text-gray-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200" 
                                                         title="Ver detalles">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +228,7 @@
                                                     </a>
                                                     
                                                     <!-- Editar -->
-                                                    <a href="{{ route('admin.usuarios.editar', $usuario) }}" 
+                                                    <a href="{{ route('usuarios.editar', $usuario->id ?? 0) }}" 
                                                         class="inline-flex items-center p-2 border border-blue-300 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200" 
                                                         title="Editar usuario">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,8 +237,8 @@
                                                     </a>
                                                     
                                                     <!-- Eliminar -->
-                                                    <form method="POST" action="{{ route('admin.usuarios.eliminar', $usuario) }}" class="inline-block" 
-                                                          onsubmit="return confirm('¿Está seguro de que desea eliminar el usuario {{ $usuario->name }}? Esta acción no se puede deshacer.');">
+                                                    <form method="POST" action="{{ route('usuarios.eliminar', $usuario->id ?? 0) }}" class="inline-block" 
+                                                          onsubmit="return confirm('¿Está seguro de que desea eliminar el usuario {{ $usuario->name ?? 'este usuario' }}? Esta acción no se puede deshacer.');">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" 
@@ -219,7 +258,7 @@
                         </div>
 
                         <!-- Paginación -->
-                        @if(method_exists($usuarios, 'links'))
+                        @if(isset($usuarios) && is_object($usuarios) && method_exists($usuarios, 'links'))
                             <div class="border-t border-gray-200 bg-gray-50 px-6 py-4">
                                 {{ $usuarios->links() }}
                             </div>
