@@ -7,29 +7,65 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
+use App\Services\UsuarioServicio;
+
 class UserController extends Controller
 {
+    protected $usuarioServicio;
+    
+        public function __construct(UsuarioServicio $usuarioServicio)
+        {
+            $this->usuarioServicio = $usuarioServicio;
+        }
     /**
-     * Display a listing of the resource.
+     * Mostrar listado de usuarios
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
+            // Verificar permisos
             // if (!auth()->user()->can('ver usuarios')) {
             //     abort(403, 'No tienes permisos para ver usuarios');
             // }
 
-            // Obtener todos los usuarios con paginación
-            $usuarios = User::orderBy('created_at', 'desc')->paginate(10);
+            // Obtener parámetros de la petición
+            $opciones = [
+                'pagina' => $request->get('page', 1),
+                'por_pagina' => $request->get('per_page', 10),
+                'ordenar_por' => $request->get('order_by', 'created_at'),
+                'direccion_orden' => $request->get('order_direction', 'desc'),
+            ];
             
-            // Contar total de usuarios
-            $totalUsuarios = User::count();
+            // Si hay búsqueda
+            if ($request->has('buscar') && $request->filled('buscar')) {
+                $resultadoBusqueda = $this->usuarioServicio->buscarUsuarios(
+                    $request->get('buscar'),
+                    $opciones
+                );
+                
+                return view('users.index', [
+                    'usuarios' => $resultadoBusqueda['usuarios'],
+                    'totalUsuarios' => $resultadoBusqueda['total'],
+                    'terminoBusqueda' => $request->get('buscar')
+                ]);
+            }
             
-            return view('users.index', compact('usuarios', 'totalUsuarios'));
+            // Obtener usuarios paginados usando procedimientos almacenados
+            $usuarios = $this->usuarioServicio->obtenerUsuariosPaginados($opciones);
+            
+            // Obtener total de usuarios
+            $totalUsuarios = $this->usuarioServicio->contarUsuarios();
+            
+            // Obtener estadísticas (opcional)
+            $estadisticas = $this->usuarioServicio->obtenerEstadisticas();
+            
+            return view('users.index', compact('usuarios', 'totalUsuarios', 'estadisticas'));
             
         } catch (\Exception $e) {
+            \Log::error('Error en UserController@index: ' . $e->getMessage());
+            
             return view('users.index', [
-                'usuarios' => collect([]),
+                'usuarios' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10),
                 'totalUsuarios' => 0,
                 'error' => $e->getMessage()
             ]);
