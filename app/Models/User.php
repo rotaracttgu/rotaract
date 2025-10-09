@@ -25,6 +25,7 @@ class User extends Authenticatable
         'two_factor_enabled',
         'two_factor_code',
         'two_factor_expires_at',
+        'two_factor_verified_at', // ← AGREGADO
     ];
 
     /**
@@ -50,6 +51,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_enabled' => 'boolean',
             'two_factor_expires_at' => 'datetime',
+            'two_factor_verified_at' => 'datetime', // ← AGREGADO
         ];
     }
 

@@ -8,6 +8,7 @@ use App\Http\Controllers\TesoreroController;
 use App\Http\Controllers\VicepresidenteController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\Auth\TwoFactorController;
+use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
@@ -72,9 +73,7 @@ Route::middleware('auth')->group(function () {
 // ============================================================================
 Route::prefix('admin')->middleware(['auth', RoleMiddleware::class . ':Super Admin'])->name('admin.')->group(function () {
     // Dashboard de Super Admin
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Gestión de usuarios (solo Super Admin)
     Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios.lista');
@@ -147,18 +146,51 @@ Route::prefix('vocero')->middleware(['auth', RoleMiddleware::class . ':Vocero|Pr
 });
 
 // ============================================================================
-// RUTAS DEL MÓDULO ASPIRANTE
+// RUTAS DEL MÓDULO ASPIRANTE - ✨ INTEGRADO CON PROCEDIMIENTOS ALMACENADOS
 // ============================================================================
 Route::prefix('aspirante')->middleware(['auth', RoleMiddleware::class . ':Aspirante|Vocero|Secretario|Tesorero|Vicepresidente|Presidente|Super Admin'])->name('aspirante.')->group(function () {
+    
+    // Dashboard
     Route::get('/dashboard', [AspiranteController::class, 'dashboard'])->name('dashboard');
-    Route::get('/calendario', [AspiranteController::class, 'calendario'])->name('calendario-consulta');
+    
+    // Perfil
+    Route::get('/perfil', [AspiranteController::class, 'perfil'])->name('mi-perfil');
+    Route::post('/perfil', [AspiranteController::class, 'actualizarPerfil'])->name('perfil.actualizar');
+    
+    // Proyectos
     Route::get('/proyectos', [AspiranteController::class, 'proyectos'])->name('mis-proyectos');
+    Route::get('/proyectos/{id}', [AspiranteController::class, 'detalleProyecto'])->name('proyectos.detalle');
+    
+    // Reuniones
     Route::get('/reuniones', [AspiranteController::class, 'reuniones'])->name('mis-reuniones');
-    Route::get('/secretaria', [AspiranteController::class, 'secretaria'])->name('comunicacion-secretaria');
-    Route::get('/voceria', [AspiranteController::class, 'voceria'])->name('comunicacion-voceria');
+    Route::post('/reuniones/asistencia', [AspiranteController::class, 'registrarAsistencia'])->name('reuniones.asistencia');
+    
+    // Calendario
+    Route::get('/calendario', [AspiranteController::class, 'calendario'])->name('calendario-consulta');
+    Route::get('/calendario/eventos', [AspiranteController::class, 'eventosDelDia'])->name('calendario.eventos');
+    
+    // Notas Personales - ✨ CRUD COMPLETO
     Route::get('/notas', [AspiranteController::class, 'notas'])->name('blog-notas');
     Route::get('/notas/crear', [AspiranteController::class, 'crearNota'])->name('crear-nota');
-    Route::get('/perfil', [AspiranteController::class, 'perfil'])->name('mi-perfil');
+    Route::post('/notas', [AspiranteController::class, 'guardarNota'])->name('notas.guardar');
+    Route::get('/notas/{id}/editar', [AspiranteController::class, 'editarNota'])->name('notas.editar');
+    Route::put('/notas/{id}', [AspiranteController::class, 'actualizarNota'])->name('notas.actualizar');
+    Route::delete('/notas/{id}', [AspiranteController::class, 'eliminarNota'])->name('notas.eliminar');
+    
+    // Comunicación - Secretaría
+    Route::get('/secretaria', [AspiranteController::class, 'secretaria'])->name('comunicacion-secretaria');
+    Route::post('/secretaria/consulta', [AspiranteController::class, 'enviarConsultaSecretaria'])->name('secretaria.consulta');
+    
+    // Comunicación - Vocalía
+    Route::get('/voceria', [AspiranteController::class, 'voceria'])->name('comunicacion-voceria');
+    Route::post('/voceria/consulta', [AspiranteController::class, 'enviarConsultaVoceria'])->name('voceria.consulta');
+    
+    // Chat en Tiempo Real
+    Route::get('/conversacion/{id}', [AspiranteController::class, 'obtenerConversacion'])->name('conversacion');
+    Route::post('/chat/mensaje', [AspiranteController::class, 'enviarMensajeChat'])->name('chat.mensaje');
+    
+    // Búsqueda Global
+    Route::get('/buscar', [AspiranteController::class, 'buscar'])->name('buscar');
 });
 
 // ============================================================================

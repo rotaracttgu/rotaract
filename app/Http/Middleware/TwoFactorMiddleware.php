@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class TwoFactorMiddleware
 {
@@ -15,17 +15,31 @@ class TwoFactorMiddleware
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
-        // Aquí va la lógica de verificación en dos pasos
-        // Por ejemplo, verificar si el usuario tiene la 2FA activa y si ya la verificó
+        $user = Auth::user();
 
-        if (auth()->check() && auth()->user()->two_factor_enabled) {
-            if (!session('2fa_verified')) {
-                return redirect()->route('2fa.verify');
-            }
+        if (!$user) {
+            return redirect()->route('login');
         }
 
-        return $next($request);
+        // Si el usuario NO tiene 2FA habilitado, dejar pasar
+        if (!$user->two_factor_enabled) {
+            return $next($request);
+        }
+
+        // ===== VERIFICAR SI YA SE VERIFICÓ EN ESTA SESIÓN =====
+        if (session('2fa_verified_user_' . $user->id)) {
+            return $next($request);
+        }
+        // =======================================================
+
+        // Si está en la página de verificación 2FA, dejar pasar
+        if ($request->routeIs('2fa.show') || $request->routeIs('2fa.verify') || $request->routeIs('2fa.resend')) {
+            return $next($request);
+        }
+
+        // Redirigir a verificación 2FA
+        return redirect()->route('2fa.show');
     }
 }

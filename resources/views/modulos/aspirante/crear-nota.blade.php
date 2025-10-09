@@ -8,11 +8,26 @@
 <!-- Breadcrumb -->
 <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/aspirante/dashboard">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="/aspirante/notas">Mis Notas</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('aspirante.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('aspirante.blog-notas') }}">Mis Notas</a></li>
         <li class="breadcrumb-item active">Nueva Nota</li>
     </ol>
 </nav>
+
+{{-- Mensajes de éxito o error --}}
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
 
 <div class="row">
     <!-- Formulario principal -->
@@ -25,85 +40,106 @@
                 </h5>
             </div>
             <div class="card-body">
-                <form id="form-crear-nota">
+                {{-- 👇 AQUÍ ESTÁ EL CAMBIO PRINCIPAL --}}
+                <form id="form-crear-nota" action="{{ route('aspirante.notas.guardar') }}" method="POST">
+                    @csrf
+                    
                     <!-- Título de la nota -->
                     <div class="mb-3">
                         <label for="titulo" class="form-label">Título de la nota *</label>
-                        <input type="text" class="form-control" id="titulo" name="titulo" 
+                        <input type="text" class="form-control @error('titulo') is-invalid @enderror" 
+                               id="titulo" name="titulo" value="{{ old('titulo') }}"
                                placeholder="Escribe un título descriptivo..." required>
-                        <div class="form-text">Máximo 100 caracteres</div>
+                        <div class="form-text">Máximo 200 caracteres</div>
+                        @error('titulo')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Categoría -->
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="categoria" class="form-label">Categoría *</label>
-                            <select class="form-select" id="categoria" name="categoria" required>
+                            <select class="form-select @error('categoria') is-invalid @enderror" 
+                                    id="categoria" name="categoria" required>
                                 <option value="">Seleccionar categoría</option>
-                                <option value="proyecto">📋 Proyecto</option>
-                                <option value="reunion">👥 Reunión</option>
-                                <option value="capacitacion">🎓 Capacitación</option>
-                                <option value="idea">💡 Ideas</option>
-                                <option value="personal">👤 Personal</option>
+                                <option value="proyecto" {{ old('categoria') == 'proyecto' ? 'selected' : '' }}>📋 Proyecto</option>
+                                <option value="reunion" {{ old('categoria') == 'reunion' ? 'selected' : '' }}>👥 Reunión</option>
+                                <option value="estudio" {{ old('categoria') == 'estudio' ? 'selected' : '' }}>🎓 Estudio</option>
+                                <option value="trabajo" {{ old('categoria') == 'trabajo' ? 'selected' : '' }}>💼 Trabajo</option>
+                                <option value="idea" {{ old('categoria') == 'idea' ? 'selected' : '' }}>💡 Ideas</option>
+                                <option value="personal" {{ old('categoria') == 'personal' ? 'selected' : '' }}>👤 Personal</option>
+                                <option value="otro" {{ old('categoria') == 'otro' ? 'selected' : '' }}>📌 Otro</option>
                             </select>
+                            @error('categoria')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6">
                             <label for="visibilidad" class="form-label">Visibilidad *</label>
-                            <select class="form-select" id="visibilidad" name="visibilidad" required>
-                                <option value="privada">🔒 Privada (Solo yo puedo ver)</option>
-                                <option value="publica">👁️ Pública (Otros miembros pueden ver)</option>
+                            <select class="form-select @error('visibilidad') is-invalid @enderror" 
+                                    id="visibilidad" name="visibilidad" required>
+                                <option value="privada" {{ old('visibilidad') == 'privada' ? 'selected' : '' }}>🔒 Privada (Solo yo puedo ver)</option>
+                                <option value="publica" {{ old('visibilidad') == 'publica' ? 'selected' : '' }}>👁️ Pública (Otros miembros pueden ver)</option>
                             </select>
+                            @error('visibilidad')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
                     <!-- Etiquetas -->
                     <div class="mb-3">
                         <label for="etiquetas" class="form-label">Etiquetas</label>
-                        <input type="text" class="form-control" id="etiquetas" name="etiquetas" 
+                        <input type="text" class="form-control @error('etiquetas') is-invalid @enderror" 
+                               id="etiquetas" name="etiquetas" value="{{ old('etiquetas') }}"
                                placeholder="Ej: reciclaje, educacion, salud... (separadas por comas)">
                         <div class="form-text">Ayuda a organizar y encontrar tus notas más fácilmente</div>
+                        @error('etiquetas')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Contenido de la nota -->
                     <div class="mb-3">
                         <label for="contenido" class="form-label">Contenido *</label>
-                        <textarea class="form-control" id="contenido" name="contenido" rows="12" 
-                                  placeholder="Escribe aquí el contenido de tu nota..." required></textarea>
+                        <textarea class="form-control @error('contenido') is-invalid @enderror" 
+                                  id="contenido" name="contenido" rows="12" required
+                                  placeholder="Escribe aquí el contenido de tu nota...">{{ old('contenido') }}</textarea>
                         <div class="form-text">Puedes usar texto plano o formato simple</div>
+                        @error('contenido')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Recordatorio -->
                     <div class="mb-3">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="recordatorio" name="recordatorio">
-                            <label class="form-check-label" for="recordatorio">
+                            <input class="form-check-input" type="checkbox" id="tiene-recordatorio" 
+                                   {{ old('recordatorio') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="tiene-recordatorio">
                                 Establecer recordatorio
                             </label>
                         </div>
-                        <div id="fecha-recordatorio" class="mt-2" style="display: none;">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <input type="date" class="form-control" id="fecha" name="fecha">
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="time" class="form-control" id="hora" name="hora">
-                                </div>
-                            </div>
+                        <div id="fecha-recordatorio" class="mt-2" style="display: {{ old('recordatorio') ? 'block' : 'none' }};">
+                            <label for="recordatorio" class="form-label">Fecha y hora del recordatorio</label>
+                            <input type="datetime-local" class="form-control" id="recordatorio" 
+                                   name="recordatorio" value="{{ old('recordatorio') }}">
                         </div>
                     </div>
 
                     <!-- Botones de acción -->
                     <div class="d-flex justify-content-between">
                         <div>
-                            <button type="button" class="btn btn-outline-secondary" onclick="limpiarFormulario()">
-                                <i class="fas fa-eraser"></i>
-                                Limpiar
-                            </button>
+                            <a href="{{ route('aspirante.blog-notas') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i>
+                                Cancelar
+                            </a>
                         </div>
                         <div>
-                            <button type="button" class="btn btn-outline-primary me-2" onclick="guardarBorrador()">
-                                <i class="fas fa-save"></i>
-                                Guardar Borrador
+                            <button type="reset" class="btn btn-outline-warning me-2">
+                                <i class="fas fa-eraser"></i>
+                                Limpiar
                             </button>
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-check"></i>
@@ -138,7 +174,7 @@
                 <div id="preview-etiquetas" class="mb-2"></div>
                 <small class="text-muted">
                     <i class="fas fa-calendar"></i> 
-                    <span id="preview-fecha">16 de Septiembre, 2025</span>
+                    <span id="preview-fecha">{{ date('d \d\e F, Y') }}</span>
                 </small>
             </div>
         </div>
@@ -161,8 +197,8 @@
                     <small>Apuntes y conclusiones de reuniones</small>
                 </div>
                 <div class="mb-2">
-                    <span class="badge bg-info me-2">Capacitación</span>
-                    <small>Notas de talleres y entrenamientos</small>
+                    <span class="badge bg-info me-2">Estudio</span>
+                    <small>Notas de capacitaciones y aprendizaje</small>
                 </div>
                 <div class="mb-2">
                     <span class="badge bg-warning me-2">Ideas</span>
@@ -208,42 +244,6 @@
                 </ul>
             </div>
         </div>
-
-        <!-- Atajos de teclado -->
-        <div class="card">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="fas fa-keyboard text-secondary"></i>
-                    Atajos de Teclado
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <small><kbd>Ctrl</kbd> + <kbd>S</kbd></small>
-                    </div>
-                    <div class="col-6">
-                        <small>Guardar borrador</small>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        <small><kbd>Ctrl</kbd> + <kbd>Enter</kbd></small>
-                    </div>
-                    <div class="col-6">
-                        <small>Crear nota</small>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        <small><kbd>Esc</kbd></small>
-                    </div>
-                    <div class="col-6">
-                        <small>Limpiar formulario</small>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection
@@ -263,17 +263,21 @@ document.getElementById('categoria').addEventListener('change', function() {
     const colores = {
         'proyecto': 'bg-success',
         'reunion': 'bg-primary', 
-        'capacitacion': 'bg-info',
+        'estudio': 'bg-info',
+        'trabajo': 'bg-dark',
         'idea': 'bg-warning',
-        'personal': 'bg-secondary'
+        'personal': 'bg-secondary',
+        'otro': 'bg-secondary'
     };
     
     const nombres = {
         'proyecto': 'Proyecto',
         'reunion': 'Reunión',
-        'capacitacion': 'Capacitación', 
+        'estudio': 'Estudio', 
+        'trabajo': 'Trabajo',
         'idea': 'Ideas',
-        'personal': 'Personal'
+        'personal': 'Personal',
+        'otro': 'Otro'
     };
     
     if (categoria) {
@@ -303,66 +307,9 @@ document.getElementById('etiquetas').addEventListener('input', function() {
 });
 
 // Mostrar/ocultar fecha de recordatorio
-document.getElementById('recordatorio').addEventListener('change', function() {
+document.getElementById('tiene-recordatorio').addEventListener('change', function() {
     const fechaDiv = document.getElementById('fecha-recordatorio');
     fechaDiv.style.display = this.checked ? 'block' : 'none';
-});
-
-// Funciones auxiliares
-function limpiarFormulario() {
-    if (confirm('¿Estás seguro de que quieres limpiar el formulario?')) {
-        document.getElementById('form-crear-nota').reset();
-        // Limpiar vista previa
-        document.getElementById('preview-titulo').textContent = 'Título aparecerá aquí...';
-        document.getElementById('preview-categoria').innerHTML = '<span class="badge bg-secondary">Sin categoría</span>';
-        document.getElementById('preview-contenido').textContent = 'El contenido de la nota aparecerá aquí mientras escribes...';
-        document.getElementById('preview-etiquetas').innerHTML = '';
-        document.getElementById('fecha-recordatorio').style.display = 'none';
-    }
-}
-
-function guardarBorrador() {
-    // Simular guardado de borrador
-    const titulo = document.getElementById('titulo').value;
-    if (titulo.trim()) {
-        alert('Borrador guardado: "' + titulo + '"');
-    } else {
-        alert('Agrega un título para guardar el borrador');
-    }
-}
-
-// Envío del formulario
-document.getElementById('form-crear-nota').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const titulo = document.getElementById('titulo').value;
-    const categoria = document.getElementById('categoria').value;
-    const contenido = document.getElementById('contenido').value;
-    
-    if (titulo && categoria && contenido) {
-        alert('¡Nota creada exitosamente!\n\nTítulo: ' + titulo + '\nCategoría: ' + categoria);
-        // Aquí redirigiría a la lista de notas
-        // window.location.href = '/aspirante/notas';
-    } else {
-        alert('Por favor completa todos los campos obligatorios');
-    }
-});
-
-// Atajos de teclado
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key === 's') {
-        e.preventDefault();
-        guardarBorrador();
-    }
-    
-    if (e.ctrlKey && e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('form-crear-nota').dispatchEvent(new Event('submit'));
-    }
-    
-    if (e.key === 'Escape') {
-        limpiarFormulario();
-    }
 });
 </script>
 @endsection
