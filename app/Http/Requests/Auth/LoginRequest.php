@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Models\Parametro; // ⭐ NUEVO
+use App\Models\User;      // ⭐ NUEVO
 
 class LoginRequest extends FormRequest
 {
@@ -27,7 +29,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string'],  // Quitamos 'email' para permitir username
             'password' => ['required', 'string'],
         ];
     }
@@ -41,12 +43,69 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        // Convertir el input a mayúsculas si es nombre de usuario
+        $inputValue = $this->input('email');
+        
+        // Determinar si el input es email o nombre de usuario
+        $loginField = filter_var($inputValue, FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+        
+        // Si es nombre de usuario, convertir a mayúsculas
+        if ($loginField === 'name') {
+            $inputValue = strtoupper($inputValue);
+        }
+
+        // ⭐ NUEVO: Buscar el usuario antes de intentar autenticar
+        $user = User::where($loginField, $inputValue)->first();
+
+        // ⭐ NUEVO: Verificar si la cuenta está bloqueada
+        if ($user && $user->isAccountLocked()) {
+            $minutosRestantes = $user->getRemainingLockTime();
+            
+            throw ValidationException::withMessages([
+                'email' => "Tu cuenta ha sido bloqueada por múltiples intentos fallidos. Podrás intentar nuevamente en {$minutosRestantes} minutos o contacta al administrador.",
+            ]);
+        }
+
+        // Intentar autenticar con el campo correcto
+        if (!Auth::attempt([
+            $loginField => $inputValue,
+            'password' => $this->input('password')
+        ], $this->boolean('remember'))) {
+            
+            // ⭐ NUEVO: Incrementar intentos fallidos si el usuario existe
+            if ($user) {
+                $maxIntentos = Parametro::obtener('max_intentos_login', 3);
+                $user->incrementLoginAttempts();
+                
+                $intentosRestantes = $maxIntentos - $user->failed_login_attempts;
+                
+                // Si aún quedan intentos
+                if ($intentosRestantes > 0) {
+                    RateLimiter::hit($this->throttleKey());
+                    
+                    throw ValidationException::withMessages([
+                        'email' => "Credenciales incorrectas. Te quedan {$intentosRestantes} intentos antes de que tu cuenta sea bloqueada.",
+                    ]);
+                } else {
+                    // Ya se bloqueó la cuenta
+                    RateLimiter::hit($this->throttleKey());
+                    
+                    throw ValidationException::withMessages([
+                        'email' => "Tu cuenta ha sido bloqueada por exceder el número máximo de intentos fallidos. Contacta al administrador.",
+                    ]);
+                }
+            }
+            
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
+        }
+
+        // ⭐ NUEVO: Login exitoso - resetear intentos
+        if ($user) {
+            $user->resetLoginAttempts();
         }
 
         RateLimiter::clear($this->throttleKey());

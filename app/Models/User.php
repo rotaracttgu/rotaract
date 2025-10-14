@@ -6,67 +6,66 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Traits\LogsActivity; // ⭐ NUEVO
+use App\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles, LogsActivity; // ⭐ NUEVO
+    use HasFactory, Notifiable, HasRoles, LogsActivity;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
+        'apellidos',
+        'username',
         'email',
+        'dni',
+        'telefono',
         'password',
+        'first_login',
+        'pregunta_seguridad_1',
+        'respuesta_seguridad_1',
+        'pregunta_seguridad_2',
+        'respuesta_seguridad_2',
+        'profile_completed_at',
         'two_factor_enabled',
         'two_factor_code',
         'two_factor_expires_at',
         'two_factor_verified_at',
+        'failed_login_attempts',
+        'locked_until',
+        'is_locked',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
         'two_factor_code',
+        'respuesta_seguridad_1',
+        'respuesta_seguridad_2',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'first_login' => 'boolean',
+            'profile_completed_at' => 'datetime',
             'two_factor_enabled' => 'boolean',
             'two_factor_expires_at' => 'datetime',
             'two_factor_verified_at' => 'datetime',
+            'locked_until' => 'datetime',
+            'is_locked' => 'boolean',
         ];
     }
 
-    // ⭐ NUEVO: Configuración para LogsActivity
-    /**
-     * Campos sensibles que no deben registrarse en bitácora
-     */
     protected $sensitiveAttributes = [
         'password',
         'remember_token',
         'two_factor_code',
+        'respuesta_seguridad_1',
+        'respuesta_seguridad_2',
     ];
 
-    /**
-     * Descripción personalizada para la bitácora
-     */
     public function getActivityDescription($action)
     {
         $descriptions = [
@@ -79,81 +78,55 @@ class User extends Authenticatable
         return $descriptions[$action] ?? "Acción {$action} en usuario: {$this->name}";
     }
 
-    /**
-     * Relación con bitácora
-     */
     public function bitacoras()
     {
         return $this->hasMany(BitacoraSistema::class, 'user_id');
     }
 
-    /**
-     * Relación: Un usuario puede estar asociado a un miembro del club (1:1)
-     */
     public function miembro()
     {
         return $this->hasOne(Miembro::class, 'user_id', 'id');
     }
 
-    /**
-     * Verificar si el usuario es Super Admin
-     */
+    // ============================================
+    // MÉTODOS DE ROLES
+    // ============================================
+
     public function isSuperAdmin()
     {
         return $this->hasRole('Super Admin');
     }
 
-    /**
-     * Verificar si el usuario es Presidente
-     */
     public function isPresidente()
     {
         return $this->hasRole('Presidente');
     }
 
-    /**
-     * Verificar si el usuario es Vicepresidente
-     */
     public function isVicepresidente()
     {
         return $this->hasRole('Vicepresidente');
     }
 
-    /**
-     * Verificar si el usuario es Tesorero
-     */
     public function isTesorero()
     {
         return $this->hasRole('Tesorero');
     }
 
-    /**
-     * Verificar si el usuario es Secretario
-     */
     public function isSecretario()
     {
         return $this->hasRole('Secretario');
     }
 
-    /**
-     * Verificar si el usuario es Vocero
-     */
     public function isVocero()
     {
         return $this->hasRole('Vocero');
     }
 
-    /**
-     * Verificar si el usuario es Aspirante
-     */
     public function isAspirante()
     {
         return $this->hasRole('Aspirante');
     }
 
-    /**
-     * Obtener el dashboard correspondiente según el rol (retorna la URL)
-     */
     public function getDashboardRoute()
     {
         if ($this->isSuperAdmin()) {
@@ -175,20 +148,122 @@ class User extends Authenticatable
         return route('dashboard');
     }
 
-    /**
-     * Obtener el nombre del rol principal
-     */
     public function getRolPrincipal()
     {
         return $this->roles->first()?->name ?? 'Sin Rol';
     }
 
-    /**
-     * Verificar si el código 2FA es válido
-     */
+    // ============================================
+    // MÉTODOS 2FA
+    // ============================================
+
     public function isValidTwoFactorCode($code)
     {
         return $this->two_factor_code === $code && 
                $this->two_factor_expires_at > now();
+    }
+
+    // ============================================
+    // MÉTODOS PARA BLOQUEO DE CUENTAS
+    // ============================================
+
+    public function isAccountLocked(): bool
+    {
+        if (!$this->is_locked) {
+            return false;
+        }
+
+        if ($this->locked_until && now()->greaterThan($this->locked_until)) {
+            $this->unlock();
+            return false;
+        }
+
+        return true;
+    }
+
+    public function incrementLoginAttempts(): void
+    {
+        $maxIntentos = Parametro::obtener('max_intentos_login', 3);
+        
+        $this->failed_login_attempts++;
+        
+        if ($this->failed_login_attempts >= $maxIntentos) {
+            $this->lockAccount();
+        }
+        
+        $this->save();
+    }
+
+    public function lockAccount(): void
+    {
+        $tiempoBloqueo = Parametro::obtener('tiempo_bloqueo_minutos', 15);
+        
+        $this->is_locked = true;
+        $this->locked_until = now()->addMinutes($tiempoBloqueo);
+        $this->save();
+    }
+
+    public function unlock(): void
+    {
+        $this->is_locked = false;
+        $this->locked_until = null;
+        $this->failed_login_attempts = 0;
+        $this->save();
+    }
+
+    public function resetLoginAttempts(): void
+    {
+        $this->failed_login_attempts = 0;
+        $this->is_locked = false;
+        $this->locked_until = null;
+        $this->save();
+    }
+
+    public function getRemainingLockTime(): int
+    {
+        if (!$this->is_locked || !$this->locked_until) {
+            return 0;
+        }
+
+        return max(0, now()->diffInMinutes($this->locked_until, false));
+    }
+
+    // ============================================
+    // ⭐ NUEVOS MÉTODOS PARA PRIMER LOGIN
+    // ============================================
+
+    /**
+     * Verificar si es el primer login del usuario
+     */
+    public function isFirstLogin(): bool
+    {
+        return $this->first_login === true;
+    }
+
+    /**
+     * Marcar el perfil como completado
+     */
+    public function markProfileAsCompleted(): void
+    {
+        $this->first_login = false;
+        $this->profile_completed_at = now();
+        $this->save();
+    }
+
+    /**
+     * Verificar respuesta de seguridad
+     */
+    public function checkSecurityAnswer(int $questionNumber, string $answer): bool
+    {
+        $column = "respuesta_seguridad_{$questionNumber}";
+        return strtolower(trim($this->$column)) === strtolower(trim($answer));
+    }
+
+    /**
+     * Obtener nombre completo
+     */
+    public function getNombreCompletoAttribute(): string
+    {
+        return trim($this->name . ' ' . $this->apellidos);
     }
 }

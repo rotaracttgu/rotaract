@@ -15,6 +15,33 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @role('Super Admin|Presidente')
+                        <!-- Gestión de Usuarios -->
+                        <x-nav-link :href="route('admin.usuarios.lista')" :active="request()->routeIs('admin.usuarios.*')">
+                            {{ __('Usuarios') }}
+                        </x-nav-link>
+
+                        <!-- Usuarios Bloqueados -->
+                        <x-nav-link :href="route('admin.usuarios-bloqueados.index')" :active="request()->routeIs('admin.usuarios-bloqueados.*')">
+                            <span class="flex items-center">
+                                {{ __('Bloqueados') }}
+                                @php
+                                    $bloqueados = \App\Models\User::where('is_locked', true)->count();
+                                @endphp
+                                @if($bloqueados > 0)
+                                    <span class="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                                        {{ $bloqueados }}
+                                    </span>
+                                @endif
+                            </span>
+                        </x-nav-link>
+
+                        <!-- Bitácora del Sistema -->
+                        <x-nav-link :href="route('admin.bitacora.index')" :active="request()->routeIs('admin.bitacora.*')">
+                            {{ __('Bitácora') }}
+                        </x-nav-link>
+                    @endrole
                 </div>
             </div>
 
@@ -70,6 +97,33 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @role('Super Admin|Presidente')
+                <!-- Gestión de Usuarios (Mobile) -->
+                <x-responsive-nav-link :href="route('admin.usuarios.lista')" :active="request()->routeIs('admin.usuarios.*')">
+                    {{ __('Usuarios') }}
+                </x-responsive-nav-link>
+
+                <!-- Usuarios Bloqueados (Mobile) -->
+                <x-responsive-nav-link :href="route('admin.usuarios-bloqueados.index')" :active="request()->routeIs('admin.usuarios-bloqueados.*')">
+                    <span class="flex items-center justify-between">
+                        <span>{{ __('Bloqueados') }}</span>
+                        @php
+                            $bloqueados = \App\Models\User::where('is_locked', true)->count();
+                        @endphp
+                        @if($bloqueados > 0)
+                            <span class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                                {{ $bloqueados }}
+                            </span>
+                        @endif
+                    </span>
+                </x-responsive-nav-link>
+
+                <!-- Bitácora del Sistema (Mobile) -->
+                <x-responsive-nav-link :href="route('admin.bitacora.index')" :active="request()->routeIs('admin.bitacora.*')">
+                    {{ __('Bitácora') }}
+                </x-responsive-nav-link>
+            @endrole
         </div>
 
         <!-- Responsive Settings Options -->
