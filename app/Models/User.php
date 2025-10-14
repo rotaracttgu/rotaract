@@ -2,16 +2,15 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Traits\LogsActivity; // ⭐ NUEVO
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, LogsActivity; // ⭐ NUEVO
 
     /**
      * The attributes that are mass assignable.
@@ -25,7 +24,7 @@ class User extends Authenticatable
         'two_factor_enabled',
         'two_factor_code',
         'two_factor_expires_at',
-        'two_factor_verified_at', // ← AGREGADO
+        'two_factor_verified_at',
     ];
 
     /**
@@ -51,8 +50,41 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_enabled' => 'boolean',
             'two_factor_expires_at' => 'datetime',
-            'two_factor_verified_at' => 'datetime', // ← AGREGADO
+            'two_factor_verified_at' => 'datetime',
         ];
+    }
+
+    // ⭐ NUEVO: Configuración para LogsActivity
+    /**
+     * Campos sensibles que no deben registrarse en bitácora
+     */
+    protected $sensitiveAttributes = [
+        'password',
+        'remember_token',
+        'two_factor_code',
+    ];
+
+    /**
+     * Descripción personalizada para la bitácora
+     */
+    public function getActivityDescription($action)
+    {
+        $descriptions = [
+            'created' => "Nuevo usuario registrado: {$this->name}",
+            'updated' => "Usuario actualizado: {$this->name}",
+            'deleted' => "Usuario eliminado: {$this->name}",
+            'restored' => "Usuario restaurado: {$this->name}",
+        ];
+
+        return $descriptions[$action] ?? "Acción {$action} en usuario: {$this->name}";
+    }
+
+    /**
+     * Relación con bitácora
+     */
+    public function bitacoras()
+    {
+        return $this->hasMany(BitacoraSistema::class, 'user_id');
     }
 
     /**
@@ -140,7 +172,7 @@ class User extends Authenticatable
             return route('aspirante.dashboard');
         }
         
-        return route('dashboard'); // Dashboard por defecto
+        return route('dashboard');
     }
 
     /**

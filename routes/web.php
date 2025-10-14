@@ -9,6 +9,7 @@ use App\Http\Controllers\VicepresidenteController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\BitacoraController; // ⭐ NUEVO
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
@@ -83,6 +84,23 @@ Route::prefix('admin')->middleware(['auth', RoleMiddleware::class . ':Super Admi
     Route::get('/usuarios/{usuario}/editar', [UserController::class, 'edit'])->name('usuarios.editar');
     Route::put('/usuarios/{usuario}', [UserController::class, 'update'])->name('usuarios.actualizar');
     Route::delete('/usuarios/{usuario}', [UserController::class, 'destroy'])->name('usuarios.eliminar');
+
+    // ============================================================================
+    // ⭐ RUTAS DE BITÁCORA DEL SISTEMA - NUEVO
+    // ============================================================================
+    Route::prefix('bitacora')->name('bitacora.')->group(function () {
+        // Vista principal con filtros
+        Route::get('/', [BitacoraController::class, 'index'])->name('index');
+        
+        // Ver detalles de un registro específico
+        Route::get('/{id}', [BitacoraController::class, 'show'])->name('show');
+        
+        // Exportar bitácora a CSV
+        Route::get('/exportar/csv', [BitacoraController::class, 'exportar'])->name('exportar');
+        
+        // Limpiar registros antiguos
+        Route::post('/limpiar', [BitacoraController::class, 'limpiar'])->name('limpiar');
+    });
 });
 
 // ============================================================================
@@ -93,7 +111,12 @@ Route::prefix('presidente')->middleware(['auth', RoleMiddleware::class . ':Presi
         return view('presidente.dashboard');
     })->name('dashboard');
     
-    // Aquí agregarás más rutas del presidente cuando las necesites
+    // ⭐ Bitácora también accesible para Presidente
+    Route::prefix('bitacora')->name('bitacora.')->group(function () {
+        Route::get('/', [BitacoraController::class, 'index'])->name('index');
+        Route::get('/{id}', [BitacoraController::class, 'show'])->name('show');
+        Route::get('/exportar/csv', [BitacoraController::class, 'exportar'])->name('exportar');
+    });
 });
 
 // ============================================================================
