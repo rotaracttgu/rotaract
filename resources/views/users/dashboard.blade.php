@@ -1,4 +1,4 @@
-@extends('modulos.presidente.usuarios.layout')
+@extends('layouts.app')
 
 @section('header')
     <div class="flex justify-between items-center">
@@ -113,7 +113,7 @@
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     
                     <!-- Ver Todos los Usuarios -->
-                    <a href="{{ route('presidente.usuarios.lista') }}" class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 hover:shadow-xl transition-all duration-200">
+                    <a href="{{ route('admin.usuarios.lista') }}" class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 hover:shadow-xl transition-all duration-200">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <div class="bg-blue-100 rounded-lg p-3 group-hover:bg-blue-200 transition-colors duration-200">
@@ -130,7 +130,7 @@
                     </a>
 
                     <!-- Crear Usuario -->
-                    <a href="{{ route('presidente.usuarios.crear') }}" class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 hover:shadow-xl transition-all duration-200">
+                    <a href="{{ route('admin.usuarios.crear') }}" class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 hover:shadow-xl transition-all duration-200">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <div class="bg-emerald-100 rounded-lg p-3 group-hover:bg-emerald-200 transition-colors duration-200">
@@ -147,7 +147,7 @@
                     </a>
 
                     <!-- Usuarios Pendientes -->
-                    <a href="{{ route('presidente.usuarios.lista') }}?filtro=pendientes" class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 hover:shadow-xl transition-all duration-200">
+                    <a href="{{ route('admin.usuarios.lista') }}?filtro=pendientes" class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 hover:shadow-xl transition-all duration-200">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <div class="bg-amber-100 rounded-lg p-3 group-hover:bg-amber-200 transition-colors duration-200">
@@ -260,7 +260,7 @@
                     </div>
                     @if($ultimosUsuarios->count() > 0)
                     <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                        <a href="{{ route('presidente.usuarios.lista') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center justify-center">
+                        <a href="{{ route('admin.usuarios.lista') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center justify-center">
                             Ver todos los usuarios
                             <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

@@ -1,72 +1,35 @@
 <?php
 
-namespace App\Http\Controllers\Presidente;
+namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
-use App\Services\UsuarioServicio;
-use App\Http\Controllers\Controller;
-
-class PresidenteUsuariosController extends Controller
+class UserController extends Controller
 {
-    protected $usuarioServicio;
-    
-        public function __construct(UsuarioServicio $usuarioServicio)
-        {
-            $this->usuarioServicio = $usuarioServicio;
-        }
     /**
-     * Mostrar listado de usuarios
+     * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
         try {
-            // Verificar permisos
             // if (!auth()->user()->can('ver usuarios')) {
             //     abort(403, 'No tienes permisos para ver usuarios');
             // }
 
-            // Obtener parámetros de la petición
-            $opciones = [
-                'pagina' => $request->get('page', 1),
-                'por_pagina' => $request->get('per_page', 10),
-                'ordenar_por' => $request->get('order_by', 'created_at'),
-                'direccion_orden' => $request->get('order_direction', 'desc'),
-            ];
+            // Obtener todos los usuarios con paginación
+            $usuarios = User::orderBy('created_at', 'desc')->paginate(10);
             
-            // Si hay búsqueda
-            if ($request->has('buscar') && $request->filled('buscar')) {
-                $resultadoBusqueda = $this->usuarioServicio->buscarUsuarios(
-                    $request->get('buscar'),
-                    $opciones
-                );
-                
-                return view('modulos.presidente.usuarios.index', [
-                    'usuarios' => $resultadoBusqueda['usuarios'],
-                    'totalUsuarios' => $resultadoBusqueda['total'],
-                    'terminoBusqueda' => $request->get('buscar')
-                ]);
-            }
+            // Contar total de usuarios
+            $totalUsuarios = User::count();
             
-            // Obtener usuarios paginados usando procedimientos almacenados
-            $usuarios = $this->usuarioServicio->obtenerUsuariosPaginados($opciones);
-            
-            // Obtener total de usuarios
-            $totalUsuarios = $this->usuarioServicio->contarUsuarios();
-            
-            // Obtener estadísticas (opcional)
-            $estadisticas = $this->usuarioServicio->obtenerEstadisticas();
-            
-            return view('modulos.presidente.usuarios.index', compact('usuarios', 'totalUsuarios', 'estadisticas'));
+            return view('users.index', compact('usuarios', 'totalUsuarios'));
             
         } catch (\Exception $e) {
-            \Log::error('Error en UserController@index: ' . $e->getMessage());
-            
-            return view('modulos.presidente.usuarios.index', [
-                'usuarios' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10),
+            return view('users.index', [
+                'usuarios' => collect([]),
                 'totalUsuarios' => 0,
                 'error' => $e->getMessage()
             ]);
@@ -78,7 +41,7 @@ class PresidenteUsuariosController extends Controller
      */
     public function create()
     {
-        return view('modulos.presidente.usuarios.create');
+        return view('users.create');
     }
 
     /**
@@ -130,7 +93,7 @@ class PresidenteUsuariosController extends Controller
     {
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
-        return view('modulos.presidente.usuarios.ver', compact('usuario'));
+        return view('users.ver', compact('usuario'));
     }
 
     /**
@@ -140,7 +103,7 @@ class PresidenteUsuariosController extends Controller
     {
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
-        return view('modulos.presidente.usuarios.edit', compact('usuario'));
+        return view('users.edit', compact('usuario'));
     }
 
     /**
@@ -185,7 +148,7 @@ class PresidenteUsuariosController extends Controller
 
             $usuario->update($userData);
 
-            if ($request->has('role') && (auth()->user()->can('gestionar roles') || auth()->user()->hasRole('presidente'))) {
+            if ($request->has('role') && (auth()->user()->can('gestionar roles') || auth()->user()->hasRole('administrador'))) {
                 if ($request->role) {
                     $usuario->syncRoles([$request->role]);
                 } else {

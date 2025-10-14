@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Carbon\Carbon;
 
-class SuperAdminDashboardController extends Controller
+class DashboardController extends Controller
 {
     /**
      * Mostrar el dashboard del Super Admin
@@ -45,7 +45,7 @@ class SuperAdminDashboardController extends Controller
         // Distribución de usuarios por rol
         $usuariosPorRol = $this->obtenerDistribucionRoles();
 
-        return view('modulos.superadmin.usuarios.dashboard', compact(
+        return view('users.dashboard', compact(
             'totalUsuarios',
             'usuariosVerificados',
             'usuariosPendientes',

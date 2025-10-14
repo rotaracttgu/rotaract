@@ -314,7 +314,7 @@
 
                 <!-- Password -->
                 <div class="form-group">
-                    <label for="password">Contraseña</label>
+                    <label for="password">Password</label>
                     <input 
                         type="password" 
                         id="password" 
@@ -331,12 +331,12 @@
                 <div class="remember-forgot">
                     <label class="remember-me">
                         <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
-                        <span>Mantener sesion iniciada</span>
+                        <span>Remember me</span>
                     </label>
 
                     @if (Route::has('password.request'))
                         <a href="{{ route('password.request') }}" class="forgot-password">
-                            Olvidaste tu contraseña?
+                            Forgot your password?
                         </a>
                     @endif
                 </div>
@@ -349,7 +349,7 @@
                 <!-- Link de Registro (opcional) -->
                 @if (Route::has('register'))
                     <div class="register-link">
-                        Aun no estas registrado? <a href="{{ route('register') }}">Crea una cuenta aqui</a>
+                        Don't have an account? <a href="{{ route('register') }}">Sign up here</a>
                     </div>
                 @endif
             </form>

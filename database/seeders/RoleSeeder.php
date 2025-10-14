@@ -82,54 +82,12 @@ class RoleSeeder extends Seeder
         Permission::create(['name' => 'gestionar sistema']);
 
         // Crear roles
-        $superadmin = Role::create(['name' => 'Super Admin']);
-        $presidente = Role::create(['name' => 'Presidente']);
-        $vicepresidente = Role::create(['name' => 'Vicepresidente']);
-        $secretario = Role::create(['name' => 'Secretario']);
-        $tesorero = Role::create(['name' => 'Tesorero']);
-        $macero = Role::create(['name' => 'Macero']);
-        $aspirantes = Role::create(['name' => 'Aspirantes']);
-
-        // Asignar permisos
-        $superadmin->givePermissionTo([
-            'crear usuarios',
-            'editar usuarios', 
-            'eliminar usuarios',
-            'ver usuarios',
-            'gestionar sistema',
-            'crear proyectos',
-            'editar proyectos',
-            'eliminar proyectos',
-            'ver proyectos',
-            'crear asistencia',
-            'editar asistencia',
-            'eliminar asistencia',
-            'ver asistencia',
-            'crear pagos',
-            'editar pagos',
-            'eliminar pagos',
-            'ver pagos',
-            'crear actividades',
-            'editar actividades',
-            'eliminar actividades',
-            'ver actividades',
-            'crear documentos',
-            'editar documentos',
-            'eliminar documentos',
-            'ver documentos',
-            'crear donaciones',
-            'editar donaciones',
-            'eliminar donaciones',
-            'ver donaciones',
-            'crear eventos',
-            'editar eventos',
-            'eliminar eventos',
-            'ver eventos',
-            'crear logs',
-            'editar logs',
-            'eliminar logs',
-            'ver logs'
-        ]);
+        $presidente = Role::create(['name' => 'presidente']);
+        $vicepresidente = Role::create(['name' => 'vicepresidente']);
+        $secretario = Role::create(['name' => 'secretario']);
+        $tesorero = Role::create(['name' => 'tesorero']);
+        $macero = Role::create(['name' => 'macero']);
+        $aspirantes = Role::create(['name' => 'aspirantes']);
 
         // Asignar permisos
         $presidente->givePermissionTo([
@@ -170,7 +128,7 @@ class RoleSeeder extends Seeder
             'editar logs',
             'eliminar logs',
             'ver logs'
-        ]);
+            ]);
 
         // Asignar permisos a vicepresidente
         $vicepresidente->givePermissionTo([
