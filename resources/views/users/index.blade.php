@@ -179,7 +179,7 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <div class="flex items-center justify-end space-x-2">
                                                     <!-- Ver -->
-                                                    <a href="{{ route('usuarios.ver', $usuario) }}" 
+                                                    <a href="{{ route('admin.usuarios.ver', $usuario) }}" 
                                                         class="inline-flex items-center p-2 border border-gray-300 rounded-lg text-gray-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200" 
                                                         title="Ver detalles">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +189,7 @@
                                                     </a>
                                                     
                                                     <!-- Editar -->
-                                                    <a href="{{ route('usuarios.editar', $usuario) }}" 
+                                                    <a href="{{ route('admin.usuarios.editar', $usuario) }}" 
                                                         class="inline-flex items-center p-2 border border-blue-300 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200" 
                                                         title="Editar usuario">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,7 +198,7 @@
                                                     </a>
                                                     
                                                     <!-- Eliminar -->
-                                                    <form method="POST" action="{{ route('usuarios.eliminar', $usuario) }}" class="inline-block" 
+                                                    <form method="POST" action="{{ route('admin.usuarios.eliminar', $usuario) }}" class="inline-block" 
                                                           onsubmit="return confirm('¿Está seguro de que desea eliminar el usuario {{ $usuario->name }}? Esta acción no se puede deshacer.');">
                                                         @csrf
                                                         @method('DELETE')
