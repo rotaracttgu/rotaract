@@ -88,6 +88,7 @@
             font-size: 14px;
         }
 
+        .form-group input[type="text"],
         .form-group input[type="email"],
         .form-group input[type="password"] {
             width: 100%;
@@ -100,6 +101,7 @@
             color: #1a2332;
         }
 
+        .form-group input[type="text"]:focus,
         .form-group input[type="email"]:focus,
         .form-group input[type="password"]:focus {
             outline: none;
@@ -107,6 +109,7 @@
             box-shadow: 0 0 0 3px rgba(232, 237, 242, 0.1);
         }
 
+        .form-group input[type="text"]::placeholder,
         .form-group input[type="email"]::placeholder,
         .form-group input[type="password"]::placeholder {
             color: #8995a3;
@@ -295,16 +298,18 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
-                <!-- Email -->
+                <!-- Usuario o Email -->
                 <div class="form-group">
-                    <label for="email">Email</label>
+                    <label for="email">Usuario o Email</label>
                     <input 
-                        type="email" 
+                        type="text" 
                         id="email" 
                         name="email" 
                         value="{{ old('email') }}" 
+                        placeholder="Ingresa tu nombre de usuario o email"
                         required 
                         autofocus
+                        oninput="this.value = this.value.toUpperCase()"
                         class="@error('email') error @enderror"
                     >
                     @error('email')

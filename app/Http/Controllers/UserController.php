@@ -1,72 +1,36 @@
 <?php
 
-namespace App\Http\Controllers\Presidente;
+namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\BitacoraSistema; // ⭐ NUEVO
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
-use App\Services\UsuarioServicio;
-use App\Http\Controllers\Controller;
-
-class PresidenteUsuariosController extends Controller
+class UserController extends Controller
 {
-    protected $usuarioServicio;
-    
-        public function __construct(UsuarioServicio $usuarioServicio)
-        {
-            $this->usuarioServicio = $usuarioServicio;
-        }
     /**
-     * Mostrar listado de usuarios
+     * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
         try {
-            // Verificar permisos
             // if (!auth()->user()->can('ver usuarios')) {
             //     abort(403, 'No tienes permisos para ver usuarios');
             // }
 
-            // Obtener parámetros de la petición
-            $opciones = [
-                'pagina' => $request->get('page', 1),
-                'por_pagina' => $request->get('per_page', 10),
-                'ordenar_por' => $request->get('order_by', 'created_at'),
-                'direccion_orden' => $request->get('order_direction', 'desc'),
-            ];
+            // Obtener todos los usuarios con paginación
+            $usuarios = User::orderBy('created_at', 'desc')->paginate(10);
             
-            // Si hay búsqueda
-            if ($request->has('buscar') && $request->filled('buscar')) {
-                $resultadoBusqueda = $this->usuarioServicio->buscarUsuarios(
-                    $request->get('buscar'),
-                    $opciones
-                );
-                
-                return view('modulos.presidente.usuarios.index', [
-                    'usuarios' => $resultadoBusqueda['usuarios'],
-                    'totalUsuarios' => $resultadoBusqueda['total'],
-                    'terminoBusqueda' => $request->get('buscar')
-                ]);
-            }
+            // Contar total de usuarios
+            $totalUsuarios = User::count();
             
-            // Obtener usuarios paginados usando procedimientos almacenados
-            $usuarios = $this->usuarioServicio->obtenerUsuariosPaginados($opciones);
-            
-            // Obtener total de usuarios
-            $totalUsuarios = $this->usuarioServicio->contarUsuarios();
-            
-            // Obtener estadísticas (opcional)
-            $estadisticas = $this->usuarioServicio->obtenerEstadisticas();
-            
-            return view('modulos.presidente.usuarios.index', compact('usuarios', 'totalUsuarios', 'estadisticas'));
+            return view('users.index', compact('usuarios', 'totalUsuarios'));
             
         } catch (\Exception $e) {
-            \Log::error('Error en UserController@index: ' . $e->getMessage());
-            
-            return view('modulos.presidente.usuarios.index', [
-                'usuarios' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10),
+            return view('users.index', [
+                'usuarios' => collect([]),
                 'totalUsuarios' => 0,
                 'error' => $e->getMessage()
             ]);
@@ -78,7 +42,7 @@ class PresidenteUsuariosController extends Controller
      */
     public function create()
     {
-        return view('modulos.presidente.usuarios.create');
+        return view('users.create');
     }
 
     /**
@@ -113,11 +77,42 @@ class PresidenteUsuariosController extends Controller
             }
             // ==================================
 
+            // ⭐ REGISTRAR EN BITÁCORA
+            BitacoraSistema::registrar([
+                'accion' => 'create',
+                'modulo' => 'usuarios',
+                'tabla' => 'users',
+                'registro_id' => $user->id,
+                'descripcion' => "Nuevo usuario creado: {$user->name} ({$user->email}) con rol {$request->role}",
+                'estado' => 'exitoso',
+                'datos_nuevos' => [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $request->role,
+                    'two_factor_enabled' => true,
+                    'email_verified' => $request->email_verified ? true : false,
+                ],
+            ]);
+
             return redirect()->route('admin.usuarios.lista')
                 ->with('success', 'Usuario creado exitosamente con autenticación de dos factores habilitada.')
                 ->with('usuario_creado', $user->name);
 
         } catch (\Exception $e) {
+            // ⭐ REGISTRAR ERROR EN BITÁCORA
+            BitacoraSistema::registrar([
+                'accion' => 'create',
+                'modulo' => 'usuarios',
+                'tabla' => 'users',
+                'descripcion' => "Error al crear usuario: {$request->name} ({$request->email})",
+                'estado' => 'fallido',
+                'error_mensaje' => $e->getMessage(),
+                'datos_nuevos' => [
+                    'name' => $request->name,
+                    'email' => $request->email,
+                ],
+            ]);
+
             return back()->withInput()
                 ->withErrors(['error' => 'Error al crear el usuario: ' . $e->getMessage()]);
         }
@@ -130,7 +125,18 @@ class PresidenteUsuariosController extends Controller
     {
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
-        return view('modulos.presidente.usuarios.ver', compact('usuario'));
+        
+        // ⭐ REGISTRAR EN BITÁCORA
+        BitacoraSistema::registrar([
+            'accion' => 'view',
+            'modulo' => 'usuarios',
+            'tabla' => 'users',
+            'registro_id' => $usuario->id,
+            'descripcion' => "Visualización del perfil de usuario: {$usuario->name}",
+            'estado' => 'exitoso',
+        ]);
+        
+        return view('users.ver', compact('usuario'));
     }
 
     /**
@@ -140,7 +146,7 @@ class PresidenteUsuariosController extends Controller
     {
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
-        return view('modulos.presidente.usuarios.edit', compact('usuario'));
+        return view('users.edit', compact('usuario'));
     }
 
     /**
@@ -150,6 +156,14 @@ class PresidenteUsuariosController extends Controller
     {
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
+        
+        // ⭐ GUARDAR DATOS ANTERIORES PARA BITÁCORA
+        $datosAnteriores = [
+            'name' => $usuario->name,
+            'email' => $usuario->email,
+            'role' => $usuario->getRolPrincipal(),
+            'email_verified' => $usuario->email_verified_at ? true : false,
+        ];
         
         $rules = [
             'name' => ['required', 'string', 'max:255'],
@@ -185,19 +199,54 @@ class PresidenteUsuariosController extends Controller
 
             $usuario->update($userData);
 
-            if ($request->has('role') && (auth()->user()->can('gestionar roles') || auth()->user()->hasRole('presidente'))) {
+            if ($request->has('role') && (auth()->user()->can('gestionar roles') || auth()->user()->hasRole('Super Admin'))) {
                 if ($request->role) {
                     $usuario->syncRoles([$request->role]);
                 } else {
                     $usuario->syncRoles([]);
                 }
             }
+
+            // ⭐ PREPARAR DATOS NUEVOS PARA BITÁCORA
+            $datosNuevos = [
+                'name' => $usuario->name,
+                'email' => $usuario->email,
+                'role' => $request->role ?? $usuario->getRolPrincipal(),
+                'email_verified' => $request->email_verified ? true : false,
+            ];
+
+            if ($request->filled('password')) {
+                $datosNuevos['password_changed'] = true;
+            }
+
+            // ⭐ REGISTRAR EN BITÁCORA
+            BitacoraSistema::registrar([
+                'accion' => 'update',
+                'modulo' => 'usuarios',
+                'tabla' => 'users',
+                'registro_id' => $usuario->id,
+                'descripcion' => "Usuario actualizado: {$usuario->name} ({$usuario->email})",
+                'estado' => 'exitoso',
+                'datos_anteriores' => $datosAnteriores,
+                'datos_nuevos' => $datosNuevos,
+            ]);
             
             return redirect()->route('admin.usuarios.lista')
                 ->with('success', 'Usuario actualizado exitosamente.')
                 ->with('usuario_actualizado', $usuario->name);
 
         } catch (\Exception $e) {
+            // ⭐ REGISTRAR ERROR EN BITÁCORA
+            BitacoraSistema::registrar([
+                'accion' => 'update',
+                'modulo' => 'usuarios',
+                'tabla' => 'users',
+                'registro_id' => $usuario->id,
+                'descripcion' => "Error al actualizar usuario: {$usuario->name}",
+                'estado' => 'fallido',
+                'error_mensaje' => $e->getMessage(),
+            ]);
+
             return back()->withInput()
                 ->withErrors(['error' => 'Error al actualizar el usuario: ' . $e->getMessage()]);
         }
@@ -212,6 +261,25 @@ class PresidenteUsuariosController extends Controller
             // Buscar el usuario por ID
             $usuario = User::findOrFail($usuario);
             $userName = $usuario->name;
+            $userEmail = $usuario->email;
+            $userRole = $usuario->getRolPrincipal();
+            $userId = $usuario->id;
+
+            // ⭐ REGISTRAR EN BITÁCORA ANTES DE ELIMINAR
+            BitacoraSistema::registrar([
+                'accion' => 'delete',
+                'modulo' => 'usuarios',
+                'tabla' => 'users',
+                'registro_id' => $userId,
+                'descripcion' => "Usuario eliminado: {$userName} ({$userEmail})",
+                'estado' => 'exitoso',
+                'datos_anteriores' => [
+                    'name' => $userName,
+                    'email' => $userEmail,
+                    'role' => $userRole,
+                ],
+            ]);
+
             $usuario->delete();
 
             return redirect()->route('admin.usuarios.lista')
@@ -219,6 +287,19 @@ class PresidenteUsuariosController extends Controller
                 ->with('usuario_eliminado', $userName);
 
         } catch (\Exception $e) {
+            // ⭐ REGISTRAR ERROR EN BITÁCORA
+            if (isset($usuario)) {
+                BitacoraSistema::registrar([
+                    'accion' => 'delete',
+                    'modulo' => 'usuarios',
+                    'tabla' => 'users',
+                    'registro_id' => $usuario->id ?? null,
+                    'descripcion' => "Error al eliminar usuario",
+                    'estado' => 'fallido',
+                    'error_mensaje' => $e->getMessage(),
+                ]);
+            }
+
             return back()->withErrors(['error' => 'Error al eliminar el usuario: ' . $e->getMessage()]);
         }
     }
