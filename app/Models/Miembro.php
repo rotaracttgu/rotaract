@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity; // ⭐ NUEVO
 
 class Miembro extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity; // ⭐ NUEVO
 
     // Nombre de la tabla
     protected $table = 'miembros';
@@ -41,6 +42,29 @@ class Miembro extends Model
     protected $casts = [
         'FechaIngreso' => 'date',
     ];
+
+    // ⭐ NUEVO: Configuración para LogsActivity
+    /**
+     * Campos sensibles que no deben registrarse en bitácora
+     */
+    protected $sensitiveAttributes = [
+        'DNI_Pasaporte', // Proteger datos personales sensibles
+    ];
+
+    /**
+     * Descripción personalizada para la bitácora
+     */
+    public function getActivityDescription($action)
+    {
+        $descriptions = [
+            'created' => "Nuevo miembro registrado: {$this->Nombre}",
+            'updated' => "Información de miembro actualizada: {$this->Nombre}",
+            'deleted' => "Miembro eliminado: {$this->Nombre}",
+            'restored' => "Miembro restaurado: {$this->Nombre}",
+        ];
+
+        return $descriptions[$action] ?? "Acción {$action} en miembro: {$this->Nombre}";
+    }
 
     /**
      * Relación: Un miembro puede tener un usuario del sistema (1:1)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\BitacoraSistema;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Carbon\Carbon;
@@ -15,6 +16,10 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        // ============================================
+        // ESTADÍSTICAS DE USUARIOS (Tu código original)
+        // ============================================
+        
         // Total de usuarios
         $totalUsuarios = User::count();
 
@@ -45,6 +50,12 @@ class DashboardController extends Controller
         // Distribución de usuarios por rol
         $usuariosPorRol = $this->obtenerDistribucionRoles();
 
+        // ============================================
+        // ESTADÍSTICAS DE BITÁCORA (NUEVO)
+        // ============================================
+        
+        $bitacoraStats = $this->obtenerEstadisticasBitacora();
+
         return view('users.dashboard', compact(
             'totalUsuarios',
             'usuariosVerificados',
@@ -53,8 +64,88 @@ class DashboardController extends Controller
             'usuariosNuevos',
             'rolesActivos',
             'ultimosUsuarios',
-            'usuariosPorRol'
+            'usuariosPorRol',
+            'bitacoraStats' // NUEVO
         ));
+    }
+
+    /**
+     * Obtener estadísticas de la bitácora (NUEVO)
+     */
+    private function obtenerEstadisticasBitacora()
+    {
+        $hoy = Carbon::today();
+        $semanaAtras = Carbon::now()->subDays(7);
+        $mesAtras = Carbon::now()->subDays(30);
+
+        return [
+            // Eventos de hoy
+            'eventos_hoy' => BitacoraSistema::whereDate('fecha_hora', $hoy)->count(),
+            
+            // Logins de hoy
+            'logins_hoy' => BitacoraSistema::where('accion', 'login')
+                ->whereDate('fecha_hora', $hoy)
+                ->count(),
+            
+            // Errores de hoy
+            'errores_hoy' => BitacoraSistema::where('estado', 'fallido')
+                ->whereDate('fecha_hora', $hoy)
+                ->count(),
+            
+            // Total de eventos
+            'total_eventos' => BitacoraSistema::count(),
+            
+            // Eventos esta semana
+            'eventos_semana' => BitacoraSistema::where('fecha_hora', '>=', $semanaAtras)->count(),
+            
+            // Eventos este mes
+            'eventos_mes' => BitacoraSistema::where('fecha_hora', '>=', $mesAtras)->count(),
+            
+            // Logins exitosos del mes
+            'logins_exitosos_mes' => BitacoraSistema::where('accion', 'login')
+                ->where('estado', 'exitoso')
+                ->where('fecha_hora', '>=', $mesAtras)
+                ->count(),
+            
+            // Logins fallidos del mes
+            'logins_fallidos_mes' => BitacoraSistema::where('accion', 'login_fallido')
+                ->where('fecha_hora', '>=', $mesAtras)
+                ->count(),
+            
+            // Actividad por acción (últimos 7 días)
+            'por_accion' => BitacoraSistema::select('accion', DB::raw('count(*) as total'))
+                ->where('fecha_hora', '>=', $semanaAtras)
+                ->groupBy('accion')
+                ->orderBy('total', 'desc')
+                ->get(),
+            
+            // Actividad por módulo (últimos 7 días)
+            'por_modulo' => BitacoraSistema::select('modulo', DB::raw('count(*) as total'))
+                ->where('fecha_hora', '>=', $semanaAtras)
+                ->groupBy('modulo')
+                ->orderBy('total', 'desc')
+                ->limit(5)
+                ->get(),
+            
+            // Usuarios más activos (últimos 7 días)
+            'usuarios_activos' => BitacoraSistema::select(
+                    'usuario_nombre', 
+                    'user_id', 
+                    DB::raw('count(*) as total')
+                )
+                ->where('fecha_hora', '>=', $semanaAtras)
+                ->whereNotNull('user_id')
+                ->groupBy('usuario_nombre', 'user_id')
+                ->orderBy('total', 'desc')
+                ->limit(5)
+                ->get(),
+            
+            // Últimos 5 eventos
+            'ultimos_eventos' => BitacoraSistema::with('user')
+                ->orderBy('fecha_hora', 'desc')
+                ->limit(5)
+                ->get(),
+        ];
     }
 
     /**
@@ -180,5 +271,45 @@ class DashboardController extends Controller
         }
 
         return $meses;
+    }
+
+    /**
+     * Obtener actividad de bitácora por hora (últimas 24 horas) - NUEVO
+     */
+    public function obtenerActividadPorHora()
+    {
+        return BitacoraSistema::select(
+                DB::raw('HOUR(fecha_hora) as hora'),
+                DB::raw('count(*) as total')
+            )
+            ->where('fecha_hora', '>=', Carbon::now()->subDay())
+            ->groupBy('hora')
+            ->orderBy('hora')
+            ->get();
+    }
+
+    /**
+     * Obtener resumen de seguridad (NUEVO)
+     */
+    public function obtenerResumenSeguridad()
+    {
+        $hace7dias = Carbon::now()->subDays(7);
+
+        return [
+            'intentos_fallidos' => BitacoraSistema::where('accion', 'login_fallido')
+                ->where('fecha_hora', '>=', $hace7dias)
+                ->count(),
+            
+            'ips_sospechosas' => BitacoraSistema::where('accion', 'login_fallido')
+                ->where('fecha_hora', '>=', $hace7dias)
+                ->select('ip_address', DB::raw('count(*) as intentos'))
+                ->groupBy('ip_address')
+                ->having('intentos', '>', 5)
+                ->get(),
+            
+            'cambios_password' => BitacoraSistema::where('accion', 'cambio_password')
+                ->where('fecha_hora', '>=', $hace7dias)
+                ->count(),
+        ];
     }
 }
