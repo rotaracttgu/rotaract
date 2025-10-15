@@ -9,6 +9,8 @@ use App\Http\Controllers\VicepresidenteController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\BitacoraController; // ⭐ NUEVO
+use App\Http\Controllers\Admin\UsuariosBloqueadosController; // ⭐ NUEVO - Sistema de bloqueo
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
@@ -83,6 +85,40 @@ Route::prefix('admin')->middleware(['auth', RoleMiddleware::class . ':Super Admi
     Route::get('/usuarios/{usuario}/editar', [UserController::class, 'edit'])->name('usuarios.editar');
     Route::put('/usuarios/{usuario}', [UserController::class, 'update'])->name('usuarios.actualizar');
     Route::delete('/usuarios/{usuario}', [UserController::class, 'destroy'])->name('usuarios.eliminar');
+
+    // ============================================================================
+    // ⭐ RUTAS DE BITÁCORA DEL SISTEMA
+    // ============================================================================
+    Route::prefix('bitacora')->name('bitacora.')->group(function () {
+        // Vista principal con filtros
+        Route::get('/', [BitacoraController::class, 'index'])->name('index');
+        
+        // Ver detalles de un registro específico
+        Route::get('/{id}', [BitacoraController::class, 'show'])->name('show');
+        
+        // Exportar bitácora a CSV
+        Route::get('/exportar/csv', [BitacoraController::class, 'exportar'])->name('exportar');
+        
+        // Limpiar registros antiguos
+        Route::post('/limpiar', [BitacoraController::class, 'limpiar'])->name('limpiar');
+    });
+
+    // ============================================================================
+    // ⭐ RUTAS DE GESTIÓN DE USUARIOS BLOQUEADOS - NUEVO
+    // ============================================================================
+    Route::prefix('usuarios-bloqueados')->name('usuarios-bloqueados.')->group(function () {
+        // Vista principal - listar usuarios bloqueados
+        Route::get('/', [UsuariosBloqueadosController::class, 'index'])->name('index');
+        
+        // Desbloquear un usuario específico
+        Route::post('/{id}/desbloquear', [UsuariosBloqueadosController::class, 'desbloquear'])->name('desbloquear');
+        
+        // Resetear intentos fallidos de un usuario
+        Route::post('/{id}/resetear-intentos', [UsuariosBloqueadosController::class, 'resetearIntentos'])->name('resetear');
+        
+        // Desbloquear todos los usuarios bloqueados
+        Route::post('/desbloquear-todos', [UsuariosBloqueadosController::class, 'desbloquearTodos'])->name('desbloquear-todos');
+    });
 });
 
 // ============================================================================
@@ -93,7 +129,20 @@ Route::prefix('presidente')->middleware(['auth', RoleMiddleware::class . ':Presi
         return view('presidente.dashboard');
     })->name('dashboard');
     
-    // Aquí agregarás más rutas del presidente cuando las necesites
+    // ⭐ Bitácora también accesible para Presidente
+    Route::prefix('bitacora')->name('bitacora.')->group(function () {
+        Route::get('/', [BitacoraController::class, 'index'])->name('index');
+        Route::get('/{id}', [BitacoraController::class, 'show'])->name('show');
+        Route::get('/exportar/csv', [BitacoraController::class, 'exportar'])->name('exportar');
+    });
+
+    // ⭐ Gestión de usuarios bloqueados también accesible para Presidente
+    Route::prefix('usuarios-bloqueados')->name('usuarios-bloqueados.')->group(function () {
+        Route::get('/', [UsuariosBloqueadosController::class, 'index'])->name('index');
+        Route::post('/{id}/desbloquear', [UsuariosBloqueadosController::class, 'desbloquear'])->name('desbloquear');
+        Route::post('/{id}/resetear-intentos', [UsuariosBloqueadosController::class, 'resetearIntentos'])->name('resetear');
+        Route::post('/desbloquear-todos', [UsuariosBloqueadosController::class, 'desbloquearTodos'])->name('desbloquear-todos');
+    });
 });
 
 // ============================================================================

@@ -15,33 +15,37 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #1a2332;
+            background: #d41367; /* Cranberry */
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
         }
 
         .login-wrapper {
             width: 100%;
-            max-width: 700px;
+            max-width: 600px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 80px;
+            gap: 20px;
         }
 
         .logo-container {
             text-align: center;
             animation: fadeInDown 0.8s ease-out;
+            width: 100%;
+            padding: 15px;
         }
 
         .logo-container img {
-            max-width: 380px;
+            max-width: 280px;
             width: 100%;
             height: auto;
-            filter: brightness(1.1);
+            filter: brightness(10) contrast(1);
+            display: block;
+            margin: 0 auto;
         }
 
         @keyframes fadeInDown {
@@ -56,13 +60,14 @@
         }
 
         .login-container {
-            background: #2a3544;
-            border-radius: 8px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-            max-width: 700px;
+            background: #ffffff; /* White */
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
             width: 100%;
-            padding: 45px 50px 40px;
+            padding: 30px 40px;
             animation: fadeInUp 0.8s ease-out;
+            border: 3px solid #901f93; /* Violet border */
         }
 
         @keyframes fadeInUp {
@@ -77,109 +82,117 @@
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
             display: block;
-            color: #a8b4c0;
-            font-weight: 400;
-            margin-bottom: 8px;
+            color: #901f93; /* Violet */
+            font-weight: 600;
+            margin-bottom: 6px;
             font-size: 14px;
         }
 
+        .form-group input[type="text"],
         .form-group input[type="email"],
         .form-group input[type="password"] {
             width: 100%;
-            padding: 13px 16px;
-            border: none;
-            border-radius: 6px;
+            padding: 11px 14px;
+            border: 2px solid #d0cfcd; /* Silver */
+            border-radius: 8px;
             font-size: 14px;
             transition: all 0.2s ease;
-            background: #e8edf2;
-            color: #1a2332;
+            background: #ffffff;
+            color: #000000;
         }
 
+        .form-group input[type="text"]:focus,
         .form-group input[type="email"]:focus,
         .form-group input[type="password"]:focus {
             outline: none;
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(232, 237, 242, 0.1);
+            border-color: #901f93; /* Violet */
+            box-shadow: 0 0 0 3px rgba(144, 31, 147, 0.1);
         }
 
+        .form-group input[type="text"]::placeholder,
         .form-group input[type="email"]::placeholder,
         .form-group input[type="password"]::placeholder {
-            color: #8995a3;
+            color: #b1b1b1; /* Smoke */
         }
 
         .form-group input.error {
-            border: 2px solid #e74c3c;
+            border: 2px solid #d41367; /* Cranberry for errors */
         }
 
         .error-message {
-            color: #e74c3c;
+            color: #d41367; /* Cranberry */
             font-size: 12px;
             margin-top: 6px;
             display: block;
+            font-weight: 500;
         }
 
         .remember-forgot {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 28px;
-            margin-top: -4px;
+            margin-bottom: 20px;
+            margin-top: -2px;
         }
 
         .remember-me {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #a8b4c0;
+            color: #901f93; /* Violet */
             font-size: 14px;
             cursor: pointer;
             user-select: none;
+            font-weight: 500;
         }
 
         .remember-me input[type="checkbox"] {
             width: 18px;
             height: 18px;
             cursor: pointer;
-            accent-color: #6b7785;
+            accent-color: #901f93; /* Violet */
         }
 
         .forgot-password {
-            color: #8995a3;
+            color: #00adbb; /* Turquoise */
             text-decoration: none;
             font-size: 14px;
             transition: color 0.2s ease;
+            font-weight: 500;
         }
 
         .forgot-password:hover {
-            color: #b8c1cc;
+            color: #d41367; /* Cranberry on hover */
+            text-decoration: underline;
         }
 
         .btn-login {
             width: 100%;
-            max-width: 120px;
-            padding: 12px 20px;
-            background: #e8edf2;
-            color: #2a3544;
+            max-width: 140px;
+            padding: 13px 24px;
+            background: linear-gradient(135deg, #d41367 0%, #901f93 100%); /* Cranberry to Violet */
+            color: #ffffff;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             float: right;
+            box-shadow: 0 4px 15px rgba(212, 19, 103, 0.3);
         }
 
         .btn-login:hover {
-            background: #ffffff;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(232, 237, 242, 0.2);
+            background: linear-gradient(135deg, #901f93 0%, #d41367 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 19, 103, 0.4);
         }
 
         .btn-login:active {
@@ -189,50 +202,52 @@
         .register-link {
             clear: both;
             text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(168, 180, 192, 0.15);
-            color: #8995a3;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #d0cfcd; /* Silver */
+            color: #898a8d; /* Pewter */
             font-size: 13px;
         }
 
         .register-link a {
-            color: #b8c1cc;
+            color: #00adbb; /* Turquoise */
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .register-link a:hover {
+            color: #d41367; /* Cranberry */
             text-decoration: underline;
         }
 
         .alert {
             padding: 12px 16px;
-            border-radius: 6px;
+            border-radius: 8px;
             margin-bottom: 20px;
             font-size: 13px;
+            font-weight: 500;
         }
 
         .alert-error {
-            background-color: rgba(231, 76, 60, 0.12);
-            border: 1px solid rgba(231, 76, 60, 0.3);
-            color: #ff6b6b;
+            background-color: rgba(212, 19, 103, 0.1); /* Cranberry */
+            border: 2px solid #d41367;
+            color: #d41367;
         }
 
         .alert-success {
-            background-color: rgba(46, 204, 113, 0.12);
-            border: 1px solid rgba(46, 204, 113, 0.3);
-            color: #51cf66;
+            background-color: rgba(0, 151, 57, 0.1); /* Grass */
+            border: 2px solid #009739;
+            color: #009739;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
             .login-wrapper {
-                gap: 60px;
+                gap: 30px;
             }
 
             .logo-container img {
-                max-width: 300px;
+                max-width: 280px;
             }
 
             .login-container {
@@ -242,11 +257,15 @@
 
         @media (max-width: 480px) {
             .login-wrapper {
-                gap: 50px;
+                gap: 25px;
+            }
+
+            .logo-container {
+                padding: 15px;
             }
 
             .logo-container img {
-                max-width: 260px;
+                max-width: 240px;
             }
 
             .login-container {
@@ -271,7 +290,8 @@
     <div class="login-wrapper">
         <!-- Logo del Club -->
         <div class="logo-container">
-            <img src="{{ asset('build/images/LogoRotaract.png') }}" alt="Rotaract Club Tegucigalpa Sur">
+            <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract Club Tegucigalpa Sur" 
+                 onerror="this.onerror=null; this.src='{{ asset('build/images/LogoRotaract.png') }}'">
         </div>
 
         <div class="login-container">
@@ -295,16 +315,18 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
-                <!-- Email -->
+                <!-- Usuario o Email -->
                 <div class="form-group">
-                    <label for="email">Email</label>
+                    <label for="email">Usuario o Email</label>
                     <input 
-                        type="email" 
+                        type="text" 
                         id="email" 
                         name="email" 
                         value="{{ old('email') }}" 
+                        placeholder="Ingresa tu nombre de usuario o email"
                         required 
                         autofocus
+                        oninput="this.value = this.value.toUpperCase()"
                         class="@error('email') error @enderror"
                     >
                     @error('email')
@@ -319,6 +341,7 @@
                         type="password" 
                         id="password" 
                         name="password" 
+                        placeholder="Ingresa tu contraseña"
                         required
                         class="@error('password') error @enderror"
                     >
