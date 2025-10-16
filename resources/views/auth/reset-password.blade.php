@@ -253,7 +253,7 @@
     <div class="reset-wrapper">
         <!-- Logo del Club -->
         <div class="logo-container">
-            <img src="{{ asset('build/images/LogoRotaract.png') }}" alt="Rotaract Club Tegucigalpa Sur">
+            <img src="{{ asset('build/images/Logo_Rotarac.webp') }}" alt="Rotaract Club Tegucigalpa Sur">
         </div>
 
         <div class="reset-container">

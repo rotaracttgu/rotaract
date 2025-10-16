@@ -89,7 +89,7 @@
             <a href="{{ route('tesorero.welcome') }}" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i>Volver a Inicio
             </a>
-            <a href="{{ route('tesorero.index') }}" class="btn btn-outline-primary btn-sm">
+            <a href="{{ route('tesorero.finanzas') }}" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-tachometer-alt me-1"></i>Dashboard
             </a>
             <a href="{{ route('tesorero.calendario') }}" class="btn btn-outline-info btn-sm">
