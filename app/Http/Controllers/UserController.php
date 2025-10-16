@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\BitacoraSistema; // ⭐ NUEVO
+use App\Models\BitacoraSistema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
@@ -64,6 +64,7 @@ class UserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'email_verified_at' => $request->email_verified ? now() : null,
+                'first_login' => true, // ⭐ NUEVO: Marcar como primer login
             ]);
 
             // ===== HABILITAR 2FA AUTOMÁTICAMENTE =====
@@ -91,11 +92,12 @@ class UserController extends Controller
                     'role' => $request->role,
                     'two_factor_enabled' => true,
                     'email_verified' => $request->email_verified ? true : false,
+                    'first_login' => true, // ⭐ NUEVO
                 ],
             ]);
 
             return redirect()->route('admin.usuarios.lista')
-                ->with('success', 'Usuario creado exitosamente con autenticación de dos factores habilitada.')
+                ->with('success', 'Usuario creado exitosamente. Deberá completar su perfil en el primer inicio de sesión.')
                 ->with('usuario_creado', $user->name);
 
         } catch (\Exception $e) {
