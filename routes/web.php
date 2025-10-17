@@ -185,6 +185,7 @@ Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMi
     Route::get('/asistencia/reuniones', [VicepresidenteController::class, 'asistenciaReuniones'])->name('asistencia.reuniones');
     Route::get('/cartas/formales', [VicepresidenteController::class, 'cartasFormales'])->name('cartas.formales');
     Route::get('/cartas/patrocinio', [VicepresidenteController::class, 'cartasPatrocinio'])->name('cartas.patrocinio');
+    Route::get('/estado/proyectos', [VicepresidenteController::class, 'estadoProyectos'])->name('estado.proyectos');
     
     Route::get('/reportes/dashboard', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
     Route::get('/reportes/mensuales', [ReporteController::class, 'mensuales'])->name('reportes.mensuales');

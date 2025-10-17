@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-// Puedes agregar otros Models que necesites para obtener datos, ej:
-// use App\Models\Proyecto;
-// use App\Models\Reunion;
+use App\Models\Proyecto;
+use App\Models\Reunion;
+use App\Models\CartaPatrocinio;
+use App\Models\CartaFormal;
+use App\Models\AsistenciaReunion;
+use App\Models\ParticipacionProyecto;
+use Illuminate\Support\Facades\DB;
 
 class VicepresidenteController extends Controller
 {
@@ -13,80 +17,131 @@ class VicepresidenteController extends Controller
 
     /**
      * Muestra el panel principal (Dashboard) del vicepresidente.
-     * Corresponde a la vista: vicepresidente/dashboard.blade.php
      */
     public function dashboard()
     {
-        // 🚨 Lógica: Aquí podrías obtener métricas clave, contadores, o resúmenes.
-        // Ejemplo:
-        // $totalProyectos = Proyecto::count();
-        // $proximasReuniones = Reunion::where('fecha', '>=', now())->limit(5)->get();
-
         $datos = [
-            'usuario' => auth()->user()->nombre,
-            // 'totalProyectos' => $totalProyectos
+            'totalProyectos' => Proyecto::count(),
+            'proyectosActivos' => Proyecto::whereNotNull('FechaInicio')->whereNull('FechaFin')->count(),
+            'proximasReuniones' => Reunion::where('fecha_hora', '>=', now())
+                                         ->where('estado', 'Programada')
+                                         ->orderBy('fecha_hora')
+                                         ->limit(5)
+                                         ->get(),
+            'cartasPendientes' => CartaPatrocinio::where('estado', 'Pendiente')->count(),
+            'reunionesHoy' => Reunion::whereDate('fecha_hora', today())->count(),
         ];
 
         return view('modulos.vicepresidente.dashboard', $datos);
     }
 
-    // ---
-
     // *** 2. ASISTENCIA A PROYECTOS ***
 
     /**
      * Muestra la vista de asistencia y seguimiento de proyectos.
-     * Corresponde a la vista: vicepresidente/asistencia-proyectos.blade.php
      */
     public function asistenciaProyectos()
     {
-        // 🚨 Lógica: Obtener la lista de proyectos, el estado de asistencia, etc.
+        $proyectos = Proyecto::with(['responsable', 'participaciones.usuario'])
+                             ->orderBy('FechaInicio', 'desc')
+                             ->get();
 
-        return view('modulos.vicepresidente.asistencia-proyectos');
+        return view('modulos.vicepresidente.asistencia-proyectos', compact('proyectos'));
     }
-
-    // ---
 
     // *** 3. ASISTENCIA A REUNIONES ***
 
     /**
      * Muestra la vista de registro y seguimiento de asistencia a reuniones.
-     * Corresponde a la vista: vicepresidente/asistencia-reuniones.blade.php
      */
     public function asistenciaReuniones()
     {
-        // 🚨 Lógica: Obtener el calendario de reuniones, el registro de asistencia.
+        $reuniones = Reunion::with(['asistencias.usuario'])
+                            ->orderBy('fecha_hora', 'desc')
+                            ->get();
 
-        return view('modulos.vicepresidente.asistencia-reuniones');
+        // Calcular porcentaje de asistencia por reunión
+        foreach ($reuniones as $reunion) {
+            $totalRegistros = $reunion->asistencias->count();
+            $totalAsistieron = $reunion->asistencias->where('asistio', true)->count();
+            $reunion->porcentaje_asistencia = $totalRegistros > 0 
+                ? round(($totalAsistieron / $totalRegistros) * 100, 1) 
+                : 0;
+        }
+
+        return view('modulos.vicepresidente.asistencia-reuniones', compact('reuniones'));
     }
-
-    // ---
 
     // *** 4. CARTAS FORMALES ***
 
     /**
      * Muestra la vista para gestionar y generar cartas formales.
-     * Corresponde a la vista: vicepresidente/cartas-formales.blade.php
      */
     public function cartasFormales()
     {
-        // 🚨 Lógica: Obtener plantillas de cartas, borradores, o listado de cartas enviadas.
+        $cartas = CartaFormal::with('usuario')
+                             ->orderBy('created_at', 'desc')
+                             ->get();
 
-        return view('modulos.vicepresidente.cartas-formales');
+        $estadisticas = [
+            'total' => $cartas->count(),
+            'borradores' => $cartas->where('estado', 'Borrador')->count(),
+            'enviadas' => $cartas->where('estado', 'Enviada')->count(),
+            'recibidas' => $cartas->where('estado', 'Recibida')->count(),
+        ];
+
+        return view('modulos.vicepresidente.cartas-formales', compact('cartas', 'estadisticas'));
     }
-
-    // ---
 
     // *** 5. CARTAS DE PATROCINIO ***
 
     /**
      * Muestra la vista para gestionar y generar cartas de patrocinio.
-     * Corresponde a la vista: vicepresidente/cartas-patrocinio.blade.php
      */
     public function cartasPatrocinio()
     {
-        // 🚨 Lógica: Obtener un listado de solicitudes de patrocinio o plantillas.
+        $cartas = CartaPatrocinio::with(['proyecto', 'usuario'])
+                                 ->orderBy('fecha_solicitud', 'desc')
+                                 ->get();
 
-        return view('modulos.vicepresidente.cartas-patrocinio');
+        $estadisticas = [
+            'total' => $cartas->count(),
+            'pendientes' => $cartas->where('estado', 'Pendiente')->count(),
+            'aprobadas' => $cartas->where('estado', 'Aprobada')->count(),
+            'rechazadas' => $cartas->where('estado', 'Rechazada')->count(),
+            'montoTotal' => $cartas->where('estado', 'Aprobada')->sum('monto_solicitado'),
+        ];
+
+        return view('modulos.vicepresidente.cartas-patrocinio', compact('cartas', 'estadisticas'));
+    }
+
+    // *** 6. ESTADO DE PROYECTOS ***
+
+    /**
+     * Muestra el estado y seguimiento de todos los proyectos.
+     */
+    public function estadoProyectos()
+    {
+        $proyectos = Proyecto::with(['responsable', 'participaciones', 'cartasPatrocinio'])
+                             ->get();
+
+        // Calcular estadísticas por proyecto
+        foreach ($proyectos as $proyecto) {
+            $proyecto->total_participantes = $proyecto->participaciones->count();
+            $proyecto->horas_totales = $proyecto->participaciones->sum('horas_dedicadas');
+            $proyecto->monto_patrocinio = $proyecto->cartasPatrocinio()
+                                                   ->where('estado', 'Aprobada')
+                                                   ->sum('monto_solicitado');
+        }
+
+        $estadisticas = [
+            'total' => $proyectos->count(),
+            'enPlanificacion' => $proyectos->whereNull('FechaInicio')->count(),
+            'enEjecucion' => $proyectos->whereNotNull('FechaInicio')->whereNull('FechaFin')->count(),
+            'finalizados' => $proyectos->whereNotNull('FechaFin')->count(),
+            'cancelados' => 0,
+        ];
+
+        return view('modulos.vicepresidente.estado-proyectos', compact('proyectos', 'estadisticas'));
     }
 }

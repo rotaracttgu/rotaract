@@ -1,535 +1,292 @@
-@extends('layouts.app')
-
-@section('title', 'Cartas Formales - Vicepresidente')
+@extends('modulos.vicepresidente.layout')
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h2 class="mb-0">Cartas Formales</h2>
-            <p class="text-muted">Registro y seguimiento de correspondencia formal</p>
-        </div>
-        <div class="col-md-4 text-end">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaCartaFormal">
-                <i class="fas fa-plus me-2"></i>Nueva Carta Formal
-            </button>
-        </div>
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Cartas Formales</h1>
+        <p class="text-gray-600 mt-1">Gestión de correspondencia formal</p>
     </div>
 
-    <!-- Estadísticas Rápidas -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card border-left-primary shadow h-100">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                        Total Enviadas
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">23</div>
+    <div class="py-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Estadísticas -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4">
+                    <p class="text-sm text-gray-600">Total Enviadas</p>
+                    <p class="text-2xl font-bold text-purple-600">32</p>
+                </div>
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4">
+                    <p class="text-sm text-gray-600">Con Respuesta</p>
+                    <p class="text-2xl font-bold text-green-600">20</p>
+                </div>
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4">
+                    <p class="text-sm text-gray-600">Pendientes</p>
+                    <p class="text-2xl font-bold text-yellow-600">8</p>
+                </div>
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4">
+                    <p class="text-sm text-gray-600">Este Mes</p>
+                    <p class="text-2xl font-bold text-blue-600">8</p>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-left-success shadow h-100">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                        Con Respuesta
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">15</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-left-warning shadow h-100">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                        Pendientes
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">8</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-left-info shadow h-100">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                        Este Mes
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">7</div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Filtros -->
-    <div class="card shadow mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Tipo de Carta</label>
-                    <select class="form-select" id="filtroTipo">
-                        <option value="">Todos los tipos</option>
-                        <option value="invitacion">Invitación</option>
-                        <option value="agradecimiento">Agradecimiento</option>
-                        <option value="solicitud">Solicitud</option>
-                        <option value="notificacion">Notificación</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Estado de Respuesta</label>
-                    <select class="form-select" id="filtroRespuesta">
-                        <option value="">Todos</option>
-                        <option value="respondida">Respondida</option>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="no_requiere">No Requiere</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Fecha Desde</label>
-                    <input type="date" class="form-control" id="filtroFechaDesde">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Fecha Hasta</label>
-                    <input type="date" class="form-control" id="filtroFechaHasta">
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-12">
-                    <button class="btn btn-primary" onclick="aplicarFiltros()">
-                        <i class="fas fa-filter me-2"></i>Aplicar Filtros
-                    </button>
-                    <button class="btn btn-secondary" onclick="limpiarFiltros()">
-                        <i class="fas fa-times me-2"></i>Limpiar
-                    </button>
-                    <button class="btn btn-success" onclick="exportarArchivo()">
-                        <i class="fas fa-file-excel me-2"></i>Exportar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+            <!-- Panel principal -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Correspondencia Formal</h3>
+                        <button class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Nueva Carta Formal
+                        </button>
+                    </div>
 
-    <!-- Tabla de Cartas Formales -->
-    <div class="card shadow">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Archivo de Correspondencia</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover" id="tablaCartasFormal">
-                    <thead>
-                        <tr>
-                            <th>Ref.</th>
-                            <th>Tipo</th>
-                            <th>Destinatario</th>
-                            <th>Asunto</th>
-                            <th>Fecha Envío</th>
-                            <th>Estado Respuesta</th>
-                            <th>Fecha Respuesta</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbodyCartasFormal">
-                        <!-- Datos cargados dinámicamente -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Nueva/Editar Carta Formal -->
-<div class="modal fade" id="modalNuevaCartaFormal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Nueva Carta Formal</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formCartaFormal">
-                    <input type="hidden" id="cartaFormalId">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Tipo de Carta *</label>
-                            <select class="form-select" id="tipo" required>
-                                <option value="">Seleccione...</option>
-                                <option value="invitacion">Invitación</option>
-                                <option value="agradecimiento">Agradecimiento</option>
-                                <option value="solicitud">Solicitud</option>
-                                <option value="notificacion">Notificación</option>
-                                <option value="otro">Otro</option>
+                    <!-- Filtros -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Carta</label>
+                            <select class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                                <option>Todos los tipos</option>
+                                <option>Invitación</option>
+                                <option>Agradecimiento</option>
+                                <option>Solicitud</option>
+                                <option>Notificación</option>
+                                <option>Felicitación</option>
+                                <option>Comunicado</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Fecha de Envío *</label>
-                            <input type="date" class="form-control" id="fechaEnvio" required>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Destinatario *</label>
-                            <input type="text" class="form-control" id="destinatario" required>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Cargo/Institución</label>
-                            <input type="text" class="form-control" id="cargo">
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Asunto *</label>
-                            <input type="text" class="form-control" id="asunto" required>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Contenido de la Carta</label>
-                            <textarea class="form-control" id="contenido" rows="4"></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Estado de Respuesta *</label>
-                            <select class="form-select" id="estadoRespuesta" required>
-                                <option value="pendiente">Pendiente</option>
-                                <option value="respondida">Respondida</option>
-                                <option value="no_requiere">No Requiere Respuesta</option>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado de Respuesta</label>
+                            <select class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                                <option>Todos</option>
+                                <option>Con respuesta</option>
+                                <option>Sin respuesta</option>
+                                <option>En espera</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Fecha de Respuesta</label>
-                            <input type="date" class="form-control" id="fechaRespuesta">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha desde</label>
+                            <input type="date" class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
                         </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Notas/Observaciones</label>
-                            <textarea class="form-control" id="notas" rows="2"></textarea>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha hasta</label>
+                            <input type="date" class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
                         </div>
                     </div>
-                </form>
+
+                    <!-- Barra de búsqueda -->
+                    <div class="mb-6">
+                        <div class="relative">
+                            <input type="text" placeholder="Buscar por destinatario, asunto o referencia..." 
+                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 pl-10">
+                            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de cartas formales -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destinatario</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asunto</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Respuesta</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">14/10/2025</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                        <div>
+                                            <p class="font-medium">Club Rotario Tegucigalpa</p>
+                                            <p class="text-xs text-gray-500">Lic. Roberto Martínez</p>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            Invitación
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Invitación a Evento Benéfico</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Enviada
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <div>
+                                            <p class="text-green-600 font-medium">Recibida</p>
+                                            <p class="text-xs text-gray-500">15/10/2025</p>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex gap-2">
+                                            <button class="text-purple-600 hover:text-purple-900" title="Ver carta">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="text-yellow-600 hover:text-yellow-900" title="Ver respuesta">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="text-green-600 hover:text-green-900" title="Descargar">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">10/10/2025</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                        <div>
+                                            <p class="font-medium">Alcaldía Municipal</p>
+                                            <p class="text-xs text-gray-500">Ing. Patricia González</p>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            Solicitud
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Permiso para Actividad Pública</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Enviada
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <div>
+                                            <p class="text-yellow-600 font-medium">Pendiente</p>
+                                            <p class="text-xs text-gray-500">-</p>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex gap-2">
+                                            <button class="text-purple-600 hover:text-purple-900" title="Ver carta">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="text-gray-400" title="Sin respuesta" disabled>
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="text-green-600 hover:text-green-900" title="Descargar">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">05/10/2025</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900">
+                                        <div>
+                                            <p class="font-medium">Asociación de Voluntarios</p>
+                                            <p class="text-xs text-gray-500">Dr. Fernando Suárez</p>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Agradecimiento
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Colaboración en Proyecto</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Enviada
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <div>
+                                            <p class="text-green-600 font-medium">Recibida</p>
+                                            <p class="text-xs text-gray-500">06/10/2025</p>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex gap-2">
+                                            <button class="text-purple-600 hover:text-purple-900" title="Ver carta">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="text-yellow-600 hover:text-yellow-900" title="Ver respuesta">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="text-green-600 hover:text-green-900" title="Descargar">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    <div class="mt-6 flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            Mostrando <span class="font-medium">1</span> a <span class="font-medium">10</span> de <span class="font-medium">32</span> resultados
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">Anterior</button>
+                            <button class="px-3 py-1 bg-purple-600 text-white rounded-md text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">Siguiente</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarCartaFormal()">Guardar</button>
+
+            <!-- Archivo de correspondencia -->
+            <div class="mt-6 bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Archivo de Correspondencia</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium text-gray-900">2025</h4>
+                                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">32 cartas</span>
+                            </div>
+                            <button class="text-sm text-purple-600 hover:text-purple-900">Ver archivo →</button>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium text-gray-900">2024</h4>
+                                <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">156 cartas</span>
+                            </div>
+                            <button class="text-sm text-purple-600 hover:text-purple-900">Ver archivo →</button>
+                        </div>
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium text-gray-900">2023</h4>
+                                <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">142 cartas</span>
+                            </div>
+                            <button class="text-sm text-purple-600 hover:text-purple-900">Ver archivo →</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Modal Ver Detalle -->
-<div class="modal fade" id="modalDetalleFormal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Detalle de Carta Formal</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="detalleContenidoFormal">
-                <!-- Se llenará dinámicamente -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="imprimirCarta()">
-                    <i class="fas fa-print me-2"></i>Imprimir
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-.border-left-primary {
-    border-left: 0.25rem solid #4e73df !important;
-}
-.border-left-success {
-    border-left: 0.25rem solid #1cc88a !important;
-}
-.border-left-warning {
-    border-left: 0.25rem solid #f6c23e !important;
-}
-.border-left-info {
-    border-left: 0.25rem solid #36b9cc !important;
-}
-</style>
-
-<script>
-// Datos mock en memoria
-let cartasFormalesData = [
-    {
-        id: 1,
-        referencia: 'CF-001',
-        tipo: 'invitacion',
-        destinatario: 'Lic. Jorge Hernández',
-        cargo: 'Alcalde Municipal',
-        asunto: 'Invitación Ceremonia de Aniversario',
-        contenido: 'Por medio de la presente, tenemos el honor de invitarle a la ceremonia...',
-        fechaEnvio: '2025-09-10',
-        estadoRespuesta: 'respondida',
-        fechaRespuesta: '2025-09-15',
-        notas: 'Confirmó asistencia'
-    },
-    {
-        id: 2,
-        referencia: 'CF-002',
-        tipo: 'agradecimiento',
-        destinatario: 'Empresa Constructora Global',
-        cargo: 'Gerencia General',
-        asunto: 'Agradecimiento por Donación',
-        contenido: 'Queremos expresar nuestro más sincero agradecimiento...',
-        fechaEnvio: '2025-09-12',
-        estadoRespuesta: 'no_requiere',
-        fechaRespuesta: null,
-        notas: 'Carta de cortesía'
-    },
-    {
-        id: 3,
-        referencia: 'CF-003',
-        tipo: 'solicitud',
-        destinatario: 'Dr. Manuel Rivera',
-        cargo: 'Director Hospital Regional',
-        asunto: 'Solicitud de Colaboración Campaña de Salud',
-        contenido: 'Mediante la presente solicitamos su apoyo y colaboración...',
-        fechaEnvio: '2025-09-18',
-        estadoRespuesta: 'pendiente',
-        fechaRespuesta: null,
-        notas: 'Pendiente de respuesta'
-    },
-    {
-        id: 4,
-        referencia: 'CF-004',
-        tipo: 'notificacion',
-        destinatario: 'Socios Activos del Club',
-        cargo: 'Miembros',
-        asunto: 'Notificación Cambio de Horario Reunión',
-        contenido: 'Les informamos que la reunión programada ha sido reprogramada...',
-        fechaEnvio: '2025-09-22',
-        estadoRespuesta: 'no_requiere',
-        fechaRespuesta: null,
-        notas: 'Comunicado general'
-    },
-    {
-        id: 5,
-        referencia: 'CF-005',
-        tipo: 'invitacion',
-        destinatario: 'Licda. Patricia Gómez',
-        cargo: 'Ministra de Desarrollo Social',
-        asunto: 'Invitación Evento Benéfico',
-        contenido: 'Tenemos el gusto de invitarle a nuestro evento benéfico anual...',
-        fechaEnvio: '2025-09-25',
-        estadoRespuesta: 'respondida',
-        fechaRespuesta: '2025-09-28',
-        notas: 'Asistirá con comitiva'
-    },
-    {
-        id: 6,
-        referencia: 'CF-006',
-        tipo: 'solicitud',
-        destinatario: 'Banco de Desarrollo',
-        cargo: 'Departamento de RSE',
-        asunto: 'Solicitud Apoyo Financiero Proyecto Educativo',
-        contenido: 'Solicitamos su valioso apoyo financiero para nuestro proyecto...',
-        fechaEnvio: '2025-10-01',
-        estadoRespuesta: 'pendiente',
-        fechaRespuesta: null,
-        notas: 'Seguimiento en 2 semanas'
-    }
-];
-
-let proximoIdFormal = 7;
-
-function renderizarTablaFormal() {
-    const tbody = document.getElementById('tbodyCartasFormal');
-    tbody.innerHTML = '';
-
-    const tipoLabels = {
-        'invitacion': 'Invitación',
-        'agradecimiento': 'Agradecimiento',
-        'solicitud': 'Solicitud',
-        'notificacion': 'Notificación',
-        'otro': 'Otro'
-    };
-
-    const estadoBadge = {
-        'respondida': '<span class="badge bg-success">Respondida</span>',
-        'pendiente': '<span class="badge bg-warning text-dark">Pendiente</span>',
-        'no_requiere': '<span class="badge bg-secondary">No Requiere</span>'
-    };
-
-    cartasFormalesData.forEach(carta => {
-        tbody.innerHTML += `
-            <tr data-id="${carta.id}">
-                <td><strong>${carta.referencia}</strong></td>
-                <td>${tipoLabels[carta.tipo]}</td>
-                <td>${carta.destinatario}</td>
-                <td>${carta.asunto}</td>
-                <td>${formatearFecha(carta.fechaEnvio)}</td>
-                <td>${estadoBadge[carta.estadoRespuesta]}</td>
-                <td>${carta.fechaRespuesta ? formatearFecha(carta.fechaRespuesta) : '-'}</td>
-                <td>
-                    <button class="btn btn-sm btn-info" onclick="verDetalleFormal(${carta.id})">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-warning" onclick="editarCartaFormal(${carta.id})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarCartaFormal(${carta.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-}
-
-function verDetalleFormal(id) {
-    const carta = cartasFormalesData.find(c => c.id === id);
-    if (!carta) return;
-
-    const tipoLabels = {
-        'invitacion': 'Invitación',
-        'agradecimiento': 'Agradecimiento',
-        'solicitud': 'Solicitud',
-        'notificacion': 'Notificación',
-        'otro': 'Otro'
-    };
-
-    const estadoBadge = {
-        'respondida': '<span class="badge bg-success">Respondida</span>',
-        'pendiente': '<span class="badge bg-warning text-dark">Pendiente</span>',
-        'no_requiere': '<span class="badge bg-secondary">No Requiere</span>'
-    };
-
-    document.getElementById('detalleContenidoFormal').innerHTML = `
-        <div class="row g-3">
-            <div class="col-md-6">
-                <strong>Referencia:</strong><br>${carta.referencia}
-            </div>
-            <div class="col-md-6">
-                <strong>Tipo:</strong><br>${tipoLabels[carta.tipo]}
-            </div>
-            <div class="col-md-6">
-                <strong>Destinatario:</strong><br>${carta.destinatario}
-            </div>
-            <div class="col-md-6">
-                <strong>Cargo/Institución:</strong><br>${carta.cargo || 'N/A'}
-            </div>
-            <div class="col-md-12">
-                <strong>Asunto:</strong><br>${carta.asunto}
-            </div>
-            <div class="col-md-6">
-                <strong>Fecha de Envío:</strong><br>${formatearFecha(carta.fechaEnvio)}
-            </div>
-            <div class="col-md-6">
-                <strong>Estado de Respuesta:</strong><br>${estadoBadge[carta.estadoRespuesta]}
-            </div>
-            <div class="col-md-12">
-                <strong>Fecha de Respuesta:</strong><br>${carta.fechaRespuesta ? formatearFecha(carta.fechaRespuesta) : 'No aplica'}
-            </div>
-            <div class="col-md-12">
-                <strong>Contenido:</strong><br>
-                <div class="border p-3 mt-2" style="white-space: pre-wrap;">${carta.contenido || 'Sin contenido registrado'}</div>
-            </div>
-            <div class="col-md-12">
-                <strong>Notas:</strong><br>${carta.notas || 'Sin notas'}
-            </div>
-        </div>
-    `;
-
-    new bootstrap.Modal(document.getElementById('modalDetalleFormal')).show();
-}
-
-function editarCartaFormal(id) {
-    const carta = cartasFormalesData.find(c => c.id === id);
-    if (!carta) return;
-
-    document.getElementById('cartaFormalId').value = carta.id;
-    document.getElementById('tipo').value = carta.tipo;
-    document.getElementById('destinatario').value = carta.destinatario;
-    document.getElementById('cargo').value = carta.cargo || '';
-    document.getElementById('asunto').value = carta.asunto;
-    document.getElementById('contenido').value = carta.contenido || '';
-    document.getElementById('fechaEnvio').value = carta.fechaEnvio;
-    document.getElementById('estadoRespuesta').value = carta.estadoRespuesta;
-    document.getElementById('fechaRespuesta').value = carta.fechaRespuesta || '';
-    document.getElementById('notas').value = carta.notas || '';
-
-    document.querySelector('#modalNuevaCartaFormal .modal-title').textContent = 'Editar Carta Formal';
-    new bootstrap.Modal(document.getElementById('modalNuevaCartaFormal')).show();
-}
-
-function guardarCartaFormal() {
-    const id = document.getElementById('cartaFormalId').value;
-    const datos = {
-        tipo: document.getElementById('tipo').value,
-        destinatario: document.getElementById('destinatario').value,
-        cargo: document.getElementById('cargo').value,
-        asunto: document.getElementById('asunto').value,
-        contenido: document.getElementById('contenido').value,
-        fechaEnvio: document.getElementById('fechaEnvio').value,
-        estadoRespuesta: document.getElementById('estadoRespuesta').value,
-        fechaRespuesta: document.getElementById('fechaRespuesta').value || null,
-        notas: document.getElementById('notas').value
-    };
-
-    if (id) {
-        // Editar
-        const index = cartasFormalesData.findIndex(c => c.id === parseInt(id));
-        if (index !== -1) {
-            cartasFormalesData[index] = { ...cartasFormalesData[index], ...datos };
-            alert('Carta actualizada exitosamente');
-        }
-    } else {
-        // Crear nueva
-        const nuevaCarta = {
-            id: proximoIdFormal++,
-            referencia: `CF-${String(proximoIdFormal - 1).padStart(3, '0')}`,
-            ...datos
-        };
-        cartasFormalesData.push(nuevaCarta);
-        alert('Carta creada exitosamente');
-    }
-
-    bootstrap.Modal.getInstance(document.getElementById('modalNuevaCartaFormal')).hide();
-    document.getElementById('formCartaFormal').reset();
-    document.getElementById('cartaFormalId').value = '';
-    document.querySelector('#modalNuevaCartaFormal .modal-title').textContent = 'Nueva Carta Formal';
-    
-    renderizarTablaFormal();
-}
-
-function eliminarCartaFormal(id) {
-    if (confirm('¿Está seguro de eliminar esta carta?')) {
-        cartasFormalesData = cartasFormalesData.filter(c => c.id !== id);
-        renderizarTablaFormal();
-        alert('Carta eliminada exitosamente');
-    }
-}
-
-function formatearFecha(fecha) {
-    if (!fecha) return '';
-    const [year, month, day] = fecha.split('-');
-    return `${day}/${month}/${year}`;
-}
-
-function aplicarFiltros() {
-    alert('Filtros aplicados (funcionalidad simulada)');
-}
-
-function limpiarFiltros() {
-    document.getElementById('filtroTipo').value = '';
-    document.getElementById('filtroRespuesta').value = '';
-    document.getElementById('filtroFechaDesde').value = '';
-    document.getElementById('filtroFechaHasta').value = '';
-}
-
-function exportarArchivo() {
-    alert('Exportando archivo... (funcionalidad simulada)');
-}
-
-function imprimirCarta() {
-    window.print();
-}
-
-// Limpiar modal al cerrar
-document.getElementById('modalNuevaCartaFormal').addEventListener('hidden.bs.modal', function () {
-    document.getElementById('formCartaFormal').reset();
-    document.getElementById('cartaFormalId').value = '';
-    document.querySelector('#modalNuevaCartaFormal .modal-title').textContent = 'Nueva Carta Formal';
-});
-
-// Inicializar tabla
-renderizarTablaFormal();
-</script>
 @endsection

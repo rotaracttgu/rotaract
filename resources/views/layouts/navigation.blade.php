@@ -47,6 +47,8 @@
                             Backup
                         </a>
                     @endrole
+
+                    {{-- Menú de Vicepresidente ocultado - Ahora usa el sidebar lateral --}}
                 </div>
             </div>
 
@@ -133,6 +135,33 @@
                 <a class="block w-full ps-3 pe-4 py-2 border-l-4 {{ request()->routeIs('admin.backup.*') ? 'border-indigo-400' : 'border-transparent' }} text-start text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out" href="{{ route('admin.backup.index') }}">
                     Backup
                 </a>
+            @endrole
+
+            @role('Vicepresidente')
+                <!-- Menú Vicepresidente (Mobile) -->
+                <div class="pt-2 pb-2 border-t border-gray-200">
+                    <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
+                        👔 Módulo Vicepresidente
+                    </div>
+                    <x-responsive-nav-link :href="route('vicepresidente.dashboard')" :active="request()->routeIs('vicepresidente.dashboard')">
+                        📊 Dashboard
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('vicepresidente.cartas.patrocinio')" :active="request()->routeIs('vicepresidente.cartas.patrocinio')">
+                        📝 Cartas de Patrocinio
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('vicepresidente.cartas.formales')" :active="request()->routeIs('vicepresidente.cartas.formales')">
+                        📧 Cartas Formales
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('vicepresidente.estado.proyectos')" :active="request()->routeIs('vicepresidente.estado.proyectos')">
+                        📂 Estado de Proyectos
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('vicepresidente.asistencia.reuniones')" :active="request()->routeIs('vicepresidente.asistencia.reuniones')">
+                        📋 Asistencia Reuniones
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('vicepresidente.asistencia.proyectos')" :active="request()->routeIs('vicepresidente.asistencia.proyectos')">
+                        👥 Participación Proyectos
+                    </x-responsive-nav-link>
+                </div>
             @endrole
         </div>
 
