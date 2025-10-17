@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\SecurityQuestionPasswordResetController; // ⭐ NU
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BitacoraController;
 use App\Http\Controllers\Admin\UsuariosBloqueadosController;
+use App\Http\Controllers\BackupController;  // ⭐ NUEVO: Importación para rutas de backup
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
@@ -140,6 +141,17 @@ Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware:
         Route::post('/{id}/resetear-intentos', [UsuariosBloqueadosController::class, 'resetearIntentos'])->name('resetear');
         Route::post('/desbloquear-todos', [UsuariosBloqueadosController::class, 'desbloquearTodos'])->name('desbloquear-todos');
     });
+
+    // ============================================================================
+    // RUTAS DEL SISTEMA DE BACKUP (ANIDADO BAJO USERS)
+    // ============================================================================
+    Route::prefix('users/backup')->name('backup.')->group(function () {
+        Route::get('/', [BackupController::class, 'index'])->name('index');
+        Route::post('/ejecutar', [BackupController::class, 'ejecutarBackup'])->name('ejecutar');
+        Route::post('/configuracion', [BackupController::class, 'guardarConfiguracion'])->name('configuracion');
+        Route::get('/descargar/{id}', [BackupController::class, 'descargar'])->name('descargar');
+        Route::delete('/eliminar/{id}', [BackupController::class, 'eliminar'])->name('eliminar');
+    });
 });
 
 // ============================================================================
@@ -173,6 +185,7 @@ Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMi
     Route::get('/asistencia/reuniones', [VicepresidenteController::class, 'asistenciaReuniones'])->name('asistencia.reuniones');
     Route::get('/cartas/formales', [VicepresidenteController::class, 'cartasFormales'])->name('cartas.formales');
     Route::get('/cartas/patrocinio', [VicepresidenteController::class, 'cartasPatrocinio'])->name('cartas.patrocinio');
+    Route::get('/estado/proyectos', [VicepresidenteController::class, 'estadoProyectos'])->name('estado.proyectos');
     
     Route::get('/reportes/dashboard', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
     Route::get('/reportes/mensuales', [ReporteController::class, 'mensuales'])->name('reportes.mensuales');
