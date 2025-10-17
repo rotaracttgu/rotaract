@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nueva Contraseña</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        .logo-pink {
+            filter: grayscale(1) sepia(1) saturate(6) hue-rotate(-320deg) brightness(1.05);
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg,#eef2ff 0%, #e9d5ff 100%);">
 
-    <div class="w-full max-w-md">
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+    <div class="w-72 sm:w-80">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden ring-1 ring-indigo-50">
             
-            <!-- Header -->
-            <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-6">
-                <div class="flex items-center justify-center">
-                    <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+            <!-- Encabezado -->
+            <div class="p-6 text-center">
+                <div class="mx-auto h-16 w-16 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+                    <img src="{{ asset('images/Logo_Rotarac.webp') }}" alt="Rotaract" class="h-12 w-auto logo-pink" />
                 </div>
-                <h2 class="text-2xl font-bold text-white text-center mt-4">¡Respuestas Correctas!</h2>
-                <p class="text-green-100 text-center text-sm mt-2">Ahora puedes crear una nueva contraseña</p>
+                <h2 class="text-xl font-semibold text-gray-800">¡Respuestas Correctas!</h2>
+                <p class="text-sm text-gray-500 mt-1">Ahora puedes crear una nueva contraseña</p>
             </div>
 
-            <!-- Form -->
-            <form action="{{ route('password.security.reset') }}" method="POST" class="p-8">
+            <!-- Formulario -->
+            <form action="{{ route('password.security.reset') }}" method="POST" class="px-6 pb-6">
                 @csrf
                 <input type="hidden" name="token" value="{{ $token }}">
 
                 @if ($errors->any())
-                    <div class="mb-6 bg-red-50 border-l-4 border-red-600 rounded-lg p-4">
+                    <div class="mb-4 bg-red-50 border-l-4 border-red-600 rounded-md p-3">
                         <ul class="list-disc list-inside text-sm text-red-700">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -38,42 +41,57 @@
                 @endif
 
                 <!-- Nueva Contraseña -->
-                <div class="mb-6">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">
-                        Nueva Contraseña
-                    </label>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nueva Contraseña</label>
                     <div class="relative">
-                        <input type="password" id="password" name="password" required
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all">
-                        <button type="button" onclick="togglePassword('password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               required
+                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
+                               placeholder="********">
+                        <button type="button" 
+                                onclick="togglePassword('password')" 
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         </button>
                     </div>
-                    <p class="mt-1 text-xs text-gray-600">Mínimo 8 caracteres, mayúsculas, minúsculas, números y símbolos</p>
+                    <p class="mt-1 text-xs text-gray-500">Mínimo 8 caracteres con mayúsculas, minúsculas y números</p>
                 </div>
 
                 <!-- Confirmar Contraseña -->
                 <div class="mb-6">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">
-                        Confirmar Contraseña
-                    </label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirmar Contraseña</label>
                     <div class="relative">
-                        <input type="password" id="password_confirmation" name="password_confirmation" required
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all">
-                        <button type="button" onclick="togglePassword('password_confirmation')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        <input type="password" 
+                               id="password_confirmation" 
+                               name="password_confirmation" 
+                               required
+                               class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
+                               placeholder="********">
+                        <button type="button" 
+                                onclick="togglePassword('password_confirmation')" 
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         </button>
                     </div>
                 </div>
 
-                <button type="submit" 
-                    class="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300">
+                <button type="submit"
+                    class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-lg border-2 border-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-200">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
                     Restablecer Contraseña
                 </button>
             </form>
