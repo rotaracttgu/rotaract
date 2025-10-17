@@ -15,7 +15,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #d41367; /* Cranberry */
+            background: #001f3f; /* Dark Blue*/
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -32,33 +32,6 @@
             gap: 20px;
         }
 
-        .logo-container {
-            text-align: center;
-            animation: fadeInDown 0.8s ease-out;
-            width: 100%;
-            padding: 15px;
-        }
-
-        .logo-container img {
-            max-width: 280px;
-            width: 100%;
-            height: auto;
-            filter: brightness(10) contrast(1);
-            display: block;
-            margin: 0 auto;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .login-container {
             background: #ffffff; /* White */
             border-radius: 16px;
@@ -67,13 +40,119 @@
             width: 100%;
             padding: 30px 40px;
             animation: fadeInUp 0.8s ease-out;
-            border: 3px solid #901f93; /* Violet border */
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Borde multicolor con gradiente que respeta border-radius */
+        .login-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            padding: 4px; /* Grosor del borde */
+            background: linear-gradient(135deg, #d41367, #901f93, #00adbb, #ffc72c, #009739, #d41367);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
         }
 
         @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+            width: 100%;
+            padding: 15px 0 25px 0;
+            margin-bottom: 10px;
+        }
+
+        .logo-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo-container img {
+            max-width: 280px;
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            filter: 
+                brightness(0) 
+                saturate(100%) 
+                invert(27%) 
+                sepia(51%) 
+                saturate(2878%) 
+                hue-rotate(346deg) 
+                brightness(104%) 
+                contrast(97%);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Multicolor gradient overlay with blend modes */
+        .logo-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 280px;
+            height: 100%;
+            background: linear-gradient(135deg, #d41367 0%, #901f93 25%, #00adbb 50%, #009739 75%, #d41367 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 4s ease-in-out infinite;
+            mix-blend-mode: multiply;
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 1;
+            border-radius: 8px;
+        }
+
+        /* Enhanced filter for better color vibrancy */
+        .logo-container img {
+            filter: 
+                drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))
+                hue-rotate(0deg) 
+                saturate(1.8) 
+                brightness(1.1) 
+                contrast(1.2);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            25% {
+                background-position: 100% 0%;
+            }
+            50% {
+                background-position: 100% 100%;
+            }
+            75% {
+                background-position: 0% 100%;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
             }
             to {
                 opacity: 1;
@@ -306,6 +385,10 @@
                 max-width: 280px;
             }
 
+            .logo-container::before {
+                max-width: 280px;
+            }
+
             .login-container {
                 padding: 35px 30px;
             }
@@ -317,10 +400,14 @@
             }
 
             .logo-container {
-                padding: 15px;
+                padding: 15px 0 20px 0;
             }
 
             .logo-container img {
+                max-width: 240px;
+            }
+
+            .logo-container::before {
                 max-width: 240px;
             }
 
@@ -353,13 +440,13 @@
 </head>
 <body>
     <div class="login-wrapper">
-        <!-- Logo del Club -->
-        <div class="logo-container">
-            <img src="{{ asset('images/Logo_Rotarac.webp') }}" alt="Rotaract Club Tegucigalpa Sur" 
-                 onerror="this.onerror=null; this.src='{{ asset('build/images/LogoRotaract.png') }}'">
-        </div>
-
         <div class="login-container">
+            <!-- Logo del Club -->
+            <div class="logo-container">
+                <img src="{{ asset('images/Logo_Rotarac.webp') }}" alt="Rotaract Club Tegucigalpa Sur" 
+                     onerror="this.onerror=null; this.src='{{ asset('build/images/LogoRotaract.png') }}'">
+            </div>
+
             <!-- Mensajes de error -->
             @if ($errors->any())
                 <div class="alert alert-error">
