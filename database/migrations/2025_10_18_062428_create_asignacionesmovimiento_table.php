@@ -15,7 +15,7 @@ return new class extends Migration
             Schema::create('asignacionesmovimiento', function (Blueprint $table) {
                 $table->id('AsignacionID');
                 $table->unsignedBigInteger('MovimientoID');
-                $table->unsignedBigInteger('ProyectoID');
+                $table->unsignedInteger('ProyectoID');
                 $table->decimal('MontoAsignado', 12, 2);
                 
                 $table->foreign('MovimientoID')->references('MovimientoID')->on('movimientos')->onDelete('cascade');

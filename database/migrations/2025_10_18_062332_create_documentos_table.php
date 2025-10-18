@@ -22,7 +22,7 @@ return new class extends Migration
                 $table->string('Autor', 100)->nullable();
                 $table->integer('NumeroPaginas')->nullable();
                 $table->unsignedBigInteger('MiembroID')->nullable();
-                $table->unsignedBigInteger('ProyectoID')->nullable();
+                $table->unsignedInteger('ProyectoID')->nullable();
                 
                 $table->foreign('MiembroID')->references('MiembroID')->on('miembros')->onDelete('set null');
                 $table->foreign('ProyectoID')->references('ProyectoID')->on('proyectos')->onDelete('set null');

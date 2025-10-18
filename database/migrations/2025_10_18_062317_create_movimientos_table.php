@@ -21,7 +21,7 @@ return new class extends Migration
                 $table->enum('TipoEntrada', ['Membresia', 'Donacion', 'PagoDistrito'])->nullable();
                 $table->enum('CategoriaEgreso', ['Compra', 'PagoProveedor', 'GastoOperativo', 'Otro'])->nullable();
                 $table->unsignedBigInteger('MiembroID')->nullable();
-                $table->unsignedBigInteger('ProyectoID')->nullable();
+                $table->unsignedInteger('ProyectoID')->nullable();
                 $table->unsignedBigInteger('PagoID')->nullable();
                 
                 $table->foreign('MiembroID')->references('MiembroID')->on('miembros')->onDelete('set null');

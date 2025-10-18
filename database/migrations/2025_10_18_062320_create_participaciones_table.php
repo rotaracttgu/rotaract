@@ -15,9 +15,9 @@ return new class extends Migration
             Schema::create('participaciones', function (Blueprint $table) {
                 $table->id('ParticipacionID');
                 $table->unsignedBigInteger('MiembroID');
-                $table->unsignedBigInteger('ProyectoID');
-                $table->string('Rol', 30)->nullable();
-                $table->date('FechaIngreso')->nullable();
+                $table->unsignedInteger('ProyectoID');
+                $table->string('Rol', 100)->nullable();
+                $table->date('FechaIngreso');
                 $table->date('FechaSalida')->nullable();
                 $table->string('EstadoParticipacion', 20)->nullable();
                 
