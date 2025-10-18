@@ -15,7 +15,7 @@ return new class extends Migration
             Schema::create('conversaciones_chat', function (Blueprint $table) {
                 $table->id('ConversacionID');
                 $table->unsignedBigInteger('MensajeID');
-                $table->unsignedInteger('RemitenteID');
+                $table->unsignedBigInteger('RemitenteID');
                 $table->boolean('EsRespuesta')->default(false);
                 $table->text('TextoMensaje');
                 $table->dateTime('FechaEnvio')->useCurrent();

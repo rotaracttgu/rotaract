@@ -23,8 +23,8 @@ return new class extends Migration
                 $table->time('HoraInicio');
                 $table->time('HoraFin')->nullable();
                 $table->string('Ubicacion', 200)->nullable();
-                $table->unsignedInteger('OrganizadorID')->nullable();
-                $table->unsignedInteger('ProyectoID')->nullable();
+                $table->unsignedBigInteger('OrganizadorID')->nullable();
+                $table->unsignedBigInteger('ProyectoID')->nullable();
                 
                 $table->foreign('OrganizadorID')->references('MiembroID')->on('miembros')->onDelete('set null');
                 $table->foreign('ProyectoID')->references('ProyectoID')->on('proyectos')->onDelete('set null');

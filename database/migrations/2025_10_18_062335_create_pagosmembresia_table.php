@@ -14,7 +14,7 @@ return new class extends Migration
         if (!Schema::hasTable('pagosmembresia')) {
             Schema::create('pagosmembresia', function (Blueprint $table) {
                 $table->id('PagoID');
-                $table->unsignedInteger('MiembroID');
+                $table->unsignedBigInteger('MiembroID');
                 $table->date('FechaPago');
                 $table->decimal('Monto', 12, 2);
                 $table->string('MetodoPago', 50)->nullable();

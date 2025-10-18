@@ -14,7 +14,7 @@ return new class extends Migration
         if (!Schema::hasTable('notas_personales')) {
             Schema::create('notas_personales', function (Blueprint $table) {
                 $table->id('NotaID');
-                $table->unsignedInteger('MiembroID');
+                $table->unsignedBigInteger('MiembroID');
                 $table->string('Titulo', 200);
                 $table->text('Contenido')->nullable();
                 $table->enum('Categoria', ['proyecto', 'reunion', 'capacitacion', 'idea', 'personal'])->default('personal');

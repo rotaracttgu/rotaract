@@ -14,8 +14,8 @@ return new class extends Migration
         if (!Schema::hasTable('asistencias')) {
             Schema::create('asistencias', function (Blueprint $table) {
                 $table->id('AsistenciaID');
-                $table->unsignedInteger('MiembroID');
-                $table->unsignedInteger('CalendarioID');
+                $table->unsignedBigInteger('MiembroID');
+                $table->unsignedBigInteger('CalendarioID');
                 $table->enum('EstadoAsistencia', ['Presente', 'Ausente', 'Justificado'])->default('Presente');
                 $table->time('HoraLlegada')->nullable();
                 $table->integer('MinutosTarde')->default(0);

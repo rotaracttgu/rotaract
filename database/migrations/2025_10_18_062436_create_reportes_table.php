@@ -14,7 +14,7 @@ return new class extends Migration
         if (!Schema::hasTable('reportes')) {
             Schema::create('reportes', function (Blueprint $table) {
                 $table->id('ReporteID');
-                $table->unsignedInteger('CalendarioID')->nullable();
+                $table->unsignedBigInteger('CalendarioID')->nullable();
                 $table->string('TipoReporte', 50);
                 $table->dateTime('FechaGeneracion')->useCurrent();
                 $table->string('RutaArchivo', 255)->nullable();

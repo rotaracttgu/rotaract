@@ -21,8 +21,8 @@ return new class extends Migration
                 $table->date('FechaEmision')->nullable();
                 $table->string('Autor', 100)->nullable();
                 $table->integer('NumeroPaginas')->nullable();
-                $table->unsignedInteger('MiembroID')->nullable();
-                $table->unsignedInteger('ProyectoID')->nullable();
+                $table->unsignedBigInteger('MiembroID')->nullable();
+                $table->unsignedBigInteger('ProyectoID')->nullable();
                 
                 $table->foreign('MiembroID')->references('MiembroID')->on('miembros')->onDelete('set null');
                 $table->foreign('ProyectoID')->references('ProyectoID')->on('proyectos')->onDelete('set null');

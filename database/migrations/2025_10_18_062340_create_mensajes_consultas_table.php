@@ -14,9 +14,9 @@ return new class extends Migration
         if (!Schema::hasTable('mensajes_consultas')) {
             Schema::create('mensajes_consultas', function (Blueprint $table) {
                 $table->id('MensajeID');
-                $table->unsignedInteger('MiembroID');
+                $table->unsignedBigInteger('MiembroID');
                 $table->enum('DestinatarioTipo', ['secretaria', 'voceria', 'directiva', 'otro']);
-                $table->unsignedInteger('DestinatarioID')->nullable();
+                $table->unsignedBigInteger('DestinatarioID')->nullable();
                 $table->string('TipoConsulta', 50)->nullable();
                 $table->string('Asunto', 200);
                 $table->text('Mensaje');
@@ -25,7 +25,7 @@ return new class extends Migration
                 $table->dateTime('FechaEnvio')->useCurrent();
                 $table->dateTime('FechaRespuesta')->nullable();
                 $table->text('RespuestaMensaje')->nullable();
-                $table->unsignedInteger('RespondidoPor')->nullable();
+                $table->unsignedBigInteger('RespondidoPor')->nullable();
                 
                 $table->foreign('MiembroID')->references('MiembroID')->on('miembros')->onDelete('cascade');
                 $table->foreign('RespondidoPor')->references('MiembroID')->on('miembros')->onDelete('set null');

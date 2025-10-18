@@ -14,7 +14,7 @@ return new class extends Migration
         if (!Schema::hasTable('telefonos')) {
             Schema::create('telefonos', function (Blueprint $table) {
                 $table->id('TelefonoID');
-                $table->unsignedInteger('MiembroID');
+                $table->unsignedBigInteger('MiembroID');
                 $table->string('Numero', 20);
                 $table->enum('TipoTelefono', ['Movil', 'Casa', 'Trabajo', 'Otro'])->default('Movil');
                 

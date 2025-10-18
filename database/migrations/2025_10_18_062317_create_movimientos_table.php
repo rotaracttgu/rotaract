@@ -20,9 +20,9 @@ return new class extends Migration
                 $table->decimal('Monto', 14, 2);
                 $table->enum('TipoEntrada', ['Membresia', 'Donacion', 'PagoDistrito'])->nullable();
                 $table->enum('CategoriaEgreso', ['Compra', 'PagoProveedor', 'GastoOperativo', 'Otro'])->nullable();
-                $table->unsignedInteger('MiembroID')->nullable();
-                $table->unsignedInteger('ProyectoID')->nullable();
-                $table->unsignedInteger('PagoID')->nullable();
+                $table->unsignedBigInteger('MiembroID')->nullable();
+                $table->unsignedBigInteger('ProyectoID')->nullable();
+                $table->unsignedBigInteger('PagoID')->nullable();
                 
                 $table->foreign('MiembroID')->references('MiembroID')->on('miembros')->onDelete('set null');
                 $table->foreign('ProyectoID')->references('ProyectoID')->on('proyectos')->onDelete('set null');
