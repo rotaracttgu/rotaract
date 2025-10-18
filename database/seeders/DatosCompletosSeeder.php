@@ -49,94 +49,15 @@ class DatosCompletosSeeder extends Seeder
         // 2. USUARIOS
         // ============================================
         
-        // Usuario Super Admin - Rodrigo
-        $rodrigo = User::firstOrCreate(
-            ['email' => 'rodrigopaleom7@gmail.com'],
-            [
-                'name' => 'Rodrigo',
-                'apellidos' => 'Paleo',
-                'username' => 'rodrigo',
-                'dni' => '12345678',
-                'telefono' => '999999999',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-                'profile_completed_at' => now(),
-                'two_factor_enabled' => true,
-                'two_factor_verified_at' => now(),
-                'first_login' => false,
-            ]
-        );
-        $rodrigo->assignRole('Super Admin');
-
-        // Usuario Vocero - Axel
-        $axel = User::firstOrCreate(
-            ['email' => 'yovani16cabrera20@gmail.com'],
-            [
-                'name' => 'Axel',
-                'apellidos' => 'Cabrera',
-                'username' => 'axel',
-                'dni' => '87654321',
-                'telefono' => '988888888',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-                'profile_completed_at' => now(),
-                'two_factor_enabled' => true,
-                'two_factor_verified_at' => now(),
-                'first_login' => false,
-            ]
-        );
-        $axel->assignRole('Vocero');
-
-        // Usuario Vicepresidente - Carlos
-        $carlos = User::firstOrCreate(
-            ['email' => 'carlos@rotaract.com'],
-            [
-                'name' => 'Carlos',
-                'apellidos' => 'Vicepresidente',
-                'username' => 'carlos',
-                'dni' => '11223344',
-                'telefono' => '977777777',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-                'profile_completed_at' => now(),
-                'two_factor_enabled' => false,
-                'first_login' => false,
-            ]
-        );
-        $carlos->assignRole('Vicepresidente');
-
-        // Usuarios adicionales para pruebas
-        $maria = User::firstOrCreate(
-            ['email' => 'maria@rotaract.com'],
-            [
-                'name' => 'María',
-                'apellidos' => 'González',
-                'username' => 'maria',
-                'dni' => '22334455',
-                'telefono' => '966666666',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-                'profile_completed_at' => now(),
-                'first_login' => false,
-            ]
-        );
-        $maria->assignRole('Secretario');
-
-        $juan = User::firstOrCreate(
-            ['email' => 'juan@rotaract.com'],
-            [
-                'name' => 'Juan',
-                'apellidos' => 'Pérez',
-                'username' => 'juan',
-                'dni' => '33445566',
-                'telefono' => '955555555',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-                'profile_completed_at' => now(),
-                'first_login' => false,
-            ]
-        );
-        $juan->assignRole('Tesorero');
+        // NOTA: Los usuarios ya existen en la base de datos
+        // Solo obtenemos referencias a los usuarios existentes
+        // Si no existen, obtendremos el primero disponible como respaldo
+        
+        $rodrigo = User::where('email', 'rodrigopaleom7@gmail.com')->first() ?? User::first();
+        $axel = User::where('email', 'yovani16cabrera20@gmail.com')->first() ?? User::skip(1)->first() ?? User::first();
+        $carlos = User::where('email', 'carlos@rotaract.com')->first() ?? User::skip(2)->first() ?? User::first();
+        $maria = User::skip(3)->first() ?? User::first();
+        $juan = User::skip(4)->first() ?? User::first();
 
         // ============================================
         // 3. PROYECTOS
@@ -510,18 +431,16 @@ class DatosCompletosSeeder extends Seeder
         $this->command->info('');
         $this->command->info('📊 Resumen:');
         $this->command->info('- Roles: 7');
-        $this->command->info('- Usuarios: 5');
-        $this->command->info('- Proyectos: 6');
-        $this->command->info('- Cartas Patrocinio: 3');
-        $this->command->info('- Cartas Formales: 4');
-        $this->command->info('- Reuniones: 4');
-        $this->command->info('- Asistencias: 10');
-        $this->command->info('- Participaciones: 3');
+        $this->command->info('- Usuarios: ' . User::count() . ' (sin modificar - usa los existentes)');
+        $this->command->info('- Proyectos: ' . Proyecto::count());
+        $this->command->info('- Cartas Patrocinio: ' . CartaPatrocinio::count());
+        $this->command->info('- Cartas Formales: ' . CartaFormal::count());
+        $this->command->info('- Reuniones: ' . Reunion::count());
+        $this->command->info('- Asistencias: ' . AsistenciaReunion::count());
+        $this->command->info('- Participaciones: ' . ParticipacionProyecto::count());
         $this->command->info('- Parámetros: 3');
         $this->command->info('');
-        $this->command->info('🔑 Credenciales de acceso:');
-        $this->command->info('Email: rodrigopaleom7@gmail.com | Password: password | Rol: Super Admin');
-        $this->command->info('Email: carlos@rotaract.com | Password: password | Rol: Vicepresidente');
-        $this->command->info('Email: yovani16cabrera20@gmail.com | Password: password | Rol: Vocero');
+        $this->command->info('🔑 IMPORTANTE: Usa las credenciales de tus usuarios existentes');
+        $this->command->info('   El seeder NO creó usuarios nuevos, solo agregó datos a los proyectos, cartas y reuniones.');
     }
 }
