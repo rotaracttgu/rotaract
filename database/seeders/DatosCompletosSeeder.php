@@ -60,7 +60,21 @@ class DatosCompletosSeeder extends Seeder
         $juan = User::skip(4)->first() ?? User::first();
 
         // ============================================
-        // 3. PROYECTOS
+        // 3. MIEMBROS
+        // ============================================
+        
+        DB::table('miembros')->insertOrIgnore([
+            ['MiembroID' => 1, 'user_id' => $rodrigo->id ?? null, 'DNI_Pasaporte' => '0801-1990-12345', 'Nombre' => 'Rodrigo Palma', 'Rol' => 'Super Admin', 'Correo' => 'rodrigopalma7@gmail.com', 'FechaIngreso' => '2025-01-01', 'Apuntes' => 'Super Administrador del sistema'],
+            ['MiembroID' => 2, 'user_id' => $axel->id ?? null, 'DNI_Pasaporte' => '0801-1995-23456', 'Nombre' => 'Axel Cabrera', 'Rol' => 'Vocero', 'Correo' => 'yovani16cabrera20@gmail.com', 'FechaIngreso' => '2025-02-15', 'Apuntes' => 'Vocero del club'],
+            ['MiembroID' => 3, 'user_id' => $carlos->id ?? null, 'DNI_Pasaporte' => '0801-1992-34567', 'Nombre' => 'Carlos Interiano', 'Rol' => 'SuperAdmin', 'Correo' => 'cinteriano25@gmail.com', 'FechaIngreso' => '2025-02-20', 'Apuntes' => 'SuperAdmin'],
+            ['MiembroID' => 4, 'user_id' => $maria->id ?? null, 'DNI_Pasaporte' => '0801-1993-45678', 'Nombre' => 'Pedro Martínez', 'Rol' => 'Aspirante', 'Correo' => 'pfmartineza@gmail.com', 'FechaIngreso' => '2025-03-01', 'Apuntes' => 'Aspirante en proceso'],
+            ['MiembroID' => 5, 'user_id' => $juan->id ?? null, 'DNI_Pasaporte' => '0801-1994-56789', 'Nombre' => 'Leonel A.', 'Rol' => 'Aspirante', 'Correo' => 'lordleo7k@gmail.com', 'FechaIngreso' => '2025-03-10', 'Apuntes' => 'Nuevo aspirante'],
+            ['MiembroID' => 6, 'user_id' => null, 'DNI_Pasaporte' => null, 'Nombre' => 'Juan Pérez', 'Rol' => 'Socio', 'Correo' => 'juan@example.com', 'FechaIngreso' => '2025-01-01', 'Apuntes' => null],
+            ['MiembroID' => 7, 'user_id' => null, 'DNI_Pasaporte' => null, 'Nombre' => 'María García', 'Rol' => 'Socio', 'Correo' => 'maria@example.com', 'FechaIngreso' => '2025-01-01', 'Apuntes' => null],
+        ]);
+
+        // ============================================
+        // 4. PROYECTOS
         // ============================================
         
         $proyectos = [
@@ -395,7 +409,78 @@ class DatosCompletosSeeder extends Seeder
         }
 
         // ============================================
-        // 9. PARÁMETROS DEL SISTEMA
+        // 9. CALENDARIOS (EVENTOS)
+        // ============================================
+        
+        DB::table('calendarios')->insertOrIgnore([
+            ['CalendarioID' => 1, 'TituloEvento' => 'Reunión Mensual - Marzo', 'Descripcion' => 'Revisión de avances de proyectos', 'TipoEvento' => 'Presencial', 'EstadoEvento' => 'Finalizado', 'FechaInicio' => '2025-03-15 18:00:00', 'FechaFin' => '2025-03-15 20:00:00', 'HoraInicio' => '18:00:00', 'HoraFin' => '20:00:00', 'Ubicacion' => 'Sede Club Rotaract', 'OrganizadorID' => 1, 'ProyectoID' => null],
+            ['CalendarioID' => 2, 'TituloEvento' => 'Reunión Mensual - Abril', 'Descripcion' => 'Planificación de actividades', 'TipoEvento' => 'Presencial', 'EstadoEvento' => 'Finalizado', 'FechaInicio' => '2025-04-15 18:00:00', 'FechaFin' => '2025-04-15 20:00:00', 'HoraInicio' => '18:00:00', 'HoraFin' => '20:00:00', 'Ubicacion' => 'Sede Club Rotaract', 'OrganizadorID' => 1, 'ProyectoID' => null],
+            ['CalendarioID' => 3, 'TituloEvento' => 'Reunión Mensual - Mayo', 'Descripcion' => 'Seguimiento de proyectos', 'TipoEvento' => 'Presencial', 'EstadoEvento' => 'Programado', 'FechaInicio' => '2025-05-15 18:00:00', 'FechaFin' => '2025-05-15 20:00:00', 'HoraInicio' => '18:00:00', 'HoraFin' => '20:00:00', 'Ubicacion' => 'Sede Club Rotaract', 'OrganizadorID' => 1, 'ProyectoID' => null],
+            ['CalendarioID' => 4, 'TituloEvento' => 'Kick-off Campaña Reciclaje', 'Descripcion' => 'Inicio del proyecto de reciclaje', 'TipoEvento' => 'Presencial', 'EstadoEvento' => 'Finalizado', 'FechaInicio' => '2025-01-20 15:00:00', 'FechaFin' => '2025-01-20 17:00:00', 'HoraInicio' => '15:00:00', 'HoraFin' => '17:00:00', 'Ubicacion' => 'Escuela Central', 'OrganizadorID' => 1, 'ProyectoID' => 1],
+        ]);
+
+        // ============================================
+        // 10. ASISTENCIAS (A EVENTOS)
+        // ============================================
+        
+        DB::table('asistencias')->insertOrIgnore([
+            ['AsistenciaID' => 1, 'MiembroID' => 1, 'CalendarioID' => 1, 'EstadoAsistencia' => 'Presente', 'HoraLlegada' => '18:00:00', 'MinutosTarde' => 0, 'Observacion' => 'Puntual', 'FechaRegistro' => '2025-03-15 18:00:00'],
+            ['AsistenciaID' => 2, 'MiembroID' => 2, 'CalendarioID' => 1, 'EstadoAsistencia' => 'Presente', 'HoraLlegada' => '18:05:00', 'MinutosTarde' => 5, 'Observacion' => 'Llegó 5 minutos tarde', 'FechaRegistro' => '2025-03-15 18:05:00'],
+            ['AsistenciaID' => 3, 'MiembroID' => 3, 'CalendarioID' => 1, 'EstadoAsistencia' => 'Presente', 'HoraLlegada' => '18:00:00', 'MinutosTarde' => 0, 'Observacion' => 'Puntual', 'FechaRegistro' => '2025-03-15 18:00:00'],
+            ['AsistenciaID' => 4, 'MiembroID' => 1, 'CalendarioID' => 2, 'EstadoAsistencia' => 'Presente', 'HoraLlegada' => '18:00:00', 'MinutosTarde' => 0, 'Observacion' => null, 'FechaRegistro' => '2025-04-15 18:00:00'],
+        ]);
+
+        // ============================================
+        // 11. PARTICIPACIONES (EN PROYECTOS)
+        // ============================================
+        
+        DB::table('participaciones')->insertOrIgnore([
+            ['ParticipacionID' => 1, 'MiembroID' => 1, 'ProyectoID' => 1, 'Rol' => 'Coordinador', 'FechaIngreso' => '2025-01-15', 'FechaSalida' => null, 'EstadoParticipacion' => 'Activo'],
+            ['ParticipacionID' => 2, 'MiembroID' => 2, 'ProyectoID' => 1, 'Rol' => 'Voluntario', 'FechaIngreso' => '2025-01-20', 'FechaSalida' => null, 'EstadoParticipacion' => 'Activo'],
+            ['ParticipacionID' => 3, 'MiembroID' => 3, 'ProyectoID' => 2, 'Rol' => 'Coordinador Logístico', 'FechaIngreso' => '2025-02-05', 'FechaSalida' => null, 'EstadoParticipacion' => 'Activo'],
+        ]);
+
+        // ============================================
+        // 12. TELÉFONOS
+        // ============================================
+        
+        DB::table('telefonos')->insertOrIgnore([
+            ['TelefonoID' => 1, 'MiembroID' => 1, 'Numero' => '+504 9876-5432', 'TipoTelefono' => 'Movil'],
+            ['TelefonoID' => 2, 'MiembroID' => 2, 'Numero' => '+504 9123-4567', 'TipoTelefono' => 'Movil'],
+            ['TelefonoID' => 3, 'MiembroID' => 3, 'Numero' => '+504 8765-4321', 'TipoTelefono' => 'Movil'],
+        ]);
+
+        // ============================================
+        // 13. PAGOS DE MEMBRESÍA
+        // ============================================
+        
+        DB::table('pagosmembresia')->insertOrIgnore([
+            ['PagoID' => 1, 'MiembroID' => 1, 'FechaPago' => '2025-01-05', 'Monto' => 500.00, 'MetodoPago' => 'Transferencia', 'EstadoPago' => 'Pagado', 'PeriodoPago' => 'Enero 2025'],
+            ['PagoID' => 2, 'MiembroID' => 2, 'FechaPago' => '2025-01-10', 'Monto' => 500.00, 'MetodoPago' => 'Efectivo', 'EstadoPago' => 'Pagado', 'PeriodoPago' => 'Enero 2025'],
+            ['PagoID' => 3, 'MiembroID' => 3, 'FechaPago' => '2025-02-05', 'Monto' => 500.00, 'MetodoPago' => 'Transferencia', 'EstadoPago' => 'Pagado', 'PeriodoPago' => 'Febrero 2025'],
+        ]);
+
+        // ============================================
+        // 14. MOVIMIENTOS FINANCIEROS
+        // ============================================
+        
+        DB::table('movimientos')->insertOrIgnore([
+            ['MovimientoID' => 1, 'FechaMovimiento' => '2025-01-05 10:00:00', 'Descripcion' => 'Pago de membresía - Rodrigo Palma', 'TipoMovimiento' => 'Ingreso', 'Monto' => 500.00, 'TipoEntrada' => 'Membresia', 'CategoriaEgreso' => null, 'MiembroID' => 1, 'ProyectoID' => null, 'PagoID' => 1],
+            ['MovimientoID' => 2, 'FechaMovimiento' => '2025-01-10 11:00:00', 'Descripcion' => 'Pago de membresía - Axel Cabrera', 'TipoMovimiento' => 'Ingreso', 'Monto' => 500.00, 'TipoEntrada' => 'Membresia', 'CategoriaEgreso' => null, 'MiembroID' => 2, 'ProyectoID' => null, 'PagoID' => 2],
+            ['MovimientoID' => 3, 'FechaMovimiento' => '2025-01-15 14:00:00', 'Descripcion' => 'Compra de plantas para reforestación', 'TipoMovimiento' => 'Egreso', 'Monto' => 2500.00, 'TipoEntrada' => null, 'CategoriaEgreso' => 'Compra', 'MiembroID' => null, 'ProyectoID' => 1, 'PagoID' => null],
+        ]);
+
+        // ============================================
+        // 15. NOTAS PERSONALES
+        // ============================================
+        
+        DB::table('notas_personales')->insertOrIgnore([
+            ['NotaID' => 1, 'MiembroID' => 1, 'Titulo' => 'Ideas para próximo proyecto', 'Contenido' => 'Considerar un proyecto de alfabetización digital para adultos mayores en comunidades rurales', 'Categoria' => 'idea', 'Visibilidad' => 'privada', 'Etiquetas' => 'proyecto,educacion,digital', 'FechaCreacion' => now(), 'FechaActualizacion' => null, 'FechaRecordatorio' => null, 'Estado' => 'activa'],
+            ['NotaID' => 2, 'MiembroID' => 2, 'Titulo' => 'Contactos para jornada de salud', 'Contenido' => 'Lista de doctores voluntarios interesados en participar', 'Categoria' => 'proyecto', 'Visibilidad' => 'publica', 'Etiquetas' => 'salud,contactos,voluntarios', 'FechaCreacion' => now(), 'FechaActualizacion' => null, 'FechaRecordatorio' => null, 'Estado' => 'activa'],
+        ]);
+
+        // ============================================
+        // 16. PARÁMETROS DEL SISTEMA
         // ============================================
         
         DB::table('parametros')->insertOrIgnore([
@@ -432,15 +517,26 @@ class DatosCompletosSeeder extends Seeder
         $this->command->info('📊 Resumen:');
         $this->command->info('- Roles: 7');
         $this->command->info('- Usuarios: ' . User::count() . ' (sin modificar - usa los existentes)');
+        $this->command->info('- Miembros: ' . DB::table('miembros')->count());
         $this->command->info('- Proyectos: ' . Proyecto::count());
         $this->command->info('- Cartas Patrocinio: ' . CartaPatrocinio::count());
         $this->command->info('- Cartas Formales: ' . CartaFormal::count());
         $this->command->info('- Reuniones: ' . Reunion::count());
-        $this->command->info('- Asistencias: ' . AsistenciaReunion::count());
-        $this->command->info('- Participaciones: ' . ParticipacionProyecto::count());
+        $this->command->info('- Calendarios (Eventos): ' . DB::table('calendarios')->count());
+        $this->command->info('- Asistencias (Reuniones): ' . AsistenciaReunion::count());
+        $this->command->info('- Asistencias (Eventos): ' . DB::table('asistencias')->count());
+        $this->command->info('- Participaciones Proyectos: ' . DB::table('participaciones')->count());
+        $this->command->info('- Participaciones (Tabla intermedia): ' . ParticipacionProyecto::count());
+        $this->command->info('- Teléfonos: ' . DB::table('telefonos')->count());
+        $this->command->info('- Pagos Membresía: ' . DB::table('pagosmembresia')->count());
+        $this->command->info('- Movimientos Financieros: ' . DB::table('movimientos')->count());
+        $this->command->info('- Notas Personales: ' . DB::table('notas_personales')->count());
         $this->command->info('- Parámetros: 3');
         $this->command->info('');
-        $this->command->info('🔑 IMPORTANTE: Usa las credenciales de tus usuarios existentes');
-        $this->command->info('   El seeder NO creó usuarios nuevos, solo agregó datos a los proyectos, cartas y reuniones.');
+        $this->command->info('� NOTA: Las tablas de documentos, mensajes, conversaciones y reportes están vacías');
+        $this->command->info('          Puedes agregar datos a estas tablas manualmente según las necesites.');
+        $this->command->info('');
+        $this->command->info('�🔑 IMPORTANTE: Usa las credenciales de tus usuarios existentes');
+        $this->command->info('   El seeder NO creó usuarios nuevos, solo agregó datos al sistema.');
     }
 }
