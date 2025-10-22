@@ -179,12 +179,27 @@ Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddle
 // ============================================================================
 // RUTAS DEL MÓDULO VICEPRESIDENTE
 // ============================================================================
-Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Vicepresidente|Presidente|Super Admin'])->name('vicepresidente.')->group(function () {
+    Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Vicepresidente|Presidente|Super Admin'])->name('vicepresidente.')->group(function () {
     Route::get('/dashboard', [VicepresidenteController::class, 'dashboard'])->name('dashboard');
+    Route::get('/calendario', [VicepresidenteController::class, 'calendario'])->name('calendario');
+    Route::get('/notificaciones', [VicepresidenteController::class, 'notificaciones'])->name('notificaciones');
     Route::get('/asistencia/proyectos', [VicepresidenteController::class, 'asistenciaProyectos'])->name('asistencia.proyectos');
     Route::get('/asistencia/reuniones', [VicepresidenteController::class, 'asistenciaReuniones'])->name('asistencia.reuniones');
+    
+    // Cartas Formales
     Route::get('/cartas/formales', [VicepresidenteController::class, 'cartasFormales'])->name('cartas.formales');
+    Route::get('/cartas/formales/{id}', [VicepresidenteController::class, 'showCartaFormal'])->name('cartas.formales.show');
+    Route::post('/cartas/formales', [VicepresidenteController::class, 'storeCartaFormal'])->name('cartas.formales.store');
+    Route::put('/cartas/formales/{id}', [VicepresidenteController::class, 'updateCartaFormal'])->name('cartas.formales.update');
+    Route::delete('/cartas/formales/{id}', [VicepresidenteController::class, 'destroyCartaFormal'])->name('cartas.formales.destroy');
+    
+    // Cartas Patrocinio
     Route::get('/cartas/patrocinio', [VicepresidenteController::class, 'cartasPatrocinio'])->name('cartas.patrocinio');
+    Route::get('/cartas/patrocinio/{id}', [VicepresidenteController::class, 'showCartaPatrocinio'])->name('cartas.patrocinio.show');
+    Route::post('/cartas/patrocinio', [VicepresidenteController::class, 'storeCartaPatrocinio'])->name('cartas.patrocinio.store');
+    Route::put('/cartas/patrocinio/{id}', [VicepresidenteController::class, 'updateCartaPatrocinio'])->name('cartas.patrocinio.update');
+    Route::delete('/cartas/patrocinio/{id}', [VicepresidenteController::class, 'destroyCartaPatrocinio'])->name('cartas.patrocinio.destroy');
+    
     Route::get('/estado/proyectos', [VicepresidenteController::class, 'estadoProyectos'])->name('estado.proyectos');
     
     Route::get('/reportes/dashboard', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
