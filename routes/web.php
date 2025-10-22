@@ -112,6 +112,7 @@ Route::middleware(['auth', 'check.first.login'])->group(function () {
 Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Super Admin'])->name('admin.')->group(function () {
     // Dashboard de Super Admin
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/notificaciones', [DashboardController::class, 'notificaciones'])->name('notificaciones');
 
     // Gestión de usuarios (solo Super Admin)
     Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios.lista');
@@ -161,6 +162,9 @@ Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddle
     Route::get('/dashboard', function () {
         return view('presidente.dashboard');
     })->name('dashboard');
+    Route::get('/notificaciones', function () {
+        return view('presidente.notificaciones', ['notificaciones' => []]);
+    })->name('notificaciones');
     
     Route::prefix('bitacora')->name('bitacora.')->group(function () {
         Route::get('/', [BitacoraController::class, 'index'])->name('index');
@@ -233,6 +237,9 @@ Route::prefix('vocero')->middleware(['auth', 'check.first.login', RoleMiddleware
     Route::get('/bienvenida', [VoceroController::class, 'welcome'])->name('bienvenida');
     Route::get('/calendario', [VoceroController::class, 'calendario'])->name('calendario');
     Route::get('/dashboard', [VoceroController::class, 'dashboard'])->name('dashboard');
+    Route::get('/notificaciones', function () {
+        return view('modulos.vocero.notificaciones', ['notificaciones' => []]);
+    })->name('notificaciones');
     Route::get('/asistencias', [VoceroController::class, 'gestionAsistencias'])->name('asistencias');
     Route::get('/eventos', [VoceroController::class, 'gestionEventos'])->name('eventos');
     Route::get('/reportes', [VoceroController::class, 'reportesAnalisis'])->name('reportes');
@@ -243,6 +250,9 @@ Route::prefix('vocero')->middleware(['auth', 'check.first.login', RoleMiddleware
 // ============================================================================
 Route::prefix('aspirante')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Aspirante|Vocero|Secretario|Tesorero|Vicepresidente|Presidente|Super Admin'])->name('aspirante.')->group(function () {
     Route::get('/dashboard', [AspiranteController::class, 'dashboard'])->name('dashboard');
+    Route::get('/notificaciones', function () {
+        return view('modulos.aspirante.notificaciones', ['notificaciones' => []]);
+    })->name('notificaciones');
     Route::get('/perfil', [AspiranteController::class, 'perfil'])->name('mi-perfil');
     Route::post('/perfil', [AspiranteController::class, 'actualizarPerfil'])->name('perfil.actualizar');
     Route::get('/proyectos', [AspiranteController::class, 'proyectos'])->name('mis-proyectos');
