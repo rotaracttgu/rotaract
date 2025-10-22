@@ -13,11 +13,20 @@
         @include('layouts.navigation')
 
         <div class="flex pt-16">
-            <!-- Sidebar Mejorado -->
-            <aside class="w-64 bg-white shadow-lg min-h-screen border-r border-gray-200 flex-shrink-0">
+            <!-- Overlay para cerrar el menú en móvil -->
+            <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
+            <!-- Sidebar Mejorado con Responsive -->
+            <aside id="sidebar" class="fixed lg:static w-64 bg-white shadow-lg min-h-screen border-r border-gray-200 flex-shrink-0 z-40 -translate-x-full lg:translate-x-0 transition-transform duration-300">
                 <!-- Header del Sidebar -->
-                <div class="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                <div class="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white flex justify-between items-center">
                     <h2 class="text-xl font-bold">Vicepresidente</h2>
+                    <!-- Botón cerrar en móvil -->
+                    <button id="closeSidebar" class="lg:hidden text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
                 
                 <!-- Navegación -->
@@ -96,8 +105,15 @@
             </aside>
 
             <!-- Contenido Principal -->
-            <main class="flex-1 p-6 max-w-full overflow-x-hidden">
-                <div class="max-w-7xl mx-auto">
+            <main class="flex-1 p-4 lg:p-6 max-w-full overflow-x-hidden">
+                <!-- Botón menú hamburguesa para móvil -->
+                <button id="openSidebar" class="lg:hidden fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg z-50 hover:bg-blue-700 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <div class="max-w-7xl mx-auto"
                     <!-- Mensajes de Éxito/Error -->
                     @if(session('success'))
                         <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
@@ -142,5 +158,39 @@
             </main>
         </div>
     </div>
+
+    <!-- JavaScript para controlar el menú móvil -->
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const openBtn = document.getElementById('openSidebar');
+        const closeBtn = document.getElementById('closeSidebar');
+
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        openBtn.addEventListener('click', openSidebar);
+        closeBtn.addEventListener('click', closeSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        // Cerrar menú al hacer clic en un enlace (solo en móvil)
+        const sidebarLinks = sidebar.querySelectorAll('a');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 1024) {
+                    closeSidebar();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
