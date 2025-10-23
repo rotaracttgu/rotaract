@@ -12,46 +12,105 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.min.css" rel="stylesheet">
     
     <style>
+        /* Variables de colores (copiadas de tu código original) */
         :root {
             --primary-color: #2563eb;
             --secondary-color: #64748b;
             --success-color: #059669;
             --warning-color: #d97706;
             --danger-color: #dc2626;
+            --info-color: #06b6d4; /* Añadida para consistencia */
             --sidebar-bg: #1e293b;
             --sidebar-text: #e2e8f0;
         }
 
+        /* Estilos base */
         body {
             background-color: #f8fafc;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex; /* Necesario para la vista sin x-app-layout */
         }
-
-        .sidebar {
+        
+        /* AJUSTES CLAVE PARA LA VISTA SIN X-APP-LAYOUT */
+        .sidebar-vocero {
             background: var(--sidebar-bg);
-            min-height: 100vh;
+            width: 250px; /* Ancho fijo */
+            position: fixed; /* POSICION FIJA */
+            left: 0;
+            top: 0; 
+            z-index: 20; 
+            height: 100vh;
+            padding-top: 64px; /* Espacio para el brand */
             transition: all 0.3s ease;
         }
 
-        .sidebar .nav-link {
-            color: var(--sidebar-text);
-            border-radius: 8px;
-            margin: 4px 0;
-            padding: 12px 16px;
-            transition: all 0.2s ease;
+        .main-content-vocero {
+            /* Desplaza todo el contenido para que empiece después del menú de 250px */
+            margin-left: 250px; 
+            min-height: 100vh;
+            flex-grow: 1;
+            width: calc(100% - 250px);
+        }
+        
+        .sidebar-brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            position: absolute; 
+            top: 0;
+            width: 100%;
+            height: 64px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 40; 
         }
 
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
+        .sidebar-brand h4 {
+            color: var(--sidebar-text);
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .sidebar-vocero .nav-link {
+            color: var(--sidebar-text);
+            border-radius: 8px;
+            margin: 4px 16px;
+            padding: 12px 16px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .sidebar-vocero .nav-link:hover {
             background: rgba(59, 130, 246, 0.1);
             color: #60a5fa;
         }
+
+        .sidebar-vocero .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        /* FIN AJUSTES CLAVE */
 
         .content-wrapper {
             background: white;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
+            margin: 20px;
             padding: 24px;
         }
 
@@ -59,6 +118,7 @@
             border: none;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
         }
 
         .btn-primary {
@@ -89,6 +149,7 @@
             border-color: var(--primary-color) !important;
         }
 
+        /* FullCalendar Custom Styles (el resto de tus estilos de FullCalendar permanece) */
         .fc-event {
             white-space: normal !important;
             overflow: visible !important;
@@ -171,66 +232,69 @@
             opacity: 0.6;
             pointer-events: none;
         }
+        
+        /* Media Query: Importante para móviles */
+        @media (max-width: 768px) {
+            .sidebar-vocero { position: relative; width: 100%; height: auto; padding-top: 0; }
+            .main-content-vocero { margin-left: 0; padding-top: 0; width: 100%; }
+        }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-2 col-md-3 sidebar">
-                <div class="p-4">
-                    <div class="d-flex align-items-center mb-4">
-                        <i class="fas fa-calendar-alt text-primary me-2 fs-3"></i>
-                        <h4 class="text-white mb-0">Vocero</h4>
-                    </div>
-                    
-                    <nav class="nav flex-column">
-                        <a class="nav-link {{ request()->routeIs('vocero.index') ? 'active' : '' }}" href="{{ route('vocero.index') }}">
-                            <i class="fas fa-chart-line me-2"></i>
-                            Dashboard
-                        </a>
-                        <a class="nav-link {{ request()->routeIs('vocero.calendario') ? 'active' : '' }}" href="{{ route('vocero.calendario') }}">
-                            <i class="fas fa-calendar me-2"></i>
-                            Calendario
-                        </a>
-                        <a class="nav-link {{ request()->routeIs('vocero.eventos') ? 'active' : '' }}" href="{{ route('vocero.eventos') }}">
-                            <i class="fas fa-calendar-plus me-2"></i>
-                            Gestión de Eventos
-                        </a>
-                        <a class="nav-link {{ request()->routeIs('vocero.asistencias') ? 'active' : '' }}" href="{{ route('vocero.asistencias') }}">
-                            <i class="fas fa-users me-2"></i>
-                            Asistencias
-                        </a>
-                        <a class="nav-link {{ request()->routeIs('vocero.reportes') ? 'active' : '' }}" href="{{ route('vocero.reportes') }}">
-                            <i class="fas fa-chart-bar me-2"></i>
-                            Reportes
-                        </a>
-                    </nav>
-                </div>
+    <div class="d-flex">
+        {{-- ⭐ 1. MENÚ LATERAL (SIDEBAR) - CORREGIDO ⭐ --}}
+        <div class="sidebar-vocero">
+            <div class="sidebar-brand">
+                <h4><i class="fas fa-calendar-alt text-primary"></i> Vocero</h4>
             </div>
+            
+            <nav class="sidebar-nav">
+                {{-- RUTA CORREGIDA: vocero.dashboard --}}
+                <a class="nav-link {{ request()->routeIs('vocero.dashboard') ? 'active' : '' }}" href="{{ route('vocero.dashboard') }}">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Dashboard
+                </a>
+                <a class="nav-link {{ request()->routeIs('vocero.calendario') ? 'active' : '' }}" href="{{ route('vocero.calendario') }}">
+                    <i class="fas fa-calendar me-2"></i>
+                    Calendario
+                </a>
+                <a class="nav-link {{ request()->routeIs('vocero.eventos') ? 'active' : '' }}" href="{{ route('vocero.eventos') }}">
+                    <i class="fas fa-calendar-plus me-2"></i>
+                    Gestión de Eventos
+                </a>
+                <a class="nav-link {{ request()->routeIs('vocero.asistencias') ? 'active' : '' }}" href="{{ route('vocero.asistencias') }}">
+                    <i class="fas fa-users me-2"></i>
+                    Asistencias
+                </a>
+                <a class="nav-link {{ request()->routeIs('vocero.reportes') ? 'active' : '' }}" href="{{ route('vocero.reportes') }}">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Reportes
+                </a>
+            </nav>
+        </div>
 
-            <div class="col-lg-10 col-md-9">
-                <div class="content-wrapper">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h2 class="mb-1">Calendario de Eventos</h2>
-                            <p class="text-muted mb-0">Vista mensual de todos los eventos programados</p>
-                        </div>
-                        <button class="btn btn-primary" onclick="showCreateEventModal()">
-                            <i class="fas fa-plus me-2"></i>Nuevo Evento
-                        </button>
+        {{-- ⭐ 2. CONTENIDO PRINCIPAL - ESTRUCTURA CORREGIDA ⭐ --}}
+        <div class="main-content-vocero">
+            <div class="content-wrapper">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="mb-1">Calendario de Eventos</h2>
+                        <p class="text-muted mb-0">Vista mensual de todos los eventos programados</p>
                     </div>
+                    <button class="btn btn-primary" onclick="showCreateEventModal()">
+                        <i class="fas fa-plus me-2"></i>Nuevo Evento
+                    </button>
+                </div>
 
-                    <div class="card">
-                        <div class="card-body">
-                            <div id="calendar"></div>
-                        </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div id="calendar"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal (sin cambios) -->
     <div class="modal fade" id="eventoModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -315,7 +379,6 @@
         </div>
     </div>
 
-    <!-- Scripts (sin cambios en la lógica) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/index.global.min.js"></script>
@@ -323,7 +386,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
 
     <script>
-        // Todo el JavaScript permanece igual, solo se cambiaron las rutas en el HTML
+        // Todo el JavaScript permanece igual
         function getEventosFromStorage() {
             const eventos = localStorage.getItem('eventos');
             return eventos ? JSON.parse(eventos) : [];
@@ -331,6 +394,7 @@
 
         function saveEventosToStorage(eventos) {
             localStorage.setItem('eventos', JSON.stringify(eventos));
+            // Dispara el evento para que el dashboard se actualice si está abierto
             window.dispatchEvent(new Event('eventosUpdated'));
         }
 

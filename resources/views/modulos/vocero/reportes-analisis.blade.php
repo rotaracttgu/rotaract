@@ -285,10 +285,11 @@
                 </div>
                 
                 <nav class="sidebar-nav">
-                    <a class="nav-link" href="{{ route('vocero.index') }}">
-                        <i class="fas fa-chart-line"></i>
-                        Dashboard
-                    </a>
+                    {{-- RUTA CORREGIDA: vocero.dashboard --}}
+                <a class="nav-link {{ request()->routeIs('vocero.dashboard') ? 'active' : '' }}" href="{{ route('vocero.dashboard') }}">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Dashboard
+                </a>
                     <a class="nav-link" href="{{ route('vocero.calendario') }}">
                         <i class="fas fa-calendar"></i>
                         Calendario
