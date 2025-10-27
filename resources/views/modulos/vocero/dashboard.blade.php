@@ -151,6 +151,35 @@
             color: white;
             border-radius: 12px;
             height: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stats-card:hover::before {
+            opacity: 1;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+        }
+
+        .stats-card:active {
+            transform: translateY(-4px) scale(1.01);
         }
 
         .stats-card-success {
@@ -173,6 +202,16 @@
         .empty-state { text-align: center; padding: 60px 20px; color: var(--secondary-color); }
         .empty-state i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
         
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-card, .card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
         /* Media Query: Importante para móviles */
         @media (max-width: 768px) {
             .sidebar-vocero { position: relative; width: 100%; height: auto; padding-top: 0; }
@@ -218,89 +257,71 @@
 
         {{-- ⭐ 2. CONTENIDO PRINCIPAL ⭐ --}}
         <div class="main-content-vocero">
-            
-            <div class="content-wrapper"> 
-
+            <div class="content-wrapper">
+                {{-- TÍTULO Y BOTÓN DE ACTUALIZACIÓN --}}
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h2 class="mb-1">Dashboard</h2>
-                        <p class="text-muted mb-0">Resumen general de eventos y asistencias</p>
+                        <h2><i class="fas fa-chart-line me-2"></i>Dashboard</h2>
+                        <p class="text-muted mb-0">Resumen general del módulo Vocero</p>
                     </div>
-                    <button class="btn btn-primary" onclick="refreshDashboard()">
+                    <button class="btn btn-outline-primary" onclick="refreshDashboard()">
                         <i class="fas fa-sync-alt me-2"></i>Actualizar
                     </button>
                 </div>
 
+                {{-- TARJETAS DE ESTADÍSTICAS PRINCIPALES --}}
                 <div class="row mb-4">
                     <div class="col-md-3 mb-3">
-                        <div class="card stats-card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <h3 class="mb-1" id="total-eventos">0</h3>
-                                        <small>Eventos Totales</small>
-                                    </div>
-                                    <i class="fas fa-calendar-alt fs-2"></i>
-                                </div>
-                            </div>
+                        <div class="stats-card p-4 text-center" onclick="filtrarEventos('todos')" title="Click para ver todos los eventos">
+                            <i class="fas fa-calendar-alt fa-3x mb-3"></i>
+                            <h3 id="total-eventos" class="display-4 fw-bold">0</h3>
+                            <p class="mb-0">Total de Eventos</p>
                         </div>
                     </div>
+                    
                     <div class="col-md-3 mb-3">
-                        <div class="card stats-card stats-card-success">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <h3 class="mb-1" id="eventos-proximos">0</h3>
-                                        <small>Próximos Eventos</small>
-                                    </div>
-                                    <i class="fas fa-clock fs-2"></i>
-                                </div>
-                            </div>
+                        <div class="stats-card stats-card-success p-4 text-center" onclick="filtrarEventos('proximos')" title="Click para ver eventos próximos">
+                            <i class="fas fa-clock fa-3x mb-3"></i>
+                            <h3 id="eventos-proximos" class="display-4 fw-bold">0</h3>
+                            <p class="mb-0">Eventos Próximos</p>
                         </div>
                     </div>
+                    
                     <div class="col-md-3 mb-3">
-                        <div class="card stats-card stats-card-warning">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <h3 class="mb-1" id="total-asistencias">0</h3>
-                                        <small>Total Asistencias</small>
-                                    </div>
-                                    <i class="fas fa-users fs-2"></i>
-                                </div>
-                            </div>
+                        <div class="stats-card stats-card-warning p-4 text-center" onclick="mostrarInfoAsistencias()" title="Información de asistencias">
+                            <i class="fas fa-users fa-3x mb-3"></i>
+                            <h3 id="total-asistencias" class="display-4 fw-bold">0</h3>
+                            <p class="mb-0">Asistencias Presentes</p>
                         </div>
                     </div>
-                    {{-- ⭐ CORRECCIÓN APLICADA AQUÍ: Texto cambiado de "Regalos" a "Presentes" ⭐ --}}
+                    
                     <div class="col-md-3 mb-3">
-                        <div class="card stats-card stats-card-info">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <h3 class="mb-1" id="asistencias-presentes">0</h3>
-                                        <small>Presentes</small>
-                                    </div>
-                                    <i class="fas fa-check-circle fs-2"></i>
-                                </div>
-                            </div>
+                        <div class="stats-card stats-card-info p-4 text-center" onclick="filtrarEventos('finalizados')" title="Click para ver eventos finalizados">
+                            <i class="fas fa-check-circle fa-3x mb-3"></i>
+                            <h3 id="eventos-finalizados" class="display-4 fw-bold">0</h3>
+                            <p class="mb-0">Eventos Finalizados</p>
                         </div>
                     </div>
                 </div>
 
+                {{-- TABLA DE PRÓXIMOS EVENTOS --}}
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Próximos Eventos</h5>
-                        <a href="{{ route('vocero.calendario') }}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-calendar-plus me-1"></i>Ver Calendario
-                        </a>
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-calendar-week me-2"></i>Próximos Eventos</h5>
+                            <span id="filtro-activo-badge" class="badge bg-info ms-3" style="display: none;"></span>
+                        </div>
+                        <button id="btn-limpiar-filtro" class="btn btn-sm btn-warning" onclick="limpiarFiltroEventos()" style="display: none;">
+                            <i class="fas fa-times me-1"></i>Mostrar Próximos
+                        </button>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
                                         <th>Evento</th>
-                                        <th>Fecha y Hora</th>
+                                        <th>Fecha</th>
                                         <th>Tipo</th>
                                         <th>Estado</th>
                                         <th>Organizador</th>
@@ -309,8 +330,9 @@
                                 </thead>
                                 <tbody id="proximos-eventos-table">
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted">
-                                            Cargando eventos...
+                                        <td colspan="6" class="text-center py-5">
+                                            <i class="fas fa-spinner fa-spin fa-3x text-muted mb-3"></i>
+                                            <h5>Cargando eventos...</h5>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -318,133 +340,260 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
-            
         </div>
-        
     </div>
 
     {{-- ***************************************************************** --}}
-    {{-- ************** INICIO: JAVASCRIPT ********************************* --}}
+    {{-- ************** INICIO: SCRIPTS DE FUNCIONALIDAD ****************** --}}
     {{-- ***************************************************************** --}}
-    
+
     @push('scripts')
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
 
         <script>
             let eventsData = [];
-            let attendanceData = [];
 
             $(document).ready(function() {
-                initializeApp();
+                loadDashboard();
             });
 
-            function initializeApp() {
-                loadDashboard();
-                setupSyncListeners();
-            }
-            
-            function setupSyncListeners() {
-                window.addEventListener('eventosUpdated', function() {
-                    console.log('Eventos actualizados, recargando dashboard...');
-                    loadDashboard();
+            // ============================================================================
+            // 🔄 FUNCIÓN: Cargar dashboard desde la BD
+            // ============================================================================
+            function loadDashboard() {
+                // Cargar estadísticas generales
+                $.ajax({
+                    url: '/api/calendario/reportes/estadisticas-generales',
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            updateDashboardStats(response.estadisticas);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error al cargar estadísticas:', error);
+                    }
                 });
 
-                window.addEventListener('storage', function(e) {
-                    if (e.key === 'eventos' || e.key === 'asistencias') {
-                        console.log('Detectado cambio en', e.key);
-                        loadDashboard();
+                // Cargar eventos próximos
+                loadRecentEvents();
+            }
+
+            // ============================================================================
+            // ✅ FUNCIÓN: Actualizar estadísticas del dashboard
+            // ============================================================================
+            function updateDashboardStats(stats) {
+                $('#total-eventos').text(stats.TotalEventos || 0);
+                // No actualizamos eventos-proximos aquí, lo haremos después del filtro
+                $('#eventos-finalizados').text(stats.TotalFinalizados || 0);
+            }
+
+            // ============================================================================
+            // ✅ FUNCIÓN: Cargar eventos próximos desde la BD
+            // ============================================================================
+            function loadRecentEvents() {
+                const tbody = $('#proximos-eventos-table');
+                
+                // Obtener todos los eventos
+                $.ajax({
+                    url: '/api/calendario/reportes/detallado',
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (!response.success || response.eventos.length === 0) {
+                            tbody.html(`
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        <i class="fas fa-calendar-times"></i>
+                                        <h5>No hay eventos registrados</h5>
+                                        <p>Los eventos aparecerán aquí cuando los crees</p>
+                                        <a href="{{ route('vocero.calendario') }}" class="btn btn-primary mt-3">
+                                            <i class="fas fa-calendar-plus me-2"></i>Crear Evento
+                                        </a>
+                                    </td>
+                                </tr>
+                            `);
+                            return;
+                        }
+
+                        // 🔥 GUARDAR TODOS LOS EVENTOS en la variable global
+                        eventsData = response.eventos;
+                        console.log('Total eventos cargados:', eventsData.length);
+                        
+                        // 🔥 Contar asistencias presentes
+                        const totalAsistenciasPresentes = response.eventos.reduce((sum, evento) => {
+                            return sum + (parseInt(evento.TotalPresentes) || 0);
+                        }, 0);
+                        
+                        console.log('Total Asistencias Presentes:', totalAsistenciasPresentes);
+                        $('#total-asistencias').text(totalAsistenciasPresentes);
+
+                        // 🔥 Calcular eventos próximos REALES (fecha futura + Programado)
+                        const now = new Date();
+                        const eventosProximosReales = eventsData.filter(event => {
+                            const eventDate = new Date(event.FechaInicio);
+                            return eventDate >= now && event.EstadoEvento === 'Programado';
+                        }).length;
+                        
+                        console.log('Eventos próximos calculados:', eventosProximosReales);
+                        $('#eventos-proximos').text(eventosProximosReales);
+
+                        // 🔥 Mostrar eventos próximos por defecto
+                        filtrarEventos('proximos');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error al cargar eventos:', error);
+                        tbody.html(`
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <i class="fas fa-exclamation-triangle text-danger"></i>
+                                    <h5>Error al cargar eventos</h5>
+                                    <p>Por favor, intenta recargar la página</p>
+                                </td>
+                            </tr>
+                        `);
                     }
                 });
             }
 
-            function loadDashboard() {
-                const eventos = localStorage.getItem('eventos');
-                eventsData = eventos ? JSON.parse(eventos) : [];
-                
-                const asistencias = localStorage.getItem('asistencias');
-                attendanceData = asistencias ? JSON.parse(asistencias) : [];
-                
-                console.log('Dashboard cargado:', {
-                    eventos: eventsData.length,
-                    asistencias: attendanceData.length
-                });
-                
-                updateDashboardStats();
-                loadRecentEvents();
+            // ============================================================================
+            // ✅ FUNCIÓN: Refrescar dashboard
+            // ============================================================================
+            function refreshDashboard() {
+                showToast('Actualizando dashboard...', 'info');
+                loadDashboard();
+                setTimeout(() => {
+                    showToast('Dashboard actualizado correctamente', 'success');
+                }, 500);
             }
 
-            function updateDashboardStats() {
-                const now = new Date();
+            // ============================================================================
+            // 🆕 FUNCIÓN: Filtrar eventos según la tarjeta clickeada
+            // ============================================================================
+            function filtrarEventos(tipo) {
+                console.log('========================================');
+                console.log('🔍 FILTRANDO EVENTOS:', tipo);
+                console.log('📊 Total eventos disponibles:', eventsData.length);
+                console.log('========================================');
                 
-                $('#total-eventos').text(eventsData.length);
-                
-                const eventosProximos = eventsData.filter(event => {
-                    const eventDate = new Date(event.start || event.fecha_inicio);
-                    return eventDate > now;
-                });
-                $('#eventos-proximos').text(eventosProximos.length);
-                
-                $('#total-asistencias').text(attendanceData.length);
-                
-                const asistenciasPresentes = attendanceData.filter(att => att.status === 'presente');
-                $('#asistencias-presentes').text(asistenciasPresentes.length);
-            }
-
-            function loadRecentEvents() {
                 const tbody = $('#proximos-eventos-table');
                 tbody.empty();
                 
+                let eventosFiltrados = [];
+                let tituloFiltro = '';
                 const now = new Date();
                 
-                const eventosProximos = eventsData
-                    .filter(event => {
-                        const eventDate = new Date(event.start || event.fecha_inicio);
-                        return eventDate > now;
-                    })
-                    .sort((a, b) => {
-                        const dateA = new Date(a.start || a.fecha_inicio);
-                        const dateB = new Date(b.start || b.fecha_inicio);
-                        return dateA - dateB;
-                    })
-                    .slice(0, 5);
-                
-                if (eventosProximos.length === 0) {
+                console.log('📅 Fecha actual:', now);
+
+                switch(tipo) {
+                    case 'todos':
+                        eventosFiltrados = eventsData;
+                        tituloFiltro = 'Todos los Eventos';
+                        console.log('✅ Mostrando TODOS los eventos');
+                        break;
+                        
+                    case 'proximos':
+                        console.log('🔎 Filtrando eventos próximos...');
+                        eventosFiltrados = eventsData.filter(event => {
+                            const eventDate = new Date(event.FechaInicio);
+                            const esFuturo = eventDate >= now;
+                            const esProgramado = event.EstadoEvento === 'Programado';
+                            
+                            console.log(`📌 ${event.TituloEvento}:`, {
+                                fecha: event.FechaInicio,
+                                fechaParseada: eventDate,
+                                esFuturo: esFuturo,
+                                estado: event.EstadoEvento,
+                                esProgramado: esProgramado,
+                                cumpleCondicion: esFuturo && esProgramado
+                            });
+                            
+                            return esFuturo && esProgramado;
+                        });
+                        tituloFiltro = 'Eventos Próximos (Programados)';
+                        
+                        // 🔥 ACTUALIZAR la tarjeta con el número REAL
+                        $('#eventos-proximos').text(eventosFiltrados.length);
+                        console.log(`✅ Eventos filtrados: ${eventosFiltrados.length}`);
+                        break;
+                        
+                    case 'finalizados':
+                        eventosFiltrados = eventsData.filter(event => {
+                            return event.EstadoEvento === 'Finalizado';
+                        });
+                        tituloFiltro = 'Eventos Finalizados';
+                        
+                        // 🔥 ACTUALIZAR la tarjeta con el número REAL
+                        $('#eventos-finalizados').text(eventosFiltrados.length);
+                        console.log(`✅ Eventos finalizados: ${eventosFiltrados.length}`);
+                        break;
+                        
+                    default:
+                        eventosFiltrados = eventsData.filter(event => {
+                            const eventDate = new Date(event.FechaInicio);
+                            return eventDate >= now && event.EstadoEvento === 'Programado';
+                        });
+                        tituloFiltro = 'Eventos Próximos';
+                }
+
+                console.log('📋 Eventos después del filtro:', eventosFiltrados.length);
+                console.log('========================================');
+
+                // Ordenar por fecha
+                eventosFiltrados.sort((a, b) => new Date(a.FechaInicio) - new Date(b.FechaInicio));
+
+                // Mostrar badge de filtro activo
+                if (tipo !== 'proximos') {
+                    $('#filtro-activo-badge').text(tituloFiltro).show();
+                    $('#btn-limpiar-filtro').show();
+                } else {
+                    $('#filtro-activo-badge').hide();
+                    $('#btn-limpiar-filtro').hide();
+                }
+
+                // Mostrar eventos filtrados
+                if (eventosFiltrados.length === 0) {
                     tbody.append(`
                         <tr>
                             <td colspan="6" class="empty-state">
-                                <i class="fas fa-calendar-times"></i>
-                                <h5>No hay eventos próximos</h5>
-                                <p>Los eventos futuros aparecerán aquí</p>
-                                <a href="{{ route('vocero.calendario') }}" class="btn btn-primary mt-3">
-                                    <i class="fas fa-calendar-plus me-2"></i>Crear Evento
-                                </a>
+                                <i class="fas fa-inbox"></i>
+                                <h5>No hay eventos en esta categoría</h5>
+                                <p>${tituloFiltro}</p>
                             </td>
                         </tr>
                     `);
+                    showToast(`No hay eventos para mostrar: ${tituloFiltro}`, 'info');
                     return;
                 }
+
+                // Mostrar TODOS los eventos filtrados (sin límite)
+                console.log(`📊 Mostrando ${eventosFiltrados.length} eventos en la tabla`);
                 
-                eventosProximos.forEach(event => {
-                    const titulo = event.title || event.titulo || 'Sin título';
-                    const startDate = new Date(event.start || event.fecha_inicio);
-                    const organizador = event.extendedProps?.organizador || 'No especificado';
-                    const tipoEvento = event.extendedProps?.tipo_evento || 'sin-categoria';
-                    const estado = event.extendedProps?.estado || 'programado';
-                    
-                    const eventAttendance = attendanceData.filter(att => att.event_id == event.id);
-                    const attendanceCount = eventAttendance.length;
+                eventosFiltrados.forEach(event => {
+                    const fecha = formatDateTime(new Date(event.FechaInicio));
+                    const tipo = getCategoryName(event.TipoEvento);
+                    const tipoBadge = getCategoryColor(event.TipoEvento);
+                    const estado = getStatusName(event.EstadoEvento);
+                    const estadoBadge = getStatusColor(event.EstadoEvento);
+                    const totalRegistros = event.TotalRegistros || 0;
                     
                     tbody.append(`
                         <tr>
-                            <td><strong>${titulo}</strong></td>
-                            <td>${formatDateTime(startDate)}</td>
-                            <td><span class="badge bg-${getCategoryColor(tipoEvento)}">${getCategoryName(tipoEvento)}</span></td>
-                            <td><span class="badge bg-${getStatusColor(estado)}">${getStatusName(estado)}</span></td>
-                            <td>${organizador}</td>
+                            <td><strong>${event.TituloEvento}</strong></td>
+                            <td>${fecha}</td>
+                            <td><span class="badge bg-${tipoBadge}">${tipo}</span></td>
+                            <td><span class="badge bg-${estadoBadge}">${estado}</span></td>
+                            <td>${event.Organizador || 'No especificado'}</td>
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     <a href="{{ route('vocero.calendario') }}" class="btn btn-outline-primary" title="Ver en calendario">
@@ -452,21 +601,50 @@
                                     </a>
                                     <a href="{{ route('vocero.asistencias') }}" class="btn btn-outline-success" title="Gestionar asistencia">
                                         <i class="fas fa-users"></i>
-                                        <span class="badge bg-success">${attendanceCount}</span>
+                                        <span class="badge bg-success">${totalRegistros}</span>
                                     </a>
                                 </div>
                             </td>
                         </tr>
                     `);
                 });
+
+                showToast(`Mostrando ${eventosFiltrados.length} eventos: ${tituloFiltro}`, 'success');
             }
 
-            function refreshDashboard() {
-                showToast('Actualizando dashboard...', 'info');
-                loadDashboard();
-                showToast('Dashboard actualizado correctamente', 'success');
+            // ============================================================================
+            // 🆕 FUNCIÓN: Limpiar filtro y volver a eventos próximos
+            // ============================================================================
+            function limpiarFiltroEventos() {
+                filtrarEventos('proximos');
+                $('#filtro-activo-badge').hide();
+                $('#btn-limpiar-filtro').hide();
             }
 
+            // ============================================================================
+            // 🆕 FUNCIÓN: Mostrar información de asistencias
+            // ============================================================================
+            function mostrarInfoAsistencias() {
+                const totalPresentes = $('#total-asistencias').text();
+                
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Asistencias Presentes',
+                    html: `
+                        <div class="text-start">
+                            <p><strong>Total de asistencias con estado "Presente":</strong> ${totalPresentes}</p>
+                            <hr>
+                            <p class="text-muted small">Este número representa la suma de todas las asistencias marcadas como "Presente" en todos los eventos.</p>
+                            <p class="text-muted small">Para ver el detalle completo, visita la sección de <a href="{{ route('vocero.reportes') }}">Reportes</a>.</p>
+                        </div>
+                    `,
+                    confirmButtonText: 'Entendido'
+                });
+            }
+
+            // ============================================================================
+            // FUNCIONES AUXILIARES
+            // ============================================================================
             function formatDateTime(date) {
                 return date.toLocaleDateString('es-ES', {
                     year: 'numeric',
@@ -477,46 +655,42 @@
                 });
             }
 
-            function getCategoryName(category) {
+            function getCategoryName(tipo) {
                 const mapping = {
-                    'reunion-virtual': 'Reunión Virtual',
-                    'reunion-presencial': 'Reunión Presencial',
-                    'inicio-proyecto': 'Inicio Proyecto',
-                    'finalizar-proyecto': 'Fin Proyecto',
-                    'cumpleanos': 'Cumpleaños'
+                    'Virtual': 'Reunión Virtual',
+                    'Presencial': 'Reunión Presencial',
+                    'InicioProyecto': 'Inicio Proyecto',
+                    'FinProyecto': 'Fin Proyecto'
                 };
-                return mapping[category] || 'Sin categoría';
+                return mapping[tipo] || 'Sin categoría';
             }
 
-            function getCategoryColor(category) {
+            function getCategoryColor(tipo) {
                 const colors = {
-                    'reunion-virtual': 'primary',
-                    'reunion-presencial': 'purple',
-                    'inicio-proyecto': 'success',
-                    'finalizar-proyecto': 'danger',
-                    'cumpleanos': 'pink'
+                    'Virtual': 'primary',
+                    'Presencial': 'success',
+                    'InicioProyecto': 'warning',
+                    'FinProyecto': 'danger'
                 };
-                return colors[category] || 'secondary';
+                return colors[tipo] || 'secondary';
             }
 
-            function getStatusName(status) {
+            function getStatusName(estado) {
                 const mapping = {
-                    'programado': 'Programado',
-                    'en_curso': 'En Curso',
-                    'finalizado': 'Finalizado',
-                    'cancelado': 'Cancelado'
+                    'Programado': 'Programado',
+                    'EnCurso': 'En Curso',
+                    'Finalizado': 'Finalizado'
                 };
-                return mapping[status] || 'Sin estado';
+                return mapping[estado] || 'Sin estado';
             }
 
-            function getStatusColor(status) {
+            function getStatusColor(estado) {
                 const colors = {
-                    'programado': 'primary',
-                    'en_curso': 'success',
-                    'finalizado': 'secondary',
-                    'cancelado': 'danger'
+                    'Programado': 'info',
+                    'EnCurso': 'warning',
+                    'Finalizado': 'success'
                 };
-                return colors[status] || 'secondary';
+                return colors[estado] || 'secondary';
             }
 
             function showToast(message, type = 'info') {

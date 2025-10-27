@@ -244,6 +244,30 @@ Route::prefix('vocero')->middleware(['auth', 'check.first.login', RoleMiddleware
     Route::get('/eventos', [VoceroController::class, 'gestionEventos'])->name('eventos');
     Route::get('/reportes', [VoceroController::class, 'reportesAnalisis'])->name('reportes');
 });
+// ============================================================================
+// 🆕 RUTAS API DEL CALENDARIO (VOCERO)
+// ============================================================================
+Route::prefix('api/calendario')->middleware(['auth', 'check.first.login'])->group(function () {
+    Route::get('/eventos', [VoceroController::class, 'obtenerEventos']);
+    Route::post('/eventos', [VoceroController::class, 'crearEvento']);
+    Route::put('/eventos/{id}', [VoceroController::class, 'actualizarEvento']);
+    Route::delete('/eventos/{id}', [VoceroController::class, 'eliminarEvento']);
+    Route::patch('/eventos/{id}/fechas', [VoceroController::class, 'actualizarFechas']);
+     Route::get('/miembros', [VoceroController::class, 'obtenerMiembros']);
+    Route::get('/eventos/{id}/asistencias', [VoceroController::class, 'obtenerAsistenciasEvento']);
+    Route::post('/asistencias', [VoceroController::class, 'registrarAsistencia']);
+    Route::put('/asistencias/{id}', [VoceroController::class, 'actualizarAsistencia']);
+    Route::delete('/asistencias/{id}', [VoceroController::class, 'eliminarAsistencia']);
+    // ============================================================================
+    // 🆕 RUTAS DE REPORTES Y ESTADÍSTICAS
+    // ============================================================================
+    Route::get('/reportes/estadisticas-generales', [VoceroController::class, 'obtenerEstadisticasGenerales']);
+    Route::get('/reportes/detallado', [VoceroController::class, 'obtenerReporteDetallado']);
+    Route::get('/reportes/evento/{id}', [VoceroController::class, 'obtenerReporteEvento']);
+    Route::get('/reportes/miembro/{id}', [VoceroController::class, 'obtenerEstadisticasMiembro']);
+    Route::post('/reportes/buscar-por-fecha', [VoceroController::class, 'buscarEventosPorFecha']);
+    Route::get('/reportes/graficos', [VoceroController::class, 'obtenerDatosGraficos']);
+});
 
 // ============================================================================
 // RUTAS DEL MÓDULO ASPIRANTE

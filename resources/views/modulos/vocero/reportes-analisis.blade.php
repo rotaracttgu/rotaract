@@ -8,11 +8,8 @@
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     
     <style>
         :root {
@@ -23,12 +20,15 @@
             --danger-color: #dc2626;
             --info-color: #06b6d4;
             --purple-color: #8b5cf6;
-            --pink-color: #ec4899;
             --sidebar-bg: #1e293b;
-            --sidebar-text: #e2e8f0;
+            --sidebar-text: #ecf0f1;
             --light-bg: #f8fafc;
             --dark-color: #1e293b;
             --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
@@ -36,6 +36,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 0;
+            overflow-x: hidden; /* 🔒 EVITAR SCROLL HORIZONTAL */
         }
 
         .sidebar {
@@ -43,30 +44,11 @@
             min-height: 100vh;
             width: 250px;
             position: fixed;
-            left: 0;
             top: 0;
+            left: 0;
             z-index: 1000;
             transition: all 0.3s ease;
-        }
-
-        .sidebar-brand {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-        }
-
-        .sidebar-brand h4 {
-            color: var(--sidebar-text);
-            font-weight: 600;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .sidebar-nav {
-            padding: 20px 0;
+            overflow-y: auto; /* Solo scroll vertical si es necesario */
         }
 
         .sidebar .nav-link {
@@ -75,30 +57,46 @@
             margin: 4px 16px;
             padding: 12px 16px;
             transition: all 0.2s ease;
-            text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-weight: 500;
-            cursor: pointer;
         }
 
-        .sidebar .nav-link:hover {
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
             background: rgba(59, 130, 246, 0.1);
             color: #60a5fa;
-            transform: translateX(4px);
         }
 
-        .sidebar .nav-link.active {
-            background: var(--primary-color);
+        .sidebar .nav-link i {
+            margin-right: 8px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-brand {
+            padding: 24px 16px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .sidebar-brand h4 {
             color: white;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .main-content {
             margin-left: 250px;
             min-height: 100vh;
             padding: 0;
+            width: calc(100% - 250px); /* 🔒 ANCHO FIJO */
+            max-width: calc(100% - 250px); /* 🔒 MÁXIMO ANCHO */
+            overflow-x: hidden; /* 🔒 EVITAR DESBORDAMIENTO */
         }
 
         .content-wrapper {
@@ -107,19 +105,81 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             margin: 20px;
             padding: 24px;
+            max-width: 100%; /* 🔒 NO EXCEDER CONTENEDOR */
         }
 
         .card {
             border: none;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease;
             margin-bottom: 20px;
+            max-width: 100%; /* 🔒 NO EXCEDER CONTENEDOR */
         }
 
-        .card:hover {
+        .stat-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin-top: 8px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%; /* 🔒 ANCHO COMPLETO DEL CONTENEDOR */
+            max-width: 100%; /* 🔒 NO EXCEDER */
+        }
+
+        .chart-container.large {
+            height: 400px;
+        }
+
+        /* 📊 CONTENEDOR SCROLLABLE PARA GRÁFICO DE ASISTENCIAS */
+        .chart-scroll-container {
+            overflow-x: auto;
+            overflow-y: hidden;
+            width: 100%;
+            position: relative;
+        }
+
+        .chart-scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .chart-scroll-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .chart-scroll-container::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .chart-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #1d4ed8;
+        }
+
+        .chart-inner-container {
+            min-width: 100%;
+            position: relative;
+            height: 400px;
         }
 
         .btn-primary {
@@ -128,10 +188,13 @@
             border-radius: 8px;
             padding: 10px 20px;
             font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .btn-primary:hover {
             background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
         .btn-success {
@@ -140,126 +203,137 @@
             border-radius: 8px;
             padding: 10px 20px;
             font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .btn-success:hover {
             background: #047857;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-outline-secondary {
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
+        }
+
+        .btn-info, .btn-sm {
+            transition: all 0.2s ease;
+        }
+
+        .btn-info:hover, .btn-sm:hover {
+            transform: scale(1.1);
+        }
+
+        /* 🎨 ANIMACIONES Y EFECTOS */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .card {
+            animation: fadeIn 0.5s ease-out;
         }
 
         .stat-card {
-            cursor: pointer;
-            transition: all 0.2s ease;
+            animation: slideIn 0.6s ease-out;
         }
 
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .stat-title {
-            font-size: 14px;
-            color: var(--secondary-color);
-            margin: 0;
-        }
-
-        .stat-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            color: white;
-        }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
 
         .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--dark-color);
-            margin: 0;
+            transition: all 0.3s ease;
         }
 
-        .stat-change {
-            font-size: 12px;
-            font-weight: 500;
-            margin-top: 4px;
+        .stat-card:hover .stat-number {
+            transform: scale(1.1);
         }
 
-        .chart-container {
-            position: relative;
-            height: 300px;
+        /* Spinner de carga mejorado */
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(37, 99, 235, 0.2);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
-        .chart-container.large {
-            height: 400px;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-top: 16px;
-            justify-content: center;
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--secondary-color);
         }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-        }
-
-        .event-detail-item {
-            padding: 12px;
-            border-left: 3px solid var(--primary-color);
-            background: rgba(37, 99, 235, 0.05);
-            margin-bottom: 8px;
-            border-radius: 4px;
+        /* Efectos de tabla */
+        .table tbody tr {
             transition: all 0.2s ease;
         }
 
-        .event-detail-item:hover {
-            background: rgba(37, 99, 235, 0.1);
-            transform: translateX(4px);
+        .table tbody tr:hover {
+            background-color: rgba(37, 99, 235, 0.05);
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
-        .event-detail-title {
-            font-weight: 600;
-            color: var(--dark-color);
-            margin: 0 0 4px 0;
-            font-size: 14px;
+        .progress {
+            transition: all 0.3s ease;
         }
 
-        .event-detail-info {
-            font-size: 12px;
-            color: var(--secondary-color);
-            margin: 0;
+        .progress:hover {
+            transform: scaleY(1.2);
         }
 
-        .completed-event-item {
-            border-left-color: var(--success-color);
-            background: rgba(5, 150, 105, 0.05);
+        .card-header {
+            border-bottom: 2px solid var(--border-color);
+            transition: all 0.3s ease;
         }
 
-        .completed-event-item:hover {
-            background: rgba(5, 150, 105, 0.1);
+        .card:hover .card-header {
+            border-bottom-color: var(--primary-color);
         }
 
-        @media (max-width: 768px) {
+        /* 🔒 RESPONSIVE - EVITAR SCROLL HORIZONTAL */
+        @media (max-width: 991.98px) {
             .sidebar {
                 position: relative;
                 width: 100%;
@@ -267,189 +341,243 @@
 
             .main-content {
                 margin-left: 0;
+                width: 100%;
+                max-width: 100%;
             }
+        }
 
-            .content-wrapper {
-                margin: 10px;
-                padding: 16px;
-            }
+        /* 🔒 ASEGURAR QUE TODOS LOS ELEMENTOS RESPETEN EL ANCHO */
+        * {
+            max-width: 100%;
+        }
+
+        canvas {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        /* Indicar que los gráficos son clicables */
+        .chart-container canvas {
+            cursor: pointer;
+        }
+
+        .chart-container canvas:hover {
+            opacity: 0.9;
+        }
+
+        /* Badge de filtro activo */
+        #filtro-activo-badge {
+            animation: fadeIn 0.3s ease-in;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="sidebar">
-                <div class="sidebar-brand">
-                    <h4><i class="fas fa-calendar-alt text-primary"></i> Vocero</h4>
-                </div>
-                
-                <nav class="sidebar-nav">
-                    {{-- RUTA CORREGIDA: vocero.dashboard --}}
-                <a class="nav-link {{ request()->routeIs('vocero.dashboard') ? 'active' : '' }}" href="{{ route('vocero.dashboard') }}">
-                    <i class="fas fa-chart-line me-2"></i>
-                    Dashboard
-                </a>
-                    <a class="nav-link" href="{{ route('vocero.calendario') }}">
-                        <i class="fas fa-calendar"></i>
-                        Calendario
-                    </a>
-                    <a class="nav-link" href="{{ route('vocero.eventos') }}">
-                        <i class="fas fa-calendar-plus"></i>
-                        Gestión de Eventos
-                    </a>
-                    <a class="nav-link" href="{{ route('vocero.asistencias') }}">
-                        <i class="fas fa-users"></i>
-                        Asistencias
-                    </a>
-                    <a class="nav-link active" href="{{ route('vocero.reportes') }}">
-                        <i class="fas fa-chart-bar"></i>
-                        Reportes
-                    </a>
-                </nav>
+    <div class="container-fluid" style="overflow-x: hidden;"> <!-- 🔒 CONTENEDOR PRINCIPAL SIN SCROLL -->
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <h4>
+                    <i class="fas fa-calendar-alt text-primary"></i>
+                    Vocero
+                </h4>
             </div>
 
-            <div class="main-content">
-                <div class="content-wrapper">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h2 class="mb-1">Reportes y Análisis</h2>
-                            <p class="text-muted mb-0">Visualiza tendencias y genera reportes detallados de eventos y asistencias</p>
-                        </div>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <button class="btn btn-outline-primary" onclick="refreshData()">
-                                <i class="fas fa-sync-alt me-2"></i>Actualizar
-                            </button>
-                            <button class="btn btn-success" onclick="generateReport()">
-                                <i class="fas fa-file-pdf me-2"></i>Generar Reporte
-                            </button>
-                        </div>
-                    </div>
+            <nav class="sidebar-nav">
+                <a class="nav-link {{ request()->routeIs('vocero.dashboard') ? 'active' : '' }}" href="{{ route('vocero.dashboard') }}">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a class="nav-link {{ request()->routeIs('vocero.calendario') ? 'active' : '' }}" href="{{ route('vocero.calendario') }}">
+                    <i class="fas fa-calendar"></i> Calendario
+                </a>
+                <a class="nav-link {{ request()->routeIs('vocero.eventos') ? 'active' : '' }}" href="{{ route('vocero.eventos') }}">
+                    <i class="fas fa-calendar-plus"></i> Gestión de Eventos
+                </a>
+                <a class="nav-link {{ request()->routeIs('vocero.asistencias') ? 'active' : '' }}" href="{{ route('vocero.asistencias') }}">
+                    <i class="fas fa-users"></i> Asistencias
+                </a>
+                <a class="nav-link {{ request()->routeIs('vocero.reportes') ? 'active' : '' }}" href="{{ route('vocero.reportes') }}">
+                    <i class="fas fa-chart-bar"></i> Reportes
+                </a>
+            </nav>
+        </div>
 
-                    <div class="row mb-4">
-                        <div class="col-md-3 mb-3">
-                            <div class="card stat-card" onclick="showEventDetails('total')" title="Click para ver detalles de eventos">
-                                <div class="card-body">
-                                    <div class="stat-header">
-                                        <h6 class="stat-title">Total Eventos</h6>
-                                        <div class="stat-icon" style="background: var(--primary-color);">
-                                            <i class="fas fa-calendar-alt"></i>
-                                        </div>
-                                    </div>
-                                    <h2 class="stat-number" id="total-events">0</h2>
-                                    <small class="stat-change text-success">Sincronizado con gestión</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card stat-card" onclick="showEventDetails('completed')" title="Click para ver eventos completados">
-                                <div class="card-body">
-                                    <div class="stat-header">
-                                        <h6 class="stat-title">Eventos Finalizados</h6>
-                                        <div class="stat-icon" style="background: var(--success-color);">
-                                            <i class="fas fa-check-circle"></i>
-                                        </div>
-                                    </div>
-                                    <h2 class="stat-number" id="completed-events">0</h2>
-                                    <small class="stat-change text-success" id="completed-description">Con estado finalizado</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card stat-card" onclick="showAttendanceDetails()" title="Click para ver detalles de asistencia">
-                                <div class="card-body">
-                                    <div class="stat-header">
-                                        <h6 class="stat-title">Tasa de Asistencia</h6>
-                                        <div class="stat-icon" style="background: var(--info-color);">
-                                            <i class="fas fa-trophy"></i>
-                                        </div>
-                                    </div>
-                                    <h2 class="stat-number" id="attendance-rate">N/A</h2>
-                                    <small class="stat-change text-success" id="attendance-description">Reuniones virtuales/presenciales</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card stat-card" onclick="showProjectParticipantsDetails()" title="Click para ver detalles de participantes">
-                                <div class="card-body">
-                                    <div class="stat-header">
-                                        <h6 class="stat-title">Promedio Participantes</h6>
-                                        <div class="stat-icon" style="background: var(--purple-color);">
-                                            <i class="fas fa-users"></i>
-                                        </div>
-                                    </div>
-                                    <h2 class="stat-number" id="avg-participants">N/A</h2>
-                                    <small class="stat-change text-success" id="participants-description">En proyectos inicio/fin</small>
-                                </div>
+        <div class="main-content">
+            <div class="content-wrapper">
+                <!-- HEADER -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2><i class="fas fa-chart-bar me-2"></i>Reportes y Análisis</h2>
+                        <p class="text-muted mb-0">Visualiza estadísticas y genera reportes detallados</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-secondary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt me-2"></i>Actualizar
+                        </button>
+                        <button class="btn btn-success" onclick="exportarReporte()">
+                            <i class="fas fa-download me-2"></i>Exportar PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ESTADÍSTICAS GENERALES -->
+                <div class="row mb-4" id="stats-container">
+                    <div class="col-md-3">
+                        <div class="card stat-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-alt fa-2x text-primary mb-3" style="animation: pulse 2s infinite;"></i>
+                                <h3 class="stat-number" id="total-eventos">0</h3>
+                                <p class="stat-label">Total Eventos</p>
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-check-circle fa-2x text-success mb-3" style="animation: pulse 2s infinite 0.2s;"></i>
+                                <h3 class="stat-number text-success" id="eventos-finalizados">0</h3>
+                                <p class="stat-label">Finalizados</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-2x text-info mb-3" style="animation: pulse 2s infinite 0.4s;"></i>
+                                <h3 class="stat-number text-info" id="total-asistencias">0</h3>
+                                <p class="stat-label">Total Asistencias</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-percentage fa-2x text-warning mb-3" style="animation: pulse 2s infinite 0.6s;"></i>
+                                <h3 class="stat-number text-warning" id="tasa-asistencia">0%</h3>
+                                <p class="stat-label">Tasa de Asistencia</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    <!-- 4 GRÁFICAS -->
-                    <div class="row mb-4">
-                        <div class="col-md-4 mb-4">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">Estados de Eventos</h5>
-                                    <button class="btn btn-outline-primary btn-sm" onclick="exportChart('donut')">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container">
-                                        <canvas id="donutChart"></canvas>
-                                    </div>
-                                    <div class="legend" id="donut-legend"></div>
+                <!-- GRÁFICOS -->
+                <div class="row mb-4">
+                    <!-- Gráfico de Estados de Eventos -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-pie-chart me-2"></i>Estados de Eventos
+                                    <i class="fas fa-info-circle text-muted ms-2" style="font-size: 0.9rem; cursor: help;" 
+                                       title="Haz clic en una sección para filtrar eventos"></i>
+                                </h5>
+                            </div>
+                            <div class="card-body" style="cursor: pointer;">
+                                <div class="chart-container">
+                                    <canvas id="estadosChart"></canvas>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-md-8 mb-4">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">Tendencia de Eventos</h5>
-                                    <button class="btn btn-outline-primary btn-sm" onclick="exportChart('line')">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container large">
-                                        <canvas id="lineChart"></canvas>
-                                    </div>
+                    <!-- Gráfico de Tipos de Eventos -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>Tipos de Eventos
+                                    <i class="fas fa-info-circle text-muted ms-2" style="font-size: 0.9rem; cursor: help;" 
+                                       title="Haz clic en una barra para filtrar eventos"></i>
+                                </h5>
+                            </div>
+                            <div class="card-body" style="cursor: pointer;">
+                                <div class="chart-container">
+                                    <canvas id="tiposChart"></canvas>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="col-md-6 mb-4">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">Asistencias en Reuniones</h5>
-                                    <button class="btn btn-outline-primary btn-sm" onclick="exportChart('attendance')">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container large">
-                                        <canvas id="attendanceChart"></canvas>
-                                    </div>
+                <!-- Gráfico de Tendencia -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chart-line me-2"></i>Tendencia de Eventos
+                                    <i class="fas fa-info-circle text-muted ms-2" style="font-size: 0.9rem; cursor: help;" 
+                                       title="Haz clic en un punto para filtrar eventos de ese mes"></i>
+                                </h5>
+                            </div>
+                            <div class="card-body" style="cursor: pointer;">
+                                <div class="chart-container large">
+                                    <canvas id="tendenciaChart"></canvas>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="col-md-6 mb-4">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">Participación en Proyectos</h5>
-                                    <button class="btn btn-outline-primary btn-sm" onclick="exportChart('projects')">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container large">
-                                        <canvas id="projectsChart"></canvas>
+                <!-- Gráfico de Asistencias -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-user-check me-2"></i>Estadísticas de Asistencia por Evento</h5>
+                                <small class="text-muted" id="asistencias-subtitle">Todos los eventos con asistencias registradas</small>
+                            </div>
+                            <div class="card-body">
+                                <!-- Contenedor con scroll horizontal -->
+                                <div class="chart-scroll-container">
+                                    <div class="chart-inner-container" id="asistencias-chart-wrapper">
+                                        <canvas id="asistenciasChart"></canvas>
                                     </div>
                                 </div>
+                                <div id="no-asistencias-message" class="no-data" style="display: none;">
+                                    <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                                    <h5>No hay datos de asistencias registradas</h5>
+                                    <p>Los eventos deben tener asistencias registradas para mostrar estadísticas</p>
+                                </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Eventos Detallados -->
+                <div class="card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-table me-2"></i>Eventos Detallados</h5>
+                            <span id="filtro-activo-badge" class="badge bg-info ms-3" style="display: none;"></span>
+                        </div>
+                        <div class="d-flex">
+                            <button class="btn btn-sm btn-primary" onclick="exportarTablaCSV()">
+                                <i class="fas fa-file-csv me-1"></i>Exportar CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="eventos-table">
+                                <thead>
+                                    <tr>
+                                        <th>Título</th>
+                                        <th>Tipo</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                        <th>Asistencias</th>
+                                        <th>% Asistencia</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eventos-tbody">
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <div class="loading-spinner mx-auto mb-3"></div>
+                                            <h5 class="text-muted">Cargando datos...</h5>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -457,343 +585,189 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
 
     <script>
-        // Todo el JavaScript permanece exactamente igual
-        let donutChart = null;
-        let lineChart = null;
-        let attendanceChart = null;
-        let projectsChart = null;
-        let eventsData = [];
-        let attendanceData = [];
+        // ============================================================================
+        // 🔄 CÓDIGO CONECTADO A BASE DE DATOS
+        // ============================================================================
+        
+        let estadosChart, tiposChart, tendenciaChart, asistenciasChart;
+        let eventosDetallados = [];
 
         $(document).ready(function() {
-            initializeCharts();
-            setupSyncListeners();
-            loadData();
+            cargarDatos();
         });
 
-        function loadData() {
-            const eventos = localStorage.getItem('eventos');
+        // ============================================================================
+        // ✅ FUNCIÓN: Cargar todos los datos desde la BD
+        // ============================================================================
+        function cargarDatos() {
+            console.log('🔄 Iniciando carga de datos...');
             
-            if (!eventos) {
-                console.warn('No se encontraron eventos en localStorage');
-                eventsData = [];
-            } else {
-                try {
-                    eventsData = JSON.parse(eventos);
-                    console.log('Eventos cargados:', eventsData.length);
-                } catch (e) {
-                    console.error('Error al parsear eventos:', e);
-                    eventsData = [];
-                }
-            }
-            
-            const asistencias = localStorage.getItem('asistencias');
-            attendanceData = asistencias ? JSON.parse(asistencias) : [];
-            
-            console.log('Datos cargados - Eventos:', eventsData.length, 'Asistencias:', attendanceData.length);
-            
-            calculateAllStats();
-            updateChartsFromData(eventsData);
-        }
-
-        function setupSyncListeners() {
-            window.addEventListener('eventosUpdated', function() {
-                console.log('Eventos actualizados, recargando...');
-                loadData();
-            });
-
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'eventos' || e.key === 'asistencias') {
-                    console.log('Detectado cambio en', e.key);
-                    loadData();
-                }
-            });
-        }
-
-        function calculateAllStats() {
-            $('#total-events').text(eventsData.length);
-            
-            const completedEvents = eventsData.filter(event => {
-                const estado = event.extendedProps?.estado || event.estado || '';
-                return estado === 'finalizado';
-            });
-            
-            $('#completed-events').text(completedEvents.length);
-            $('#completed-description').text(`De ${eventsData.length} eventos totales`);
-            
-            calculateAttendanceRate();
-            calculateProjectParticipants();
-        }
-
-        function calculateAttendanceRate() {
-            const meetingAttendance = attendanceData.filter(att => {
-                const event = eventsData.find(e => e.id == att.event_id);
-                if (!event) return false;
-                
-                const tipoEvento = event.extendedProps?.tipo_evento || '';
-                return tipoEvento === 'reunion-virtual' || tipoEvento === 'reunion-presencial';
-            });
-            
-            if (meetingAttendance.length === 0) {
-                $('#attendance-rate').text('N/A');
-                $('#attendance-description').text('Sin datos de reuniones');
-                return;
-            }
-            
-            const totalMeetings = meetingAttendance.length;
-            const present = meetingAttendance.filter(att => att.status === 'presente').length;
-            const attendanceRate = totalMeetings > 0 ? Math.round((present / totalMeetings) * 100) : 0;
-            
-            $('#attendance-rate').text(`${attendanceRate}%`);
-            $('#attendance-description').text(`De ${totalMeetings} reunión(es)`);
-        }
-
-        function calculateProjectParticipants() {
-            const projectAttendance = attendanceData.filter(att => {
-                const event = eventsData.find(e => e.id == att.event_id);
-                if (!event) return false;
-                
-                const tipoEvento = event.extendedProps?.tipo_evento || '';
-                return tipoEvento === 'inicio-proyecto' || tipoEvento === 'finalizar-proyecto';
-            });
-            
-            if (projectAttendance.length === 0) {
-                $('#avg-participants').text('N/A');
-                $('#participants-description').text('Sin datos de proyectos');
-                return;
-            }
-            
-            const projectEvents = eventsData.filter(e => {
-                const tipo = e.extendedProps?.tipo_evento || '';
-                return tipo === 'inicio-proyecto' || tipo === 'finalizar-proyecto';
-            });
-            
-            const avgParticipants = projectEvents.length > 0 ? Math.round(projectAttendance.length / projectEvents.length) : 0;
-            
-            $('#avg-participants').text(avgParticipants);
-            $('#participants-description').text(`En ${projectAttendance.length} registro(s)`);
-        }
-
-        function showEventDetails(type) {
-            let filteredEvents = [];
-            let title = '';
-            let eventClass = 'event-detail-item';
-
-            if (type === 'total') {
-                filteredEvents = [...eventsData];
-                title = `Todos los Eventos (${filteredEvents.length})`;
-            } else if (type === 'completed') {
-                filteredEvents = eventsData.filter(event => {
-                    const estado = event.extendedProps?.estado || event.estado || '';
-                    return estado === 'finalizado';
-                });
-                title = `Eventos Finalizados (${filteredEvents.length})`;
-                eventClass = 'completed-event-item';
-            }
-
-            if (filteredEvents.length === 0) {
-                Swal.fire({
-                    title: title,
-                    html: `
-                        <div style="text-align: center; padding: 40px 20px;">
-                            <i class="fas fa-calendar-times" style="font-size: 3rem; color: #64748b; margin-bottom: 16px;"></i>
-                            <p style="color: #64748b; margin: 0;">No hay eventos para mostrar</p>
-                        </div>
-                    `,
-                    icon: 'info',
-                    confirmButtonText: 'Cerrar',
-                    width: '500px'
-                });
-                return;
-            }
-
-            let eventsHtml = filteredEvents.map(event => {
-                const titulo = event.title || event.titulo || 'Sin título';
-                const organizador = event.extendedProps?.organizador || 'Sin organizador';
-                const tipoEvento = getCategoryName(event.extendedProps?.tipo_evento || 'sin-categoria');
-                const estado = event.extendedProps?.estado || 'programado';
-                
-                return `
-                    <div class="${eventClass}">
-                        <div class="event-detail-title">${titulo}</div>
-                        <div class="event-detail-info">
-                            ${tipoEvento} - ${organizador} - Estado: ${getStatusName(estado)}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            Swal.fire({
-                title: title,
-                html: `
-                    <div style="max-height: 400px; overflow-y: auto; text-align: left; padding: 10px;">
-                        ${eventsHtml}
-                    </div>
-                `,
-                confirmButtonText: 'Cerrar',
-                confirmButtonColor: type === 'completed' ? '#059669' : '#2563eb',
-                width: '600px'
-            });
-        }
-
-        function showAttendanceDetails() {
-            const meetingAttendance = attendanceData.filter(att => {
-                const event = eventsData.find(e => e.id == att.event_id);
-                if (!event) return false;
-                const tipoEvento = event.extendedProps?.tipo_evento || '';
-                return tipoEvento === 'reunion-virtual' || tipoEvento === 'reunion-presencial';
-            });
-            
-            if (meetingAttendance.length === 0) {
-                Swal.fire({
-                    title: 'Tasa de Asistencia',
-                    html: `
-                        <div style="text-align: center; padding: 40px 20px;">
-                            <i class="fas fa-chart-line" style="font-size: 3rem; color: #06b6d4; margin-bottom: 16px;"></i>
-                            <p style="color: #64748b; margin: 0;">No hay datos de asistencia para reuniones</p>
-                        </div>
-                    `,
-                    icon: 'info',
-                    confirmButtonText: 'Entendido'
-                });
-                return;
-            }
-            
-            let detailsHtml = meetingAttendance.map(att => {
-                const event = eventsData.find(e => e.id == att.event_id);
-                const titulo = event ? (event.title || event.titulo) : 'Evento desconocido';
-                const tipoEvento = event ? (event.extendedProps?.tipo_evento || '') : '';
-                
-                return `
-                    <div class="event-detail-item">
-                        <div class="event-detail-title">${titulo}</div>
-                        <div class="event-detail-info">
-                            ${tipoEvento === 'reunion-virtual' ? '💻 Virtual' : '🏢 Presencial'} - 
-                            ${att.participant_name} - ${att.status === 'presente' ? '✅ Presente' : '❌ Ausente'}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            Swal.fire({
-                title: 'Detalles de Asistencia',
-                html: `
-                    <div style="max-height: 400px; overflow-y: auto; text-align: left; padding: 10px;">
-                        ${detailsHtml}
-                    </div>
-                `,
-                confirmButtonText: 'Cerrar',
-                confirmButtonColor: '#06b6d4',
-                width: '600px'
-            });
-        }
-
-        function showProjectParticipantsDetails() {
-            const projectAttendance = attendanceData.filter(att => {
-                const event = eventsData.find(e => e.id == att.event_id);
-                if (!event) return false;
-                const tipoEvento = event.extendedProps?.tipo_evento || '';
-                return tipoEvento === 'inicio-proyecto' || tipoEvento === 'finalizar-proyecto';
-            });
-            
-            if (projectAttendance.length === 0) {
-                Swal.fire({
-                    title: 'Promedio de Participantes',
-                    html: `
-                        <div style="text-align: center; padding: 40px 20px;">
-                            <i class="fas fa-users" style="font-size: 3rem; color: #8b5cf6; margin-bottom: 16px;"></i>
-                            <p style="color: #64748b; margin: 0;">No hay datos de participantes en proyectos</p>
-                        </div>
-                    `,
-                    icon: 'info',
-                    confirmButtonText: 'Entendido'
-                });
-                return;
-            }
-            
-            let detailsHtml = projectAttendance.map(att => {
-                const event = eventsData.find(e => e.id == att.event_id);
-                const titulo = event ? (event.title || event.titulo) : 'Proyecto desconocido';
-                const tipoEvento = event ? (event.extendedProps?.tipo_evento || '') : '';
-                
-                return `
-                    <div class="event-detail-item">
-                        <div class="event-detail-title">${titulo}</div>
-                        <div class="event-detail-info">
-                            ${tipoEvento === 'inicio-proyecto' ? '🚀 Inicio' : '🎯 Finalización'} - 
-                            ${att.participant_name}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            Swal.fire({
-                title: 'Participantes en Proyectos',
-                html: `
-                    <div style="max-height: 400px; overflow-y: auto; text-align: left; padding: 10px;">
-                        ${detailsHtml}
-                    </div>
-                `,
-                confirmButtonText: 'Cerrar',
-                confirmButtonColor: '#8b5cf6',
-                width: '600px'
-            });
-        }
-
-        function updateChartsFromData(events) {
-            updateDonutChart(events);
-            updateLineChart();
-            updateAttendanceChart();
-            updateProjectsChart();
-        }
-
-        function updateDonutChart(events) {
-            const estados = {
-                'programado': 0,
-                'en_curso': 0,
-                'finalizado': 0,
-                'cancelado': 0
-            };
-
-            events.forEach(event => {
-                const estado = event.extendedProps?.estado || event.estado || 'programado';
-                if (estados.hasOwnProperty(estado)) {
-                    estados[estado]++;
+            // 1️⃣ CARGAR EVENTOS DETALLADOS Y CALCULAR ASISTENCIAS
+            $.ajax({
+                url: '/api/calendario/reportes/detallado',
+                method: 'GET',
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function(response) {
+                    console.log('📦 Respuesta completa del servidor:', response);
+                    
+                    if (response.success && response.eventos) {
+                        eventosDetallados = response.eventos;
+                        console.log('✅ Eventos cargados:', eventosDetallados.length);
+                        
+                        if (eventosDetallados.length > 0) {
+                            console.log('📋 Primer evento (ejemplo):', eventosDetallados[0]);
+                            console.log('🔑 Campos disponibles:', Object.keys(eventosDetallados[0]));
+                        }
+                        
+                        // Calcular asistencias (soporta ambos nombres de campo)
+                        let totalAsistencias = 0;
+                        let totalPresentes = 0;
+                        
+                        eventosDetallados.forEach(evento => {
+                            // 🔥 Soportar ambos nombres: TotalRegistros (del SP) o TotalAsistencias (legacy)
+                            const registros = parseInt(evento.TotalRegistros || evento.TotalAsistencias || 0);
+                            const presentes = parseInt(evento.TotalPresentes || 0);
+                            
+                            totalAsistencias += registros;
+                            totalPresentes += presentes;
+                            
+                            console.log(`  - ${evento.TituloEvento}: ${registros} registros, ${presentes} presentes`);
+                        });
+                        
+                        const tasaAsistencia = totalAsistencias > 0 ? 
+                            Math.round((totalPresentes / totalAsistencias) * 100) : 0;
+                        
+                        console.log('\n📊 CÁLCULOS FINALES:');
+                        console.log('  Total Asistencias:', totalAsistencias);
+                        console.log('  Total Presentes:', totalPresentes);
+                        console.log('  Tasa:', tasaAsistencia + '%');
+                        
+                        // 🔥 ACTUALIZAR tarjetas con JavaScript puro Y jQuery (doble seguridad)
+                        const elemAsistencias = document.getElementById('total-asistencias');
+                        const elemTasa = document.getElementById('tasa-asistencia');
+                        
+                        console.log('\n🎯 ACTUALIZANDO TARJETAS:');
+                        
+                        if (elemAsistencias) {
+                            elemAsistencias.textContent = totalAsistencias;
+                            $('#total-asistencias').text(totalAsistencias);
+                            console.log('✅ Total Asistencias actualizado a:', totalAsistencias);
+                            console.log('   Contenido actual del elemento:', elemAsistencias.textContent);
+                        } else {
+                            console.error('❌ Elemento #total-asistencias no encontrado en el DOM');
+                        }
+                        
+                        if (elemTasa) {
+                            elemTasa.textContent = tasaAsistencia + '%';
+                            $('#tasa-asistencia').text(tasaAsistencia + '%');
+                            console.log('✅ Tasa de Asistencia actualizada a:', tasaAsistencia + '%');
+                            console.log('   Contenido actual del elemento:', elemTasa.textContent);
+                        } else {
+                            console.error('❌ Elemento #tasa-asistencia no encontrado en el DOM');
+                        }
+                        
+                        // Mostrar en tabla
+                        mostrarEventosDetallados(eventosDetallados);
+                        
+                    } else {
+                        console.error('❌ Respuesta sin eventos o sin éxito:', response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ Error cargando eventos:', {
+                        status: xhr.status,
+                        statusText: xhr.statusText,
+                        error: error,
+                        response: xhr.responseText
+                    });
                 }
             });
-
-            const data = [estados.programado, estados.en_curso, estados.finalizado, estados.cancelado];
-            const labels = ['Programado', 'En Curso', 'Finalizado', 'Cancelado'];
-            const colors = ['#2563eb', '#10b981', '#64748b', '#ef4444'];
-
-            if (donutChart) {
-                donutChart.data.datasets[0].data = data;
-                donutChart.update();
-            } else {
-                initDonutChart(data, labels, colors);
-            }
-
-            createDonutLegend(data, labels, colors);
+            
+            // 2️⃣ CARGAR ESTADÍSTICAS GENERALES
+            $.ajax({
+                url: '/api/calendario/reportes/estadisticas-generales',
+                method: 'GET',
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function(response) {
+                    if (response.success && response.estadisticas) {
+                        const stats = response.estadisticas;
+                        
+                        // Con JavaScript puro
+                        const elemEventos = document.getElementById('total-eventos');
+                        const elemFinalizados = document.getElementById('eventos-finalizados');
+                        
+                        if (elemEventos) {
+                            elemEventos.textContent = stats.TotalEventos || 0;
+                            $('#total-eventos').text(stats.TotalEventos || 0);
+                        }
+                        
+                        if (elemFinalizados) {
+                            elemFinalizados.textContent = stats.TotalFinalizados || 0;
+                            $('#eventos-finalizados').text(stats.TotalFinalizados || 0);
+                        }
+                        
+                        console.log('✅ Estadísticas generales actualizadas');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('❌ Error cargando estadísticas:', xhr);
+                }
+            });
+            
+            // 3️⃣ CARGAR GRÁFICOS
+            $.ajax({
+                url: '/api/calendario/reportes/graficos',
+                method: 'GET',
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function(response) {
+                    if (response.success && response.graficos) {
+                        crearGraficos(response.graficos);
+                        console.log('✅ Gráficos creados');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('❌ Error cargando gráficos:', xhr);
+                }
+            });
         }
 
-        function initDonutChart(data, labels, colors) {
-            const ctx = document.getElementById('donutChart').getContext('2d');
-            
-            donutChart = new Chart(ctx, {
+        // ============================================================================
+        // ✅ FUNCIÓN: Actualizar estadísticas generales (solo eventos y finalizados)
+        // ============================================================================
+        function actualizarEstadisticasGenerales(stats) {
+            // Esta función ya no se usa, se actualiza directamente en cargarDatos()
+        }
+
+        // ============================================================================
+        // ✅ FUNCIÓN: Crear gráficos con Chart.js
+        // ============================================================================
+        function crearGraficos(datos) {
+            // Destruir gráficos anteriores si existen
+            if (estadosChart) estadosChart.destroy();
+            if (tiposChart) tiposChart.destroy();
+            if (tendenciaChart) tendenciaChart.destroy();
+            if (asistenciasChart) asistenciasChart.destroy();
+
+            // Gráfico de Estados (Donut) - INTERACTIVO
+            const ctxEstados = document.getElementById('estadosChart').getContext('2d');
+            estadosChart = new Chart(ctxEstados, {
                 type: 'doughnut',
                 data: {
-                    labels: labels,
+                    labels: ['Programados', 'En Curso', 'Finalizados'],
                     datasets: [{
-                        data: data,
-                        backgroundColor: colors,
-                        borderWidth: 0,
-                        hoverBorderWidth: 2,
-                        hoverBorderColor: '#ffffff'
+                        data: [
+                            datos.estados.programados,
+                            datos.estados.en_curso,
+                            datos.estados.finalizados
+                        ],
+                        backgroundColor: ['#f59e0b', '#06b6d4', '#059669'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
                     }]
                 },
                 options: {
@@ -801,76 +775,47 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: false
+                            position: 'bottom'
                         },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    const label = context.label;
-                                    const value = context.parsed;
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    const percentage = ((value / total) * 100).toFixed(1);
                                     return `${label}: ${value} (${percentage}%)`;
                                 }
                             }
                         }
                     },
-                    cutout: '70%',
-                    animation: {
-                        animateRotate: true,
-                        duration: 1000
+                    onClick: function(evt, activeElements) {
+                        if (activeElements.length > 0) {
+                            const index = activeElements[0].index;
+                            const estados = ['Programado', 'EnCurso', 'Finalizado'];
+                            const estadoSeleccionado = estados[index];
+                            filtrarEventosPorEstado(estadoSeleccionado);
+                        }
                     }
                 }
             });
-        }
 
-        function createDonutLegend(data, labels, colors) {
-            const legendContainer = document.getElementById('donut-legend');
-            legendContainer.innerHTML = '';
-
-            labels.forEach((label, index) => {
-                const legendItem = document.createElement('div');
-                legendItem.className = 'legend-item';
-                
-                const total = data.reduce((a, b) => a + b, 0);
-                const value = data[index];
-                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                
-                legendItem.innerHTML = `
-                    <div class="legend-color" style="background-color: ${colors[index]}"></div>
-                    <span>${label}: ${value} (${percentage}%)</span>
-                `;
-                
-                legendContainer.appendChild(legendItem);
-            });
-        }
-
-        function initializeCharts() {
-            initLineChart();
-            initAttendanceChart();
-            initProjectsChart();
-        }
-
-        function initLineChart() {
-            const ctx = document.getElementById('lineChart').getContext('2d');
-            
-            lineChart = new Chart(ctx, {
-                type: 'line',
+            // Gráfico de Tipos (Barras) - INTERACTIVO
+            const ctxTipos = document.getElementById('tiposChart').getContext('2d');
+            tiposChart = new Chart(ctxTipos, {
+                type: 'bar',
                 data: {
-                    labels: [],
+                    labels: ['Virtual', 'Presencial', 'Inicio Proyecto', 'Fin Proyecto'],
                     datasets: [{
-                        label: 'Eventos por mes',
-                        data: [],
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#2563eb',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8
+                        label: 'Cantidad de Eventos',
+                        data: [
+                            datos.tipos.virtual,
+                            datos.tipos.presencial,
+                            datos.tipos.inicio_proyecto,
+                            datos.tipos.fin_proyecto
+                        ],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+                        borderRadius: 8
                     }]
                 },
                 options: {
@@ -881,15 +826,6 @@
                             display: false
                         },
                         tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#ffffff',
-                            bodyColor: '#ffffff',
-                            borderColor: '#2563eb',
-                            borderWidth: 1,
-                            cornerRadius: 8,
-                            displayColors: false,
                             callbacks: {
                                 label: function(context) {
                                     return `Eventos: ${context.parsed.y}`;
@@ -898,183 +834,55 @@
                         }
                     },
                     scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            border: {
-                                display: false
-                            }
-                        },
                         y: {
                             beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            border: {
-                                display: false
-                            },
                             ticks: {
                                 stepSize: 1
                             }
                         }
                     },
-                    animation: {
-                        duration: 1500,
-                        easing: 'easeInOutQuart'
-                    }
-                }
-            });
-        }
-
-        function updateLineChart() {
-            if (!lineChart) return;
-            
-            const months = [];
-            const eventCounts = [];
-            const now = new Date();
-            
-            for (let i = 5; i >= 0; i--) {
-                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                const monthName = date.toLocaleDateString('es-ES', { month: 'short' });
-                months.push(monthName.charAt(0).toUpperCase() + monthName.slice(1));
-                
-                const monthEvents = eventsData.filter(event => {
-                    const eventDate = new Date(event.start || event.fecha_inicio);
-                    return eventDate.getMonth() === date.getMonth() && 
-                           eventDate.getFullYear() === date.getFullYear();
-                });
-                eventCounts.push(monthEvents.length);
-            }
-            
-            lineChart.data.labels = months;
-            lineChart.data.datasets[0].data = eventCounts;
-            lineChart.update();
-        }
-
-        function initAttendanceChart() {
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
-            
-            attendanceChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Presentes',
-                        data: [],
-                        backgroundColor: '#10b981',
-                        borderWidth: 0
-                    },
-                    {
-                        label: 'Ausentes',
-                        data: [],
-                        backgroundColor: '#ef4444',
-                        borderWidth: 0
-                    },
-                    {
-                        label: 'Justificados',
-                        data: [],
-                        backgroundColor: '#06b6d4',
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'bottom'
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            stacked: false,
-                            grid: {
-                                display: false
-                            }
-                        },
-                        y: {
-                            stacked: false,
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
-                            ticks: {
-                                stepSize: 1
-                            }
+                    onClick: function(evt, activeElements) {
+                        if (activeElements.length > 0) {
+                            const index = activeElements[0].index;
+                            const tipos = ['Virtual', 'Presencial', 'InicioProyecto', 'FinProyecto'];
+                            const tipoSeleccionado = tipos[index];
+                            filtrarEventosPorTipo(tipoSeleccionado);
                         }
                     }
                 }
             });
-        }
 
-        function updateAttendanceChart() {
-            if (!attendanceChart) {
-                initAttendanceChart();
-            }
-            
-            const meetingEvents = eventsData.filter(e => {
-                const tipo = e.extendedProps?.tipo_evento || '';
-                return tipo === 'reunion-virtual' || tipo === 'reunion-presencial';
+            // Gráfico de Tendencia (Línea) - INTERACTIVO
+            const ctxTendencia = document.getElementById('tendenciaChart').getContext('2d');
+            const meses = datos.tendencia.map(t => {
+                const [year, month] = t.mes.split('-');
+                const fecha = new Date(year, month - 1);
+                return fecha.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
             });
-            
-            if (meetingEvents.length === 0) {
-                attendanceChart.data.labels = ['Sin datos'];
-                attendanceChart.data.datasets[0].data = [0];
-                attendanceChart.data.datasets[1].data = [0];
-                attendanceChart.data.datasets[2].data = [0];
-                attendanceChart.update();
-                return;
-            }
-            
-            const labels = [];
-            const presentes = [];
-            const ausentes = [];
-            const justificados = [];
-            
-            meetingEvents.forEach(event => {
-                const titulo = (event.title || event.titulo || 'Sin título').substring(0, 20);
-                labels.push(titulo);
-                
-                const eventAttendance = attendanceData.filter(att => att.event_id == event.id);
-                
-                const presentCount = eventAttendance.filter(att => att.status === 'presente').length;
-                const absentCount = eventAttendance.filter(att => att.status === 'ausente').length;
-                const justifiedCount = eventAttendance.filter(att => att.status === 'justificado').length;
-                
-                presentes.push(presentCount);
-                ausentes.push(absentCount);
-                justificados.push(justifiedCount);
-            });
-            
-            attendanceChart.data.labels = labels;
-            attendanceChart.data.datasets[0].data = presentes;
-            attendanceChart.data.datasets[1].data = ausentes;
-            attendanceChart.data.datasets[2].data = justificados;
-            attendanceChart.update();
-        }
+            const cantidades = datos.tendencia.map(t => t.cantidad);
 
-        function initProjectsChart() {
-            const ctx = document.getElementById('projectsChart').getContext('2d');
-            
-            projectsChart = new Chart(ctx, {
-                type: 'bar',
+            tendenciaChart = new Chart(ctxTendencia, {
+                type: 'line',
                 data: {
-                    labels: [],
+                    labels: meses,
                     datasets: [{
-                        label: 'Participantes',
-                        data: [],
-                        backgroundColor: '#8b5cf6',
-                        borderWidth: 0
+                        label: 'Eventos por Mes',
+                        data: cantidades,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 9,
+                        pointBackgroundColor: '#2563eb',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBackgroundColor: '#1d4ed8',
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 3
                     }]
                 },
                 options: {
-                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
@@ -1083,612 +891,454 @@
                         },
                         tooltip: {
                             callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
                                 label: function(context) {
-                                    return `Participantes: ${context.parsed.x}`;
+                                    return `Eventos: ${context.parsed.y}`;
                                 }
                             }
                         }
                     },
                     scales: {
-                        x: {
+                        y: {
                             beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            },
                             ticks: {
                                 stepSize: 1
                             }
-                        },
-                        y: {
-                            grid: {
-                                display: false
-                            }
+                        }
+                    },
+                    onClick: function(evt, activeElements) {
+                        if (activeElements.length > 0) {
+                            const index = activeElements[0].index;
+                            const mesSeleccionado = datos.tendencia[index].mes;
+                            filtrarEventosPorMes(mesSeleccionado);
                         }
                     }
                 }
             });
+
+            // Gráfico de Asistencias (Barras Agrupadas) - SCROLLABLE
+            const ctxAsistencias = document.getElementById('asistenciasChart').getContext('2d');
+            
+            if (datos.asistencias && datos.asistencias.length > 0) {
+                // Mostrar el canvas y ocultar mensaje de "no hay datos"
+                $('#asistenciasChart').show();
+                $('#no-asistencias-message').hide();
+                
+                // 🆕 MOSTRAR TODOS LOS EVENTOS (no solo 10)
+                const todasAsistencias = datos.asistencias;
+                const numEventos = todasAsistencias.length;
+                
+                // 🆕 CALCULAR ANCHO DINÁMICO: cada evento necesita ~80px
+                const anchoMinimo = Math.max(100, numEventos * 80);
+                const contenedorWrapper = document.getElementById('asistencias-chart-wrapper');
+                contenedorWrapper.style.minWidth = anchoMinimo + 'px';
+                
+                // 🆕 ACTUALIZAR SUBTÍTULO
+                $('#asistencias-subtitle').text(`${numEventos} eventos con asistencias registradas`);
+                
+                const eventosLabels = todasAsistencias.map(a => {
+                    // Truncar títulos largos
+                    return a.titulo.length > 20 ? a.titulo.substring(0, 20) + '...' : a.titulo;
+                });
+                const presentes = todasAsistencias.map(a => a.presentes);
+                const ausentes = todasAsistencias.map(a => a.ausentes);
+                const justificados = todasAsistencias.map(a => a.justificados);
+
+                asistenciasChart = new Chart(ctxAsistencias, {
+                    type: 'bar',
+                    data: {
+                        labels: eventosLabels,
+                        datasets: [
+                            {
+                                label: 'Presentes',
+                                data: presentes,
+                                backgroundColor: '#059669',
+                                borderRadius: 8
+                            },
+                            {
+                                label: 'Ausentes',
+                                data: ausentes,
+                                backgroundColor: '#dc2626',
+                                borderRadius: 8
+                            },
+                            {
+                                label: 'Justificados',
+                                data: justificados,
+                                backgroundColor: '#06b6d4',
+                                borderRadius: 8
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        // Mostrar título completo en tooltip
+                                        const index = context[0].dataIndex;
+                                        return todasAsistencias[index].titulo;
+                                    },
+                                    afterLabel: function(context) {
+                                        const index = context.dataIndex;
+                                        let porcentaje = parseFloat(todasAsistencias[index].porcentaje) || 0;
+                                        if (isNaN(porcentaje)) porcentaje = 0;
+                                        return 'Asistencia: ' + porcentaje.toFixed(1) + '%';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: false,
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Ocultar el canvas y mostrar mensaje de "no hay datos"
+                $('#asistenciasChart').hide();
+                $('#no-asistencias-message').show();
+            }
         }
 
-        function updateProjectsChart() {
-            if (!projectsChart) {
-                initProjectsChart();
-            }
-            
-            const projectEvents = eventsData.filter(e => {
-                const tipo = e.extendedProps?.tipo_evento || '';
-                return tipo === 'inicio-proyecto' || tipo === 'finalizar-proyecto';
-            });
-            
-            if (projectEvents.length === 0) {
-                projectsChart.data.labels = ['Sin proyectos'];
-                projectsChart.data.datasets[0].data = [0];
-                projectsChart.update();
+        // ============================================================================
+        // ✅ FUNCIÓN: Mostrar eventos detallados en tabla
+        // ============================================================================
+        function mostrarEventosDetallados(eventos) {
+            const tbody = $('#eventos-tbody');
+            tbody.empty();
+
+            if (eventos.length === 0) {
+                tbody.html(`
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5>No hay eventos que coincidan con el filtro</h5>
+                        </td>
+                    </tr>
+                `);
                 return;
             }
-            
-            const labels = [];
-            const participantCounts = [];
-            
-            projectEvents.forEach(event => {
-                const titulo = (event.title || event.titulo || 'Sin título').substring(0, 30);
-                const tipo = event.extendedProps?.tipo_evento || '';
-                const icono = tipo === 'inicio-proyecto' ? '🚀' : '🎯';
+
+            eventos.forEach(evento => {
+                const fecha = new Date(evento.FechaInicio).toLocaleDateString('es-ES');
+                const tipo = obtenerNombreTipo(evento.TipoEvento);
+                const estado = obtenerNombreEstado(evento.EstadoEvento);
                 
-                labels.push(`${icono} ${titulo}`);
+                // Convertir porcentaje a número y manejar null/undefined
+                let porcentaje = parseFloat(evento.PorcentajeAsistencia) || 0;
+                if (isNaN(porcentaje)) porcentaje = 0;
                 
-                const projectParticipants = attendanceData.filter(att => att.event_id == event.id);
-                participantCounts.push(projectParticipants.length);
+                const badgeEstado = obtenerBadgeEstado(evento.EstadoEvento);
+                
+                const row = `
+                    <tr>
+                        <td><strong>${evento.TituloEvento}</strong></td>
+                        <td>${tipo}</td>
+                        <td>${badgeEstado}</td>
+                        <td>${fecha}</td>
+                        <td>${evento.TotalAsistencias || 0}</td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: ${porcentaje}%">${Math.round(porcentaje)}%</div>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="verDetalleEvento(${evento.CalendarioID})" title="Ver detalle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(row);
             });
-            
-            projectsChart.data.labels = labels;
-            projectsChart.data.datasets[0].data = participantCounts;
-            projectsChart.update();
         }
 
+        // ============================================================================
+        // 🆕 FUNCIÓN: Filtrar eventos por estado
+        // ============================================================================
+        function filtrarEventosPorEstado(estado) {
+            console.log('Filtrando por estado:', estado);
+            console.log('Eventos disponibles:', eventosDetallados);
+            
+            const nombreEstado = obtenerNombreEstado(estado);
+            const eventosFiltrados = eventosDetallados.filter(e => {
+                console.log('Comparando:', e.EstadoEvento, 'con', estado);
+                return e.EstadoEvento === estado;
+            });
+            
+            console.log('Eventos filtrados:', eventosFiltrados);
+            
+            // Mostrar badge de filtro activo
+            $('#filtro-activo-badge').text(`Filtro: ${nombreEstado}`).show();
+            
+            if (eventosFiltrados.length === 0) {
+                showToast(`No hay eventos con estado: ${nombreEstado}`, 'warning');
+            } else {
+                showToast(`Mostrando ${eventosFiltrados.length} eventos ${nombreEstado}`, 'info');
+            }
+            
+            mostrarEventosDetallados(eventosFiltrados);
+            
+            // Agregar botón para limpiar filtro
+            agregarBotonLimpiarFiltro();
+            
+            // Scroll a la tabla
+            $('html, body').animate({
+                scrollTop: $("#eventos-table").offset().top - 100
+            }, 500);
+        }
+
+        // ============================================================================
+        // 🆕 FUNCIÓN: Filtrar eventos por tipo
+        // ============================================================================
+        function filtrarEventosPorTipo(tipo) {
+            console.log('Filtrando por tipo:', tipo);
+            console.log('Eventos disponibles:', eventosDetallados);
+            
+            const nombreTipo = obtenerNombreTipo(tipo);
+            const eventosFiltrados = eventosDetallados.filter(e => {
+                console.log('Comparando:', e.TipoEvento, 'con', tipo);
+                return e.TipoEvento === tipo;
+            });
+            
+            console.log('Eventos filtrados:', eventosFiltrados);
+            
+            // Mostrar badge de filtro activo
+            $('#filtro-activo-badge').text(`Filtro: ${nombreTipo}`).show();
+            
+            if (eventosFiltrados.length === 0) {
+                showToast(`No hay eventos de tipo: ${nombreTipo}`, 'warning');
+            } else {
+                showToast(`Mostrando ${eventosFiltrados.length} eventos tipo ${nombreTipo}`, 'info');
+            }
+            
+            mostrarEventosDetallados(eventosFiltrados);
+            
+            // Agregar botón para limpiar filtro
+            agregarBotonLimpiarFiltro();
+            
+            // Scroll a la tabla
+            $('html, body').animate({
+                scrollTop: $("#eventos-table").offset().top - 100
+            }, 500);
+        }
+
+        // ============================================================================
+        // 🆕 FUNCIÓN: Filtrar eventos por mes
+        // ============================================================================
+        function filtrarEventosPorMes(mes) {
+            console.log('Filtrando por mes:', mes);
+            console.log('Eventos disponibles:', eventosDetallados);
+            
+            // mes viene en formato "YYYY-MM"
+            const [year, month] = mes.split('-');
+            
+            const eventosFiltrados = eventosDetallados.filter(e => {
+                const fechaEvento = new Date(e.FechaInicio);
+                const yearEvento = fechaEvento.getFullYear();
+                const monthEvento = String(fechaEvento.getMonth() + 1).padStart(2, '0');
+                
+                console.log(`Comparando: ${yearEvento}-${monthEvento} con ${year}-${month}`);
+                
+                return yearEvento == year && monthEvento == month;
+            });
+            
+            console.log('Eventos filtrados:', eventosFiltrados);
+            
+            // Formatear nombre del mes para mostrar
+            const fecha = new Date(year, month - 1);
+            const nombreMes = fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+            const nombreMesCapitalizado = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+            
+            // Mostrar badge de filtro activo
+            $('#filtro-activo-badge').text(`Filtro: ${nombreMesCapitalizado}`).show();
+            
+            if (eventosFiltrados.length === 0) {
+                showToast(`No hay eventos en: ${nombreMesCapitalizado}`, 'warning');
+            } else {
+                showToast(`Mostrando ${eventosFiltrados.length} eventos de ${nombreMesCapitalizado}`, 'info');
+            }
+            
+            mostrarEventosDetallados(eventosFiltrados);
+            
+            // Agregar botón para limpiar filtro
+            agregarBotonLimpiarFiltro();
+            
+            // Scroll a la tabla
+            $('html, body').animate({
+                scrollTop: $("#eventos-table").offset().top - 100
+            }, 500);
+        }
+
+        // ============================================================================
+        // 🆕 FUNCIÓN: Agregar botón para limpiar filtro
+        // ============================================================================
+        function agregarBotonLimpiarFiltro() {
+            // Verificar si ya existe el botón
+            if ($('#btn-limpiar-filtro').length === 0) {
+                const boton = `
+                    <button id="btn-limpiar-filtro" class="btn btn-sm btn-warning ms-2" onclick="limpiarFiltro()">
+                        <i class="fas fa-times me-1"></i>Limpiar Filtro
+                    </button>
+                `;
+                $('.card-header:has(#filtro-activo-badge) .d-flex:last').append(boton);
+            }
+        }
+
+        // ============================================================================
+        // 🆕 FUNCIÓN: Limpiar filtro y mostrar todos los eventos
+        // ============================================================================
+        function limpiarFiltro() {
+            mostrarEventosDetallados(eventosDetallados);
+            $('#btn-limpiar-filtro').remove();
+            $('#filtro-activo-badge').hide();
+            showToast(`Mostrando todos los eventos (${eventosDetallados.length})`, 'success');
+        }
+
+        // ============================================================================
+        // ✅ FUNCIÓN: Ver detalle de un evento
+        // ============================================================================
+        function verDetalleEvento(eventoId) {
+            $.ajax({
+                url: `/api/calendario/reportes/evento/${eventoId}`,
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        mostrarModalDetalle(response.reporte);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al cargar detalle:', error);
+                    showToast('Error al cargar detalle del evento', 'error');
+                }
+            });
+        }
+
+        function mostrarModalDetalle(reporte) {
+            let porcentaje = parseFloat(reporte.PorcentajeAsistencia) || 0;
+            if (isNaN(porcentaje)) porcentaje = 0;
+            
+            Swal.fire({
+                title: reporte.TituloEvento,
+                html: `
+                    <div class="text-start">
+                        <p><strong>Tipo:</strong> ${obtenerNombreTipo(reporte.TipoEvento)}</p>
+                        <p><strong>Estado:</strong> ${obtenerNombreEstado(reporte.EstadoEvento)}</p>
+                        <p><strong>Fecha:</strong> ${new Date(reporte.FechaInicio).toLocaleDateString('es-ES')}</p>
+                        <p><strong>Organizador:</strong> ${reporte.Organizador}</p>
+                        <hr>
+                        <h5>Estadísticas de Asistencia</h5>
+                        <p><strong>Total Registros:</strong> ${reporte.TotalRegistros}</p>
+                        <p><strong>Presentes:</strong> <span class="text-success">${reporte.TotalPresentes}</span></p>
+                        <p><strong>Ausentes:</strong> <span class="text-danger">${reporte.TotalAusentes}</span></p>
+                        <p><strong>Justificados:</strong> <span class="text-info">${reporte.TotalJustificados}</span></p>
+                        <p><strong>Porcentaje de Asistencia:</strong> <span class="text-success">${porcentaje.toFixed(1)}%</span></p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'Cerrar',
+                width: '600px'
+            });
+        }
+
+        // ============================================================================
+        // ✅ FUNCIÓN: Exportar tabla a CSV
+        // ============================================================================
+        function exportarTablaCSV() {
+            if (eventosDetallados.length === 0) {
+                showToast('No hay datos para exportar', 'warning');
+                return;
+            }
+
+            const headers = ['Título', 'Tipo', 'Estado', 'Fecha', 'Asistencias', 'Porcentaje'];
+            const rows = eventosDetallados.map(evento => [
+                evento.TituloEvento,
+                obtenerNombreTipo(evento.TipoEvento),
+                obtenerNombreEstado(evento.EstadoEvento),
+                new Date(evento.FechaInicio).toLocaleDateString('es-ES'),
+                evento.TotalAsistencias || 0,
+                (evento.PorcentajeAsistencia || 0).toFixed(2) + '%'
+            ]);
+
+            const csvContent = [headers, ...rows]
+                .map(row => row.map(field => `"${field}"`).join(','))
+                .join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `reporte_eventos_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showToast('CSV exportado correctamente', 'success');
+        }
+
+        // ============================================================================
+        // ✅ FUNCIÓN: Exportar reporte completo
+        // ============================================================================
+        function exportarReporte() {
+            showToast('Generando reporte PDF...', 'info');
+            // Aquí puedes implementar la generación de PDF con una librería como jsPDF
+            // Por ahora, exportamos como CSV
+            exportarTablaCSV();
+        }
+
+        // ============================================================================
+        // FUNCIONES AUXILIARES
+        // ============================================================================
         function refreshData() {
             showToast('Actualizando datos...', 'info');
-            loadData();
-            showToast('Datos actualizados correctamente', 'success');
+            cargarDatos();
         }
 
-        // FUNCIÓN GENERAR REPORTE - COMPLETAMENTE FUNCIONAL
-        function generateReport() {
-            Swal.fire({
-                title: 'Generar Reporte Personalizado',
-                html: `
-                    <div style="text-align: left; max-width: 400px; margin: 0 auto;">
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Tipo de Reporte:</label>
-                            <select id="report-type" class="swal2-select" style="width: 100%;">
-                                <option value="summary">Resumen Ejecutivo</option>
-                                <option value="detailed">Análisis Detallado</option>
-                                <option value="attendance">Reporte de Asistencias</option>
-                                <option value="trends">Análisis de Tendencias</option>
-                            </select>
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Formato:</label>
-                            <select id="report-format" class="swal2-select" style="width: 100%;">
-                                <option value="pdf">PDF</option>
-                                <option value="excel">Excel (CSV)</option>
-                                <option value="html">HTML</option>
-                            </select>
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Incluir:</label>
-                            <div style="text-align: left;">
-                                <label><input type="checkbox" id="include-stats" checked> Estadísticas</label><br>
-                                <label><input type="checkbox" id="include-events" checked> Lista de Eventos</label><br>
-                                <label><input type="checkbox" id="include-attendance" checked> Datos de Asistencia</label><br>
-                                <label><input type="checkbox" id="include-charts"> Gráficos (solo HTML)</label>
-                            </div>
-                        </div>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Generar Reporte',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#10b981',
-                preConfirm: () => {
-                    return {
-                        type: document.getElementById('report-type').value,
-                        format: document.getElementById('report-format').value,
-                        includeStats: document.getElementById('include-stats').checked,
-                        includeEvents: document.getElementById('include-events').checked,
-                        includeAttendance: document.getElementById('include-attendance').checked,
-                        includeCharts: document.getElementById('include-charts').checked
-                    };
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    generateCustomReport(result.value);
-                }
-            });
-        }
-
-        function generateCustomReport(options) {
-            Swal.fire({
-                title: 'Generando reporte...',
-                html: `
-                    <div style="text-align: center; padding: 20px;">
-                        <div style="width: 48px; height: 48px; border: 4px solid #f3f4f6; border-top: 4px solid #2563eb; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
-                        <p>Procesando ${eventsData.length} eventos y ${attendanceData.length} asistencias...</p>
-                    </div>
-                    <style>
-                        @keyframes spin {
-                            0% { transform: rotate(0deg); }
-                            100% { transform: rotate(360deg); }
-                        }
-                    </style>
-                `,
-                showConfirmButton: false,
-                allowOutsideClick: false
-            });
-
-            setTimeout(() => {
-                const reportData = collectReportData();
-                
-                switch(options.format) {
-                    case 'pdf':
-                        generatePDFReport(reportData, options);
-                        break;
-                    case 'excel':
-                        generateExcelReport(reportData, options);
-                        break;
-                    case 'html':
-                        generateHTMLReport(reportData, options);
-                        break;
-                }
-            }, 1500);
-        }
-
-        function collectReportData() {
-            const now = new Date();
-            
-            const totalEventos = eventsData.length;
-            const finalizados = eventsData.filter(e => {
-                const estado = e.extendedProps?.estado || e.estado || '';
-                return estado === 'finalizado';
-            }).length;
-            
-            const programados = eventsData.filter(e => {
-                const estado = e.extendedProps?.estado || e.estado || 'programado';
-                return estado === 'programado';
-            }).length;
-            
-            const enCurso = eventsData.filter(e => {
-                const estado = e.extendedProps?.estado || e.estado || '';
-                return estado === 'en_curso';
-            }).length;
-            
-            const cancelados = eventsData.filter(e => {
-                const estado = e.extendedProps?.estado || e.estado || '';
-                return estado === 'cancelado';
-            }).length;
-            
-            const totalAsistencias = attendanceData.length;
-            const presentes = attendanceData.filter(a => a.status === 'presente').length;
-            const ausentes = attendanceData.filter(a => a.status === 'ausente').length;
-            const justificados = attendanceData.filter(a => a.status === 'justificado').length;
-            
-            const tasaAsistencia = totalAsistencias > 0 ? Math.round((presentes / totalAsistencias) * 100) : 0;
-            
-            return {
-                fecha: now.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
-                hora: now.toLocaleTimeString('es-ES'),
-                estadisticas: {
-                    totalEventos,
-                    finalizados,
-                    programados,
-                    enCurso,
-                    cancelados,
-                    totalAsistencias,
-                    presentes,
-                    ausentes,
-                    justificados,
-                    tasaAsistencia
-                },
-                eventos: eventsData,
-                asistencias: attendanceData
+        function obtenerNombreTipo(tipo) {
+            const tipos = {
+                'Virtual': 'Reunión Virtual',
+                'Presencial': 'Reunión Presencial',
+                'InicioProyecto': 'Inicio de Proyecto',
+                'FinProyecto': 'Fin de Proyecto'
             };
+            return tipos[tipo] || tipo;
         }
 
-        function generatePDFReport(data, options) {
-            const html = generateReportHTML(data, options, true);
-            
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(html);
-            printWindow.document.close();
-            
-            printWindow.onload = function() {
-                printWindow.print();
-                
-                Swal.fire({
-                    title: 'Reporte generado',
-                    html: `
-                        <div style="text-align: center; margin: 20px 0;">
-                            <i class="fas fa-file-pdf" style="font-size: 3rem; color: #ef4444; margin-bottom: 16px;"></i>
-                            <h4>Reporte PDF</h4>
-                            <p>Se abrió la ventana de impresión. Guarda como PDF seleccionando "Guardar como PDF" en el destino.</p>
-                            <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: left;">
-                                <p style="margin: 5px 0;"><strong>Total Eventos:</strong> ${data.estadisticas.totalEventos}</p>
-                                <p style="margin: 5px 0;"><strong>Finalizados:</strong> ${data.estadisticas.finalizados}</p>
-                                <p style="margin: 5px 0;"><strong>Asistencias:</strong> ${data.estadisticas.totalAsistencias}</p>
-                                <p style="margin: 5px 0;"><strong>Tasa Asistencia:</strong> ${data.estadisticas.tasaAsistencia}%</p>
-                            </div>
-                        </div>
-                    `,
-                    icon: 'success',
-                    confirmButtonText: 'Cerrar',
-                    confirmButtonColor: '#10b981'
-                });
+        function obtenerNombreEstado(estado) {
+            const estados = {
+                'Programado': 'Programado',
+                'EnCurso': 'En Curso',
+                'Finalizado': 'Finalizado'
             };
+            return estados[estado] || estado;
         }
 
-        function generateExcelReport(data, options) {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            
-            csvContent += `Reporte Vocero - ${data.fecha}\n\n`;
-            
-            if (options.includeStats) {
-                csvContent += "ESTADISTICAS GENERALES\n";
-                csvContent += `Total Eventos,${data.estadisticas.totalEventos}\n`;
-                csvContent += `Programados,${data.estadisticas.programados}\n`;
-                csvContent += `En Curso,${data.estadisticas.enCurso}\n`;
-                csvContent += `Finalizados,${data.estadisticas.finalizados}\n`;
-                csvContent += `Cancelados,${data.estadisticas.cancelados}\n`;
-                csvContent += `Total Asistencias,${data.estadisticas.totalAsistencias}\n`;
-                csvContent += `Presentes,${data.estadisticas.presentes}\n`;
-                csvContent += `Ausentes,${data.estadisticas.ausentes}\n`;
-                csvContent += `Justificados,${data.estadisticas.justificados}\n`;
-                csvContent += `Tasa de Asistencia,${data.estadisticas.tasaAsistencia}%\n\n`;
-            }
-            
-            if (options.includeEvents && data.eventos.length > 0) {
-                csvContent += "LISTA DE EVENTOS\n";
-                csvContent += "Titulo,Fecha Inicio,Fecha Fin,Organizador,Tipo,Estado\n";
-                
-                data.eventos.forEach(event => {
-                    const titulo = (event.title || event.titulo || '').replace(/,/g, ';');
-                    const fechaInicio = new Date(event.start || event.fecha_inicio).toLocaleString('es-ES');
-                    const fechaFin = new Date(event.end || event.fecha_fin).toLocaleString('es-ES');
-                    const organizador = (event.extendedProps?.organizador || 'No especificado').replace(/,/g, ';');
-                    const tipo = getCategoryName(event.extendedProps?.tipo_evento || '');
-                    const estado = getStatusName(event.extendedProps?.estado || 'programado');
-                    
-                    csvContent += `${titulo},${fechaInicio},${fechaFin},${organizador},${tipo},${estado}\n`;
-                });
-                csvContent += "\n";
-            }
-            
-            if (options.includeAttendance && data.asistencias.length > 0) {
-                csvContent += "REGISTRO DE ASISTENCIAS\n";
-                csvContent += "Evento ID,Participante,Email,Estado,Hora Llegada,Observaciones\n";
-                
-                data.asistencias.forEach(att => {
-                    const participante = (att.participant_name || '').replace(/,/g, ';');
-                    const email = att.participant_email || '';
-                    const estado = att.status || '';
-                    const horaLlegada = att.arrival_time || '';
-                    const observaciones = (att.notes || '').replace(/,/g, ';');
-                    
-                    csvContent += `${att.event_id},${participante},${email},${estado},${horaLlegada},${observaciones}\n`;
-                });
-            }
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Reporte_Vocero_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            Swal.fire({
-                title: 'Reporte Excel generado',
-                text: 'El archivo CSV ha sido descargado. Puedes abrirlo con Excel.',
-                icon: 'success',
-                confirmButtonText: 'Cerrar',
-                confirmButtonColor: '#10b981'
-            });
-        }
-
-        function generateHTMLReport(data, options) {
-            const html = generateReportHTML(data, options, false);
-            
-            const reportWindow = window.open('', '_blank');
-            reportWindow.document.write(html);
-            reportWindow.document.close();
-            
-            showToast('Reporte HTML generado en nueva ventana', 'success');
-        }
-
-        function generateReportHTML(data, options, forPrint) {
-            let html = `
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Vocero - ${data.fecha}</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background: white;
-        }
-        .header {
-            text-align: center;
-            border-bottom: 3px solid #2563eb;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            color: #2563eb;
-            margin: 0;
-        }
-        .header p {
-            color: #64748b;
-            margin: 5px 0;
-        }
-        .section {
-            margin-bottom: 30px;
-        }
-        .section h2 {
-            color: #1e293b;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .stat-card {
-            background: #f8fafc;
-            border-left: 4px solid #2563eb;
-            padding: 15px;
-            border-radius: 4px;
-        }
-        .stat-card h3 {
-            margin: 0 0 5px 0;
-            font-size: 2em;
-            color: #2563eb;
-        }
-        .stat-card p {
-            margin: 0;
-            color: #64748b;
-            font-size: 0.9em;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        table th {
-            background: #2563eb;
-            color: white;
-            padding: 12px;
-            text-align: left;
-        }
-        table td {
-            padding: 10px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        table tr:hover {
-            background: #f8fafc;
-        }
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
-            font-weight: 500;
-        }
-        .badge-success { background: #d1fae5; color: #065f46; }
-        .badge-warning { background: #fed7aa; color: #92400e; }
-        .badge-danger { background: #fecaca; color: #991b1b; }
-        .badge-info { background: #bfdbfe; color: #1e40af; }
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #e2e8f0;
-            color: #64748b;
-            font-size: 0.9em;
-        }
-        ${forPrint ? '@media print { body { padding: 0; } }' : ''}
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Reporte Vocero</h1>
-        <p>Generado el ${data.fecha} a las ${data.hora}</p>
-    </div>
-    `;
-            
-            if (options.includeStats) {
-                html += `
-    <div class="section">
-        <h2>Estadísticas Generales</h2>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>${data.estadisticas.totalEventos}</h3>
-                <p>Total Eventos</p>
-            </div>
-            <div class="stat-card">
-                <h3>${data.estadisticas.finalizados}</h3>
-                <p>Eventos Finalizados</p>
-            </div>
-            <div class="stat-card">
-                <h3>${data.estadisticas.totalAsistencias}</h3>
-                <p>Total Asistencias</p>
-            </div>
-            <div class="stat-card">
-                <h3>${data.estadisticas.tasaAsistencia}%</h3>
-                <p>Tasa de Asistencia</p>
-            </div>
-        </div>
-    </div>
-                `;
-            }
-            
-            if (options.includeEvents && data.eventos.length > 0) {
-                html += `
-    <div class="section">
-        <h2>Lista de Eventos (${data.eventos.length})</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Título</th>
-                    <th>Fecha</th>
-                    <th>Organizador</th>
-                    <th>Tipo</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                `;
-                
-                data.eventos.forEach(event => {
-                    const titulo = event.title || event.titulo || 'Sin título';
-                    const fecha = new Date(event.start || event.fecha_inicio).toLocaleDateString('es-ES');
-                    const organizador = event.extendedProps?.organizador || 'No especificado';
-                    const tipo = getCategoryName(event.extendedProps?.tipo_evento || '');
-                    const estado = getStatusName(event.extendedProps?.estado || 'programado');
-                    
-                    html += `
-                <tr>
-                    <td><strong>${titulo}</strong></td>
-                    <td>${fecha}</td>
-                    <td>${organizador}</td>
-                    <td>${tipo}</td>
-                    <td><span class="badge badge-info">${estado}</span></td>
-                </tr>
-                    `;
-                });
-                
-                html += `
-            </tbody>
-        </table>
-    </div>
-                `;
-            }
-            
-            if (options.includeAttendance && data.asistencias.length > 0) {
-                html += `
-    <div class="section">
-        <h2>Registro de Asistencias (${data.asistencias.length})</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Participante</th>
-                    <th>Email</th>
-                    <th>Estado</th>
-                    <th>Hora Llegada</th>
-                </tr>
-            </thead>
-            <tbody>
-                `;
-                
-                data.asistencias.forEach(att => {
-                    const badgeClass = att.status === 'presente' ? 'badge-success' : 
-                                       att.status === 'ausente' ? 'badge-danger' : 'badge-info';
-                    
-                    html += `
-                <tr>
-                    <td>${att.participant_name}</td>
-                    <td>${att.participant_email}</td>
-                    <td><span class="badge ${badgeClass}">${att.status}</span></td>
-                    <td>${att.arrival_time || '-'}</td>
-                </tr>
-                    `;
-                });
-                
-                html += `
-            </tbody>
-        </table>
-    </div>
-                `;
-            }
-            
-            html += `
-    <div class="footer">
-        <p>Reporte generado por Sistema Vocero</p>
-        <p>${data.fecha} - ${data.hora}</p>
-    </div>
-</body>
-</html>
-            `;
-            
-            return html;
-        }
-
-        function exportChart(chartType) {
-            let chart, chartName;
-            
-            switch(chartType) {
-                case 'donut':
-                    chart = donutChart;
-                    chartName = 'Estados_Eventos';
-                    break;
-                case 'line':
-                    chart = lineChart;
-                    chartName = 'Tendencia_Eventos';
-                    break;
-                case 'attendance':
-                    chart = attendanceChart;
-                    chartName = 'Asistencias_Reuniones';
-                    break;
-                case 'projects':
-                    chart = projectsChart;
-                    chartName = 'Participacion_Proyectos';
-                    break;
-                default:
-                    showToast('Gráfico no válido', 'error');
-                    return;
-            }
-            
-            if (!chart) {
-                showToast('Gráfico no disponible para exportar', 'warning');
-                return;
-            }
-            
-            const url = chart.toBase64Image();
-            const link = document.createElement('a');
-            link.download = `${chartName}_${new Date().toISOString().split('T')[0]}.png`;
-            link.href = url;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showToast('Gráfico descargado como PNG', 'success');
-        }
-
-        function getCategoryName(category) {
-            const mapping = {
-                'reunion-virtual': 'Reunión Virtual',
-                'reunion-presencial': 'Reunión Presencial',
-                'inicio-proyecto': 'Inicio de Proyecto',
-                'finalizar-proyecto': 'Fin de Proyecto',
-                'cumpleanos': 'Cumpleaños'
+        function obtenerBadgeEstado(estado) {
+            const badges = {
+                'Programado': '<span class="badge bg-warning">Programado</span>',
+                'EnCurso': '<span class="badge bg-info">En Curso</span>',
+                'Finalizado': '<span class="badge bg-success">Finalizado</span>'
             };
-            return mapping[category] || 'Sin categoría';
-        }
-
-        function getStatusName(status) {
-            const mapping = {
-                'programado': 'Programado',
-                'en_curso': 'En Curso',
-                'finalizado': 'Finalizado',
-                'cancelado': 'Cancelado'
-            };
-            return mapping[status] || 'Sin estado';
+            return badges[estado] || `<span class="badge bg-secondary">${estado}</span>`;
         }
 
         function showToast(message, type = 'info') {

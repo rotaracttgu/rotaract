@@ -12,14 +12,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.min.css" rel="stylesheet">
     
     <style>
-        /* Variables de colores (copiadas de tu código original) */
+        /* Variables de colores */
         :root {
             --primary-color: #2563eb;
             --secondary-color: #64748b;
             --success-color: #059669;
             --warning-color: #d97706;
             --danger-color: #dc2626;
-            --info-color: #06b6d4; /* Añadida para consistencia */
+            --info-color: #06b6d4;
             --sidebar-bg: #1e293b;
             --sidebar-text: #e2e8f0;
         }
@@ -30,28 +30,44 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex; /* Necesario para la vista sin x-app-layout */
+            display: flex;
+            overflow: hidden;
         }
         
         /* AJUSTES CLAVE PARA LA VISTA SIN X-APP-LAYOUT */
         .sidebar-vocero {
             background: var(--sidebar-bg);
-            width: 250px; /* Ancho fijo */
-            position: fixed; /* POSICION FIJA */
+            width: 200px;
+            position: fixed;
             left: 0;
             top: 0; 
             z-index: 20; 
             height: 100vh;
-            padding-top: 64px; /* Espacio para el brand */
+            padding-top: 64px;
             transition: all 0.3s ease;
         }
 
         .main-content-vocero {
-            /* Desplaza todo el contenido para que empiece después del menú de 250px */
-            margin-left: 250px; 
+            margin-left: 300px; 
             min-height: 100vh;
             flex-grow: 1;
-            width: calc(100% - 250px);
+            width: 900px;
+            padding: 100;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .main-content-vocero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
         }
         
         .sidebar-brand {
@@ -104,21 +120,28 @@
             background: var(--primary-color);
             color: white;
         }
-        /* FIN AJUSTES CLAVE */
 
         .content-wrapper {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin: 20px;
-            padding: 24px;
+            border-radius: 0;
+            box-shadow: none;
+            margin: 0;
+            padding: 15px;
+            height: 100vh;
+            overflow: hidden;
         }
 
         .card {
             border: none;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 0;
+            box-shadow: none;
             transition: transform 0.2s ease;
+            height: calc(100vh - 100px);
+        }
+
+        .card-body {
+            padding: 0 !important;
+            height: 100%;
         }
 
         .btn-primary {
@@ -134,39 +157,113 @@
         }
 
         #calendar {
-            background-color: #fff;
-            border-radius: 12px;
-            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 16px;
+            padding: 24px;
+            height: 100%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            animation: fadeInUp 0.6s ease-out;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
         }
 
         .fc-toolbar-title {
             color: var(--primary-color) !important;
-            font-weight: 600;
+            font-weight: 700 !important;
+            font-size: 1.75rem !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            animation: slideInRight 0.5s ease-out;
         }
 
         .fc-button-primary {
-            background-color: var(--primary-color) !important;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%) !important;
             border-color: var(--primary-color) !important;
+            border-radius: 8px !important;
+            padding: 8px 16px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* FullCalendar Custom Styles (el resto de tus estilos de FullCalendar permanece) */
+        .fc-button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .fc-button-primary:active {
+            transform: translateY(0);
+        }
+
+        /* FullCalendar Custom Styles */
         .fc-event {
             white-space: normal !important;
             overflow: visible !important;
             text-overflow: initial !important;
             height: auto !important;
             min-height: 30px !important;
-            padding: 3px 5px !important;
-            font-size: 10px !important;
-            line-height: 1.1 !important;
-            border-radius: 4px !important;
-            margin: 1px 0 !important;
+            padding: 6px 8px !important;
+            font-size: 11px !important;
+            line-height: 1.3 !important;
+            border-radius: 8px !important;
+            margin: 2px 0 !important;
+            border: none !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: eventFadeIn 0.4s ease-out;
+            cursor: pointer;
+        }
+
+        @keyframes eventFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .fc-event:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10;
         }
 
         .fc-event-main {
             white-space: normal !important;
             overflow: visible !important;
-            padding: 1px 2px !important;
+            padding: 2px 4px !important;
         }
 
         .fc-event-title {
@@ -204,10 +301,40 @@
 
         .fc-daygrid-day-frame {
             min-height: 90px !important;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .fc-daygrid-day-frame:hover {
+            background: rgba(37, 99, 235, 0.03);
+            transform: scale(1.01);
+        }
+
+        .fc-daygrid-day-number {
+            transition: all 0.3s ease;
+            font-weight: 600 !important;
+        }
+
+        .fc-day-today .fc-daygrid-day-frame {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.03) 100%);
+            border: 2px solid rgba(37, 99, 235, 0.2) !important;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .fc-day-today .fc-daygrid-day-number {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700 !important;
         }
 
         .fc-daygrid-event {
-            margin: 1px 0 !important;
+            margin: 2px 0 !important;
             white-space: normal !important;
         }
 
@@ -219,37 +346,88 @@
             white-space: normal !important;
         }
 
+        /* Estilo para los encabezados de días de la semana */
+        .fc-col-header-cell {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+            border: none !important;
+            padding: 12px 8px !important;
+            font-weight: 700 !important;
+            color: #475569 !important;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .fc-scrollgrid {
+            border: none !important;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .fc-daygrid-day {
+            transition: all 0.2s ease;
+        }
+
+        .fc-daygrid-day:hover {
+            background: rgba(37, 99, 235, 0.02);
+        }
+
         .event-fields {
             margin-top: 15px;
             padding: 15px;
             background-color: #f9f9f9;
             border-left: 4px solid #4CAF50;
             border-radius: 5px;
-            transition: all 0.3s ease-in-out;
         }
 
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
+        .fc .fc-button-primary:not(:disabled).fc-button-active, 
+        .fc .fc-button-primary:not(:disabled):active {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%) !important;
+            border-color: #1d4ed8 !important;
+            transform: scale(0.98);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
-        /* Media Query: Importante para móviles */
+
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        .header-section {
+            padding: 15px 20px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        /* Media Query para móviles */
         @media (max-width: 768px) {
-            .sidebar-vocero { position: relative; width: 100%; height: auto; padding-top: 0; }
-            .main-content-vocero { margin-left: 0; padding-top: 0; width: 100%; }
+            .sidebar-vocero { 
+                position: relative; 
+                width: 100%; 
+                height: auto; 
+                padding-top: 0; 
+            }
+            .main-content-vocero { 
+                margin-left: 0; 
+                padding-top: 0; 
+                width: 100%; 
+            }
         }
     </style>
 </head>
 <body>
     <div class="d-flex">
-        {{-- ⭐ 1. MENÚ LATERAL (SIDEBAR) - CORREGIDO ⭐ --}}
+        {{-- ⭐ 1. MENÚ LATERAL (SIDEBAR) ⭐ --}}
         <div class="sidebar-vocero">
             <div class="sidebar-brand">
                 <h4><i class="fas fa-calendar-alt text-primary"></i> Vocero</h4>
             </div>
             
             <nav class="sidebar-nav">
-                {{-- RUTA CORREGIDA: vocero.dashboard --}}
                 <a class="nav-link {{ request()->routeIs('vocero.dashboard') ? 'active' : '' }}" href="{{ route('vocero.dashboard') }}">
                     <i class="fas fa-chart-line me-2"></i>
                     Dashboard
@@ -273,10 +451,10 @@
             </nav>
         </div>
 
-        {{-- ⭐ 2. CONTENIDO PRINCIPAL - ESTRUCTURA CORREGIDA ⭐ --}}
+        {{-- ⭐ 2. CONTENIDO PRINCIPAL ⭐ --}}
         <div class="main-content-vocero">
             <div class="content-wrapper">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="header-section d-flex justify-content-between align-items-center">
                     <div>
                         <h2 class="mb-1">Calendario de Eventos</h2>
                         <p class="text-muted mb-0">Vista mensual de todos los eventos programados</p>
@@ -295,6 +473,7 @@
         </div>
     </div>
 
+    <!-- Modal para Crear/Editar Evento -->
     <div class="modal fade" id="eventoModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -302,118 +481,113 @@
                     <h5 class="modal-title" id="modal-title">Agregar Evento</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="eventoForm">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="eventoForm">
                         <input type="hidden" id="eventoId">
-
+                        
                         <div class="row">
-                            <div class="col-md-8 mb-3">
-                                <label for="titulo" class="form-label">Título del Evento *</label>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Título del Evento *</label>
                                 <input type="text" class="form-control" id="titulo" required>
                             </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label for="organizador" class="form-label">Organizador/Encargado *</label>
-                                <input type="text" class="form-control" id="organizador" required placeholder="Nombre del organizador">
-                            </div>
-
+                            
                             <div class="col-md-6 mb-3">
-                                <label for="tipoEvento" class="form-label">Tipo de Evento *</label>
+                                <label class="form-label">Tipo de Evento *</label>
                                 <select class="form-select" id="tipoEvento" required>
-                                    <option value="">Selecciona un tipo</option>
+                                    <option value="">Seleccione...</option>
                                     <option value="reunion-virtual">Reunión Virtual</option>
                                     <option value="reunion-presencial">Reunión Presencial</option>
                                     <option value="inicio-proyecto">Inicio de Proyecto</option>
-                                    <option value="finalizar-proyecto">Finalizar Proyecto</option>
-                                    <option value="cumpleanos">Cumpleaños</option>
+                                    <option value="finalizar-proyecto">Finalización de Proyecto</option>
                                 </select>
                             </div>
+                        </div>
 
+                        <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="estado" class="form-label">Estado</label>
-                                <select class="form-select" id="estado">
-                                    <option value="programado">Programado</option>
-                                    <option value="en_curso">En Curso</option>
-                                    <option value="finalizado">Finalizado</option>
-                                    <option value="cancelado">Cancelado</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="fecha_inicio" class="form-label">Fecha de Inicio *</label>
+                                <label class="form-label">Fecha y Hora de Inicio *</label>
                                 <input type="datetime-local" class="form-control" id="fecha_inicio" required>
                             </div>
-
+                            
                             <div class="col-md-6 mb-3">
-                                <label for="fecha_fin" class="form-label">Fecha de Fin *</label>
+                                <label class="form-label">Fecha y Hora de Fin *</label>
                                 <input type="datetime-local" class="form-control" id="fecha_fin" required>
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Organizador *</label>
+                                <select class="form-select" id="organizador_id" required>
+                                    <option value="">Seleccione un organizador...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Estado</label>
+                                <select class="form-select" id="estado">
+                                    <option value="programado">Programado</option>
+                                    <option value="en-curso">En Curso</option>
+                                    <option value="finalizado">Finalizado</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Campos Específicos según Tipo de Evento -->
                         <div id="virtualFields" class="event-fields" style="display: none;">
-                            <label for="enlace" class="form-label">Enlace de la Reunión:</label>
-                            <input type="url" class="form-control" id="enlace" placeholder="https://...">
+                            <label class="form-label">Enlace de Reunión Virtual</label>
+                            <input type="url" class="form-control" id="enlace" placeholder="https://meet.google.com/...">
                         </div>
 
                         <div id="presencialFields" class="event-fields" style="display: none;">
-                            <label for="lugar" class="form-label">Lugar de la Reunión:</label>
-                            <input type="text" class="form-control" id="lugar" placeholder="Dirección o nombre del lugar">
+                            <label class="form-label">Lugar de Reunión</label>
+                            <input type="text" class="form-control" id="lugar" placeholder="Sala de conferencias, dirección, etc.">
                         </div>
 
                         <div id="proyectoFields" class="event-fields" style="display: none;">
-                            <label for="ubicacion_proyecto" class="form-label">Ubicación del Proyecto:</label>
-                            <input type="text" class="form-control" id="ubicacion_proyecto" placeholder="Ubicación o descripción del proyecto">
+                            <label class="form-label">Ubicación del Proyecto</label>
+                            <input type="text" class="form-control" id="ubicacion_proyecto" placeholder="Ubicación del proyecto">
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-danger" id="eliminarBtn" style="display: none;">
-                            <i class="fas fa-trash me-2"></i>Eliminar
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Guardar Evento
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="eliminarBtn" style="display: none;">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="eventoForm" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/index.global.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/locales/es.global.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
 
     <script>
-        // Todo el JavaScript permanece igual
-        function getEventosFromStorage() {
-            const eventos = localStorage.getItem('eventos');
-            return eventos ? JSON.parse(eventos) : [];
-        }
-
-        function saveEventosToStorage(eventos) {
-            localStorage.setItem('eventos', JSON.stringify(eventos));
-            // Dispara el evento para que el dashboard se actualice si está abierto
-            window.dispatchEvent(new Event('eventosUpdated'));
-        }
-
+        // ============================================================================
+        // 🔄 CÓDIGO MODIFICADO - CONECTADO A BASE DE DATOS
+        // ============================================================================
+        
         let calendar;
-        let selectedDatesInfo = null;
         let eventModal;
+        let selectedDatesInfo = null;
 
         const colores = {
-            'reunion-virtual': '#3498db',
-            'reunion-presencial': '#e74c3c',
-            'inicio-proyecto': '#2ecc71',
-            'finalizar-proyecto': '#f1c40f',
-            'cumpleanos': '#ff2d92'
+            'reunion-virtual': '#3b82f6',
+            'reunion-presencial': '#10b981',
+            'inicio-proyecto': '#f59e0b',
+            'finalizar-proyecto': '#ef4444'
         };
 
         $(document).ready(function() {
             initializeCalendar();
-            setupEventHandlers();
-            eventModal = new bootstrap.Modal(document.getElementById('eventoModal'));
+            initializeEventModal();
+            cargarMiembros(); // 🆕 CARGAR MIEMBROS AL INICIO
         });
 
         function initializeCalendar() {
@@ -422,7 +596,6 @@
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 locale: 'es',
-                firstDay: 0,
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
@@ -434,91 +607,76 @@
                     week: 'Semana',
                     day: 'Día'
                 },
-                dayHeaderFormat: { weekday: 'long' },
                 editable: true,
                 selectable: true,
-                selectHelper: true,
-                height: 'auto',
+                selectMirror: true,
+                dayMaxEvents: true,
+                height: '100%',
                 
+                // ✅ CAMBIO: Cargar eventos desde el servidor
                 events: function(info, successCallback, failureCallback) {
-                    const eventos = getEventosFromStorage();
-                    successCallback(eventos);
-                },
-                
-                datesSet: function(info) {
-                    const currentDate = info.view.currentStart;
-                    const month = currentDate.getMonth();
-                    const year = currentDate.getFullYear();
-                    
-                    localStorage.setItem('calendar_current_month', month);
-                    localStorage.setItem('calendar_current_year', year);
-                },
-                
-                eventDidMount: function(info) {
-                    const startHour = info.event.start.toLocaleTimeString('es-ES', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                    });
-                    const endHour = info.event.end ? 
-                        info.event.end.toLocaleTimeString('es-ES', { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                        }) : '';
-                    
-                    const detalles = info.event.extendedProps.detalles;
-                    let location = '';
-                    let displayText = info.event.title;
-                    
-                    if (endHour) {
-                        displayText += `<br><small>${startHour} - ${endHour}</small>`;
-                    } else {
-                        displayText += `<br><small>${startHour}</small>`;
-                    }
-                    
-                    if (detalles) {
-                        if (detalles.enlace) {
-                            location = `${detalles.enlace}`;
-                            displayText += `<br><a href="${detalles.enlace}" target="_blank" rel="noopener" style="color: white; text-decoration: underline; font-size: 9px;" onclick="event.stopPropagation();">🔗 Unirse</a>`;
-                        } else if (detalles.lugar) {
-                            location = `Lugar: ${detalles.lugar}`;
-                            displayText += `<br><small>📍 ${detalles.lugar}</small>`;
-                        } else if (detalles.ubicacion_proyecto) {
-                            location = `Ubicación: ${detalles.ubicacion_proyecto}`;
-                            displayText += `<br><small>📍 ${detalles.ubicacion_proyecto}</small>`;
+                    $.ajax({
+                        url: '/api/calendario/eventos',
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(eventos) {
+                            successCallback(eventos);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error al cargar eventos:', error);
+                            showToast('Error al cargar eventos', 'error');
+                            failureCallback(error);
                         }
-                    }
-
-                    const titleElement = info.el.querySelector('.fc-event-title');
-                    if (titleElement) {
-                        titleElement.innerHTML = displayText;
-                    }
-
-                    const tooltipContent = `${info.event.title}\n${startHour}${endHour ? ' - ' + endHour : ''}\n${location}`;
-                    $(info.el).attr('title', tooltipContent);
-                    $(info.el).tooltip();
+                    });
                 },
-
+                
                 select: function(info) {
                     showCreateEventModal(info);
                 },
-
+                
                 eventClick: function(info) {
                     editEvent(info);
                 },
-
+                
+                // ✅ CAMBIO: Actualizar fechas en el servidor al arrastrar
                 eventDrop: function(info) {
                     updateEventDates(info);
                 },
-
+                
+                // ✅ CAMBIO: Actualizar fechas en el servidor al redimensionar
                 eventResize: function(info) {
                     updateEventDates(info);
+                },
+                
+                eventContent: function(arg) {
+                    const props = arg.event.extendedProps;
+                    let enlaceHTML = '';
+                    
+                    if (props.detalles && props.detalles.enlace) {
+                        enlaceHTML = `<a href="${props.detalles.enlace}" target="_blank" onclick="event.stopPropagation();" style="color: white; text-decoration: underline; font-size: 9px;">🔗 Unirse</a>`;
+                    }
+                    
+                    return {
+                        html: `
+                            <div style="padding: 2px 4px; overflow: visible; white-space: normal;">
+                                <div style="font-weight: 500; font-size: 10px; line-height: 1.2; word-wrap: break-word;">
+                                    ${arg.event.title}
+                                </div>
+                                ${enlaceHTML}
+                            </div>
+                        `
+                    };
                 }
             });
             
             calendar.render();
         }
 
-        function setupEventHandlers() {
+        function initializeEventModal() {
+            eventModal = new bootstrap.Modal(document.getElementById('eventoModal'));
+            
             $('#tipoEvento').change(function() {
                 const selectedType = $(this).val();
                 
@@ -540,6 +698,36 @@
 
             $('#eliminarBtn').click(function() {
                 deleteEvent();
+            });
+        }
+
+        // ============================================================================
+        // 🆕 FUNCIÓN PARA CARGAR MIEMBROS
+        // ============================================================================
+        function cargarMiembros() {
+            $.ajax({
+                url: '/api/calendario/miembros',
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        const select = $('#organizador_id');
+                        select.empty();
+                        select.append('<option value="">Seleccione un organizador...</option>');
+                        
+                        response.miembros.forEach(function(miembro) {
+                            // Mostrar: Nombre - Rol
+                            const nombreCompleto = `${miembro.Nombre} - ${miembro.Rol}`;
+                            select.append(`<option value="${miembro.MiembroID}">${nombreCompleto}</option>`);
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al cargar miembros:', error);
+                    showToast('Error al cargar la lista de miembros', 'error');
+                }
             });
         }
 
@@ -581,7 +769,7 @@
             if (props) {
                 $('#tipoEvento').val(props.tipo_evento || '');
                 $('#estado').val(props.estado || 'programado');
-                $('#organizador').val(props.organizador || '');
+                $('#organizador_id').val(props.organizador_id || ''); // 🆕 USA EL SELECT
             }
             
             $('#tipoEvento').trigger('change');
@@ -596,8 +784,12 @@
             eventModal.show();
         }
 
+        // ============================================================================
+        // ✅ FUNCIÓN MODIFICADA: Guardar evento en la base de datos
+        // ============================================================================
         function saveEvent() {
-            if (!$('#titulo').val().trim() || !$('#organizador').val().trim()) {
+            // Validaciones
+            if (!$('#titulo').val().trim() || !$('#organizador_id').val()) { // 🆕 VALIDACIÓN ACTUALIZADA
                 showToast('Todos los campos obligatorios son requeridos', 'error');
                 return;
             }
@@ -615,12 +807,15 @@
             const id = $('#eventoId').val();
             const isEdit = Boolean(id);
             
-            const titulo = $('#titulo').val().trim();
-            const organizador = $('#organizador').val().trim();
+            // 🆕 Preparar datos del evento CON ID DE ORGANIZADOR
             const tipo = $('#tipoEvento').val();
-            const estado = $('#estado').val();
+            const organizadorId = $('#organizador_id').val();
+            const organizadorNombre = $('#organizador_id option:selected').text();
+
+            let detalles = {
+                organizador: organizadorNombre
+            };
             
-            let detalles = { organizador: organizador };
             if (tipo === 'reunion-virtual') {
                 detalles.enlace = $('#enlace').val();
             } else if (tipo === 'reunion-presencial') {
@@ -628,67 +823,55 @@
             } else if (tipo === 'inicio-proyecto' || tipo === 'finalizar-proyecto') {
                 detalles.ubicacion_proyecto = $('#ubicacion_proyecto').val();
             }
-
-            const eventos = getEventosFromStorage();
             
-            if (isEdit) {
-                const index = eventos.findIndex(e => e.id == id);
-                if (index !== -1) {
-                    eventos[index] = {
-                        ...eventos[index],
-                        id: id,
-                        title: titulo,
-                        titulo: titulo,
-                        start: $('#fecha_inicio').val(),
-                        end: $('#fecha_fin').val(),
-                        fecha_inicio: $('#fecha_inicio').val(),
-                        fecha_fin: $('#fecha_fin').val(),
-                        backgroundColor: colores[tipo],
-                        borderColor: colores[tipo],
-                        extendedProps: {
-                            tipo_evento: tipo,
-                            category: tipo,
-                            estado: estado,
-                            status: estado,
-                            event_status: estado,
-                            organizador: organizador,
-                            organizer: organizador,
-                            detalles: detalles
-                        }
-                    };
-                }
-            } else {
-                const newId = Date.now().toString();
-                eventos.push({
-                    id: newId,
-                    title: titulo,
-                    titulo: titulo,
-                    start: $('#fecha_inicio').val(),
-                    end: $('#fecha_fin').val(),
-                    fecha_inicio: $('#fecha_inicio').val(),
-                    fecha_fin: $('#fecha_fin').val(),
-                    backgroundColor: colores[tipo],
-                    borderColor: colores[tipo],
-                    extendedProps: {
-                        tipo_evento: tipo,
-                        category: tipo,
-                        estado: estado,
-                        status: estado,
-                        event_status: estado,
-                        organizador: organizador,
-                        organizer: organizador,
-                        detalles: detalles
+            const eventData = {
+                titulo: $('#titulo').val().trim(),
+                descripcion: $('#titulo').val().trim(),
+                tipo_evento: tipo,
+                estado: $('#estado').val(),
+                fecha_inicio: $('#fecha_inicio').val(),
+                fecha_fin: $('#fecha_fin').val(),
+                organizador_id: organizadorId ? parseInt(organizadorId) : null, // 🆕 ENVÍA EL ID
+                proyecto_id: null,
+                detalles: detalles
+            };
+            
+            // Determinar URL y método
+            const url = isEdit 
+                ? `/api/calendario/eventos/${id}`
+                : '/api/calendario/eventos';
+            
+            const method = isEdit ? 'PUT' : 'POST';
+            
+            // ✅ CAMBIO: Enviar al servidor en lugar de localStorage
+            $.ajax({
+                url: url,
+                method: method,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify(eventData),
+                success: function(response) {
+                    if (response.success) {
+                        calendar.refetchEvents();
+                        eventModal.hide();
+                        showToast(isEdit ? 'Evento actualizado exitosamente' : 'Evento creado exitosamente', 'success');
+                    } else {
+                        showToast(response.mensaje || 'Error al guardar el evento', 'error');
                     }
-                });
-            }
-            
-            saveEventosToStorage(eventos);
-            calendar.refetchEvents();
-            eventModal.hide();
-            
-            showToast(isEdit ? 'Evento actualizado' : 'Evento creado', 'success');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al guardar evento:', error);
+                    const mensaje = xhr.responseJSON?.mensaje || 'Error al guardar el evento';
+                    showToast(mensaje, 'error');
+                }
+            });
         }
 
+        // ============================================================================
+        // ✅ FUNCIÓN MODIFICADA: Eliminar evento de la base de datos
+        // ============================================================================
         function deleteEvent() {
             const id = $('#eventoId').val();
             
@@ -703,30 +886,65 @@
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    let eventos = getEventosFromStorage();
-                    eventos = eventos.filter(e => e.id != id);
-                    saveEventosToStorage(eventos);
-                    
-                    calendar.refetchEvents();
-                    eventModal.hide();
-                    showToast('Evento eliminado', 'success');
+                    // ✅ CAMBIO: Eliminar del servidor en lugar de localStorage
+                    $.ajax({
+                        url: `/api/calendario/eventos/${id}`,
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                calendar.refetchEvents();
+                                eventModal.hide();
+                                showToast('Evento eliminado exitosamente', 'success');
+                            } else {
+                                showToast(response.mensaje || 'Error al eliminar el evento', 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error al eliminar evento:', error);
+                            const mensaje = xhr.responseJSON?.mensaje || 'Error al eliminar el evento';
+                            showToast(mensaje, 'error');
+                        }
+                    });
                 }
             });
         }
 
+        // ============================================================================
+        // ✅ FUNCIÓN MODIFICADA: Actualizar fechas en la base de datos
+        // ============================================================================
         function updateEventDates(info) {
-            const eventos = getEventosFromStorage();
-            const index = eventos.findIndex(e => e.id == info.event.id);
+            const eventData = {
+                fecha_inicio: info.event.start.toISOString(),
+                fecha_fin: info.event.end ? info.event.end.toISOString() : info.event.start.toISOString()
+            };
             
-            if (index !== -1) {
-                eventos[index].start = info.event.start.toISOString();
-                eventos[index].end = info.event.end ? info.event.end.toISOString() : null;
-                eventos[index].fecha_inicio = info.event.start.toISOString();
-                eventos[index].fecha_fin = info.event.end ? info.event.end.toISOString() : null;
-                
-                saveEventosToStorage(eventos);
-                showToast('Evento actualizado', 'success');
-            }
+            // ✅ CAMBIO: Actualizar en el servidor en lugar de localStorage
+            $.ajax({
+                url: `/api/calendario/eventos/${info.event.id}/fechas`,
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify(eventData),
+                success: function(response) {
+                    if (response.success) {
+                        showToast('Fechas actualizadas exitosamente', 'success');
+                    } else {
+                        showToast(response.mensaje || 'Error al actualizar fechas', 'error');
+                        info.revert();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al actualizar fechas:', error);
+                    const mensaje = xhr.responseJSON?.mensaje || 'Error al actualizar fechas';
+                    showToast(mensaje, 'error');
+                    info.revert();
+                }
+            });
         }
 
         function showToast(message, type = 'info') {
