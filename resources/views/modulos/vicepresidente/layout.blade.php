@@ -12,7 +12,7 @@
     <div class="min-h-screen">
         @include('layouts.navigation')
 
-        <div class="flex pt-16">
+        <div class="flex">
             <!-- Overlay para cerrar el menú en móvil -->
             <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
 
