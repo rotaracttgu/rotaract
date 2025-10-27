@@ -55,6 +55,7 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'email_verified' => ['nullable', 'boolean'],
+            'two_factor_verified' => ['nullable', 'boolean'], // Nuevo campo para el checkbox
             'role' => ['required', 'string', 'exists:roles,name'],
         ]);
 
@@ -64,21 +65,15 @@ class UserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'email_verified_at' => $request->email_verified ? now() : null,
-                'first_login' => true, // ⭐ NUEVO: Marcar como primer login
+                'first_login' => true,
+                'two_factor_enabled' => true, // Mantener 2FA habilitado por defecto
+                'two_factor_verified_at' => $request->two_factor_verified ? now() : null, // Setear si checkbox está marcado
             ]);
 
-            // ===== HABILITAR 2FA AUTOMÁTICAMENTE =====
-            $user->two_factor_enabled = true;
-            $user->save();
-            // =========================================
-
-            // ===== ASIGNAR ROL AL USUARIO =====
             if ($request->role) {
                 $user->assignRole($request->role);
             }
-            // ==================================
 
-            // ⭐ REGISTRAR EN BITÁCORA
             BitacoraSistema::registrar([
                 'accion' => 'create',
                 'modulo' => 'usuarios',
@@ -92,7 +87,8 @@ class UserController extends Controller
                     'role' => $request->role,
                     'two_factor_enabled' => true,
                     'email_verified' => $request->email_verified ? true : false,
-                    'first_login' => true, // ⭐ NUEVO
+                    'first_login' => true,
+                    'two_factor_verified' => $request->two_factor_verified ? true : false, // Nuevo
                 ],
             ]);
 
@@ -101,7 +97,6 @@ class UserController extends Controller
                 ->with('usuario_creado', $user->name);
 
         } catch (\Exception $e) {
-            // ⭐ REGISTRAR ERROR EN BITÁCORA
             BitacoraSistema::registrar([
                 'accion' => 'create',
                 'modulo' => 'usuarios',
@@ -165,12 +160,14 @@ class UserController extends Controller
             'email' => $usuario->email,
             'role' => $usuario->getRolPrincipal(),
             'email_verified' => $usuario->email_verified_at ? true : false,
+            'two_factor_verified' => $usuario->two_factor_verified_at ? true : false, // Nuevo
         ];
         
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $usuario->id],
             'email_verified' => ['nullable', 'boolean'],
+            'two_factor_verified' => ['nullable', 'boolean'], // Nuevo campo para el checkbox
             'role' => ['nullable', 'string', 'exists:roles,name'],
         ];
 
@@ -199,6 +196,13 @@ class UserController extends Controller
                 $userData['email_verified_at'] = null;
             }
 
+            // Manejar verificación 2FA
+            if ($request->two_factor_verified && !$usuario->two_factor_verified_at) {
+                $userData['two_factor_verified_at'] = now();
+            } elseif (!$request->two_factor_verified && $usuario->two_factor_verified_at) {
+                $userData['two_factor_verified_at'] = null;
+            }
+
             $usuario->update($userData);
 
             if ($request->has('role') && (auth()->user()->can('gestionar roles') || auth()->user()->hasRole('Super Admin'))) {
@@ -215,6 +219,7 @@ class UserController extends Controller
                 'email' => $usuario->email,
                 'role' => $request->role ?? $usuario->getRolPrincipal(),
                 'email_verified' => $request->email_verified ? true : false,
+                'two_factor_verified' => $request->two_factor_verified ? true : false, // Nuevo
             ];
 
             if ($request->filled('password')) {

@@ -16,12 +16,10 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
-        {{-- ⭐ AÑADIDO: Bloque para cargar estilos adicionales, como SweetAlert CSS --}}
         @stack('styles')
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
-            {{-- Normalmente en una instalación por defecto, este include es layouts.navigation --}}
             @include('layouts.navigation')
 
             @isset($header)
@@ -33,15 +31,16 @@
             @endisset
 
             <main>
-                {{-- Si usas <x-app-layout>, deberías usar $slot en lugar de @yield('content') --}}
-                {{ $slot }} 
+                @isset($slot)
+                    {{ $slot }}
+                @else
+                    @yield('content')
+                @endisset
             </main>
         </div>
         
-        {{-- Scripts Base (Bootstrap JS) --}}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        {{-- ⭐ AÑADIDO: Bloque para cargar scripts adicionales, como jQuery, SweetAlert y la lógica de tu dashboard --}}
-        @stack('scripts')
+        @yield('scripts') <!-- Añadido o corregido -->
     </body>
 </html>
