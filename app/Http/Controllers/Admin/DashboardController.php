@@ -346,4 +346,16 @@ class DashboardController extends Controller
             ];
         }
     }
+
+    /**
+     * Mostrar el centro de notificaciones del Super Admin
+     */
+    public function notificaciones()
+    {
+        // Por ahora retornamos un array vacío
+        // Aquí se implementará la lógica de notificaciones específicas del Super Admin
+        $notificaciones = [];
+        
+        return view('admin.notificaciones', compact('notificaciones'));
+    }
 }

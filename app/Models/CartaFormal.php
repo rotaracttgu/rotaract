@@ -10,22 +10,19 @@ class CartaFormal extends Model
     use HasFactory;
 
     protected $fillable = [
-        'fecha_envio',
+        'numero_carta',
         'destinatario',
-        'contacto',
-        'tipo', // invitacion, agradecimiento, solicitud, notificacion, felicitacion, comunicado
         'asunto',
         'contenido',
-        'estado', // enviada, borrador
-        'respuesta_recibida',
-        'fecha_respuesta',
+        'tipo', // Invitacion, Agradecimiento, Solicitud, Notificacion, Otro
+        'estado', // Borrador, Enviada, Recibida
+        'fecha_envio',
         'usuario_id',
+        'observaciones',
     ];
 
     protected $casts = [
         'fecha_envio' => 'date',
-        'fecha_respuesta' => 'date',
-        'respuesta_recibida' => 'boolean',
     ];
 
     // Relación con Usuario (quien creó la carta)

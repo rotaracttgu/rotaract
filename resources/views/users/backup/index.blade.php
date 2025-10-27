@@ -7,53 +7,59 @@
 
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-4">Sistema de Respaldo</h1>
+            <h1 class="mb-4 text-3xl font-bold bg-gradient-to-r from-teal-300 to-blue-400 bg-clip-text text-transparent">
+                Sistema de Respaldo
+            </h1>
         </div>
     </div>
 
     {{-- Mensajes de alerta --}}
     @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
+        <div class="alert alert-danger bg-red-900/50 text-red-200 p-4 rounded-xl shadow-md mb-4">
+            {{ session('error') }}
+        </div>
     @endif
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success bg-emerald-900/50 text-emerald-200 p-4 rounded-xl shadow-md mb-4">
+            {{ session('success') }}
+        </div>
     @endif
 
     <div class="row">
         <!-- Panel Estado del Último Respaldo -->
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-database"></i> Respaldo del Sistema
+            <div class="card bg-gray-800 rounded-2xl shadow-xl ring-1 ring-gray-700/50">
+                <div class="card-header bg-gradient-to-br from-emerald-600 to-teal-700 text-white p-4 rounded-t-2xl">
+                    <h5 class="mb-0 text-lg font-bold flex items-center">
+                        <i class="fas fa-database mr-2"></i> Respaldo del Sistema
                     </h5>
-                    <small>Gestiona y ejecuta las copias de seguridad de la base de datos</small>
+                    <small class="text-sm text-emerald-200">Gestiona y ejecuta las copias de seguridad de la base de datos</small>
                 </div>
-                <div class="card-body">
-                    <h6>Estado del Último Respaldo</h6>
+                <div class="card-body p-6">
+                    <h6 class="text-md font-semibold text-gray-200 mb-3">Estado del Último Respaldo</h6>
                     @if($ultimoBackup)
-                        <div class="alert alert-info">
-                            <strong>Fecha:</strong> {{ $ultimoBackup->fecha_ejecucion->format('Y-m-d H:i') }}<br>
-                            <strong>Estado:</strong> 
+                        <div class="alert alert-info bg-blue-900/50 text-blue-200 p-4 rounded-xl shadow-md mb-4">
+                            <strong class="text-blue-100">Fecha:</strong> {{ $ultimoBackup->fecha_ejecucion->format('Y-m-d H:i') }}<br>
+                            <strong class="text-blue-100">Estado:</strong> 
                             @if($ultimoBackup->estado == 'completado')
-                                <span class="badge bg-success">Completado con éxito</span>
+                                <span class="badge bg-emerald-900/50 text-emerald-200">Completado con éxito</span>
                             @else
-                                <span class="badge bg-danger">Falló</span>
+                                <span class="badge bg-red-900/50 text-red-200">Falló</span>
                             @endif
                             <br>
-                            <strong>Archivo:</strong> {{ $ultimoBackup->nombre_archivo }}<br>
+                            <strong class="text-blue-100">Archivo:</strong> {{ $ultimoBackup->nombre_archivo }}<br>
                             @if($ultimoBackup->tamaño)
-                                <strong>Tamaño:</strong> {{ $ultimoBackup->tamaño }}
+                                <strong class="text-blue-100">Tamaño:</strong> {{ $ultimoBackup->tamaño }}
                             @endif
                         </div>
                     @else
-                        <div class="alert alert-warning">
+                        <div class="alert alert-warning bg-amber-900/50 text-amber-200 p-4 rounded-xl shadow-md mb-4">
                             No hay respaldos anteriores
                         </div>
                     @endif
                     
-                    <button type="button" class="btn btn-success btn-lg w-100" id="btnEjecutarBackup">
-                        <i class="fas fa-play"></i> Ejecutar Respaldo Ahora
+                    <button type="button" class="btn btn-success btn-lg w-100 bg-gradient-to-r from-emerald-600 to-teal-700 text-white hover:from-emerald-700 hover:to-teal-800 rounded-xl shadow-md transition-all duration-200" id="btnEjecutarBackup">
+                        <i class="fas fa-play mr-2"></i> Ejecutar Respaldo Ahora
                     </button>
                 </div>
             </div>
@@ -61,43 +67,43 @@
 
         <!-- Panel Configuración de Respaldo Automático -->
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-cog"></i> Configuración de Respaldo Automático
+            <div class="card bg-gray-800 rounded-2xl shadow-xl ring-1 ring-gray-700/50">
+                <div class="card-header bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-4 rounded-t-2xl">
+                    <h5 class="mb-0 text-lg font-bold flex items-center">
+                        <i class="fas fa-cog mr-2"></i> Configuración de Respaldo Automático
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-6">
                     <form id="formConfiguracion">
                         @csrf
-                        <div class="mb-3">
-                            <label class="form-label">Frecuencia:</label>
-                            <select class="form-control" name="frecuencia" id="frecuencia">
+                        <div class="mb-4">
+                            <label class="form-label text-gray-200">Frecuencia:</label>
+                            <select class="form-control bg-gray-700 text-white border-gray-600 rounded-xl p-2 w-full" name="frecuencia" id="frecuencia">
                                 <option value="diario">Diario</option>
                                 <option value="semanal">Semanal</option>
                                 <option value="mensual">Mensual</option>
                             </select>
                         </div>
                         
-                        <div class="mb-3">
-                            <label class="form-label">Hora Programada:</label>
-                            <input type="time" class="form-control" name="hora_programada" value="02:00">
+                        <div class="mb-4">
+                            <label class="form-label text-gray-200">Hora Programada:</label>
+                            <input type="time" class="form-control bg-gray-700 text-white border-gray-600 rounded-xl p-2 w-full" name="hora_programada" value="02:00">
                         </div>
                         
-                        <div class="mb-3" id="dia_mes_group" style="display: none;">
-                            <label class="form-label">Día del Mes:</label>
-                            <input type="number" class="form-control" name="dia_mes" min="1" max="31" value="1">
+                        <div class="mb-4" id="dia_mes_group" style="display: none;">
+                            <label class="form-label text-gray-200">Día del Mes:</label>
+                            <input type="number" class="form-control bg-gray-700 text-white border-gray-600 rounded-xl p-2 w-full" name="dia_mes" min="1" max="31" value="1">
                         </div>
                         
-                        <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" name="activo" id="activo">
-                            <label class="form-check-label" for="activo">
+                        <div class="form-check mb-4">
+                            <input type="checkbox" class="form-check-input bg-gray-700 border-gray-600 text-emerald-600" name="activo" id="activo">
+                            <label class="form-check-label text-gray-200" for="activo">
                                 Activar respaldo automático
                             </label>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-save"></i> Guardar Configuración
+                        <button type="submit" class="btn btn-primary w-100 bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-700 hover:to-indigo-800 rounded-xl shadow-md transition-all duration-200">
+                            <i class="fas fa-save mr-2"></i> Guardar Configuración
                         </button>
                     </form>
                 </div>
@@ -108,17 +114,17 @@
     <!-- Historial de Respaldos -->
     <div class="row mt-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-history"></i> Historial de Respaldos
+            <div class="card bg-gray-800 rounded-2xl shadow-xl ring-1 ring-gray-700/50">
+                <div class="card-header bg-gray-900 p-4 rounded-t-2xl">
+                    <h5 class="mb-0 text-lg font-bold text-gray-100 flex items-center">
+                        <i class="fas fa-history mr-2"></i> Historial de Respaldos
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-6">
                     @if($historial->count() > 0)
                         <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
+                            <table class="table table-striped text-gray-200">
+                                <thead class="bg-gray-900">
                                     <tr>
                                         <th>ID</th>
                                         <th>Fecha</th>
@@ -130,24 +136,24 @@
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="bg-gray-800">
                                     @foreach($historial as $backup)
-                                    <tr>
+                                    <tr class="hover:bg-gray-700/50 transition-all duration-200">
                                         <td>{{ $backup->id }}</td>
                                         <td>{{ $backup->fecha_ejecucion->format('Y-m-d H:i') }}</td>
                                         <td>{{ $backup->nombre_archivo ?: 'Sin archivo' }}</td>
                                         <td>
-                                            <span class="badge bg-{{ $backup->tipo == 'manual' ? 'info' : 'primary' }}">
+                                            <span class="badge {{ $backup->tipo == 'manual' ? 'bg-blue-900/50 text-blue-200' : 'bg-indigo-900/50 text-indigo-200' }} p-2 rounded-full">
                                                 {{ ucfirst($backup->tipo) }}
                                             </span>
                                         </td>
                                         <td>
                                             @if($backup->estado == 'completado')
-                                                <span class="badge bg-success">Completado</span>
+                                                <span class="badge bg-emerald-900/50 text-emerald-200 p-2 rounded-full">Completado</span>
                                             @elseif($backup->estado == 'en_proceso')
-                                                <span class="badge bg-warning">En proceso</span>
+                                                <span class="badge bg-amber-900/50 text-amber-200 p-2 rounded-full">En proceso</span>
                                             @else
-                                                <span class="badge bg-danger">Fallido</span>
+                                                <span class="badge bg-red-900/50 text-red-200 p-2 rounded-full">Fallido</span>
                                             @endif
                                         </td>
                                         <td>{{ $backup->tamaño ?? 'N/A' }}</td>
@@ -155,11 +161,11 @@
                                         <td>
                                             @if($backup->estado == 'completado' && $backup->nombre_archivo)
                                                 <a href="{{ route('admin.backup.descargar', $backup->id) }}" 
-                                                   class="btn btn-sm btn-primary" title="Descargar">
+                                                   class="btn btn-sm bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-700 hover:to-indigo-800 rounded-full shadow-md transition-all duration-200" title="Descargar">
                                                     <i class="fas fa-download"></i>
                                                 </a>
                                                 <button type="button" 
-                                                        class="btn btn-sm btn-danger btn-eliminar" 
+                                                        class="btn btn-sm btn-danger bg-gradient-to-r from-red-600 to-pink-700 text-white hover:from-red-700 hover:to-pink-800 rounded-full shadow-md transition-all duration-200 btn-eliminar" 
                                                         data-id="{{ $backup->id }}"
                                                         title="Eliminar">
                                                     <i class="fas fa-trash"></i>
@@ -173,7 +179,7 @@
                             {{ $historial->links() }}
                         </div>
                     @else
-                        <div class="alert alert-info">
+                        <div class="alert alert-info bg-blue-900/50 text-blue-200 p-4 rounded-xl shadow-md mb-4 text-center">
                             No hay respaldos registrados aún. Haz clic en "Ejecutar Respaldo Ahora" para crear el primero.
                         </div>
                     @endif
@@ -192,11 +198,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function mostrarAlerta(mensaje, tipo = 'success') {
         const alertContainer = document.getElementById('alertContainer');
         const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
-        alertDiv.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+        alertDiv.className = `alert alert-${tipo} alert-dismissible fade show bg-${tipo === 'success' ? 'emerald-900/50' : 'red-900/50'} text-${tipo === 'success' ? 'emerald-200' : 'red-200'} p-4 rounded-xl shadow-md`;
+        alertDiv.style.boxShadow = '0 4px 6px rgba(0,0,0,0.3)';
         alertDiv.innerHTML = `
             ${mensaje}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
         `;
         alertContainer.appendChild(alertDiv);
         
@@ -302,6 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const id = this.dataset.id;
             
+            
             console.log('🗑️ Eliminando backup ID:', id);
             
             fetch(`{{ url('/admin/backup/eliminar') }}/${id}`, {
@@ -335,4 +342,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
 @endsection

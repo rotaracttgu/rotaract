@@ -10,19 +10,20 @@ class CartaPatrocinio extends Model
     use HasFactory;
 
     protected $fillable = [
-        'fecha_envio',
+        'numero_carta',
         'destinatario',
-        'contacto',
-        'proyecto_id',
+        'descripcion',
         'monto_solicitado',
-        'estado', // enviada, respondida, pendiente, sin_respuesta
+        'estado', // Pendiente, Aprobada, Rechazada, En Revision
+        'fecha_solicitud',
         'fecha_respuesta',
-        'contenido',
+        'proyecto_id',
         'usuario_id',
+        'observaciones',
     ];
 
     protected $casts = [
-        'fecha_envio' => 'date',
+        'fecha_solicitud' => 'date',
         'fecha_respuesta' => 'date',
         'monto_solicitado' => 'decimal:2',
     ];

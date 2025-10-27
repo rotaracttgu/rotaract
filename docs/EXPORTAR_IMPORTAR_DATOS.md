@@ -8,18 +8,21 @@ Este archivo contiene los comandos para compartir datos entre miembros del equip
 
 ### Opción 1: Exportar SOLO las tablas del módulo Vicepresidente
 ```bash
-C:\xampp\mysql\bin\mysqldump.exe -u root -pMys2025. gestiones_clubrotario carta_patrocinios carta_formals reunions asistencias_reunions participacion_proyectos > datos_vicepresidente.sql
+C:\xampp\mysql\bin\mysqldump.exe -u root -p gestiones_clubrotario carta_patrocinios carta_formals reunions asistencias_reunions participacion_proyectos > datos_vicepresidente.sql
 ```
+*Nota: Te pedirá la contraseña de forma segura*
 
 ### Opción 2: Exportar TODO (base de datos completa)
 ```bash
-C:\xampp\mysql\bin\mysqldump.exe -u root -pMys2025. gestiones_clubrotario > backup_completo.sql
+C:\xampp\mysql\bin\mysqldump.exe -u root -p gestiones_clubrotario > backup_completo.sql
 ```
+*Nota: Te pedirá la contraseña de forma segura*
 
 ### Opción 3: Exportar con estructura Y datos
 ```bash
-C:\xampp\mysql\bin\mysqldump.exe -u root -pMys2025. --complete-insert gestiones_clubrotario carta_patrocinios carta_formals reunions asistencias_reunions participacion_proyectos proyectos > vicepresidente_con_proyectos.sql
+C:\xampp\mysql\bin\mysqldump.exe -u root -p --complete-insert gestiones_clubrotario carta_patrocinios carta_formals reunions asistencias_reunions participacion_proyectos proyectos > vicepresidente_con_proyectos.sql
 ```
+*Nota: Te pedirá la contraseña de forma segura*
 
 ---
 
@@ -33,11 +36,12 @@ php artisan migrate
 ### Paso 2: Importar el archivo SQL
 ```bash
 # Si usaste Opción 1 o 3
-C:\xampp\mysql\bin\mysql.exe -u root -pTU_CONTRASEÑA gestiones_clubrotario < datos_vicepresidente.sql
+C:\xampp\mysql\bin\mysql.exe -u root -p gestiones_clubrotario < datos_vicepresidente.sql
 
 # Si usaste Opción 2 (backup completo)
-C:\xampp\mysql\bin\mysql.exe -u root -pTU_CONTRASEÑA gestiones_clubrotario < backup_completo.sql
+C:\xampp\mysql\bin\mysql.exe -u root -p gestiones_clubrotario < backup_completo.sql
 ```
+*Nota: Te pedirá la contraseña de forma segura*
 
 ### Paso 3: Verificar que se importaron correctamente
 ```bash
@@ -126,4 +130,7 @@ php artisan db:seed --class=VicepresidenteModuloSeeder
 
 ---
 
-**Nota:** Reemplaza `Mys2025.` o `TU_CONTRASEÑA` con tu contraseña real de MySQL.
+**Nota de Seguridad:** 
+- Nunca incluyas contraseñas en los comandos (usa `-p` sin contraseña)
+- MySQL te pedirá la contraseña de forma segura
+- No compartas archivos SQL con contraseñas o datos sensibles en Git

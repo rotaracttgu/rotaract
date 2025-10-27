@@ -35,6 +35,50 @@ class VicepresidenteController extends Controller
         return view('modulos.vicepresidente.dashboard', $datos);
     }
 
+    /**
+     * Muestra el calendario de eventos y reuniones.
+     */
+    public function calendario()
+    {
+        $eventos = Reunion::all()->map(function($reunion) {
+            return [
+                'id' => $reunion->id,
+                'title' => $reunion->titulo,
+                'start' => $reunion->fecha_hora,
+                'description' => $reunion->descripcion,
+                'lugar' => $reunion->lugar,
+                'estado' => $reunion->estado,
+                'color' => $this->getEventColor($reunion->estado)
+            ];
+        });
+
+        return view('modulos.vicepresidente.calendario', compact('eventos'));
+    }
+
+    /**
+     * Muestra el centro de notificaciones.
+     */
+    public function notificaciones()
+    {
+        // Aquí puedes agregar lógica para obtener notificaciones
+        $notificaciones = [];
+        
+        return view('modulos.vicepresidente.notificaciones', compact('notificaciones'));
+    }
+
+    /**
+     * Obtiene el color del evento según su estado.
+     */
+    private function getEventColor($estado)
+    {
+        return match($estado) {
+            'Programada' => '#3b82f6',
+            'Completada' => '#10b981',
+            'Cancelada' => '#ef4444',
+            default => '#6b7280'
+        };
+    }
+
     // *** 2. ASISTENCIA A PROYECTOS ***
 
     /**
@@ -112,7 +156,10 @@ class VicepresidenteController extends Controller
             'montoTotal' => $cartas->where('estado', 'Aprobada')->sum('monto_solicitado'),
         ];
 
-        return view('modulos.vicepresidente.cartas-patrocinio', compact('cartas', 'estadisticas'));
+        // Obtener lista de proyectos para los dropdowns
+        $proyectos = Proyecto::orderBy('Nombre')->get();
+
+        return view('modulos.vicepresidente.cartas-patrocinio', compact('cartas', 'estadisticas', 'proyectos'));
     }
 
     // *** 6. ESTADO DE PROYECTOS ***
@@ -143,5 +190,151 @@ class VicepresidenteController extends Controller
         ];
 
         return view('modulos.vicepresidente.estado-proyectos', compact('proyectos', 'estadisticas'));
+    }
+
+    // *** 7. CRUD CARTAS FORMALES ***
+
+    /**
+     * Muestra los detalles de una carta formal.
+     */
+    public function showCartaFormal($id)
+    {
+        $carta = CartaFormal::with('usuario')->findOrFail($id);
+        return response()->json($carta);
+    }
+
+    /**
+     * Almacena una nueva carta formal.
+     */
+    public function storeCartaFormal(Request $request)
+    {
+        $validated = $request->validate([
+            'numero_carta' => 'required|string|max:50|unique:carta_formals,numero_carta',
+            'destinatario' => 'required|string|max:255',
+            'asunto' => 'required|string|max:255',
+            'contenido' => 'required|string',
+            'tipo' => 'required|in:Invitacion,Agradecimiento,Solicitud,Notificacion,Otro',
+            'estado' => 'nullable|in:Borrador,Enviada,Recibida',
+            'fecha_envio' => 'nullable|date',
+            'observaciones' => 'nullable|string',
+        ]);
+
+        $validated['usuario_id'] = auth()->id();
+        $validated['estado'] = $validated['estado'] ?? 'Borrador';
+
+        CartaFormal::create($validated);
+
+        return redirect()->route('vicepresidente.cartas.formales')
+                        ->with('success', 'Carta formal creada exitosamente.');
+    }
+
+    /**
+     * Actualiza una carta formal existente.
+     */
+    public function updateCartaFormal(Request $request, $id)
+    {
+        $carta = CartaFormal::findOrFail($id);
+
+        $validated = $request->validate([
+            'numero_carta' => 'required|string|max:50|unique:carta_formals,numero_carta,' . $id,
+            'destinatario' => 'required|string|max:255',
+            'asunto' => 'required|string|max:255',
+            'contenido' => 'required|string',
+            'tipo' => 'required|in:Invitacion,Agradecimiento,Solicitud,Notificacion,Otro',
+            'estado' => 'nullable|in:Borrador,Enviada,Recibida',
+            'fecha_envio' => 'nullable|date',
+            'observaciones' => 'nullable|string',
+        ]);
+
+        $carta->update($validated);
+
+        return redirect()->route('vicepresidente.cartas.formales')
+                        ->with('success', 'Carta formal actualizada exitosamente.');
+    }
+
+    /**
+     * Elimina una carta formal.
+     */
+    public function destroyCartaFormal($id)
+    {
+        $carta = CartaFormal::findOrFail($id);
+        $carta->delete();
+
+        return redirect()->route('vicepresidente.cartas.formales')
+                        ->with('success', 'Carta formal eliminada exitosamente.');
+    }
+
+    // *** 8. CRUD CARTAS DE PATROCINIO ***
+
+    /**
+     * Muestra los detalles de una carta de patrocinio.
+     */
+    public function showCartaPatrocinio($id)
+    {
+        $carta = CartaPatrocinio::with(['proyecto', 'usuario'])->findOrFail($id);
+        return response()->json($carta);
+    }
+
+    /**
+     * Almacena una nueva carta de patrocinio.
+     */
+    public function storeCartaPatrocinio(Request $request)
+    {
+        $validated = $request->validate([
+            'numero_carta' => 'required|string|max:50|unique:carta_patrocinios,numero_carta',
+            'destinatario' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'monto_solicitado' => 'required|numeric|min:0',
+            'estado' => 'nullable|in:Pendiente,Aprobada,Rechazada,En Revision',
+            'fecha_solicitud' => 'nullable|date',
+            'fecha_respuesta' => 'nullable|date',
+            'proyecto_id' => 'required|exists:proyectos,ProyectoID',
+            'observaciones' => 'nullable|string',
+        ]);
+
+        $validated['usuario_id'] = auth()->id();
+        $validated['estado'] = $validated['estado'] ?? 'Pendiente';
+
+        CartaPatrocinio::create($validated);
+
+        return redirect()->route('vicepresidente.cartas.patrocinio')
+                        ->with('success', 'Carta de patrocinio creada exitosamente.');
+    }
+
+    /**
+     * Actualiza una carta de patrocinio existente.
+     */
+    public function updateCartaPatrocinio(Request $request, $id)
+    {
+        $carta = CartaPatrocinio::findOrFail($id);
+
+        $validated = $request->validate([
+            'numero_carta' => 'required|string|max:50|unique:carta_patrocinios,numero_carta,' . $id,
+            'destinatario' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'monto_solicitado' => 'required|numeric|min:0',
+            'estado' => 'nullable|in:Pendiente,Aprobada,Rechazada,En Revision',
+            'fecha_solicitud' => 'nullable|date',
+            'fecha_respuesta' => 'nullable|date',
+            'proyecto_id' => 'required|exists:proyectos,ProyectoID',
+            'observaciones' => 'nullable|string',
+        ]);
+
+        $carta->update($validated);
+
+        return redirect()->route('vicepresidente.cartas.patrocinio')
+                        ->with('success', 'Carta de patrocinio actualizada exitosamente.');
+    }
+
+    /**
+     * Elimina una carta de patrocinio.
+     */
+    public function destroyCartaPatrocinio($id)
+    {
+        $carta = CartaPatrocinio::findOrFail($id);
+        $carta->delete();
+
+        return redirect()->route('vicepresidente.cartas.patrocinio')
+                        ->with('success', 'Carta de patrocinio eliminada exitosamente.');
     }
 }
