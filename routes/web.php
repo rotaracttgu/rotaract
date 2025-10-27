@@ -6,6 +6,7 @@ use App\Http\Controllers\Aspirante\AspiranteController;
 use App\Http\Controllers\VoceroController;
 use App\Http\Controllers\TesoreroController;
 use App\Http\Controllers\VicepresidenteController;
+use App\Http\Controllers\SecretariaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\CompleteProfileController;
@@ -73,7 +74,7 @@ Route::get('/dashboard', function () {
     } elseif ($user->hasRole('Tesorero')) {
         return redirect()->route('tesorero.dashboard');
     } elseif ($user->hasRole('Secretario')) {
-        return redirect()->route('secretario.dashboard');
+        return redirect()->route('secretaria.dashboard');
     } elseif ($user->hasRole('Vocero')) {
         return redirect()->route('vocero.dashboard');
     } elseif ($user->hasRole('Aspirante')) {
@@ -202,12 +203,41 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
 });
 
 // ============================================================================
-// RUTAS DEL MÓDULO SECRETARIO
+// RUTAS DEL MÓDULO SECRETARÍA
 // ============================================================================
-Route::prefix('secretario')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Secretario|Presidente|Super Admin'])->name('secretario.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('secretario.dashboard');
-    })->name('dashboard');
+Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Secretario|Presidente|Super Admin'])->group(function () {
+    // Dashboard principal
+    Route::get('/dashboard', [SecretariaController::class, 'dashboard'])->name('dashboard');
+    
+    // Consultas
+    Route::get('/consultas', [SecretariaController::class, 'consultas'])->name('consultas');
+    Route::get('/consultas/pendientes', [SecretariaController::class, 'consultasPendientes'])->name('consultas.pendientes');
+    Route::get('/consultas/recientes', [SecretariaController::class, 'consultasRecientes'])->name('consultas.recientes');
+    Route::get('/consultas/{id}', [SecretariaController::class, 'getConsulta']);
+    Route::post('/consultas/{id}/responder', [SecretariaController::class, 'responderConsulta']);
+    Route::delete('/consultas/{id}', [SecretariaController::class, 'eliminarConsulta']);
+    
+    // Actas
+    Route::get('/actas', [SecretariaController::class, 'actas'])->name('actas.index');
+    Route::get('/actas/{id}', [SecretariaController::class, 'getActa']);
+    Route::post('/actas', [SecretariaController::class, 'storeActa']);
+    Route::post('/actas/{id}', [SecretariaController::class, 'updateActa']);
+    Route::delete('/actas/{id}', [SecretariaController::class, 'eliminarActa']);
+    
+    // Diplomas
+    Route::get('/diplomas', [SecretariaController::class, 'diplomas'])->name('diplomas.index');
+    Route::get('/diplomas/{id}', [SecretariaController::class, 'getDiploma']);
+    Route::post('/diplomas', [SecretariaController::class, 'storeDiploma']);
+    Route::post('/diplomas/{id}', [SecretariaController::class, 'updateDiploma']);
+    Route::delete('/diplomas/{id}', [SecretariaController::class, 'eliminarDiploma']);
+    Route::post('/diplomas/{id}/enviar-email', [SecretariaController::class, 'enviarEmailDiploma']);
+    
+    // Documentos
+    Route::get('/documentos', [SecretariaController::class, 'documentos'])->name('documentos.index');
+    Route::get('/documentos/{id}', [SecretariaController::class, 'getDocumento']);
+    Route::post('/documentos', [SecretariaController::class, 'storeDocumento']);
+    Route::post('/documentos/{id}', [SecretariaController::class, 'updateDocumento']);
+    Route::delete('/documentos/{id}', [SecretariaController::class, 'eliminarDocumento']);
 });
 
 // ============================================================================
