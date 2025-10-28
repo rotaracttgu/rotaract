@@ -41,7 +41,7 @@ class SecretariaController extends Controller
             
             // Documentos
             'total_documentos' => Documento::count(),
-            'categorias_documentos' => Documento::distinct('categoria')->count('categoria'),
+            'categorias_documentos' => Documento::distinct('TipoDocumento')->count('TipoDocumento'),
         ];
         
         // Contadores para las tarjetas
@@ -51,7 +51,7 @@ class SecretariaController extends Controller
         // Datos recientes
         $actas = Acta::latest()->take(5)->get();
         $diplomas = Diploma::with('miembro')->latest()->take(5)->get();
-        $documentos = Documento::latest()->take(5)->get();
+        $documentos = Documento::orderBy('FechaSubida', 'desc')->take(5)->get();
         
         // Consultas recientes para la sección
         $consultasRecientesSeccion = Consulta::with('usuario')
@@ -60,7 +60,7 @@ class SecretariaController extends Controller
             ->get();
         
         // Documentos recientes
-        $documentosRecientes = Documento::latest()
+        $documentosRecientes = Documento::orderBy('FechaSubida', 'desc')
             ->take(5)
             ->get();
         
@@ -243,20 +243,27 @@ class SecretariaController extends Controller
     public function storeActa(Request $request)
     {
         $request->validate([
-            'titulo' => 'required|string|max:255',
             'fecha_reunion' => 'required|date',
-            'tipo_reunion' => 'required|string|in:ordinaria,extraordinaria,junta,asamblea',
-            'contenido' => 'required|string',
+            'tipo_reunion' => 'required|string|in:ordinaria,extraordinaria',
+            'titulo' => 'required|string|max:255',
+            'descripcion' => 'required|string',
             'asistentes' => 'nullable|string',
-            'archivo' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'acuerdos' => 'nullable|string',
+            'firma_presidente' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
+            'firma_secretario' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
         ]);
 
-        $data = $request->except('archivo');
+        $data = $request->except(['firma_presidente', 'firma_secretario']);
         $data['creado_por'] = Auth::id();
 
-        if ($request->hasFile('archivo')) {
-            $path = $request->file('archivo')->store('actas', 'public');
-            $data['archivo_path'] = $path;
+        if ($request->hasFile('firma_presidente')) {
+            $path = $request->file('firma_presidente')->store('firmas', 'public');
+            $data['firma_presidente_path'] = $path;
+        }
+
+        if ($request->hasFile('firma_secretario')) {
+            $path = $request->file('firma_secretario')->store('firmas', 'public');
+            $data['firma_secretario_path'] = $path;
         }
 
         $acta = Acta::create($data);
@@ -274,24 +281,33 @@ class SecretariaController extends Controller
     public function updateActa(Request $request, $id)
     {
         $request->validate([
-            'titulo' => 'required|string|max:255',
             'fecha_reunion' => 'required|date',
-            'tipo_reunion' => 'required|string|in:ordinaria,extraordinaria,junta,asamblea',
-            'contenido' => 'required|string',
+            'tipo_reunion' => 'required|string|in:ordinaria,extraordinaria',
+            'titulo' => 'required|string|max:255',
+            'descripcion' => 'required|string',
             'asistentes' => 'nullable|string',
-            'archivo' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'acuerdos' => 'nullable|string',
+            'firma_presidente' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
+            'firma_secretario' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
         ]);
 
         $acta = Acta::findOrFail($id);
-        $data = $request->except('archivo');
+        $data = $request->except(['firma_presidente', 'firma_secretario']);
 
-        if ($request->hasFile('archivo')) {
-            // Eliminar archivo anterior si existe
-            if ($acta->archivo_path) {
-                Storage::disk('public')->delete($acta->archivo_path);
+        if ($request->hasFile('firma_presidente')) {
+            if ($acta->firma_presidente_path) {
+                Storage::disk('public')->delete($acta->firma_presidente_path);
             }
-            $path = $request->file('archivo')->store('actas', 'public');
-            $data['archivo_path'] = $path;
+            $path = $request->file('firma_presidente')->store('firmas', 'public');
+            $data['firma_presidente_path'] = $path;
+        }
+
+        if ($request->hasFile('firma_secretario')) {
+            if ($acta->firma_secretario_path) {
+                Storage::disk('public')->delete($acta->firma_secretario_path);
+            }
+            $path = $request->file('firma_secretario')->store('firmas', 'public');
+            $data['firma_secretario_path'] = $path;
         }
 
         $acta->update($data);
@@ -310,9 +326,12 @@ class SecretariaController extends Controller
     {
         $acta = Acta::findOrFail($id);
 
-        // Eliminar archivo asociado si existe
-        if ($acta->archivo_path) {
-            Storage::disk('public')->delete($acta->archivo_path);
+        if ($acta->firma_presidente_path) {
+            Storage::disk('public')->delete($acta->firma_presidente_path);
+        }
+
+        if ($acta->firma_secretario_path) {
+            Storage::disk('public')->delete($acta->firma_secretario_path);
         }
 
         $acta->delete();
@@ -342,6 +361,8 @@ class SecretariaController extends Controller
                                 ->whereYear('created_at', now()->year)
                                 ->count(),
             'este_anio' => Diploma::whereYear('created_at', now()->year)->count(),
+            'merito' => Diploma::where('tipo', 'merito')->count(),
+            'asistencia' => Diploma::where('tipo', 'asistencia')->count(),
             'participacion' => Diploma::where('tipo', 'participacion')->count(),
             'reconocimiento' => Diploma::where('tipo', 'reconocimiento')->count(),
             'enviados' => Diploma::where('enviado_email', true)->count(),
@@ -471,16 +492,16 @@ class SecretariaController extends Controller
     public function documentos()
     {
         $documentos = Documento::with('creador')
-            ->latest()
+            ->orderBy('FechaSubida', 'desc')
             ->paginate(15);
 
         $estadisticas = [
             'total' => Documento::count(),
-            'este_mes' => Documento::whereMonth('created_at', now()->month)
-                                  ->whereYear('created_at', now()->year)
+            'este_mes' => Documento::whereMonth('FechaSubida', now()->month)
+                                  ->whereYear('FechaSubida', now()->year)
                                   ->count(),
-            'este_anio' => Documento::whereYear('created_at', now()->year)->count(),
-            'categorias' => Documento::distinct('categoria')->count('categoria'),
+            'este_anio' => Documento::whereYear('FechaSubida', now()->year)->count(),
+            'categorias' => Documento::distinct('TipoDocumento')->count('TipoDocumento'),
             'oficiales' => Documento::where('tipo', 'oficial')->count(),
             'internos' => Documento::where('tipo', 'interno')->count(),
         ];
