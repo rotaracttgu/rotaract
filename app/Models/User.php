@@ -138,7 +138,7 @@ class User extends Authenticatable
         } elseif ($this->isTesorero()) {
             return route('tesorero.dashboard');
         } elseif ($this->isSecretario()) {
-            return route('secretario.dashboard');
+            return route('secretaria.dashboard');
         } elseif ($this->isVocero()) {
             return route('vocero.dashboard');
         } elseif ($this->isAspirante()) {

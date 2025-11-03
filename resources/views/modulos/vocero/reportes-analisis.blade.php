@@ -11,6 +11,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     
+    <!-- 🆕 jsPDF para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
         :root {
             --primary-color: #2563eb;
@@ -36,7 +39,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 0;
-            overflow-x: hidden; /* 🔒 EVITAR SCROLL HORIZONTAL */
+            overflow-x: hidden;
         }
 
         .sidebar {
@@ -48,7 +51,7 @@
             left: 0;
             z-index: 1000;
             transition: all 0.3s ease;
-            overflow-y: auto; /* Solo scroll vertical si es necesario */
+            overflow-y: auto;
         }
 
         .sidebar .nav-link {
@@ -94,9 +97,9 @@
             margin-left: 250px;
             min-height: 100vh;
             padding: 0;
-            width: calc(100% - 250px); /* 🔒 ANCHO FIJO */
-            max-width: calc(100% - 250px); /* 🔒 MÁXIMO ANCHO */
-            overflow-x: hidden; /* 🔒 EVITAR DESBORDAMIENTO */
+            width: calc(100% - 250px);
+            max-width: calc(100% - 250px);
+            overflow-x: hidden;
         }
 
         .content-wrapper {
@@ -105,7 +108,7 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             margin: 20px;
             padding: 24px;
-            max-width: 100%; /* 🔒 NO EXCEDER CONTENEDOR */
+            max-width: 100%;
         }
 
         .card {
@@ -113,7 +116,7 @@
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-            max-width: 100%; /* 🔒 NO EXCEDER CONTENEDOR */
+            max-width: 100%;
         }
 
         .stat-card {
@@ -142,15 +145,14 @@
         .chart-container {
             position: relative;
             height: 300px;
-            width: 100%; /* 🔒 ANCHO COMPLETO DEL CONTENEDOR */
-            max-width: 100%; /* 🔒 NO EXCEDER */
+            width: 100%;
+            max-width: 100%;
         }
 
         .chart-container.large {
             height: 400px;
         }
 
-        /* 📊 CONTENEDOR SCROLLABLE PARA GRÁFICO DE ASISTENCIAS */
         .chart-scroll-container {
             overflow-x: auto;
             overflow-y: hidden;
@@ -230,7 +232,6 @@
             transform: scale(1.1);
         }
 
-        /* 🎨 ANIMACIONES Y EFECTOS */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -283,7 +284,6 @@
             transform: scale(1.1);
         }
 
-        /* Spinner de carga mejorado */
         .loading-spinner {
             display: inline-block;
             width: 40px;
@@ -304,7 +304,6 @@
             color: var(--secondary-color);
         }
 
-        /* Efectos de tabla */
         .table tbody tr {
             transition: all 0.2s ease;
         }
@@ -332,7 +331,6 @@
             border-bottom-color: var(--primary-color);
         }
 
-        /* 🔒 RESPONSIVE - EVITAR SCROLL HORIZONTAL */
         @media (max-width: 991.98px) {
             .sidebar {
                 position: relative;
@@ -346,7 +344,6 @@
             }
         }
 
-        /* 🔒 ASEGURAR QUE TODOS LOS ELEMENTOS RESPETEN EL ANCHO */
         * {
             max-width: 100%;
         }
@@ -356,7 +353,6 @@
             height: auto !important;
         }
 
-        /* Indicar que los gráficos son clicables */
         .chart-container canvas {
             cursor: pointer;
         }
@@ -365,14 +361,13 @@
             opacity: 0.9;
         }
 
-        /* Badge de filtro activo */
         #filtro-activo-badge {
             animation: fadeIn 0.3s ease-in;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid" style="overflow-x: hidden;"> <!-- 🔒 CONTENEDOR PRINCIPAL SIN SCROLL -->
+    <div class="container-fluid" style="overflow-x: hidden;">
         <div class="sidebar">
             <div class="sidebar-brand">
                 <h4>
@@ -412,7 +407,7 @@
                         <button class="btn btn-outline-secondary" onclick="refreshData()">
                             <i class="fas fa-sync-alt me-2"></i>Actualizar
                         </button>
-                        <button class="btn btn-success" onclick="exportarReporte()">
+                        <button class="btn btn-success" onclick="exportarReporteCompletoPDF()">
                             <i class="fas fa-download me-2"></i>Exportar PDF
                         </button>
                     </div>
@@ -526,7 +521,6 @@
                                 <small class="text-muted" id="asistencias-subtitle">Todos los eventos con asistencias registradas</small>
                             </div>
                             <div class="card-body">
-                                <!-- Contenedor con scroll horizontal -->
                                 <div class="chart-scroll-container">
                                     <div class="chart-inner-container" id="asistencias-chart-wrapper">
                                         <canvas id="asistenciasChart"></canvas>
@@ -550,8 +544,8 @@
                             <span id="filtro-activo-badge" class="badge bg-info ms-3" style="display: none;"></span>
                         </div>
                         <div class="d-flex">
-                            <button class="btn btn-sm btn-primary" onclick="exportarTablaCSV()">
-                                <i class="fas fa-file-csv me-1"></i>Exportar CSV
+                            <button class="btn btn-sm btn-primary" onclick="exportarTablaPDF()">
+                                <i class="fas fa-file-pdf me-1"></i>Exportar Tabla PDF
                             </button>
                         </div>
                     </div>
@@ -590,10 +584,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
 
     <script>
-        // ============================================================================
-        // 🔄 CÓDIGO CONECTADO A BASE DE DATOS
-        // ============================================================================
-        
         let estadosChart, tiposChart, tendenciaChart, asistenciasChart;
         let eventosDetallados = [];
 
@@ -601,94 +591,44 @@
             cargarDatos();
         });
 
-        // ============================================================================
-        // ✅ FUNCIÓN: Cargar todos los datos desde la BD
-        // ============================================================================
         function cargarDatos() {
             console.log('🔄 Iniciando carga de datos...');
             
-            // 1️⃣ CARGAR EVENTOS DETALLADOS Y CALCULAR ASISTENCIAS
+            // CARGAR EVENTOS DETALLADOS
             $.ajax({
                 url: '/api/calendario/reportes/detallado',
                 method: 'GET',
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                 success: function(response) {
-                    console.log('📦 Respuesta completa del servidor:', response);
-                    
                     if (response.success && response.eventos) {
                         eventosDetallados = response.eventos;
-                        console.log('✅ Eventos cargados:', eventosDetallados.length);
                         
-                        if (eventosDetallados.length > 0) {
-                            console.log('📋 Primer evento (ejemplo):', eventosDetallados[0]);
-                            console.log('🔑 Campos disponibles:', Object.keys(eventosDetallados[0]));
-                        }
-                        
-                        // Calcular asistencias (soporta ambos nombres de campo)
                         let totalAsistencias = 0;
                         let totalPresentes = 0;
                         
                         eventosDetallados.forEach(evento => {
-                            // 🔥 Soportar ambos nombres: TotalRegistros (del SP) o TotalAsistencias (legacy)
                             const registros = parseInt(evento.TotalRegistros || evento.TotalAsistencias || 0);
                             const presentes = parseInt(evento.TotalPresentes || 0);
                             
                             totalAsistencias += registros;
                             totalPresentes += presentes;
-                            
-                            console.log(`  - ${evento.TituloEvento}: ${registros} registros, ${presentes} presentes`);
                         });
                         
                         const tasaAsistencia = totalAsistencias > 0 ? 
                             Math.round((totalPresentes / totalAsistencias) * 100) : 0;
                         
-                        console.log('\n📊 CÁLCULOS FINALES:');
-                        console.log('  Total Asistencias:', totalAsistencias);
-                        console.log('  Total Presentes:', totalPresentes);
-                        console.log('  Tasa:', tasaAsistencia + '%');
+                        $('#total-asistencias').text(totalAsistencias);
+                        $('#tasa-asistencia').text(tasaAsistencia + '%');
                         
-                        // 🔥 ACTUALIZAR tarjetas con JavaScript puro Y jQuery (doble seguridad)
-                        const elemAsistencias = document.getElementById('total-asistencias');
-                        const elemTasa = document.getElementById('tasa-asistencia');
-                        
-                        console.log('\n🎯 ACTUALIZANDO TARJETAS:');
-                        
-                        if (elemAsistencias) {
-                            elemAsistencias.textContent = totalAsistencias;
-                            $('#total-asistencias').text(totalAsistencias);
-                            console.log('✅ Total Asistencias actualizado a:', totalAsistencias);
-                            console.log('   Contenido actual del elemento:', elemAsistencias.textContent);
-                        } else {
-                            console.error('❌ Elemento #total-asistencias no encontrado en el DOM');
-                        }
-                        
-                        if (elemTasa) {
-                            elemTasa.textContent = tasaAsistencia + '%';
-                            $('#tasa-asistencia').text(tasaAsistencia + '%');
-                            console.log('✅ Tasa de Asistencia actualizada a:', tasaAsistencia + '%');
-                            console.log('   Contenido actual del elemento:', elemTasa.textContent);
-                        } else {
-                            console.error('❌ Elemento #tasa-asistencia no encontrado en el DOM');
-                        }
-                        
-                        // Mostrar en tabla
                         mostrarEventosDetallados(eventosDetallados);
-                        
-                    } else {
-                        console.error('❌ Respuesta sin eventos o sin éxito:', response);
                     }
                 },
-                error: function(xhr, status, error) {
-                    console.error('❌ Error cargando eventos:', {
-                        status: xhr.status,
-                        statusText: xhr.statusText,
-                        error: error,
-                        response: xhr.responseText
-                    });
+                error: function(xhr) {
+                    console.error('❌ Error cargando eventos:', xhr);
                 }
             });
             
-            // 2️⃣ CARGAR ESTADÍSTICAS GENERALES
+            // CARGAR ESTADÍSTICAS GENERALES
             $.ajax({
                 url: '/api/calendario/reportes/estadisticas-generales',
                 method: 'GET',
@@ -696,30 +636,13 @@
                 success: function(response) {
                     if (response.success && response.estadisticas) {
                         const stats = response.estadisticas;
-                        
-                        // Con JavaScript puro
-                        const elemEventos = document.getElementById('total-eventos');
-                        const elemFinalizados = document.getElementById('eventos-finalizados');
-                        
-                        if (elemEventos) {
-                            elemEventos.textContent = stats.TotalEventos || 0;
-                            $('#total-eventos').text(stats.TotalEventos || 0);
-                        }
-                        
-                        if (elemFinalizados) {
-                            elemFinalizados.textContent = stats.TotalFinalizados || 0;
-                            $('#eventos-finalizados').text(stats.TotalFinalizados || 0);
-                        }
-                        
-                        console.log('✅ Estadísticas generales actualizadas');
+                        $('#total-eventos').text(stats.TotalEventos || 0);
+                        $('#eventos-finalizados').text(stats.TotalFinalizados || 0);
                     }
-                },
-                error: function(xhr) {
-                    console.error('❌ Error cargando estadísticas:', xhr);
                 }
             });
             
-            // 3️⃣ CARGAR GRÁFICOS
+            // CARGAR GRÁFICOS
             $.ajax({
                 url: '/api/calendario/reportes/graficos',
                 method: 'GET',
@@ -727,33 +650,18 @@
                 success: function(response) {
                     if (response.success && response.graficos) {
                         crearGraficos(response.graficos);
-                        console.log('✅ Gráficos creados');
                     }
-                },
-                error: function(xhr) {
-                    console.error('❌ Error cargando gráficos:', xhr);
                 }
             });
         }
 
-        // ============================================================================
-        // ✅ FUNCIÓN: Actualizar estadísticas generales (solo eventos y finalizados)
-        // ============================================================================
-        function actualizarEstadisticasGenerales(stats) {
-            // Esta función ya no se usa, se actualiza directamente en cargarDatos()
-        }
-
-        // ============================================================================
-        // ✅ FUNCIÓN: Crear gráficos con Chart.js
-        // ============================================================================
         function crearGraficos(datos) {
-            // Destruir gráficos anteriores si existen
             if (estadosChart) estadosChart.destroy();
             if (tiposChart) tiposChart.destroy();
             if (tendenciaChart) tendenciaChart.destroy();
             if (asistenciasChart) asistenciasChart.destroy();
 
-            // Gráfico de Estados (Donut) - INTERACTIVO
+            // Gráfico de Estados
             const ctxEstados = document.getElementById('estadosChart').getContext('2d');
             estadosChart = new Chart(ctxEstados, {
                 type: 'doughnut',
@@ -774,33 +682,19 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
+                        legend: { position: 'bottom' }
                     },
                     onClick: function(evt, activeElements) {
                         if (activeElements.length > 0) {
                             const index = activeElements[0].index;
                             const estados = ['Programado', 'EnCurso', 'Finalizado'];
-                            const estadoSeleccionado = estados[index];
-                            filtrarEventosPorEstado(estadoSeleccionado);
+                            filtrarEventosPorEstado(estados[index]);
                         }
                     }
                 }
             });
 
-            // Gráfico de Tipos (Barras) - INTERACTIVO
+            // Gráfico de Tipos
             const ctxTipos = document.getElementById('tiposChart').getContext('2d');
             tiposChart = new Chart(ctxTipos, {
                 type: 'bar',
@@ -821,38 +715,24 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Eventos: ${context.parsed.y}`;
-                                }
-                            }
-                        }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
+                            ticks: { stepSize: 1 }
                         }
                     },
                     onClick: function(evt, activeElements) {
                         if (activeElements.length > 0) {
                             const index = activeElements[0].index;
                             const tipos = ['Virtual', 'Presencial', 'InicioProyecto', 'FinProyecto'];
-                            const tipoSeleccionado = tipos[index];
-                            filtrarEventosPorTipo(tipoSeleccionado);
+                            filtrarEventosPorTipo(tipos[index]);
                         }
                     }
                 }
             });
 
-            // Gráfico de Tendencia (Línea) - INTERACTIVO
+            // Gráfico de Tendencia
             const ctxTendencia = document.getElementById('tendenciaChart').getContext('2d');
             const meses = datos.tendencia.map(t => {
                 const [year, month] = t.mes.split('-');
@@ -876,36 +756,17 @@
                         pointHoverRadius: 9,
                         pointBackgroundColor: '#2563eb',
                         pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointHoverBackgroundColor: '#1d4ed8',
-                        pointHoverBorderColor: '#fff',
-                        pointHoverBorderWidth: 3
+                        pointBorderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                title: function(context) {
-                                    return context[0].label;
-                                },
-                                label: function(context) {
-                                    return `Eventos: ${context.parsed.y}`;
-                                }
-                            }
-                        }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
+                            ticks: { stepSize: 1 }
                         }
                     },
                     onClick: function(evt, activeElements) {
@@ -918,30 +779,24 @@
                 }
             });
 
-            // Gráfico de Asistencias (Barras Agrupadas) - SCROLLABLE
+            // Gráfico de Asistencias
             const ctxAsistencias = document.getElementById('asistenciasChart').getContext('2d');
             
             if (datos.asistencias && datos.asistencias.length > 0) {
-                // Mostrar el canvas y ocultar mensaje de "no hay datos"
                 $('#asistenciasChart').show();
                 $('#no-asistencias-message').hide();
                 
-                // 🆕 MOSTRAR TODOS LOS EVENTOS (no solo 10)
                 const todasAsistencias = datos.asistencias;
                 const numEventos = todasAsistencias.length;
                 
-                // 🆕 CALCULAR ANCHO DINÁMICO: cada evento necesita ~80px
                 const anchoMinimo = Math.max(100, numEventos * 80);
-                const contenedorWrapper = document.getElementById('asistencias-chart-wrapper');
-                contenedorWrapper.style.minWidth = anchoMinimo + 'px';
+                document.getElementById('asistencias-chart-wrapper').style.minWidth = anchoMinimo + 'px';
                 
-                // 🆕 ACTUALIZAR SUBTÍTULO
                 $('#asistencias-subtitle').text(`${numEventos} eventos con asistencias registradas`);
                 
-                const eventosLabels = todasAsistencias.map(a => {
-                    // Truncar títulos largos
-                    return a.titulo.length > 20 ? a.titulo.substring(0, 20) + '...' : a.titulo;
-                });
+                const eventosLabels = todasAsistencias.map(a => 
+                    a.titulo.length > 20 ? a.titulo.substring(0, 20) + '...' : a.titulo
+                );
                 const presentes = todasAsistencias.map(a => a.presentes);
                 const ausentes = todasAsistencias.map(a => a.ausentes);
                 const justificados = todasAsistencias.map(a => a.justificados);
@@ -975,20 +830,16 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: {
-                                position: 'top'
-                            },
+                            legend: { position: 'top' },
                             tooltip: {
                                 callbacks: {
                                     title: function(context) {
-                                        // Mostrar título completo en tooltip
                                         const index = context[0].dataIndex;
                                         return todasAsistencias[index].titulo;
                                     },
                                     afterLabel: function(context) {
                                         const index = context.dataIndex;
                                         let porcentaje = parseFloat(todasAsistencias[index].porcentaje) || 0;
-                                        if (isNaN(porcentaje)) porcentaje = 0;
                                         return 'Asistencia: ' + porcentaje.toFixed(1) + '%';
                                     }
                                 }
@@ -1004,23 +855,17 @@
                             },
                             y: {
                                 beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
-                                }
+                                ticks: { stepSize: 1 }
                             }
                         }
                     }
                 });
             } else {
-                // Ocultar el canvas y mostrar mensaje de "no hay datos"
                 $('#asistenciasChart').hide();
                 $('#no-asistencias-message').show();
             }
         }
 
-        // ============================================================================
-        // ✅ FUNCIÓN: Mostrar eventos detallados en tabla
-        // ============================================================================
         function mostrarEventosDetallados(eventos) {
             const tbody = $('#eventos-tbody');
             tbody.empty();
@@ -1042,7 +887,6 @@
                 const tipo = obtenerNombreTipo(evento.TipoEvento);
                 const estado = obtenerNombreEstado(evento.EstadoEvento);
                 
-                // Convertir porcentaje a número y manejar null/undefined
                 let porcentaje = parseFloat(evento.PorcentajeAsistencia) || 0;
                 if (isNaN(porcentaje)) porcentaje = 0;
                 
@@ -1073,21 +917,443 @@
         }
 
         // ============================================================================
-        // 🆕 FUNCIÓN: Filtrar eventos por estado
+        // 🆕 FUNCIÓN: Exportar Reporte Completo en PDF (BOTÓN VERDE)
+        // ============================================================================
+        async function exportarReporteCompletoPDF() {
+            showToast('📄 Generando reporte PDF completo...', 'info');
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                let yPos = 20;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 15;
+                
+                // ========== PORTADA ==========
+                doc.setFillColor(37, 99, 235);
+                doc.rect(0, 0, pageWidth, 60, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(28);
+                doc.setFont(undefined, 'bold');
+                doc.text('Reporte de Eventos', pageWidth / 2, 30, { align: 'center' });
+                
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'normal');
+                const fechaActual = new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                doc.text(fechaActual, pageWidth / 2, 45, { align: 'center' });
+                
+                yPos = 80;
+                doc.setTextColor(0, 0, 0);
+                
+                // ========== ESTADÍSTICAS ==========
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(37, 99, 235);
+                doc.text('Estadísticas Generales', margin, yPos);
+                yPos += 10;
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(0, 0, 0);
+                
+                const totalEventos = $('#total-eventos').text() || '0';
+                const eventosFinalizados = $('#eventos-finalizados').text() || '0';
+                const totalAsistencias = $('#total-asistencias').text() || '0';
+                const tasaAsistencia = $('#tasa-asistencia').text() || '0%';
+                
+                const stats = [
+                    { label: 'Total de Eventos:', value: totalEventos, color: [37, 99, 235] },
+                    { label: 'Eventos Finalizados:', value: eventosFinalizados, color: [5, 150, 105] },
+                    { label: 'Total de Asistencias:', value: totalAsistencias, color: [6, 182, 212] },
+                    { label: 'Tasa de Asistencia:', value: tasaAsistencia, color: [217, 119, 6] }
+                ];
+                
+                stats.forEach((stat, index) => {
+                    const boxY = yPos + (index * 20);
+                    
+                    doc.setFillColor(...stat.color);
+                    doc.roundedRect(margin, boxY, 5, 8, 1, 1, 'F');
+                    
+                    doc.setFont(undefined, 'normal');
+                    doc.text(stat.label, margin + 10, boxY + 6);
+                    
+                    doc.setFont(undefined, 'bold');
+                    doc.setFontSize(14);
+                    doc.text(stat.value, pageWidth - margin - 20, boxY + 6);
+                    doc.setFontSize(11);
+                });
+                
+                yPos += 90;
+                
+                // ========== GRÁFICOS ==========
+                if (yPos > pageHeight - 100) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(37, 99, 235);
+                doc.text('Gráficos y Análisis', margin, yPos);
+                yPos += 10;
+                
+                // Gráfico de Estados
+                const estadosCanvas = document.getElementById('estadosChart');
+                if (estadosCanvas) {
+                    const estadosImg = estadosCanvas.toDataURL('image/png');
+                    doc.addImage(estadosImg, 'PNG', margin, yPos, 80, 60);
+                }
+                
+                // Gráfico de Tipos
+                const tiposCanvas = document.getElementById('tiposChart');
+                if (tiposCanvas) {
+                    const tiposImg = tiposCanvas.toDataURL('image/png');
+                    doc.addImage(tiposImg, 'PNG', pageWidth - margin - 80, yPos, 80, 60);
+                }
+                
+                yPos += 70;
+                
+                if (yPos > pageHeight - 80) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                // Gráfico de Tendencia
+                const tendenciaCanvas = document.getElementById('tendenciaChart');
+                if (tendenciaCanvas) {
+                    const tendenciaImg = tendenciaCanvas.toDataURL('image/png');
+                    const graphWidth = pageWidth - (margin * 2);
+                    doc.addImage(tendenciaImg, 'PNG', margin, yPos, graphWidth, 70);
+                    yPos += 80;
+                }
+                
+                // ========== ASISTENCIAS ==========
+                doc.addPage();
+                yPos = 20;
+                
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(37, 99, 235);
+                doc.text('Estadísticas de Asistencia', margin, yPos);
+                yPos += 10;
+                
+                const asistenciasCanvas = document.getElementById('asistenciasChart');
+                if (asistenciasCanvas && $('#asistenciasChart').is(':visible')) {
+                    const asistenciasImg = asistenciasCanvas.toDataURL('image/png');
+                    const graphWidth = pageWidth - (margin * 2);
+                    doc.addImage(asistenciasImg, 'PNG', margin, yPos, graphWidth, 90);
+                } else {
+                    doc.setFontSize(11);
+                    doc.setFont(undefined, 'normal');
+                    doc.setTextColor(100, 116, 139);
+                    doc.text('No hay datos de asistencias registradas', pageWidth / 2, yPos + 20, { align: 'center' });
+                }
+                
+                // ========== PIE DE PÁGINA ==========
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(9);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(
+                        `Página ${i} de ${pageCount} - Generado por Sistema Vocero`,
+                        pageWidth / 2,
+                        pageHeight - 10,
+                        { align: 'center' }
+                    );
+                }
+                
+                const nombreArchivo = `Reporte_Completo_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(nombreArchivo);
+                
+                showToast('✅ Reporte PDF generado exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                showToast('❌ Error al generar el reporte PDF', 'error');
+            }
+        }
+
+        // ============================================================================
+        // 🔵 FUNCIÓN: Exportar Tabla a PDF (BOTÓN AZUL)
+        // ============================================================================
+        async function exportarTablaPDF() {
+            showToast('📄 Generando PDF de tabla de eventos...', 'info');
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                let yPos = 20;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 15;
+                const usableWidth = pageWidth - (margin * 2);
+                
+                // ========== ENCABEZADO ==========
+                doc.setFillColor(37, 99, 235);
+                doc.rect(0, 0, pageWidth, 50, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont(undefined, 'bold');
+                doc.text('Eventos Detallados', pageWidth / 2, 25, { align: 'center' });
+                
+                // Mostrar filtro activo si existe
+                const filtroActivo = $('#filtro-activo-badge').is(':visible') 
+                    ? $('#filtro-activo-badge').text() 
+                    : 'Todos los eventos';
+                
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
+                doc.text(filtroActivo, pageWidth / 2, 38, { align: 'center' });
+                
+                yPos = 60;
+                doc.setTextColor(0, 0, 0);
+                
+                // ========== INFORMACIÓN DEL REPORTE ==========
+                doc.setFontSize(10);
+                doc.setTextColor(100, 116, 139);
+                const fechaActual = new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                doc.text(`Generado: ${fechaActual}`, margin, yPos);
+                yPos += 8;
+                
+                // Contar eventos visibles
+                let totalEventosVisibles = 0;
+                $('#eventos-tbody tr').each(function() {
+                    if ($(this).find('td').length > 1) {
+                        totalEventosVisibles++;
+                    }
+                });
+                
+                doc.text(`Total de eventos: ${totalEventosVisibles}`, margin, yPos);
+                yPos += 12;
+                
+                doc.setTextColor(0, 0, 0);
+                
+                // ========== TABLA DE EVENTOS ==========
+                // Configuración de columnas
+                const colWidths = {
+                    titulo: 55,
+                    tipo: 30,
+                    estado: 25,
+                    fecha: 25,
+                    asistencias: 20,
+                    porcentaje: 25
+                };
+                
+                // Encabezados de tabla
+                doc.setFillColor(241, 245, 249);
+                doc.rect(margin, yPos, usableWidth, 10, 'F');
+                
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(71, 85, 105);
+                
+                let xPos = margin + 2;
+                doc.text('Título', xPos, yPos + 7);
+                xPos += colWidths.titulo;
+                doc.text('Tipo', xPos, yPos + 7);
+                xPos += colWidths.tipo;
+                doc.text('Estado', xPos, yPos + 7);
+                xPos += colWidths.estado;
+                doc.text('Fecha', xPos, yPos + 7);
+                xPos += colWidths.fecha;
+                doc.text('Asist.', xPos, yPos + 7);
+                xPos += colWidths.asistencias;
+                doc.text('% Asist.', xPos, yPos + 7);
+                
+                yPos += 12;
+                
+                // Línea separadora
+                doc.setDrawColor(226, 232, 240);
+                doc.line(margin, yPos, pageWidth - margin, yPos);
+                yPos += 2;
+                
+                // Datos de la tabla
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(0, 0, 0);
+                
+                let rowCount = 0;
+                let alternateRow = false;
+                
+                $('#eventos-tbody tr').each(function() {
+                    const $row = $(this);
+                    
+                    // Ignorar filas de carga o sin datos
+                    if ($row.find('td').length <= 1) return;
+                    
+                    // Verificar si necesitamos nueva página
+                    if (yPos > pageHeight - 30) {
+                        doc.addPage();
+                        yPos = 20;
+                        
+                        // Repetir encabezados en nueva página
+                        doc.setFillColor(241, 245, 249);
+                        doc.rect(margin, yPos, usableWidth, 10, 'F');
+                        
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(71, 85, 105);
+                        
+                        xPos = margin + 2;
+                        doc.text('Título', xPos, yPos + 7);
+                        xPos += colWidths.titulo;
+                        doc.text('Tipo', xPos, yPos + 7);
+                        xPos += colWidths.tipo;
+                        doc.text('Estado', xPos, yPos + 7);
+                        xPos += colWidths.estado;
+                        doc.text('Fecha', xPos, yPos + 7);
+                        xPos += colWidths.fecha;
+                        doc.text('Asist.', xPos, yPos + 7);
+                        xPos += colWidths.asistencias;
+                        doc.text('% Asist.', xPos, yPos + 7);
+                        
+                        yPos += 12;
+                        doc.setDrawColor(226, 232, 240);
+                        doc.line(margin, yPos, pageWidth - margin, yPos);
+                        yPos += 2;
+                        
+                        doc.setFont(undefined, 'normal');
+                        doc.setFontSize(8);
+                        doc.setTextColor(0, 0, 0);
+                    }
+                    
+                    // Fondo alternado para filas
+                    if (alternateRow) {
+                        doc.setFillColor(248, 250, 252);
+                        doc.rect(margin, yPos, usableWidth, 8, 'F');
+                    }
+                    alternateRow = !alternateRow;
+                    
+                    // Extraer datos de la fila
+                    const titulo = $row.find('td:eq(0)').text().trim();
+                    const tipo = $row.find('td:eq(1)').text().trim();
+                    const estado = $row.find('td:eq(2)').text().trim();
+                    const fecha = $row.find('td:eq(3)').text().trim();
+                    const asistencias = $row.find('td:eq(4)').text().trim();
+                    const porcentaje = $row.find('td:eq(5) .progress-bar').text().trim();
+                    
+                    // Truncar título si es muy largo
+                    const tituloCorto = titulo.length > 35 ? titulo.substring(0, 35) + '...' : titulo;
+                    
+                    // Dibujar datos
+                    xPos = margin + 2;
+                    doc.setFont(undefined, 'bold');
+                    doc.text(tituloCorto, xPos, yPos + 6);
+                    
+                    doc.setFont(undefined, 'normal');
+                    xPos += colWidths.titulo;
+                    
+                    // Truncar tipo si es muy largo
+                    const tipoCorto = tipo.length > 18 ? tipo.substring(0, 18) + '...' : tipo;
+                    doc.text(tipoCorto, xPos, yPos + 6);
+                    
+                    xPos += colWidths.tipo;
+                    doc.text(estado, xPos, yPos + 6);
+                    
+                    xPos += colWidths.estado;
+                    doc.text(fecha, xPos, yPos + 6);
+                    
+                    xPos += colWidths.fecha;
+                    doc.text(asistencias, xPos, yPos + 6);
+                    
+                    xPos += colWidths.asistencias;
+                    
+                    // Dibujar barra de porcentaje
+                    const porcentajeNum = parseInt(porcentaje) || 0;
+                    const barWidth = 20;
+                    const barHeight = 4;
+                    const barX = xPos;
+                    const barY = yPos + 2;
+                    
+                    // Fondo de la barra
+                    doc.setFillColor(229, 231, 235);
+                    doc.roundedRect(barX, barY, barWidth, barHeight, 1, 1, 'F');
+                    
+                    // Relleno según porcentaje
+                    if (porcentajeNum > 0) {
+                        const fillWidth = (barWidth * porcentajeNum) / 100;
+                        doc.setFillColor(5, 150, 105);
+                        doc.roundedRect(barX, barY, fillWidth, barHeight, 1, 1, 'F');
+                    }
+                    
+                    // Texto del porcentaje
+                    doc.setFontSize(7);
+                    doc.text(porcentaje, barX + barWidth + 2, yPos + 6);
+                    doc.setFontSize(8);
+                    
+                    yPos += 10;
+                    rowCount++;
+                });
+                
+                // Mensaje si no hay eventos
+                if (rowCount === 0) {
+                    doc.setTextColor(100, 116, 139);
+                    doc.setFontSize(11);
+                    doc.text('No hay eventos para mostrar', pageWidth / 2, yPos + 20, { align: 'center' });
+                }
+                
+                // ========== PIE DE PÁGINA EN TODAS LAS PÁGINAS ==========
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    
+                    // Línea separadora
+                    doc.setDrawColor(226, 232, 240);
+                    doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+                    
+                    doc.setFontSize(8);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(
+                        `Página ${i} de ${pageCount}`,
+                        margin,
+                        pageHeight - 10
+                    );
+                    doc.text(
+                        'Sistema Vocero',
+                        pageWidth - margin,
+                        pageHeight - 10,
+                        { align: 'right' }
+                    );
+                }
+                
+                // Guardar PDF
+                const filtroNombre = filtroActivo !== 'Todos los eventos' 
+                    ? `_${filtroActivo.replace(/[^a-zA-Z0-9]/g, '_')}`
+                    : '';
+                const nombreArchivo = `Tabla_Eventos${filtroNombre}_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(nombreArchivo);
+                
+                showToast(`✅ PDF de tabla generado (${rowCount} eventos)`, 'success');
+                
+            } catch (error) {
+                console.error('Error generando PDF de tabla:', error);
+                showToast('❌ Error al generar el PDF de la tabla', 'error');
+            }
+        }
+
+        // ============================================================================
+        // FUNCIONES DE FILTRADO
         // ============================================================================
         function filtrarEventosPorEstado(estado) {
-            console.log('Filtrando por estado:', estado);
-            console.log('Eventos disponibles:', eventosDetallados);
-            
             const nombreEstado = obtenerNombreEstado(estado);
-            const eventosFiltrados = eventosDetallados.filter(e => {
-                console.log('Comparando:', e.EstadoEvento, 'con', estado);
-                return e.EstadoEvento === estado;
-            });
+            const eventosFiltrados = eventosDetallados.filter(e => e.EstadoEvento === estado);
             
-            console.log('Eventos filtrados:', eventosFiltrados);
-            
-            // Mostrar badge de filtro activo
             $('#filtro-activo-badge').text(`Filtro: ${nombreEstado}`).show();
             
             if (eventosFiltrados.length === 0) {
@@ -1097,32 +1363,17 @@
             }
             
             mostrarEventosDetallados(eventosFiltrados);
-            
-            // Agregar botón para limpiar filtro
             agregarBotonLimpiarFiltro();
             
-            // Scroll a la tabla
             $('html, body').animate({
                 scrollTop: $("#eventos-table").offset().top - 100
             }, 500);
         }
 
-        // ============================================================================
-        // 🆕 FUNCIÓN: Filtrar eventos por tipo
-        // ============================================================================
         function filtrarEventosPorTipo(tipo) {
-            console.log('Filtrando por tipo:', tipo);
-            console.log('Eventos disponibles:', eventosDetallados);
-            
             const nombreTipo = obtenerNombreTipo(tipo);
-            const eventosFiltrados = eventosDetallados.filter(e => {
-                console.log('Comparando:', e.TipoEvento, 'con', tipo);
-                return e.TipoEvento === tipo;
-            });
+            const eventosFiltrados = eventosDetallados.filter(e => e.TipoEvento === tipo);
             
-            console.log('Eventos filtrados:', eventosFiltrados);
-            
-            // Mostrar badge de filtro activo
             $('#filtro-activo-badge').text(`Filtro: ${nombreTipo}`).show();
             
             if (eventosFiltrados.length === 0) {
@@ -1132,24 +1383,14 @@
             }
             
             mostrarEventosDetallados(eventosFiltrados);
-            
-            // Agregar botón para limpiar filtro
             agregarBotonLimpiarFiltro();
             
-            // Scroll a la tabla
             $('html, body').animate({
                 scrollTop: $("#eventos-table").offset().top - 100
             }, 500);
         }
 
-        // ============================================================================
-        // 🆕 FUNCIÓN: Filtrar eventos por mes
-        // ============================================================================
         function filtrarEventosPorMes(mes) {
-            console.log('Filtrando por mes:', mes);
-            console.log('Eventos disponibles:', eventosDetallados);
-            
-            // mes viene en formato "YYYY-MM"
             const [year, month] = mes.split('-');
             
             const eventosFiltrados = eventosDetallados.filter(e => {
@@ -1157,19 +1398,13 @@
                 const yearEvento = fechaEvento.getFullYear();
                 const monthEvento = String(fechaEvento.getMonth() + 1).padStart(2, '0');
                 
-                console.log(`Comparando: ${yearEvento}-${monthEvento} con ${year}-${month}`);
-                
                 return yearEvento == year && monthEvento == month;
             });
             
-            console.log('Eventos filtrados:', eventosFiltrados);
-            
-            // Formatear nombre del mes para mostrar
             const fecha = new Date(year, month - 1);
             const nombreMes = fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
             const nombreMesCapitalizado = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
             
-            // Mostrar badge de filtro activo
             $('#filtro-activo-badge').text(`Filtro: ${nombreMesCapitalizado}`).show();
             
             if (eventosFiltrados.length === 0) {
@@ -1179,21 +1414,14 @@
             }
             
             mostrarEventosDetallados(eventosFiltrados);
-            
-            // Agregar botón para limpiar filtro
             agregarBotonLimpiarFiltro();
             
-            // Scroll a la tabla
             $('html, body').animate({
                 scrollTop: $("#eventos-table").offset().top - 100
             }, 500);
         }
 
-        // ============================================================================
-        // 🆕 FUNCIÓN: Agregar botón para limpiar filtro
-        // ============================================================================
         function agregarBotonLimpiarFiltro() {
-            // Verificar si ya existe el botón
             if ($('#btn-limpiar-filtro').length === 0) {
                 const boton = `
                     <button id="btn-limpiar-filtro" class="btn btn-sm btn-warning ms-2" onclick="limpiarFiltro()">
@@ -1204,9 +1432,6 @@
             }
         }
 
-        // ============================================================================
-        // 🆕 FUNCIÓN: Limpiar filtro y mostrar todos los eventos
-        // ============================================================================
         function limpiarFiltro() {
             mostrarEventosDetallados(eventosDetallados);
             $('#btn-limpiar-filtro').remove();
@@ -1215,22 +1440,20 @@
         }
 
         // ============================================================================
-        // ✅ FUNCIÓN: Ver detalle de un evento
+        // FUNCIONES AUXILIARES
         // ============================================================================
         function verDetalleEvento(eventoId) {
             $.ajax({
                 url: `/api/calendario/reportes/evento/${eventoId}`,
                 method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                 success: function(response) {
                     if (response.success) {
                         mostrarModalDetalle(response.reporte);
                     }
                 },
-                error: function(xhr, status, error) {
-                    console.error('Error al cargar detalle:', error);
+                error: function(xhr) {
+                    console.error('Error al cargar detalle:', xhr);
                     showToast('Error al cargar detalle del evento', 'error');
                 }
             });
@@ -1238,7 +1461,6 @@
 
         function mostrarModalDetalle(reporte) {
             let porcentaje = parseFloat(reporte.PorcentajeAsistencia) || 0;
-            if (isNaN(porcentaje)) porcentaje = 0;
             
             Swal.fire({
                 title: reporte.TituloEvento,
@@ -1263,51 +1485,6 @@
             });
         }
 
-        // ============================================================================
-        // ✅ FUNCIÓN: Exportar tabla a CSV
-        // ============================================================================
-        function exportarTablaCSV() {
-            if (eventosDetallados.length === 0) {
-                showToast('No hay datos para exportar', 'warning');
-                return;
-            }
-
-            const headers = ['Título', 'Tipo', 'Estado', 'Fecha', 'Asistencias', 'Porcentaje'];
-            const rows = eventosDetallados.map(evento => [
-                evento.TituloEvento,
-                obtenerNombreTipo(evento.TipoEvento),
-                obtenerNombreEstado(evento.EstadoEvento),
-                new Date(evento.FechaInicio).toLocaleDateString('es-ES'),
-                evento.TotalAsistencias || 0,
-                (evento.PorcentajeAsistencia || 0).toFixed(2) + '%'
-            ]);
-
-            const csvContent = [headers, ...rows]
-                .map(row => row.map(field => `"${field}"`).join(','))
-                .join('\n');
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `reporte_eventos_${new Date().toISOString().split('T')[0]}.csv`;
-            link.click();
-
-            showToast('CSV exportado correctamente', 'success');
-        }
-
-        // ============================================================================
-        // ✅ FUNCIÓN: Exportar reporte completo
-        // ============================================================================
-        function exportarReporte() {
-            showToast('Generando reporte PDF...', 'info');
-            // Aquí puedes implementar la generación de PDF con una librería como jsPDF
-            // Por ahora, exportamos como CSV
-            exportarTablaCSV();
-        }
-
-        // ============================================================================
-        // FUNCIONES AUXILIARES
-        // ============================================================================
         function refreshData() {
             showToast('Actualizando datos...', 'info');
             cargarDatos();

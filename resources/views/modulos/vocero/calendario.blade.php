@@ -34,7 +34,6 @@
             overflow: hidden;
         }
         
-        /* AJUSTES CLAVE PARA LA VISTA SIN X-APP-LAYOUT */
         .sidebar-vocero {
             background: var(--sidebar-bg);
             width: 200px;
@@ -224,95 +223,90 @@
             transform: translateY(0);
         }
 
-        /* FullCalendar Custom Styles */
+        /* 🆕 MEJORA: Eventos con título arriba y hora abajo */
         .fc-event {
             white-space: normal !important;
             overflow: visible !important;
-            text-overflow: initial !important;
             height: auto !important;
-            min-height: 30px !important;
+            min-height: 40px !important;
             padding: 6px 8px !important;
-            font-size: 11px !important;
+            font-size: 10px !important;
             line-height: 1.3 !important;
-            border-radius: 8px !important;
-            margin: 2px 0 !important;
+            border-radius: 6px !important;
+            margin: 2px !important;
             border: none !important;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: eventFadeIn 0.4s ease-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
         }
 
-        @keyframes eventFadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
         .fc-event:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             z-index: 10;
         }
 
         .fc-event-main {
             white-space: normal !important;
             overflow: visible !important;
-            padding: 2px 4px !important;
+            padding: 0 !important;
         }
 
         .fc-event-title {
             white-space: normal !important;
             overflow: visible !important;
-            text-overflow: initial !important;
             word-wrap: break-word !important;
-            line-height: 1.1 !important;
-            font-weight: 500 !important;
-            font-size: 10px !important;
-        }
-
-        .fc-event-title a {
-            color: white !important;
-            text-decoration: underline !important;
-            font-size: 9px !important;
-            transition: all 0.2s ease;
-        }
-
-        .fc-event-title a:hover {
-            color: #ffff99 !important;
-            text-decoration: none !important;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1px 3px;
-            border-radius: 3px;
+            font-weight: 600 !important;
+            font-size: 11px !important;
+            line-height: 1.3 !important;
         }
 
         .fc-event-time {
-            display: block !important;
-            font-size: 9px !important;
-            font-weight: normal !important;
-            white-space: nowrap !important;
-            opacity: 0.9;
+            display: none !important;
+        }
+
+        /* 🆕 Indicador de múltiples eventos */
+        .fc-daygrid-day-bottom {
+            font-size: 10px;
+            text-align: center;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .more-events-indicator {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: white;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 9px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 2px auto;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+        }
+
+        .more-events-indicator:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
         }
 
         .fc-daygrid-day-frame {
-            min-height: 90px !important;
+            min-height: 110px !important;
             transition: all 0.3s ease;
             border-radius: 4px;
+            cursor: pointer;
         }
 
         .fc-daygrid-day-frame:hover {
             background: rgba(37, 99, 235, 0.03);
-            transform: scale(1.01);
         }
 
         .fc-daygrid-day-number {
             transition: all 0.3s ease;
             font-weight: 600 !important;
+            cursor: pointer;
         }
 
         .fc-day-today .fc-daygrid-day-frame {
@@ -333,20 +327,6 @@
             font-weight: 700 !important;
         }
 
-        .fc-daygrid-event {
-            margin: 2px 0 !important;
-            white-space: normal !important;
-        }
-
-        .fc-daygrid-event-harness {
-            position: relative !important;
-        }
-
-        .fc-timegrid-event {
-            white-space: normal !important;
-        }
-
-        /* Estilo para los encabezados de días de la semana */
         .fc-col-header-cell {
             background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
             border: none !important;
@@ -403,6 +383,259 @@
             border-bottom: 1px solid #e5e7eb;
         }
 
+        .validation-message {
+            font-size: 0.875rem;
+            color: #dc2626;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .validation-message.show {
+            display: block;
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc2626 !important;
+            background-image: none !important;
+        }
+
+        /* 🆕 ESTILOS MEJORADOS PARA MODAL DE SELECCIÓN DE EVENTOS */
+        .event-list-item {
+            padding: 16px;
+            border-left: 5px solid;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .event-list-item:hover {
+            background: #f8fafc;
+            transform: translateX(8px) scale(1.02);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-color: currentColor;
+        }
+
+        .event-list-item .event-time {
+            font-weight: 700;
+            color: #1e293b;
+            min-width: 130px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+
+        .event-list-item .event-time .time-range {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .event-list-item .event-time .duration {
+            font-size: 10px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .event-list-item .event-info {
+            flex-grow: 1;
+        }
+
+        .event-list-item .event-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: #0f172a;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .event-list-item .event-title .event-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .event-list-item .event-details {
+            font-size: 12px;
+            color: #64748b;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .event-list-item .event-details > span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .event-list-item .event-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .event-list-item .chevron-icon {
+            color: #cbd5e1;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        .event-list-item:hover .chevron-icon {
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        /* Colores por tipo de evento */
+        .event-list-item.reunion-virtual {
+            border-left-color: #3b82f6;
+        }
+
+        .event-list-item.reunion-virtual .event-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .event-list-item.reunion-presencial {
+            border-left-color: #10b981;
+        }
+
+        .event-list-item.reunion-presencial .event-icon {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .event-list-item.inicio-proyecto {
+            border-left-color: #f59e0b;
+        }
+
+        .event-list-item.inicio-proyecto .event-icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .event-list-item.finalizar-proyecto {
+            border-left-color: #ef4444;
+        }
+
+        .event-list-item.finalizar-proyecto .event-icon {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* Badges de estado */
+        .badge-programado {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-en-curso {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-finalizado {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .events-selector-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px 12px 0 0;
+            margin: -16px -16px 24px -16px;
+        }
+
+        .events-selector-header h5 {
+            margin: 0 0 8px 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .events-selector-header p {
+            margin: 0;
+            opacity: 0.95;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .events-selector-header .date-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        .no-events-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .no-events-message i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #cbd5e1;
+        }
+
+        .no-events-message h5 {
+            color: #475569;
+            margin-bottom: 10px;
+        }
+
+        /* 🆕 Animación para la lista de eventos */
+        @keyframes slideInList {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .event-list-item {
+            animation: slideInList 0.3s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .event-list-item:nth-child(1) { animation-delay: 0.05s; }
+        .event-list-item:nth-child(2) { animation-delay: 0.1s; }
+        .event-list-item:nth-child(3) { animation-delay: 0.15s; }
+        .event-list-item:nth-child(4) { animation-delay: 0.2s; }
+        .event-list-item:nth-child(5) { animation-delay: 0.25s; }
+
         /* Media Query para móviles */
         @media (max-width: 768px) {
             .sidebar-vocero { 
@@ -416,12 +649,46 @@
                 padding-top: 0; 
                 width: 100%; 
             }
+            
+            .event-list-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .event-list-item .event-time {
+                width: 100%;
+            }
+        }
+
+        /* 🆕 Scroll suave en lista de eventos */
+        #events-list-container {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        #events-list-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #events-list-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        #events-list-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        #events-list-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
 </head>
 <body>
     <div class="d-flex">
-        {{-- ⭐ 1. MENÚ LATERAL (SIDEBAR) ⭐ --}}
+        {{-- MENÚ LATERAL (SIDEBAR) --}}
         <div class="sidebar-vocero">
             <div class="sidebar-brand">
                 <h4><i class="fas fa-calendar-alt text-primary"></i> Vocero</h4>
@@ -451,7 +718,7 @@
             </nav>
         </div>
 
-        {{-- ⭐ 2. CONTENIDO PRINCIPAL ⭐ --}}
+        {{-- CONTENIDO PRINCIPAL --}}
         <div class="main-content-vocero">
             <div class="content-wrapper">
                 <div class="header-section d-flex justify-content-between align-items-center">
@@ -489,6 +756,10 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Título del Evento *</label>
                                 <input type="text" class="form-control" id="titulo" required>
+                                <div id="titulo-validation-message" class="validation-message">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    No se permite la misma letra más de 3 veces consecutivas
+                                </div>
                             </div>
                             
                             <div class="col-md-6 mb-3">
@@ -563,19 +834,46 @@
         </div>
     </div>
 
+    {{-- 🆕 MODAL MEJORADO PARA SELECCIONAR EVENTO DEL DÍA --}}
+    <div class="modal fade" id="eventSelectorModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="events-selector-header">
+                        <h5>
+                            <i class="fas fa-calendar-day"></i>
+                            Eventos del Día
+                        </h5>
+                        <p id="selected-date-display"></p>
+                    </div>
+                    <div id="events-list-container">
+                        <!-- Los eventos se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cerrar
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="showCreateEventFromSelector()">
+                        <i class="fas fa-plus me-2"></i>Crear Nuevo Evento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/index.global.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
 
     <script>
-        // ============================================================================
-        // 🔄 CÓDIGO MODIFICADO - CONECTADO A BASE DE DATOS
-        // ============================================================================
-        
         let calendar;
         let eventModal;
+        let eventSelectorModal;
         let selectedDatesInfo = null;
+        let originalEventDates = null;
+        let selectedDateForSelector = null;
 
         const colores = {
             'reunion-virtual': '#3b82f6',
@@ -584,11 +882,42 @@
             'finalizar-proyecto': '#ef4444'
         };
 
+        const iconosPorTipo = {
+            'reunion-virtual': 'fa-video',
+            'reunion-presencial': 'fa-users',
+            'inicio-proyecto': 'fa-rocket',
+            'finalizar-proyecto': 'fa-flag-checkered'
+        };
+
         $(document).ready(function() {
             initializeCalendar();
             initializeEventModal();
-            cargarMiembros(); // 🆕 CARGAR MIEMBROS AL INICIO
+            initializeEventSelectorModal();
+            cargarMiembros();
+            initializeTituloValidation();
         });
+
+        function initializeTituloValidation() {
+            const tituloInput = $('#titulo');
+            const validationMessage = $('#titulo-validation-message');
+            
+            tituloInput.on('input', function() {
+                const value = $(this).val();
+                
+                if (tieneLetrasConsecutivasExcesivas(value)) {
+                    $(this).addClass('is-invalid');
+                    validationMessage.addClass('show');
+                } else {
+                    $(this).removeClass('is-invalid');
+                    validationMessage.removeClass('show');
+                }
+            });
+        }
+
+        function tieneLetrasConsecutivasExcesivas(texto) {
+            const patron = /(.)\1{3,}/i;
+            return patron.test(texto);
+        }
 
         function initializeCalendar() {
             const calendarEl = document.getElementById('calendar');
@@ -608,12 +937,11 @@
                     day: 'Día'
                 },
                 editable: true,
-                selectable: true,
-                selectMirror: true,
-                dayMaxEvents: true,
+                selectable: false,
+                selectMirror: false,
+                dayMaxEvents: 2, // 🆕 Mostrar máximo 2 eventos, luego "+X más"
                 height: '100%',
                 
-                // ✅ CAMBIO: Cargar eventos desde el servidor
                 events: function(info, successCallback, failureCallback) {
                     $.ajax({
                         url: '/api/calendario/eventos',
@@ -632,39 +960,81 @@
                     });
                 },
                 
-                select: function(info) {
-                    showCreateEventModal(info);
+                // 🆕 MEJORADO: Click en día ahora siempre muestra el selector
+                dateClick: function(info) {
+                    const eventosDelDia = calendar.getEvents().filter(event => {
+                        const eventDate = new Date(event.start).toDateString();
+                        const clickedDate = new Date(info.date).toDateString();
+                        return eventDate === clickedDate;
+                    });
+                    
+                    // Siempre mostrar el selector, incluso si no hay eventos
+                    showEventSelector(info.date, eventosDelDia);
                 },
                 
+                // 🆕 MEJORADO: Click en evento individual
                 eventClick: function(info) {
-                    editEvent(info);
+                    info.jsEvent.stopPropagation();
+                    
+                    // Obtener todos los eventos del mismo día
+                    const eventosDelDia = calendar.getEvents().filter(event => {
+                        const eventDate = new Date(event.start).toDateString();
+                        const clickedDate = new Date(info.event.start).toDateString();
+                        return eventDate === clickedDate;
+                    });
+                    
+                    // Si hay más de 1 evento en el día, mostrar selector
+                    if (eventosDelDia.length > 1) {
+                        showEventSelector(info.event.start, eventosDelDia);
+                    } else {
+                        // Si es el único, abrirlo directamente
+                        editEvent(info);
+                    }
                 },
                 
-                // ✅ CAMBIO: Actualizar fechas en el servidor al arrastrar
+                // 🆕 MEJORADO: Click en "+X más"
+                moreLinkClick: function(info) {
+                    info.jsEvent.stopPropagation();
+                    showEventSelector(info.date, info.allSegs.map(seg => seg.event));
+                    return 'popover'; // No usar el comportamiento por defecto
+                },
+                
                 eventDrop: function(info) {
                     updateEventDates(info);
                 },
                 
-                // ✅ CAMBIO: Actualizar fechas en el servidor al redimensionar
                 eventResize: function(info) {
                     updateEventDates(info);
                 },
                 
+                // 🆕 Texto personalizado para "+X más"
+                moreLinkText: function(num) {
+                    return `+${num} más`;
+                },
+                
+                // 🆕 Contenido mejorado: título arriba, hora abajo
                 eventContent: function(arg) {
-                    const props = arg.event.extendedProps;
-                    let enlaceHTML = '';
+                    const horaInicio = new Date(arg.event.start).toLocaleTimeString('es-ES', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
                     
-                    if (props.detalles && props.detalles.enlace) {
-                        enlaceHTML = `<a href="${props.detalles.enlace}" target="_blank" onclick="event.stopPropagation();" style="color: white; text-decoration: underline; font-size: 9px;">🔗 Unirse</a>`;
-                    }
+                    const horaFin = arg.event.end ? new Date(arg.event.end).toLocaleTimeString('es-ES', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    }) : '';
+                    
+                    const rangoHoras = horaFin ? `${horaInicio} - ${horaFin}` : horaInicio;
                     
                     return {
                         html: `
-                            <div style="padding: 2px 4px; overflow: visible; white-space: normal;">
-                                <div style="font-weight: 500; font-size: 10px; line-height: 1.2; word-wrap: break-word;">
+                            <div style="padding: 3px 5px; overflow: hidden; line-height: 1.2;">
+                                <div style="font-weight: 600; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;">
                                     ${arg.event.title}
                                 </div>
-                                ${enlaceHTML}
+                                <div style="font-size: 9px; opacity: 0.9; font-weight: 500;">
+                                    ${rangoHoras}
+                                </div>
                             </div>
                         `
                     };
@@ -701,9 +1071,135 @@
             });
         }
 
-        // ============================================================================
-        // 🆕 FUNCIÓN PARA CARGAR MIEMBROS
-        // ============================================================================
+        function initializeEventSelectorModal() {
+            eventSelectorModal = new bootstrap.Modal(document.getElementById('eventSelectorModal'));
+        }
+
+        // 🆕 FUNCIÓN MEJORADA: Mostrar selector con mejor formato
+        function showEventSelector(date, eventos) {
+            selectedDateForSelector = date;
+            
+            // Formatear fecha
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const fechaFormateada = date.toLocaleDateString('es-ES', options);
+            const fechaCapitalizada = fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1);
+            
+            $('#selected-date-display').html(`
+                ${fechaCapitalizada}
+                <span class="date-badge">${eventos.length} evento${eventos.length !== 1 ? 's' : ''}</span>
+            `);
+            
+            let eventosHTML = '';
+            
+            if (eventos.length === 0) {
+                eventosHTML = `
+                    <div class="no-events-message">
+                        <i class="fas fa-calendar-times"></i>
+                        <h5>No hay eventos programados</h5>
+                        <p>Haz clic en "Crear Nuevo Evento" para agregar uno</p>
+                    </div>
+                `;
+            } else {
+                // Ordenar por hora
+                eventos.sort((a, b) => new Date(a.start) - new Date(b.start));
+                
+                eventos.forEach(evento => {
+                    const props = evento.extendedProps || {};
+                    const tipo = props.tipo_evento || 'reunion-virtual';
+                    const estado = props.estado || 'programado';
+                    const detalles = props.detalles || {};
+                    
+                    // Calcular duración
+                    const horaInicio = new Date(evento.start);
+                    const horaFin = evento.end ? new Date(evento.end) : new Date(horaInicio.getTime() + 60*60*1000);
+                    const duracionMinutos = Math.round((horaFin - horaInicio) / 60000);
+                    const duracionTexto = duracionMinutos >= 60 
+                        ? `${Math.floor(duracionMinutos / 60)}h ${duracionMinutos % 60}m`
+                        : `${duracionMinutos}m`;
+                    
+                    const horaInicioStr = horaInicio.toLocaleTimeString('es-ES', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                    const horaFinStr = horaFin.toLocaleTimeString('es-ES', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                    
+                    const tipoNombres = {
+                        'reunion-virtual': 'Reunión Virtual',
+                        'reunion-presencial': 'Reunión Presencial',
+                        'inicio-proyecto': 'Inicio de Proyecto',
+                        'finalizar-proyecto': 'Finalización de Proyecto'
+                    };
+                    
+                    const estadoBadges = {
+                        'programado': '<span class="event-badge badge-programado"><i class="fas fa-clock"></i> Programado</span>',
+                        'en-curso': '<span class="event-badge badge-en-curso"><i class="fas fa-play-circle"></i> En Curso</span>',
+                        'finalizado': '<span class="event-badge badge-finalizado"><i class="fas fa-check-circle"></i> Finalizado</span>'
+                    };
+                    
+                    const organizador = detalles.organizador || 'Sin organizador';
+                    const icono = iconosPorTipo[tipo] || 'fa-calendar';
+                    
+                    eventosHTML += `
+                        <div class="event-list-item ${tipo}" onclick="selectEventFromList('${evento.id}')">
+                            <div class="event-time">
+                                <div class="time-range">
+                                    <i class="fas fa-clock"></i>
+                                    ${horaInicioStr} - ${horaFinStr}
+                                </div>
+                                <div class="duration">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    ${duracionTexto}
+                                </div>
+                            </div>
+                            <div class="event-info">
+                                <div class="event-title">
+                                    <div class="event-icon">
+                                        <i class="fas ${icono}"></i>
+                                    </div>
+                                    ${evento.title}
+                                </div>
+                                <div class="event-details">
+                                    <span><i class="fas fa-tag"></i> ${tipoNombres[tipo] || tipo}</span>
+                                    <span><i class="fas fa-user"></i> ${organizador}</span>
+                                    ${estadoBadges[estado] || ''}
+                                </div>
+                            </div>
+                            <div>
+                                <i class="fas fa-chevron-right chevron-icon"></i>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            $('#events-list-container').html(eventosHTML);
+            eventSelectorModal.show();
+        }
+
+        function selectEventFromList(eventId) {
+            const evento = calendar.getEventById(eventId);
+            if (evento) {
+                eventSelectorModal.hide();
+                setTimeout(() => {
+                    editEvent({ event: evento });
+                }, 300);
+            }
+        }
+
+        function showCreateEventFromSelector() {
+            eventSelectorModal.hide();
+            setTimeout(() => {
+                const dateStr = selectedDateForSelector.toISOString().split('T')[0];
+                showCreateEventModal({
+                    startStr: dateStr + 'T09:00',
+                    endStr: dateStr + 'T10:00'
+                });
+            }, 300);
+        }
+
         function cargarMiembros() {
             $.ajax({
                 url: '/api/calendario/miembros',
@@ -718,7 +1214,6 @@
                         select.append('<option value="">Seleccione un organizador...</option>');
                         
                         response.miembros.forEach(function(miembro) {
-                            // Mostrar: Nombre - Rol
                             const nombreCompleto = `${miembro.Nombre} - ${miembro.Rol}`;
                             select.append(`<option value="${miembro.MiembroID}">${nombreCompleto}</option>`);
                         });
@@ -738,6 +1233,10 @@
             $('#eliminarBtn').hide();
             $('#virtualFields, #presencialFields, #proyectoFields').hide();
             
+            $('#titulo').removeClass('is-invalid');
+            $('#titulo-validation-message').removeClass('show');
+            
+            originalEventDates = null;
             $('#estado').val('programado');
             
             if (info) {
@@ -756,20 +1255,29 @@
             $('#eventoForm')[0].reset();
             $('#eliminarBtn').show();
             
+            $('#titulo').removeClass('is-invalid');
+            $('#titulo-validation-message').removeClass('show');
+            
             $('#eventoId').val(info.event.id);
             $('#titulo').val(info.event.title);
-            $('#fecha_inicio').val(new Date(info.event.start).toISOString().slice(0, 16));
             
-            if (info.event.end) {
-                $('#fecha_fin').val(new Date(info.event.end).toISOString().slice(0, 16));
-            }
+            const fechaInicioOriginal = new Date(info.event.start).toISOString().slice(0, 16);
+            const fechaFinOriginal = info.event.end ? new Date(info.event.end).toISOString().slice(0, 16) : fechaInicioOriginal;
+            
+            $('#fecha_inicio').val(fechaInicioOriginal);
+            $('#fecha_fin').val(fechaFinOriginal);
+            
+            originalEventDates = {
+                inicio: fechaInicioOriginal,
+                fin: fechaFinOriginal
+            };
 
             const props = info.event.extendedProps;
             
             if (props) {
                 $('#tipoEvento').val(props.tipo_evento || '');
                 $('#estado').val(props.estado || 'programado');
-                $('#organizador_id').val(props.organizador_id || ''); // 🆕 USA EL SELECT
+                $('#organizador_id').val(props.organizador_id || '');
             }
             
             $('#tipoEvento').trigger('change');
@@ -784,12 +1292,17 @@
             eventModal.show();
         }
 
-        // ============================================================================
-        // ✅ FUNCIÓN MODIFICADA: Guardar evento en la base de datos
-        // ============================================================================
+        // 🆕 FUNCIÓN MEJORADA: Actualización optimizada sin mover otros eventos
         function saveEvent() {
-            // Validaciones
-            if (!$('#titulo').val().trim() || !$('#organizador_id').val()) { // 🆕 VALIDACIÓN ACTUALIZADA
+            const titulo = $('#titulo').val().trim();
+            if (tieneLetrasConsecutivasExcesivas(titulo)) {
+                $('#titulo').addClass('is-invalid');
+                $('#titulo-validation-message').addClass('show');
+                showToast('El título no puede tener la misma letra más de 3 veces consecutivas', 'error');
+                return;
+            }
+            
+            if (!titulo || !$('#organizador_id').val()) {
                 showToast('Todos los campos obligatorios son requeridos', 'error');
                 return;
             }
@@ -807,7 +1320,6 @@
             const id = $('#eventoId').val();
             const isEdit = Boolean(id);
             
-            // 🆕 Preparar datos del evento CON ID DE ORGANIZADOR
             const tipo = $('#tipoEvento').val();
             const organizadorId = $('#organizador_id').val();
             const organizadorNombre = $('#organizador_id option:selected').text();
@@ -825,25 +1337,23 @@
             }
             
             const eventData = {
-                titulo: $('#titulo').val().trim(),
-                descripcion: $('#titulo').val().trim(),
+                titulo: titulo,
+                descripcion: titulo,
                 tipo_evento: tipo,
                 estado: $('#estado').val(),
                 fecha_inicio: $('#fecha_inicio').val(),
                 fecha_fin: $('#fecha_fin').val(),
-                organizador_id: organizadorId ? parseInt(organizadorId) : null, // 🆕 ENVÍA EL ID
+                organizador_id: organizadorId ? parseInt(organizadorId) : null,
                 proyecto_id: null,
                 detalles: detalles
             };
             
-            // Determinar URL y método
             const url = isEdit 
                 ? `/api/calendario/eventos/${id}`
                 : '/api/calendario/eventos';
             
             const method = isEdit ? 'PUT' : 'POST';
             
-            // ✅ CAMBIO: Enviar al servidor en lugar de localStorage
             $.ajax({
                 url: url,
                 method: method,
@@ -854,7 +1364,36 @@
                 data: JSON.stringify(eventData),
                 success: function(response) {
                     if (response.success) {
-                        calendar.refetchEvents();
+                        if (isEdit) {
+                            const evento = calendar.getEventById(id);
+                            if (evento) {
+                                const fechaInicioActual = $('#fecha_inicio').val();
+                                const fechaFinActual = $('#fecha_fin').val();
+                                const fechasCambiaron = originalEventDates && 
+                                    (fechaInicioActual !== originalEventDates.inicio || 
+                                     fechaFinActual !== originalEventDates.fin);
+                                
+                                // Actualizar propiedades del evento
+                                evento.setProp('title', titulo);
+                                evento.setExtendedProp('tipo_evento', tipo);
+                                evento.setExtendedProp('estado', $('#estado').val());
+                                evento.setExtendedProp('organizador_id', organizadorId);
+                                evento.setExtendedProp('detalles', detalles);
+                                
+                                const nuevoColor = colores[tipo] || '#3b82f6';
+                                evento.setProp('backgroundColor', nuevoColor);
+                                evento.setProp('borderColor', nuevoColor);
+                                
+                                // Solo actualizar fechas si cambiaron
+                                if (fechasCambiaron) {
+                                    evento.setStart(fechaInicioActual);
+                                    evento.setEnd(fechaFinActual);
+                                }
+                            }
+                        } else {
+                            calendar.refetchEvents();
+                        }
+                        
                         eventModal.hide();
                         showToast(isEdit ? 'Evento actualizado exitosamente' : 'Evento creado exitosamente', 'success');
                     } else {
@@ -869,9 +1408,6 @@
             });
         }
 
-        // ============================================================================
-        // ✅ FUNCIÓN MODIFICADA: Eliminar evento de la base de datos
-        // ============================================================================
         function deleteEvent() {
             const id = $('#eventoId').val();
             
@@ -886,7 +1422,6 @@
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // ✅ CAMBIO: Eliminar del servidor en lugar de localStorage
                     $.ajax({
                         url: `/api/calendario/eventos/${id}`,
                         method: 'DELETE',
@@ -912,16 +1447,12 @@
             });
         }
 
-        // ============================================================================
-        // ✅ FUNCIÓN MODIFICADA: Actualizar fechas en la base de datos
-        // ============================================================================
         function updateEventDates(info) {
             const eventData = {
                 fecha_inicio: info.event.start.toISOString(),
                 fecha_fin: info.event.end ? info.event.end.toISOString() : info.event.start.toISOString()
             };
             
-            // ✅ CAMBIO: Actualizar en el servidor en lugar de localStorage
             $.ajax({
                 url: `/api/calendario/eventos/${info.event.id}/fechas`,
                 method: 'PATCH',

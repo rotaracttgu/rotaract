@@ -16,6 +16,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
+        <!-- Estilos personalizados de las vistas -->
         @stack('styles')
     </head>
     <body class="font-sans antialiased">
@@ -41,6 +42,9 @@
         
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        @yield('scripts') <!-- Añadido o corregido -->
+        @yield('scripts')
+        
+        <!-- Scripts personalizados de las vistas -->
+        @stack('scripts')
     </body>
 </html>

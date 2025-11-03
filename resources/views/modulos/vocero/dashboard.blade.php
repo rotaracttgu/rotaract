@@ -6,7 +6,7 @@
     {{-- ***************************************************************** --}}
     
     <style>
-        /* Variables de colores (copiadas de tu código original) */
+        /* Variables de colores */
         :root {
             --primary-color: #2563eb;
             --secondary-color: #64748b;
@@ -18,7 +18,7 @@
             --sidebar-text: #e2e8f0;
         }
         
-        /* Estilos base (copiados de tu código original) */
+        /* Estilos base */
         body {
             background-color: #f8fafc;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -35,30 +35,27 @@
             top: 0; 
             z-index: 20; 
             height: 100vh;
-            /* Desplaza el contenido del sidebar para que no quede debajo de la navbar de Breeze (aprox 64px) */
             padding-top: 64px; 
             transition: all 0.3s ease;
         }
         
-        /* AJUSTE CLAVE 2: Modifica la barra de navegación de Breeze para que empiece a la derecha del menú */
+        /* AJUSTE CLAVE 2: Modifica la barra de navegación de Breeze */
         nav.bg-white {
             margin-left: 250px; 
             width: calc(100% - 250px);
             z-index: 30; 
         }
         
-        /* AJUSTE CLAVE 3: Estilos del contenido principal (Main Content) */
+        /* AJUSTE CLAVE 3: Estilos del contenido principal */
         .main-content-vocero {
-            /* Desplaza todo el contenido para que empiece después del menú de 250px */
             margin-left: 250px; 
             min-height: 100vh;
             padding: 0;
             flex-grow: 1;
-            /* Desplaza todo el contenido hacia abajo para que empiece debajo de la navbar de Breeze */
             padding-top: 64px; 
         }
 
-        /* Estilos internos del sidebar (Brand y Navegación) */
+        /* Estilos internos del sidebar */
         .sidebar-brand {
             padding: 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -194,7 +191,7 @@
             background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
         }
 
-        /* Resto de estilos... */
+        /* Resto de estilos */
         .badge { font-weight: 500; border-radius: 6px; padding: 6px 12px; }
         .table th { background: #f8fafc; border: none; color: var(--secondary-color); font-weight: 600; padding: 15px; }
         .table td { padding: 15px; vertical-align: middle; }
@@ -210,6 +207,13 @@
 
         .stats-card, .card {
             animation: fadeIn 0.5s ease-out;
+        }
+
+        /* 🆕 OCULTAR BOTÓN "PANEL" DEL HEADER DE BREEZE */
+        nav.bg-white a[href*="panel"], 
+        nav.bg-white button:contains("Panel"),
+        nav.bg-white .hidden.space-x-8 a:first-child {
+            display: none !important;
         }
 
         /* Media Query: Importante para móviles */
@@ -324,7 +328,7 @@
                                         <th>Fecha</th>
                                         <th>Tipo</th>
                                         <th>Estado</th>
-                                        <th>Organizador</th>
+                                        <th>Encargado</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -360,7 +364,29 @@
 
             $(document).ready(function() {
                 loadDashboard();
+                ocultarBotonPanel();
             });
+
+            // ============================================================================
+            // 🆕 FUNCIÓN: Ocultar botón "Panel" del header
+            // ============================================================================
+            function ocultarBotonPanel() {
+                // Intentar múltiples selectores para encontrar y ocultar el botón "Panel"
+                setTimeout(function() {
+                    // Buscar por texto
+                    $('nav.bg-white a').each(function() {
+                        if ($(this).text().trim().toLowerCase() === 'panel') {
+                            $(this).hide();
+                        }
+                    });
+                    
+                    // Buscar por href que contenga "panel"
+                    $('nav.bg-white a[href*="panel"]').hide();
+                    
+                    // Buscar el primer link en el nav (generalmente es Dashboard/Panel)
+                    $('nav.bg-white .hidden.space-x-8 > a:first-child').hide();
+                }, 100);
+            }
 
             // ============================================================================
             // 🔄 FUNCIÓN: Cargar dashboard desde la BD
@@ -392,7 +418,6 @@
             // ============================================================================
             function updateDashboardStats(stats) {
                 $('#total-eventos').text(stats.TotalEventos || 0);
-                // No actualizamos eventos-proximos aquí, lo haremos después del filtro
                 $('#eventos-finalizados').text(stats.TotalFinalizados || 0);
             }
 
@@ -426,29 +451,26 @@
                             return;
                         }
 
-                        // 🔥 GUARDAR TODOS LOS EVENTOS en la variable global
+                        // Guardar todos los eventos
                         eventsData = response.eventos;
-                        console.log('Total eventos cargados:', eventsData.length);
                         
-                        // 🔥 Contar asistencias presentes
+                        // Contar asistencias presentes
                         const totalAsistenciasPresentes = response.eventos.reduce((sum, evento) => {
                             return sum + (parseInt(evento.TotalPresentes) || 0);
                         }, 0);
                         
-                        console.log('Total Asistencias Presentes:', totalAsistenciasPresentes);
                         $('#total-asistencias').text(totalAsistenciasPresentes);
 
-                        // 🔥 Calcular eventos próximos REALES (fecha futura + Programado)
+                        // Calcular eventos próximos
                         const now = new Date();
                         const eventosProximosReales = eventsData.filter(event => {
                             const eventDate = new Date(event.FechaInicio);
                             return eventDate >= now && event.EstadoEvento === 'Programado';
                         }).length;
                         
-                        console.log('Eventos próximos calculados:', eventosProximosReales);
                         $('#eventos-proximos').text(eventosProximosReales);
 
-                        // 🔥 Mostrar eventos próximos por defecto
+                        // Mostrar eventos próximos por defecto
                         filtrarEventos('proximos');
                     },
                     error: function(xhr, status, error) {
@@ -481,50 +503,26 @@
             // 🆕 FUNCIÓN: Filtrar eventos según la tarjeta clickeada
             // ============================================================================
             function filtrarEventos(tipo) {
-                console.log('========================================');
-                console.log('🔍 FILTRANDO EVENTOS:', tipo);
-                console.log('📊 Total eventos disponibles:', eventsData.length);
-                console.log('========================================');
-                
                 const tbody = $('#proximos-eventos-table');
                 tbody.empty();
                 
                 let eventosFiltrados = [];
                 let tituloFiltro = '';
                 const now = new Date();
-                
-                console.log('📅 Fecha actual:', now);
 
                 switch(tipo) {
                     case 'todos':
                         eventosFiltrados = eventsData;
                         tituloFiltro = 'Todos los Eventos';
-                        console.log('✅ Mostrando TODOS los eventos');
                         break;
                         
                     case 'proximos':
-                        console.log('🔎 Filtrando eventos próximos...');
                         eventosFiltrados = eventsData.filter(event => {
                             const eventDate = new Date(event.FechaInicio);
-                            const esFuturo = eventDate >= now;
-                            const esProgramado = event.EstadoEvento === 'Programado';
-                            
-                            console.log(`📌 ${event.TituloEvento}:`, {
-                                fecha: event.FechaInicio,
-                                fechaParseada: eventDate,
-                                esFuturo: esFuturo,
-                                estado: event.EstadoEvento,
-                                esProgramado: esProgramado,
-                                cumpleCondicion: esFuturo && esProgramado
-                            });
-                            
-                            return esFuturo && esProgramado;
+                            return eventDate >= now && event.EstadoEvento === 'Programado';
                         });
                         tituloFiltro = 'Eventos Próximos (Programados)';
-                        
-                        // 🔥 ACTUALIZAR la tarjeta con el número REAL
                         $('#eventos-proximos').text(eventosFiltrados.length);
-                        console.log(`✅ Eventos filtrados: ${eventosFiltrados.length}`);
                         break;
                         
                     case 'finalizados':
@@ -532,10 +530,7 @@
                             return event.EstadoEvento === 'Finalizado';
                         });
                         tituloFiltro = 'Eventos Finalizados';
-                        
-                        // 🔥 ACTUALIZAR la tarjeta con el número REAL
                         $('#eventos-finalizados').text(eventosFiltrados.length);
-                        console.log(`✅ Eventos finalizados: ${eventosFiltrados.length}`);
                         break;
                         
                     default:
@@ -545,9 +540,6 @@
                         });
                         tituloFiltro = 'Eventos Próximos';
                 }
-
-                console.log('📋 Eventos después del filtro:', eventosFiltrados.length);
-                console.log('========================================');
 
                 // Ordenar por fecha
                 eventosFiltrados.sort((a, b) => new Date(a.FechaInicio) - new Date(b.FechaInicio));
@@ -576,9 +568,7 @@
                     return;
                 }
 
-                // Mostrar TODOS los eventos filtrados (sin límite)
-                console.log(`📊 Mostrando ${eventosFiltrados.length} eventos en la tabla`);
-                
+                // Mostrar eventos filtrados
                 eventosFiltrados.forEach(event => {
                     const fecha = formatDateTime(new Date(event.FechaInicio));
                     const tipo = getCategoryName(event.TipoEvento);
@@ -587,13 +577,31 @@
                     const estadoBadge = getStatusColor(event.EstadoEvento);
                     const totalRegistros = event.TotalRegistros || 0;
                     
+                    // Extraer nombre del organizador con validación estricta
+                    let organizadorNombre = 'No especificado';
+                    if (event.Organizador && typeof event.Organizador === 'string') {
+                        const orgCompleto = String(event.Organizador).trim();
+                        
+                        // 🔥 FILTRAR texto extraño específico
+                        if (orgCompleto.toLowerCase().includes('polarm') || 
+                            orgCompleto.toLowerCase().includes('intenso') ||
+                            orgCompleto.toLowerCase().includes('frecuente') ||
+                            orgCompleto.length > 100) {
+                            organizadorNombre = 'No especificado';
+                        } else if (orgCompleto.includes(' - ')) {
+                            organizadorNombre = orgCompleto.split(' - ')[0].trim();
+                        } else {
+                            organizadorNombre = orgCompleto;
+                        }
+                    }
+                    
                     tbody.append(`
                         <tr>
                             <td><strong>${event.TituloEvento}</strong></td>
                             <td>${fecha}</td>
                             <td><span class="badge bg-${tipoBadge}">${tipo}</span></td>
                             <td><span class="badge bg-${estadoBadge}">${estado}</span></td>
-                            <td>${event.Organizador || 'No especificado'}</td>
+                            <td>${organizadorNombre}</td>
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     <a href="{{ route('vocero.calendario') }}" class="btn btn-outline-primary" title="Ver en calendario">
