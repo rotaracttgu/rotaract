@@ -366,38 +366,38 @@ document.querySelectorAll('.btn-restaurar').forEach(function(btn) {
     });
 });
 
-    // ⭐ BOTONES ELIMINAR - MEJORADO
-    document.querySelectorAll('.btn-eliminar').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            if (!confirm('¿Estás seguro de eliminar este respaldo?')) return;
-            
-            const id = this.dataset.id;
-            
-            console.log('🗑️ Eliminando backup ID:', id);
-            
-            fetch(`{{ url('/admin/backup/eliminar') }}/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('✅ Respuesta eliminar:', data);
-                if (data.success) {
-                    mostrarAlerta('✅ Respaldo eliminado exitosamente', 'success');
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    mostrarAlerta('❌ Error: ' + data.message, 'danger');
-                }
-            })
-            .catch(error => {
-                console.error('❌ Error:', error);
-                mostrarAlerta('❌ Error al eliminar el respaldo: ' + error.message, 'danger');
-            });
+   // ⭐ BOTONES ELIMINAR - CORREGIDO
+document.querySelectorAll('.btn-eliminar').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        if (!confirm('¿Estás seguro de eliminar este respaldo?')) return;
+        
+        const id = this.dataset.id;
+        
+        console.log('🗑️ Eliminando backup ID:', id);
+        
+        fetch(`{{ url('admin/users/backup/eliminar') }}/${id}`, {  // ⭐ LÍNEA CORREGIDA
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('✅ Respuesta eliminar:', data);
+            if (data.success) {
+                mostrarAlerta('✅ Respaldo eliminado exitosamente', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                mostrarAlerta('❌ Error: ' + data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error:', error);
+            mostrarAlerta('❌ Error al eliminar el respaldo: ' + error.message, 'danger');
         });
     });
+});
 
     // Mostrar/ocultar campo día del mes
     document.getElementById('frecuencia').addEventListener('change', function() {
