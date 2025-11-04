@@ -160,10 +160,23 @@
                                         <td>{{ $backup->user ? $backup->user->name : 'Sistema' }}</td>
                                         <td>
                                             @if($backup->estado == 'completado' && $backup->nombre_archivo)
+                                                <!-- Botón Descargar -->
                                                 <a href="{{ route('admin.backup.descargar', $backup->id) }}" 
-                                                   class="btn btn-sm bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-700 hover:to-indigo-800 rounded-full shadow-md transition-all duration-200" title="Descargar">
+                                                   class="btn btn-sm bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:from-blue-700 hover:to-indigo-800 rounded-full shadow-md transition-all duration-200" 
+                                                   title="Descargar">
                                                     <i class="fas fa-download"></i>
                                                 </a>
+                                                
+                                                <!-- Botón Restaurar -->
+                                                <button type="button" 
+                                                        class="btn btn-sm bg-gradient-to-r from-green-600 to-emerald-700 text-white hover:from-green-700 hover:to-emerald-800 rounded-full shadow-md transition-all duration-200 btn-restaurar" 
+                                                        data-id="{{ $backup->id }}"
+                                                        data-nombre="{{ $backup->nombre_archivo }}"
+                                                        title="Restaurar">
+                                                    <i class="fas fa-undo"></i>
+                                                </button>
+                                                
+                                                <!-- Botón Eliminar -->
                                                 <button type="button" 
                                                         class="btn btn-sm btn-danger bg-gradient-to-r from-red-600 to-pink-700 text-white hover:from-red-700 hover:to-pink-800 rounded-full shadow-md transition-all duration-200 btn-eliminar" 
                                                         data-id="{{ $backup->id }}"
@@ -301,39 +314,90 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ⭐ BOTONES ELIMINAR - MEJORADO
-    document.querySelectorAll('.btn-eliminar').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            if (!confirm('¿Estás seguro de eliminar este respaldo?')) return;
-            
-            const id = this.dataset.id;
-            
-            
-            console.log('🗑️ Eliminando backup ID:', id);
-            
-            fetch(`{{ url('/admin/backup/eliminar') }}/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('✅ Respuesta eliminar:', data);
-                if (data.success) {
-                    mostrarAlerta('✅ Respaldo eliminado exitosamente', 'success');
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    mostrarAlerta('❌ Error: ' + data.message, 'danger');
-                }
-            })
-            .catch(error => {
-                console.error('❌ Error:', error);
-                mostrarAlerta('❌ Error al eliminar el respaldo: ' + error.message, 'danger');
-            });
+ // ⭐ BOTONES RESTAURAR - CORREGIDO
+document.querySelectorAll('.btn-restaurar').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const id = this.dataset.id;
+        const nombreArchivo = this.dataset.nombre;
+        
+        // Confirmación con advertencia seria
+        if (!confirm(`⚠️ ADVERTENCIA IMPORTANTE ⚠️\n\n¿Estás ABSOLUTAMENTE SEGURO de restaurar este backup?\n\n"${nombreArchivo}"\n\n🔴 ESTA ACCIÓN:\n✓ Eliminará TODOS los datos actuales de la base de datos\n✓ Los reemplazará con los datos del backup seleccionado\n✓ NO SE PUEDE DESHACER\n\n¿Deseas continuar?`)) {
+            return;
+        }
+        
+        // Segunda confirmación
+        if (!confirm('🔴 ÚLTIMA CONFIRMACIÓN\n\nEsto BORRARÁ todos los datos actuales.\n¿Estás 100% seguro?')) {
+            return;
+        }
+        
+        const btnOriginal = this;
+        const originalText = btnOriginal.innerHTML;
+        btnOriginal.disabled = true;
+        btnOriginal.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        console.log('🔄 Restaurando backup ID:', id);
+        
+        fetch(`{{ url('admin/users/backup/restaurar') }}/${id}`, {  // ⭐ LÍNEA CORREGIDA
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('✅ Respuesta restaurar:', data);
+            if (data.success) {
+                mostrarAlerta('✅ Base de datos restaurada exitosamente. La página se recargará...', 'success');
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                mostrarAlerta('❌ Error: ' + data.message, 'danger');
+                btnOriginal.disabled = false;
+                btnOriginal.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error:', error);
+            mostrarAlerta('❌ Error al restaurar el backup: ' + error.message, 'danger');
+            btnOriginal.disabled = false;
+            btnOriginal.innerHTML = originalText;
         });
     });
+});
+
+   // ⭐ BOTONES ELIMINAR - CORREGIDO
+document.querySelectorAll('.btn-eliminar').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        if (!confirm('¿Estás seguro de eliminar este respaldo?')) return;
+        
+        const id = this.dataset.id;
+        
+        console.log('🗑️ Eliminando backup ID:', id);
+        
+        fetch(`{{ url('admin/users/backup/eliminar') }}/${id}`, {  // ⭐ LÍNEA CORREGIDA
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('✅ Respuesta eliminar:', data);
+            if (data.success) {
+                mostrarAlerta('✅ Respaldo eliminado exitosamente', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                mostrarAlerta('❌ Error: ' + data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error:', error);
+            mostrarAlerta('❌ Error al eliminar el respaldo: ' + error.message, 'danger');
+        });
+    });
+});
 
     // Mostrar/ocultar campo día del mes
     document.getElementById('frecuencia').addEventListener('change', function() {

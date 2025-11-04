@@ -142,6 +142,94 @@ class BackupController extends Controller
         }
     }
 
+    public function restaurar($id)
+    {
+        set_time_limit(300); // 5 minutos máximo
+        
+        try {
+            $backup = Backup::findOrFail($id);
+            
+            // Verificar que el archivo existe
+            $rutaCompleta = storage_path('app/' . $backup->ruta_archivo);
+            if (!file_exists($rutaCompleta)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El archivo de backup no existe'
+                ], 404);
+            }
+            
+            // Registrar en bitácora
+            $this->agregarLog($backup->id, 'info', 'Iniciando restauración de base de datos...');
+            
+            // Configuración de la base de datos
+            $database = config('database.connections.mysql.database');
+            $username = config('database.connections.mysql.username');
+            $password = config('database.connections.mysql.password');
+            $host = config('database.connections.mysql.host');
+            $port = config('database.connections.mysql.port', 3306);
+            
+            // Ruta de mysql en XAMPP
+            $mysqlPath = 'mysql'; // Por defecto
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                // Windows con XAMPP
+                $xamppPath = 'C:\\xampp\\mysql\\bin\\mysql.exe';
+                if (file_exists($xamppPath)) {
+                    $mysqlPath = '"' . $xamppPath . '"';
+                }
+            }
+            
+            // Construir comando para restaurar
+            $command = sprintf(
+                '%s --user=%s --password=%s --host=%s --port=%s %s < %s 2>&1',
+                $mysqlPath,
+                escapeshellarg($username),
+                escapeshellarg($password),
+                escapeshellarg($host),
+                $port,
+                escapeshellarg($database),
+                escapeshellarg($rutaCompleta)
+            );
+            
+            // Ejecutar el comando
+            exec($command, $output, $return);
+            
+            if ($return === 0) {
+                $this->agregarLog($backup->id, 'info', 'Base de datos restaurada exitosamente');
+                
+                // Registrar en bitácora del sistema si existe
+                if (class_exists('App\Services\BitacoraService')) {
+                    app('App\Services\BitacoraService')->registrar(
+                        'restore',
+                        'backup',
+                        'backups',
+                        $backup->id,
+                        'Base de datos restaurada desde: ' . $backup->nombre_archivo
+                    );
+                }
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Base de datos restaurada exitosamente',
+                    'data' => $backup
+                ]);
+            } else {
+                throw new \Exception('Error al ejecutar la restauración. Código de salida: ' . $return . '. Output: ' . implode("\n", $output));
+            }
+            
+        } catch (\Exception $e) {
+            if (isset($backup)) {
+                $this->agregarLog($backup->id, 'error', 'Error en restauración: ' . $e->getMessage());
+            }
+            
+            Log::error('Error en restauración de backup: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al restaurar el backup: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function guardarConfiguracion(Request $request)
     {
         $request->validate([
