@@ -1,5 +1,5 @@
 <?php
-
+//use App\Services\ResendService;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Aspirante\AspiranteController;
@@ -17,10 +17,23 @@ use App\Http\Controllers\Admin\UsuariosBloqueadosController;
 use App\Http\Controllers\BackupController;  // ⭐ NUEVO: Importación para rutas de backup
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
+use Illuminate\Support\Facades\Mail;
 
 // Página de inicio (pública)
 Route::get('/', function () {
     return view('welcome');
+});
+
+//Verificación de correo resend
+Route::get('/mail-test', function () {
+    \Illuminate\Support\Facades\Mail::raw(
+        'Prueba de correo vía Resend ✅',
+        function ($m) {
+            $m->to('cinteriano25@gmail.com')
+              ->subject('Test Resend desde Laravel');
+        }
+    );
+    return 'Correo de prueba enviado (revisa tu inbox/spam).';
 });
 
 // ============================================================================
