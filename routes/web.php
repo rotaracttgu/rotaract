@@ -165,6 +165,7 @@ Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware:
         Route::post('/ejecutar', [BackupController::class, 'ejecutarBackup'])->name('ejecutar');
         Route::post('/configuracion', [BackupController::class, 'guardarConfiguracion'])->name('configuracion');
         Route::get('/descargar/{id}', [BackupController::class, 'descargar'])->name('descargar');
+         Route::post('/restaurar/{id}', [BackupController::class, 'restaurar'])->name('restaurar');
         Route::delete('/eliminar/{id}', [BackupController::class, 'eliminar'])->name('eliminar');
     });
 });
