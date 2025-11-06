@@ -95,8 +95,9 @@ Route::get('/dashboard', function () {
         return redirect()->route('aspirante.dashboard');
     }
     
-    // Si no tiene rol definido, mostrar dashboard genérico
-    return view('dashboard');
+    // Si no tiene rol definido, redirigir al login con mensaje
+    Auth::logout();
+    return redirect()->route('login')->with('error', 'No tienes un rol asignado. Contacta al administrador.');
 })->middleware(['auth', 'verified', 'check.first.login'])->name('dashboard');
 
 // ============================================================================
@@ -186,6 +187,7 @@ Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddle
     Route::get('/notificaciones', [PresidenteController::class, 'notificaciones'])->name('notificaciones');
     Route::post('/notificaciones/{id}/marcar-leida', [PresidenteController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
     Route::post('/notificaciones/marcar-todas-leidas', [PresidenteController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
+    Route::get('/notificaciones/verificar', [PresidenteController::class, 'verificarActualizaciones'])->name('notificaciones.verificar');
     
     // Cartas Formales
     Route::get('/cartas/formales', [PresidenteController::class, 'cartasFormales'])->name('cartas.formales');
@@ -266,6 +268,7 @@ Route::prefix('api/presidente/calendario')->middleware(['auth', 'check.first.log
     Route::get('/notificaciones', [VicepresidenteController::class, 'notificaciones'])->name('notificaciones');
     Route::post('/notificaciones/{id}/marcar-leida', [VicepresidenteController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
     Route::post('/notificaciones/marcar-todas-leidas', [VicepresidenteController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
+    Route::get('/notificaciones/verificar', [VicepresidenteController::class, 'verificarActualizaciones'])->name('notificaciones.verificar');
     
     // Cartas Formales
     Route::get('/cartas/formales', [VicepresidenteController::class, 'cartasFormales'])->name('cartas.formales');
@@ -348,6 +351,8 @@ Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.fir
     Route::get('/consultas', [SecretariaController::class, 'consultas'])->name('consultas');
     Route::get('/consultas/pendientes', [SecretariaController::class, 'consultasPendientes'])->name('consultas.pendientes');
     Route::get('/consultas/recientes', [SecretariaController::class, 'consultasRecientes'])->name('consultas.recientes');
+    Route::get('/consultas/exportar/pdf', [SecretariaController::class, 'exportarConsultasPDF'])->name('consultas.exportar.pdf');
+    Route::get('/consultas/exportar/word', [SecretariaController::class, 'exportarConsultasWord'])->name('consultas.exportar.word');
     Route::get('/consultas/{id}', [SecretariaController::class, 'getConsulta']);
     Route::post('/consultas/{id}/responder', [SecretariaController::class, 'responderConsulta']);
     Route::delete('/consultas/{id}', [SecretariaController::class, 'eliminarConsulta']);
@@ -355,6 +360,7 @@ Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.fir
     // Actas
     Route::get('/actas', [SecretariaController::class, 'actas'])->name('actas.index');
     Route::get('/actas/{id}', [SecretariaController::class, 'getActa']);
+    Route::get('/actas/{id}/descargar', [SecretariaController::class, 'descargarActa'])->name('actas.descargar');
     Route::post('/actas', [SecretariaController::class, 'storeActa']);
     Route::post('/actas/{id}', [SecretariaController::class, 'updateActa']);
     Route::delete('/actas/{id}', [SecretariaController::class, 'eliminarActa']);
@@ -362,6 +368,7 @@ Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.fir
     // Diplomas
     Route::get('/diplomas', [SecretariaController::class, 'diplomas'])->name('diplomas.index');
     Route::get('/diplomas/{id}', [SecretariaController::class, 'getDiploma']);
+    Route::get('/diplomas/{id}/descargar', [SecretariaController::class, 'descargarDiploma'])->name('diplomas.descargar');
     Route::post('/diplomas', [SecretariaController::class, 'storeDiploma']);
     Route::post('/diplomas/{id}', [SecretariaController::class, 'updateDiploma']);
     Route::delete('/diplomas/{id}', [SecretariaController::class, 'eliminarDiploma']);
@@ -374,9 +381,15 @@ Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.fir
     Route::post('/documentos/{id}', [SecretariaController::class, 'updateDocumento']);
     Route::delete('/documentos/{id}', [SecretariaController::class, 'eliminarDocumento']);
     
+    // Reportes avanzados con Stored Procedures
+    Route::post('/reportes/diplomas', [SecretariaController::class, 'reporteDiplomas'])->name('reportes.diplomas');
+    Route::post('/reportes/documentos/buscar', [SecretariaController::class, 'buscarDocumentos'])->name('reportes.documentos.buscar');
+    Route::post('/reportes/actas/resumen', [SecretariaController::class, 'resumenActas'])->name('reportes.actas.resumen');
+    
     // Notificaciones
     Route::get('/notificaciones', [SecretariaController::class, 'notificaciones'])->name('notificaciones');
     Route::post('/notificaciones/{id}/marcar-leida', [SecretariaController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
+    Route::get('/notificaciones/verificar', [SecretariaController::class, 'verificarActualizaciones'])->name('notificaciones.verificar');
     Route::post('/notificaciones/marcar-todas-leidas', [SecretariaController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
     
     // 🆕 Asistencias
@@ -414,6 +427,7 @@ Route::prefix('vocero')->middleware(['auth', 'check.first.login', RoleMiddleware
     Route::get('/notificaciones', [VoceroController::class, 'notificaciones'])->name('notificaciones');
     Route::post('/notificaciones/{id}/marcar-leida', [VoceroController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
     Route::post('/notificaciones/marcar-todas-leidas', [VoceroController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
+    Route::get('/notificaciones/verificar', [VoceroController::class, 'verificarActualizaciones'])->name('notificaciones.verificar');
     Route::get('/asistencias', [VoceroController::class, 'gestionAsistencias'])->name('asistencias');
     Route::get('/eventos', [VoceroController::class, 'gestionEventos'])->name('eventos');
     Route::get('/reportes', [VoceroController::class, 'reportesAnalisis'])->name('reportes');

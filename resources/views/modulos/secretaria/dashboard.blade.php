@@ -7,8 +7,8 @@
     <div class="max-w-7xl mx-auto">
         
         <!-- Header -->
-        <div class="bg-white rounded-2xl shadow-md overflow-hidden mb-6">
-            <div class="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 h-2"></div>
+        <div class="bg-white rounded-2xl shadow-md mb-6">
+            <div class="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 h-2 rounded-t-2xl"></div>
             <div class="p-6">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <!-- Título -->
@@ -21,7 +21,7 @@
                     </div>
                     
                     <!-- Botones de Acción -->
-                    <div class="flex flex-wrap gap-2 items-center">
+                    <div class="flex flex-wrap gap-2 items-center relative z-50">
                         <!-- Actualizar -->
                         <button onclick="window.location.reload()" class="px-4 py-2 bg-gradient-to-r from-sky-400 to-cyan-500 hover:from-sky-500 hover:to-cyan-600 text-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
                             <i class="fas fa-sync-alt"></i>
@@ -35,7 +35,7 @@
                         </a>
                         
                         <!-- Crear Nuevo (Dropdown) -->
-                        <div x-data="{ open: false }" @click.away="open = false" class="relative inline-block">
+                        <div x-data="{ open: false }" @click.away="open = false" class="relative">
                             <button @click="open = !open" type="button" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
                                 <i class="fas fa-plus"></i>
                                 <span>Crear Nuevo</span>
@@ -44,14 +44,15 @@
                             
                             <div x-show="open" 
                                 x-cloak
-                                style="display: none;"
+                                @click.away="open = false"
                                 x-transition:enter="transition ease-out duration-100"
                                 x-transition:enter-start="opacity-0 transform scale-95"
                                 x-transition:enter-end="opacity-100 transform scale-100"
                                 x-transition:leave="transition ease-in duration-75"
                                 x-transition:leave-start="opacity-100 transform scale-100"
                                 x-transition:leave-end="opacity-0 transform scale-95"
-                                class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
+                                class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-visible z-[9999]"
+                                style="position: absolute;">
                                 
                                 <a href="{{ route('secretaria.actas.index') }}?action=new" class="flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-sky-50 hover:to-cyan-50 transition-colors border-l-4 border-transparent hover:border-sky-500">
                                     <i class="fas fa-file-signature text-sky-500"></i>
@@ -74,15 +75,6 @@
                                 </a>
                             </div>
                         </div>
-                        
-                        <!-- Cerrar Sesión -->
-                        <form method="POST" action="{{ route('logout') }}" class="inline-block m-0">
-                            @csrf
-                            <button type="submit" class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span class="hidden sm:inline">Cerrar Sesión</span>
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -107,7 +99,7 @@
                     <div class="text-gray-600 font-semibold mb-2">Consultas Pendientes</div>
                     <div class="text-sm text-green-600 flex items-center gap-1">
                         <i class="fas fa-arrow-up"></i>
-                        <span>+{{ $estadisticas['consultas_nuevas'] ?? 0 }} nuevas</span>
+                        <span>+{{ $estadisticas['consultas_hoy'] ?? 0 }} hoy</span>
                     </div>
                 </div>
             </a>
@@ -146,10 +138,10 @@
                     <div class="text-4xl font-bold bg-gradient-to-r from-amber-500 to-yellow-600 bg-clip-text text-transparent mb-2">
                         {{ $estadisticas['total_diplomas'] ?? 0 }}
                     </div>
-                    <div class="text-gray-600 font-semibold mb-2">Diplomas Emitidos</div>
+                    <div class="text-gray-600 font-semibold mb-2">Total Diplomas</div>
                     <div class="text-sm text-gray-500 flex items-center gap-1">
-                        <i class="fas fa-calendar"></i>
-                        <span>{{ $estadisticas['diplomas_este_mes'] ?? 0 }} este mes</span>
+                        <i class="fas fa-envelope"></i>
+                        <span>{{ $estadisticas['diplomas_enviados'] ?? 0 }} enviados por email</span>
                     </div>
                 </div>
             </a>

@@ -97,6 +97,10 @@ class UserController extends Controller
             'email_verified' => ['nullable', 'boolean'],
             'two_factor_verified' => ['nullable', 'boolean'], // Nuevo campo para el checkbox
             'role' => ['required', 'string', 'exists:roles,name'],
+            'rotary_id' => ['nullable', 'string', 'max:50'],
+            'fecha_juramentacion' => ['nullable', 'date'],
+            'fecha_cumpleaños' => ['nullable', 'date'],
+            'activo' => ['nullable', 'boolean'],
         ]);
 
         try {
@@ -108,6 +112,10 @@ class UserController extends Controller
                 'first_login' => true,
                 'two_factor_enabled' => true, // Mantener 2FA habilitado por defecto
                 'two_factor_verified_at' => $request->two_factor_verified ? now() : null, // Setear si checkbox está marcado
+                'rotary_id' => $request->rotary_id,
+                'fecha_juramentacion' => $request->fecha_juramentacion,
+                'fecha_cumpleaños' => $request->fecha_cumpleaños,
+                'activo' => $request->has('activo') ? (bool)$request->activo : true,
             ]);
 
             if ($request->role) {
@@ -129,6 +137,10 @@ class UserController extends Controller
                     'email_verified' => $request->email_verified ? true : false,
                     'first_login' => true,
                     'two_factor_verified' => $request->two_factor_verified ? true : false, // Nuevo
+                    'rotary_id' => $request->rotary_id,
+                    'fecha_juramentacion' => $request->fecha_juramentacion,
+                    'fecha_cumpleaños' => $request->fecha_cumpleaños,
+                    'activo' => $user->activo,
                 ],
             ]);
 
@@ -203,6 +215,10 @@ class UserController extends Controller
             'role' => $usuario->getRolPrincipal(),
             'email_verified' => $usuario->email_verified_at ? true : false,
             'two_factor_verified' => $usuario->two_factor_verified_at ? true : false, // Nuevo
+            'rotary_id' => $usuario->rotary_id,
+            'fecha_juramentacion' => $usuario->fecha_juramentacion,
+            'fecha_cumpleaños' => $usuario->fecha_cumpleaños,
+            'activo' => $usuario->activo ?? true,
         ];
         
         $rules = [
@@ -211,6 +227,10 @@ class UserController extends Controller
             'email_verified' => ['nullable', 'boolean'],
             'two_factor_verified' => ['nullable', 'boolean'], // Nuevo campo para el checkbox
             'role' => ['nullable', 'string', 'exists:roles,name'],
+            'rotary_id' => ['nullable', 'string', 'max:50'],
+            'fecha_juramentacion' => ['nullable', 'date'],
+            'fecha_cumpleaños' => ['nullable', 'date'],
+            'activo' => ['nullable', 'boolean'],
         ];
 
         // Solo validar contraseña si se proporciona
@@ -224,6 +244,10 @@ class UserController extends Controller
             $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
+                'rotary_id' => $request->rotary_id,
+                'fecha_juramentacion' => $request->fecha_juramentacion,
+                'fecha_cumpleaños' => $request->fecha_cumpleaños,
+                'activo' => $request->has('activo') ? (bool)$request->activo : false,
             ];
 
             // Actualizar contraseña solo si se proporciona
@@ -262,6 +286,10 @@ class UserController extends Controller
                 'role' => $request->role ?? $usuario->getRolPrincipal(),
                 'email_verified' => $request->email_verified ? true : false,
                 'two_factor_verified' => $request->two_factor_verified ? true : false, // Nuevo
+                'rotary_id' => $request->rotary_id,
+                'fecha_juramentacion' => $request->fecha_juramentacion,
+                'fecha_cumpleaños' => $request->fecha_cumpleaños,
+                'activo' => $request->has('activo') ? (bool)$request->activo : false,
             ];
 
             if ($request->filled('password')) {

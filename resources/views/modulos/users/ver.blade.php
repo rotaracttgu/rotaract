@@ -140,6 +140,92 @@
                         </div>
                     </div>
 
+                    <!-- Rotary ID -->
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 shadow-md transform hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-8 w-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500">Rotary ID</p>
+                                @if($usuario->rotary_id)
+                                    <p class="text-lg font-semibold text-purple-700">{{ $usuario->rotary_id }}</p>
+                                @else
+                                    <p class="text-lg font-semibold text-gray-400 italic">No asignado</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fecha de Juramentación -->
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 shadow-md transform hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500">Fecha de Juramentación</p>
+                                @if($usuario->fecha_juramentacion)
+                                    <p class="text-lg font-semibold text-blue-700">{{ \Carbon\Carbon::parse($usuario->fecha_juramentacion)->format('d/m/Y') }}</p>
+                                    <p class="text-sm text-gray-600">{{ \Carbon\Carbon::parse($usuario->fecha_juramentacion)->diffForHumans() }}</p>
+                                @else
+                                    <p class="text-lg font-semibold text-gray-400 italic">No registrada</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fecha de Cumpleaños -->
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 shadow-md transform hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-8 w-8 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500">Fecha de Cumpleaños</p>
+                                @if($usuario->fecha_cumpleaños)
+                                    <p class="text-lg font-semibold text-pink-700">{{ \Carbon\Carbon::parse($usuario->fecha_cumpleaños)->format('d/m/Y') }}</p>
+                                    <p class="text-sm text-gray-600">{{ \Carbon\Carbon::parse($usuario->fecha_cumpleaños)->age }} años</p>
+                                @else
+                                    <p class="text-lg font-semibold text-gray-400 italic">No registrada</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado del Usuario (Activo/Inactivo) -->
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 shadow-md transform hover:scale-105 transition-all duration-300">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                @if($usuario->activo ?? true)
+                                    <svg class="h-8 w-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                @else
+                                    <svg class="h-8 w-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                @endif
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500">Estado del Usuario</p>
+                                @if($usuario->activo ?? true)
+                                    <p class="text-lg font-semibold text-green-700">Activo</p>
+                                    <p class="text-sm text-gray-600">Puede acceder al sistema</p>
+                                @else
+                                    <p class="text-lg font-semibold text-red-700">Inactivo</p>
+                                    <p class="text-sm text-gray-600">No puede acceder al sistema</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Estado de Verificación -->
                     <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 shadow-md transform hover:scale-105 transition-all duration-300">
                         <div class="flex items-center">

@@ -86,8 +86,12 @@
                         </svg>
                         <!-- Badge de notificaciones no leídas -->
                         @if($notificacionesNoLeidas > 0)
-                            <span class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full animate-pulse">
+                            <span data-notificaciones-badge class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full animate-pulse">
                                 {{ $notificacionesNoLeidas }}
+                            </span>
+                        @else
+                            <span data-notificaciones-badge class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full animate-pulse hidden">
+                                0
                             </span>
                         @endif
                     </a>
