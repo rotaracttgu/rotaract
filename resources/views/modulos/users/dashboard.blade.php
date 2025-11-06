@@ -186,6 +186,26 @@
                         <p class="text-sm text-gray-400">Revisa el registro de actividades del sistema</p>
                     </div>
                 </a>
+
+                <!-- Calendario -->
+                <a href="{{ route('admin.calendario') }}" 
+                    class="group relative overflow-hidden rounded-2xl bg-gray-800 p-6 shadow-xl ring-1 ring-gray-700/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                    <div class="absolute top-0 right-0 -mt-4 -mr-4 h-20 w-20 rounded-full bg-gradient-to-br from-purple-900/50 to-pink-900/50 blur-xl opacity-50"></div>
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-700 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                                <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <svg class="h-6 w-6 text-gray-400 group-hover:text-purple-300 transform group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-100 mb-2">Calendario</h3>
+                        <p class="text-sm text-gray-400">Gestiona eventos y reuniones del club</p>
+                    </div>
+                </a>
             </div>
 
             <!-- Distribución de Roles -->

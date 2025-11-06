@@ -17,6 +17,7 @@ class User extends Authenticatable
         'apellidos',
         'username',
         'email',
+        'rotary_id',
         'dni',
         'telefono',
         'password',

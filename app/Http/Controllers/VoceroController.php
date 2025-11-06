@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\NotificacionService;
+use App\Models\Reunion;
+use App\Models\User;
 use Exception;
 
 class VoceroController extends Controller
@@ -52,6 +55,44 @@ class VoceroController extends Controller
     public function reportesAnalisis()
     {
         return view('modulos.vocero.reportes-analisis');
+    }
+
+    /**
+     * Muestra el centro de notificaciones
+     */
+    public function notificaciones()
+    {
+        $notificacionService = app(NotificacionService::class);
+        
+        // Obtener todas las notificaciones del usuario actual
+        $notificaciones = $notificacionService->obtenerTodas(auth()->id(), 50);
+        
+        // Contar notificaciones no leídas
+        $noLeidas = $notificaciones->where('leida', false)->count();
+        
+        return view('modulos.vocero.notificaciones', compact('notificaciones', 'noLeidas'));
+    }
+
+    /**
+     * Marcar una notificación como leída
+     */
+    public function marcarNotificacionLeida($id)
+    {
+        $notificacionService = app(NotificacionService::class);
+        $notificacionService->marcarComoLeida($id);
+        
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Marcar todas las notificaciones como leídas
+     */
+    public function marcarTodasNotificacionesLeidas()
+    {
+        $notificacionService = app(NotificacionService::class);
+        $notificacionService->marcarTodasComoLeidas(auth()->id());
+        
+        return response()->json(['success' => true]);
     }
 
     // ============================================================================
@@ -176,6 +217,15 @@ class VoceroController extends Controller
             if ($output[0]->calendario_id) {
                 // Obtener el evento recién creado
                 $evento = DB::select('CALL sp_obtener_detalle_evento(?)', [$output[0]->calendario_id]);
+                
+                // 🔔 ENVIAR NOTIFICACIONES según el tipo de evento
+                if (in_array($validated['tipo_evento'], ['reunion-virtual', 'reunion-presencial'])) {
+                    $this->enviarNotificacionReunion($evento[0], $validated);
+                } elseif ($validated['tipo_evento'] === 'inicio-proyecto' && isset($validated['proyecto_id'])) {
+                    $this->enviarNotificacionProyectoCreado($validated['proyecto_id'], $validated['titulo']);
+                } elseif ($validated['tipo_evento'] === 'finalizar-proyecto' && isset($validated['proyecto_id'])) {
+                    $this->enviarNotificacionProyectoFinalizado($validated['proyecto_id'], $validated['titulo']);
+                }
                 
                 return response()->json([
                     'success' => true,
@@ -885,12 +935,101 @@ class VoceroController extends Controller
                 'estadisticas_generales' => $statsGenerales[0] ?? null
             ]);
             
+                    
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'error' => 'Error al obtener datos para gráficos',
                 'mensaje' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    // ============================================================================
+    // NOTIFICACIONES
+    // ============================================================================
+
+    /**
+     * Enviar notificación cuando se crea una reunión
+     */
+    private function enviarNotificacionReunion($evento, $validated)
+    {
+        try {
+            $notificacionService = app(NotificacionService::class);
+            
+            // Obtener todos los usuarios con roles relevantes (Vicepresidente, Secretaría, Presidente, etc.)
+            $usuariosNotificar = User::whereHas('roles', function($query) {
+                $query->whereIn('name', ['Vicepresidente', 'Secretaria', 'Presidente', 'Super Admin']);
+            })->pluck('id')->toArray();
+            
+            // Crear objeto similar a Reunion para el servicio
+            $reunionData = (object)[
+                'id' => $evento->CalendarioID ?? null,
+                'titulo' => $validated['titulo'],
+                'fecha_hora' => $validated['fecha_inicio'],
+                'tipo' => $validated['tipo_evento'] === 'reunion-virtual' ? 'Virtual' : 'Presencial',
+            ];
+            
+            // Enviar notificación
+            $notificacionService->notificarReunionCreada($reunionData, $usuariosNotificar);
+            
+        } catch (Exception $e) {
+            // Log del error pero no detener la ejecución
+            \Log::error('Error al enviar notificación de reunión: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Enviar notificación cuando se crea un proyecto
+     */
+    private function enviarNotificacionProyectoCreado($proyectoId, $titulo)
+    {
+        try {
+            $notificacionService = app(NotificacionService::class);
+            
+            // Obtener todos los usuarios con roles relevantes
+            $usuariosNotificar = User::whereHas('roles', function($query) {
+                $query->whereIn('name', ['Vicepresidente', 'Vocero', 'Presidente', 'Super Admin']);
+            })->pluck('id')->toArray();
+            
+            // Crear objeto para el servicio
+            $proyectoData = (object)[
+                'ProyectoID' => $proyectoId,
+                'NombreProyecto' => $titulo,
+            ];
+            
+            // Enviar notificación
+            $notificacionService->notificarProyectoCreado($proyectoData, $usuariosNotificar);
+            
+        } catch (Exception $e) {
+            \Log::error('Error al enviar notificación de proyecto: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Enviar notificación cuando se finaliza un proyecto
+     */
+    private function enviarNotificacionProyectoFinalizado($proyectoId, $titulo)
+    {
+        try {
+            $notificacionService = app(NotificacionService::class);
+            
+            // Obtener todos los usuarios con roles relevantes
+            $usuariosNotificar = User::whereHas('roles', function($query) {
+                $query->whereIn('name', ['Vicepresidente', 'Vocero', 'Presidente', 'Super Admin']);
+            })->pluck('id')->toArray();
+            
+            // Crear objeto para el servicio
+            $proyectoData = (object)[
+                'ProyectoID' => $proyectoId,
+                'NombreProyecto' => $titulo,
+            ];
+            
+            // Enviar notificación
+            $notificacionService->notificarProyectoFinalizado($proyectoData, $usuariosNotificar);
+            
+        } catch (Exception $e) {
+            \Log::error('Error al enviar notificación de proyecto finalizado: ' . $e->getMessage());
         }
     }
 }

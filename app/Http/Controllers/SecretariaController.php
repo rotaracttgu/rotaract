@@ -13,6 +13,7 @@ use App\Models\Diploma;
 use App\Models\Documento;
 use App\Models\User;
 use App\Models\Miembro;
+use App\Services\NotificacionService;
 
 class SecretariaController extends Controller
 {
@@ -87,6 +88,14 @@ class SecretariaController extends Controller
             'actasRecientes',
             'diplomasRecientes'
         ));
+    }
+
+    /**
+     * Muestra el calendario de Secretaría
+     */
+    public function calendario()
+    {
+        return view('modulos.secretaria.calendario');
     }
 
     // ============================================================================
@@ -604,5 +613,635 @@ class SecretariaController extends Controller
             'success' => true,
             'message' => 'Documento eliminado exitosamente'
         ]);
+    }
+
+    // ============================================================================
+    // NOTIFICACIONES
+    // ============================================================================
+
+    /**
+     * Muestra el centro de notificaciones
+     */
+    public function notificaciones()
+    {
+        $notificacionService = app(NotificacionService::class);
+        
+        // Obtener todas las notificaciones del usuario actual
+        $notificaciones = $notificacionService->obtenerTodas(auth()->id(), 50);
+        
+        // Contar notificaciones no leídas
+        $noLeidas = $notificaciones->where('leida', false)->count();
+        
+        return view('modulos.secretaria.notificaciones', compact('notificaciones', 'noLeidas'));
+    }
+
+    /**
+     * Marcar una notificación como leída
+     */
+    public function marcarNotificacionLeida($id)
+    {
+        $notificacionService = app(NotificacionService::class);
+        $notificacionService->marcarComoLeida($id);
+        
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Marcar todas las notificaciones como leídas
+     */
+    public function marcarTodasNotificacionesLeidas()
+    {
+        $notificacionService = app(NotificacionService::class);
+        $notificacionService->marcarTodasComoLeidas(auth()->id());
+        
+        return response()->json(['success' => true]);
+    }
+
+    // ============================================================================
+    // 🆕 MÉTODOS DE CALENDARIO
+    // ============================================================================
+
+    /**
+     * Obtener todos los eventos del calendario
+     */
+    public function obtenerEventos()
+    {
+        try {
+            $eventos = DB::select('CALL sp_obtener_todos_eventos()');
+            
+            // Formatear eventos para FullCalendar
+            $eventosFormateados = array_map(function($evento) {
+                return $this->formatearEvento($evento);
+            }, $eventos);
+            
+            return response()->json($eventosFormateados);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al obtener eventos',
+                'mensaje' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener lista de miembros para el select
+     */
+    public function obtenerMiembros()
+    {
+        try {
+            $miembros = DB::select('
+                SELECT 
+                    MiembroID, 
+                    Nombre, 
+                    Rol,
+                    CONCAT(Nombre, " - ", Rol) as NombreCompleto
+                FROM miembros 
+                ORDER BY Nombre ASC
+            ');
+            
+            return response()->json([
+                'success' => true,
+                'miembros' => $miembros
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al obtener miembros',
+                'mensaje' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Crear un nuevo evento
+     */
+    public function crearEvento(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'titulo' => 'required|string|max:100',
+                'descripcion' => 'nullable|string',
+                'tipo_evento' => 'required|in:reunion-virtual,reunion-presencial,inicio-proyecto,finalizar-proyecto',
+                'estado' => 'required|in:programado,en-curso,finalizado',
+                'fecha_inicio' => 'required|date',
+                'fecha_fin' => 'required|date|after:fecha_inicio',
+                'organizador_id' => 'nullable|integer',
+                'proyecto_id' => 'nullable|integer',
+                'detalles' => 'nullable|array'
+            ]);
+
+            $tipoEventoDB = $this->convertirTipoEvento($validated['tipo_evento']);
+            $estadoDB = $this->convertirEstado($validated['estado']);
+            
+            $fechaInicio = date('Y-m-d H:i:s', strtotime($validated['fecha_inicio']));
+            $fechaFin = date('Y-m-d H:i:s', strtotime($validated['fecha_fin']));
+            $horaInicio = date('H:i:s', strtotime($validated['fecha_inicio']));
+            $horaFin = date('H:i:s', strtotime($validated['fecha_fin']));
+            
+            $ubicacion = '';
+            if (isset($validated['detalles'])) {
+                if (isset($validated['detalles']['enlace'])) {
+                    $ubicacion = $validated['detalles']['enlace'];
+                } elseif (isset($validated['detalles']['lugar'])) {
+                    $ubicacion = $validated['detalles']['lugar'];
+                } elseif (isset($validated['detalles']['ubicacion_proyecto'])) {
+                    $ubicacion = $validated['detalles']['ubicacion_proyecto'];
+                }
+            }
+            
+            DB::select('CALL sp_crear_evento_calendario(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @calendario_id, @mensaje)', [
+                $validated['titulo'],
+                $validated['descripcion'] ?? null,
+                $tipoEventoDB,
+                $estadoDB,
+                $fechaInicio,
+                $fechaFin,
+                $horaInicio,
+                $horaFin,
+                $ubicacion,
+                $validated['organizador_id'] ?? null,
+                $validated['proyecto_id'] ?? null
+            ]);
+            
+            $output = DB::select('SELECT @calendario_id as calendario_id, @mensaje as mensaje');
+            
+            if ($output[0]->calendario_id) {
+                $evento = DB::select('CALL sp_obtener_detalle_evento(?)', [$output[0]->calendario_id]);
+                
+                return response()->json([
+                    'success' => true,
+                    'mensaje' => $output[0]->mensaje,
+                    'evento' => $this->formatearEvento($evento[0])
+                ], 201);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'mensaje' => $output[0]->mensaje
+                ], 400);
+            }
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al crear evento',
+                'mensaje' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Actualizar un evento existente
+     */
+    public function actualizarEvento(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'titulo' => 'required|string|max:100',
+                'descripcion' => 'nullable|string',
+                'tipo_evento' => 'required|in:reunion-virtual,reunion-presencial,inicio-proyecto,finalizar-proyecto',
+                'estado' => 'required|in:programado,en-curso,finalizado',
+                'fecha_inicio' => 'required|date',
+                'fecha_fin' => 'required|date|after:fecha_inicio',
+                'organizador_id' => 'nullable|integer',
+                'proyecto_id' => 'nullable|integer',
+                'detalles' => 'nullable|array'
+            ]);
+
+            $tipoEventoDB = $this->convertirTipoEvento($validated['tipo_evento']);
+            $estadoDB = $this->convertirEstado($validated['estado']);
+            
+            $fechaInicio = date('Y-m-d H:i:s', strtotime($validated['fecha_inicio']));
+            $fechaFin = date('Y-m-d H:i:s', strtotime($validated['fecha_fin']));
+            $horaInicio = date('H:i:s', strtotime($validated['fecha_inicio']));
+            $horaFin = date('H:i:s', strtotime($validated['fecha_fin']));
+            
+            $ubicacion = '';
+            if (isset($validated['detalles'])) {
+                if (isset($validated['detalles']['enlace'])) {
+                    $ubicacion = $validated['detalles']['enlace'];
+                } elseif (isset($validated['detalles']['lugar'])) {
+                    $ubicacion = $validated['detalles']['lugar'];
+                } elseif (isset($validated['detalles']['ubicacion_proyecto'])) {
+                    $ubicacion = $validated['detalles']['ubicacion_proyecto'];
+                }
+            }
+            
+            DB::select('CALL sp_actualizar_evento(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @mensaje)', [
+                $id,
+                $validated['titulo'],
+                $validated['descripcion'] ?? null,
+                $tipoEventoDB,
+                $estadoDB,
+                $fechaInicio,
+                $fechaFin,
+                $horaInicio,
+                $horaFin,
+                $ubicacion,
+                $validated['organizador_id'] ?? null,
+                $validated['proyecto_id'] ?? null
+            ]);
+            
+            $output = DB::select('SELECT @mensaje as mensaje');
+            $evento = DB::select('CALL sp_obtener_detalle_evento(?)', [$id]);
+            
+            return response()->json([
+                'success' => true,
+                'mensaje' => $output[0]->mensaje,
+                'evento' => $this->formatearEvento($evento[0])
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al actualizar evento',
+                'mensaje' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Eliminar un evento
+     */
+    public function eliminarEvento($id)
+    {
+        try {
+            DB::select('CALL sp_eliminar_evento(?, @mensaje)', [$id]);
+            $output = DB::select('SELECT @mensaje as mensaje');
+            
+            return response()->json([
+                'success' => true,
+                'mensaje' => $output[0]->mensaje
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al eliminar evento',
+                'mensaje' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Actualizar fechas de un evento (para drag & drop)
+     */
+    public function actualizarFechas(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'fecha_inicio' => 'required|date',
+                'fecha_fin' => 'required|date|after:fecha_inicio'
+            ]);
+
+            $eventoActual = DB::select('CALL sp_obtener_detalle_evento(?)', [$id]);
+            
+            if (empty($eventoActual)) {
+                return response()->json([
+                    'success' => false,
+                    'mensaje' => 'Evento no encontrado'
+                ], 404);
+            }
+
+            $evento = $eventoActual[0];
+            
+            $fechaInicio = date('Y-m-d H:i:s', strtotime($validated['fecha_inicio']));
+            $fechaFin = date('Y-m-d H:i:s', strtotime($validated['fecha_fin']));
+            $horaInicio = date('H:i:s', strtotime($validated['fecha_inicio']));
+            $horaFin = date('H:i:s', strtotime($validated['fecha_fin']));
+            
+            DB::select('CALL sp_actualizar_evento(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @mensaje)', [
+                $id,
+                $evento->TituloEvento,
+                $evento->Descripcion,
+                $evento->TipoEvento,
+                $evento->EstadoEvento,
+                $fechaInicio,
+                $fechaFin,
+                $horaInicio,
+                $horaFin,
+                $evento->Ubicacion,
+                $evento->OrganizadorID,
+                $evento->ProyectoID
+            ]);
+            
+            $output = DB::select('SELECT @mensaje as mensaje');
+            
+            return response()->json([
+                'success' => true,
+                'mensaje' => $output[0]->mensaje
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al actualizar fechas',
+                'mensaje' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // ============================================================================
+    // 🆕 MÉTODOS DE ASISTENCIAS
+    // ============================================================================
+
+    /**
+     * Vista principal de gestión de asistencias
+     */
+    public function gestionAsistencias()
+    {
+        return view('modulos.secretaria.gestion-asistencias');
+    }
+
+    /**
+     * Obtener asistencias de un evento específico
+     */
+    public function obtenerAsistenciasEvento($eventoId)
+    {
+        try {
+            $asistencias = DB::select('CALL sp_obtener_asistencias_evento(?)', [$eventoId]);
+            
+            // Formatear asistencias para la vista
+            $asistenciasFormateadas = array_map(function($asistencia) use ($eventoId) {
+                return [
+                    'id' => $asistencia->AsistenciaID,
+                    'member_id' => $asistencia->MiembroID,
+                    'event_id' => $eventoId,
+                    'name' => $asistencia->NombreParticipante,
+                    'email' => $asistencia->Gmail,
+                    'dni' => $asistencia->DNI_Pasaporte,
+                    'status' => $this->convertirEstadoAsistenciaDesdeDB($asistencia->EstadoAsistencia),
+                    'arrival_time' => $asistencia->HoraLlegada,
+                    'minutes_late' => $asistencia->MinutosTarde ?? 0,
+                    'notes' => $asistencia->Observacion,
+                    'registration_date' => $asistencia->FechaRegistro
+                ];
+            }, $asistencias);
+            
+            return response()->json([
+                'success' => true,
+                'asistencias' => $asistenciasFormateadas
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al obtener asistencias',
+                'mensaje' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Registrar nueva asistencia
+     */
+    public function registrarAsistencia(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'member_id' => 'required|integer',
+                'event_id' => 'required|integer',
+                'status' => 'required|in:presente,ausente,justificado',
+                'arrival_time' => 'nullable|date_format:H:i:s',
+                'minutes_late' => 'nullable|integer|min:0',
+                'notes' => 'nullable|string'
+            ]);
+
+            $estadoDB = $this->convertirEstadoAsistencia($validated['status']);
+            
+            DB::select('CALL sp_registrar_asistencia(?, ?, ?, ?, ?, ?, @asistencia_id, @mensaje)', [
+                $validated['member_id'],
+                $validated['event_id'],
+                $estadoDB,
+                $validated['arrival_time'] ?? null,
+                $validated['minutes_late'] ?? 0,
+                $validated['notes'] ?? null
+            ]);
+            
+            $output = DB::select('SELECT @asistencia_id as asistencia_id, @mensaje as mensaje');
+            
+            if ($output[0]->asistencia_id) {
+                return response()->json([
+                    'success' => true,
+                    'mensaje' => $output[0]->mensaje,
+                    'asistencia_id' => $output[0]->asistencia_id
+                ], 201);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'mensaje' => $output[0]->mensaje
+                ], 400);
+            }
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al registrar asistencia',
+                'mensaje' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Actualizar asistencia existente
+     */
+    public function actualizarAsistencia(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'status' => 'required|in:presente,ausente,justificado',
+                'arrival_time' => 'nullable|date_format:H:i:s',
+                'minutes_late' => 'nullable|integer|min:0',
+                'notes' => 'nullable|string'
+            ]);
+
+            $estadoDB = $this->convertirEstadoAsistencia($validated['status']);
+            
+            DB::select('CALL sp_actualizar_asistencia(?, ?, ?, ?, ?, @mensaje)', [
+                $id,
+                $estadoDB,
+                $validated['arrival_time'] ?? null,
+                $validated['minutes_late'] ?? 0,
+                $validated['notes'] ?? null
+            ]);
+            
+            $output = DB::select('SELECT @mensaje as mensaje');
+            
+            return response()->json([
+                'success' => true,
+                'mensaje' => $output[0]->mensaje
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al actualizar asistencia',
+                'mensaje' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Eliminar asistencia
+     */
+    public function eliminarAsistencia($id)
+    {
+        try {
+            DB::select('CALL sp_eliminar_asistencia(?, @mensaje)', [$id]);
+            
+            $output = DB::select('SELECT @mensaje as mensaje');
+            
+            return response()->json([
+                'success' => true,
+                'mensaje' => $output[0]->mensaje
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al eliminar asistencia',
+                'mensaje' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // ============================================================================
+    // MÉTODOS PRIVADOS - CONVERSIÓN DE ESTADOS
+    // ============================================================================
+
+    /**
+     * Convertir estado de asistencia de vista a DB
+     */
+    private function convertirEstadoAsistencia($estado)
+    {
+        $mapa = [
+            'presente' => 'Presente',
+            'ausente' => 'Ausente',
+            'justificado' => 'Justificado'
+        ];
+        
+        return $mapa[$estado] ?? 'Ausente';
+    }
+
+    /**
+     * Convertir estado de asistencia de DB a vista
+     */
+    private function convertirEstadoAsistenciaDesdeDB($estado)
+    {
+        $mapa = [
+            'Presente' => 'presente',
+            'Ausente' => 'ausente',
+            'Justificado' => 'justificado'
+        ];
+        
+        return $mapa[$estado] ?? 'ausente';
+    }
+
+    // ============================================================================
+    // MÉTODOS PRIVADOS - FORMATEO Y CONVERSIÓN (CALENDARIO)
+    // ============================================================================
+
+    /**
+     * Formatear evento para FullCalendar
+     */
+    private function formatearEvento($evento)
+    {
+        $tipoEvento = $this->convertirTipoEventoDesdeDB($evento->TipoEvento);
+        $estado = $this->convertirEstadoDesdeDB($evento->EstadoEvento);
+        
+        $colores = [
+            'reunion-virtual' => '#3b82f6',
+            'reunion-presencial' => '#10b981',
+            'inicio-proyecto' => '#f59e0b',
+            'finalizar-proyecto' => '#ef4444'
+        ];
+        
+        $detalles = [
+            'organizador' => $evento->NombreOrganizador ?? 'Sin Organizador'
+        ];
+        
+        if ($tipoEvento === 'reunion-virtual') {
+            $detalles['enlace'] = $evento->Ubicacion ?? '';
+        } elseif ($tipoEvento === 'reunion-presencial') {
+            $detalles['lugar'] = $evento->Ubicacion ?? '';
+        } else {
+            $detalles['ubicacion_proyecto'] = $evento->Ubicacion ?? '';
+        }
+        
+        return [
+            'id' => $evento->CalendarioID,
+            'title' => $evento->TituloEvento,
+            'start' => $evento->FechaInicio,
+            'end' => $evento->FechaFin,
+            'backgroundColor' => $colores[$tipoEvento] ?? '#6b7280',
+            'borderColor' => $colores[$tipoEvento] ?? '#6b7280',
+            'extendedProps' => [
+                'tipo_evento' => $tipoEvento,
+                'estado' => $estado,
+                'organizador' => $evento->NombreOrganizador ?? 'Sin Organizador',
+                'organizador_id' => $evento->OrganizadorID ?? null,
+                'proyecto_id' => $evento->ProyectoID ?? null,
+                'detalles' => $detalles
+            ]
+        ];
+    }
+
+    /**
+     * Convertir tipo de evento de vista a DB
+     */
+    private function convertirTipoEvento($tipo)
+    {
+        $mapa = [
+            'reunion-virtual' => 'Virtual',
+            'reunion-presencial' => 'Presencial',
+            'inicio-proyecto' => 'InicioProyecto',
+            'finalizar-proyecto' => 'FinProyecto'
+        ];
+        
+        return $mapa[$tipo] ?? 'Virtual';
+    }
+
+    /**
+     * Convertir tipo de evento de DB a vista
+     */
+    private function convertirTipoEventoDesdeDB($tipo)
+    {
+        $mapa = [
+            'Virtual' => 'reunion-virtual',
+            'Presencial' => 'reunion-presencial',
+            'InicioProyecto' => 'inicio-proyecto',
+            'FinProyecto' => 'finalizar-proyecto'
+        ];
+        
+        return $mapa[$tipo] ?? 'reunion-virtual';
+    }
+
+    /**
+     * Convertir estado de vista a DB
+     */
+    private function convertirEstado($estado)
+    {
+        $mapa = [
+            'programado' => 'Programado',
+            'en-curso' => 'EnCurso',
+            'finalizado' => 'Finalizado'
+        ];
+        
+        return $mapa[$estado] ?? 'Programado';
+    }
+
+    /**
+     * Convertir estado de DB a vista
+     */
+    private function convertirEstadoDesdeDB($estado)
+    {
+        $mapa = [
+            'Programado' => 'programado',
+            'EnCurso' => 'en-curso',
+            'Finalizado' => 'finalizado'
+        ];
+        
+        return $mapa[$estado] ?? 'programado';
     }
 }

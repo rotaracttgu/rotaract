@@ -6,47 +6,49 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-12 w-auto fill-current text-gray-800" />
+                        <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract Logo" class="block h-16 w-auto">
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-
-                    @role('Super Admin|Presidente')
-                        <!-- Gestión de Usuarios -->
-                        <x-nav-link :href="route('admin.usuarios.lista')" :active="request()->routeIs('admin.usuarios.*')">
-                            {{ __('Usuarios') }}
+                    @if(!request()->routeIs('presidente.*') && !request()->routeIs('vicepresidente.*') && !request()->routeIs('perfil.*'))
+                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                            {{ __('Dashboard') }}
                         </x-nav-link>
 
-                        <!-- Usuarios Bloqueados -->
-                        <x-nav-link :href="route('admin.usuarios-bloqueados.index')" :active="request()->routeIs('admin.usuarios-bloqueados.*')">
-                            <span class="flex items-center">
-                                {{ __('Bloqueados') }}
-                                @php
-                                    $bloqueados = \App\Models\User::where('is_locked', true)->count();
-                                @endphp
-                                @if($bloqueados > 0)
-                                    <span class="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-                                        {{ $bloqueados }}
-                                    </span>
-                                @endif
-                            </span>
-                        </x-nav-link>
+                        @role('Super Admin|Presidente')
+                            <!-- Gestión de Usuarios -->
+                            <x-nav-link :href="route('admin.usuarios.lista')" :active="request()->routeIs('admin.usuarios.*')">
+                                {{ __('Usuarios') }}
+                            </x-nav-link>
 
-                        <!-- Bitácora del Sistema -->
-                        <a class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out" href="{{ route('admin.bitacora.index') }}">
-                            Bitácora
-                        </a>
+                            <!-- Usuarios Bloqueados -->
+                            <x-nav-link :href="route('admin.usuarios-bloqueados.index')" :active="request()->routeIs('admin.usuarios-bloqueados.*')">
+                                <span class="flex items-center">
+                                    {{ __('Bloqueados') }}
+                                    @php
+                                        $bloqueados = \App\Models\User::where('is_locked', true)->count();
+                                    @endphp
+                                    @if($bloqueados > 0)
+                                        <span class="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                                            {{ $bloqueados }}
+                                        </span>
+                                    @endif
+                                </span>
+                            </x-nav-link>
 
-                        {{-- ⭐ NUEVO: Menú de Backup --}}
-                        <a class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('admin.backup.*') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500' }} text-sm font-medium leading-5 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out" href="{{ route('admin.backup.index') }}">
-                            Backup
-                        </a>
-                    @endrole
+                            <!-- Bitácora del Sistema -->
+                            <a class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out" href="{{ route('admin.bitacora.index') }}">
+                                Bitácora
+                            </a>
+
+                            {{-- ⭐ NUEVO: Menú de Backup --}}
+                            <a class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('admin.backup.*') ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500' }} text-sm font-medium leading-5 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out" href="{{ route('admin.backup.index') }}">
+                                Backup
+                            </a>
+                        @endrole
+                    @endif
 
                     {{-- Menú de Vicepresidente ocultado - Ahora usa el sidebar lateral --}}
                 </div>
@@ -55,35 +57,40 @@
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
                 <!-- Icono de Notificaciones - Dinámico según rol -->
-                @if(!request()->routeIs('perfil.editar'))
-                    @php
-                        $notificacionesRoute = null;
-                        if (auth()->user()->hasRole('Super Admin')) {
-                            $notificacionesRoute = route('admin.notificaciones');
-                        } elseif (auth()->user()->hasRole('Presidente')) {
-                            $notificacionesRoute = route('presidente.notificaciones');
-                        } elseif (auth()->user()->hasRole('Vicepresidente')) {
-                            $notificacionesRoute = route('vicepresidente.notificaciones');
-                        } elseif (auth()->user()->hasRole('Vocero')) {
-                            $notificacionesRoute = route('vocero.notificaciones');
-                        } elseif (auth()->user()->hasRole('Aspirante')) {
-                            $notificacionesRoute = route('aspirante.notificaciones');
-                        }
-                    @endphp
+                @php
+                    $notificacionesRoute = null;
+                    if (auth()->user()->hasRole('Super Admin')) {
+                        $notificacionesRoute = route('admin.notificaciones');
+                    } elseif (auth()->user()->hasRole('Presidente')) {
+                        $notificacionesRoute = route('presidente.notificaciones');
+                    } elseif (auth()->user()->hasRole('Vicepresidente')) {
+                        $notificacionesRoute = route('vicepresidente.notificaciones');
+                    } elseif (auth()->user()->hasRole('Vocero')) {
+                        $notificacionesRoute = route('vocero.notificaciones');
+                    } elseif (auth()->user()->hasRole('Secretario')) {
+                        $notificacionesRoute = route('secretaria.notificaciones');
+                    } elseif (auth()->user()->hasRole('Tesorero')) {
+                        $notificacionesRoute = route('tesorero.notificaciones');
+                    } elseif (auth()->user()->hasRole('Aspirante')) {
+                        $notificacionesRoute = route('aspirante.notificaciones');
+                    }
                     
-                    @if($notificacionesRoute)
-                        <a href="{{ $notificacionesRoute }}" class="relative inline-flex items-center p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-150" title="Notificaciones">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                            </svg>
-                            <!-- Badge de notificaciones no leídas -->
-                            @if(isset($notificacionesNoLeidas) && $notificacionesNoLeidas > 0)
-                                <span class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full animate-pulse">
-                                    {{ $notificacionesNoLeidas }}
-                                </span>
-                            @endif
-                        </a>
-                    @endif
+                    // Contar notificaciones no leídas
+                    $notificacionesNoLeidas = \App\Models\Notificacion::where('usuario_id', auth()->id())->where('leida', false)->count();
+                @endphp
+                
+                @if($notificacionesRoute)
+                    <a href="{{ $notificacionesRoute }}" class="relative inline-flex items-center p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-150" title="Notificaciones">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <!-- Badge de notificaciones no leídas -->
+                        @if($notificacionesNoLeidas > 0)
+                            <span class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full animate-pulse">
+                                {{ $notificacionesNoLeidas }}
+                            </span>
+                        @endif
+                    </a>
                 @endif
 
                 <!-- Dropdown del Usuario - Oculto en la página de perfil -->
@@ -223,11 +230,8 @@
                     <x-responsive-nav-link :href="route('vicepresidente.estado.proyectos')" :active="request()->routeIs('vicepresidente.estado.proyectos')">
                         📂 Estado de Proyectos
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('vicepresidente.asistencia.reuniones')" :active="request()->routeIs('vicepresidente.asistencia.reuniones')">
-                        📋 Asistencia Reuniones
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('vicepresidente.asistencia.proyectos')" :active="request()->routeIs('vicepresidente.asistencia.proyectos')">
-                        👥 Participación Proyectos
+                    <x-responsive-nav-link :href="route('vicepresidente.usuarios.lista')" :active="request()->routeIs('vicepresidente.usuarios.*')">
+                        � Gestión de Usuarios
                     </x-responsive-nav-link>
                 </div>
             @endrole

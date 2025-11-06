@@ -55,18 +55,17 @@
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-lg font-semibold text-gray-800">Todos los Proyectos</h3>
-                        <div class="flex gap-2">
-                            <button onclick="exportarProyectosPDF()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded flex items-center gap-2">
+                        <div class="flex gap-2 items-center">
+                            <!-- Selector de formato -->
+                            <select id="formato-exportacion" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel (CSV)</option>
+                            </select>
+                            <button onclick="exportarProyectos()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2 shadow-md hover:shadow-lg transition-all">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
-                                Exportar PDF
-                            </button>
-                            <button onclick="exportarProyectosExcel()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                </svg>
-                                Exportar Excel
+                                Exportar
                             </button>
                         </div>
                     </div>
@@ -340,10 +339,179 @@
             }
         }
 
-        function verDetalleProyecto(id) {
-            // TODO: Implementar en futuro - modal de detalles del proyecto
-            console.log('Ver detalle proyecto:', id);
-            alert('Función de detalles próximamente disponible');
+        // Función para ver detalles completos del proyecto
+        function verDetalleProyecto(proyectoId) {
+            fetch(`{{ url('vicepresidente/proyectos') }}/${proyectoId}/detalles`)
+                .then(response => response.json())
+                .then(data => {
+                    mostrarModalDetalles(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar los detalles del proyecto');
+                });
+        }
+
+        // Mostrar modal con detalles completos
+        function mostrarModalDetalles(proyecto) {
+            const responsable = proyecto.responsable ? 
+                `${proyecto.responsable.Nombre} ${proyecto.responsable.Apellido}` : 'N/A';
+            
+            const fechaInicio = proyecto.FechaInicio ? 
+                new Date(proyecto.FechaInicio).toLocaleDateString('es-GT') : 'N/A';
+            
+            const fechaFin = proyecto.FechaFin ? 
+                new Date(proyecto.FechaFin).toLocaleDateString('es-GT') : 'En curso';
+
+            let participantesHTML = '<p class="text-gray-500 text-sm">No hay participantes registrados</p>';
+            if (proyecto.participaciones && proyecto.participaciones.length > 0) {
+                participantesHTML = '<div class="space-y-2">';
+                proyecto.participaciones.forEach(p => {
+                    const usuario = p.usuario || {};
+                    participantesHTML += `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="font-medium">${usuario.name || 'Participante'}</span>
+                            <span class="text-sm text-gray-600">${p.horas_dedicadas || 0} horas</span>
+                        </div>
+                    `;
+                });
+                participantesHTML += '</div>';
+            }
+
+            let cartasHTML = '<p class="text-gray-500 text-sm">No hay cartas de patrocinio</p>';
+            if (proyecto.cartas_patrocinio && proyecto.cartas_patrocinio.length > 0) {
+                cartasHTML = '<div class="space-y-2">';
+                proyecto.cartas_patrocinio.forEach(c => {
+                    const badgeClass = c.estado === 'Aprobada' ? 'bg-green-100 text-green-800' :
+                                       c.estado === 'Rechazada' ? 'bg-red-100 text-red-800' :
+                                       'bg-yellow-100 text-yellow-800';
+                    cartasHTML += `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="font-medium">${c.destinatario}</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm font-semibold">$${parseFloat(c.monto_solicitado).toFixed(2)}</span>
+                                <span class="px-3 py-1 text-xs rounded-full font-medium ${badgeClass}">${c.estado}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                cartasHTML += '</div>';
+            }
+
+            // Crear y mostrar el modal
+            const modalHTML = `
+                <div id="modalDetallesProyecto" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onclick="cerrarModalDetalles(event)">
+                    <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-xl sticky top-0 z-10">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h2 class="text-2xl font-bold">${proyecto.Nombre}</h2>
+                                    <p class="text-blue-100 mt-1">Proyecto #${proyecto.ProyectoID}</p>
+                                </div>
+                                <button onclick="cerrarModalDetalles()" class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-6 space-y-6">
+                            <!-- Información General -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                                    <p class="text-sm text-gray-600 mb-1">Responsable</p>
+                                    <p class="font-semibold text-gray-900">${responsable}</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                                    <p class="text-sm text-gray-600 mb-1">Estado</p>
+                                    <p class="font-semibold text-gray-900">${proyecto.EstadoProyecto || proyecto.Estatus || 'N/A'}</p>
+                                </div>
+                                <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+                                    <p class="text-sm text-gray-600 mb-1">Fecha Inicio</p>
+                                    <p class="font-semibold text-gray-900">${fechaInicio}</p>
+                                </div>
+                                <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                                    <p class="text-sm text-gray-600 mb-1">Fecha Fin</p>
+                                    <p class="font-semibold text-gray-900">${fechaFin}</p>
+                                </div>
+                            </div>
+
+                            <!-- Descripción -->
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    Descripción
+                                </h3>
+                                <p class="text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-200">${proyecto.Descripcion || 'Sin descripción disponible'}</p>
+                            </div>
+
+                            <!-- Estadísticas -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-xl text-center shadow-sm">
+                                    <p class="text-sm text-gray-600 mb-1">Presupuesto</p>
+                                    <p class="text-2xl font-bold text-blue-600">$${parseFloat(proyecto.Presupuesto || 0).toFixed(2)}</p>
+                                </div>
+                                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-5 rounded-xl text-center shadow-sm">
+                                    <p class="text-sm text-gray-600 mb-1">Participantes</p>
+                                    <p class="text-2xl font-bold text-purple-600">${proyecto.total_participantes || 0}</p>
+                                </div>
+                                <div class="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl text-center shadow-sm">
+                                    <p class="text-sm text-gray-600 mb-1">Horas Totales</p>
+                                    <p class="text-2xl font-bold text-green-600">${proyecto.horas_totales || 0}</p>
+                                </div>
+                            </div>
+
+                            <!-- Participantes -->
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                    Participantes
+                                </h3>
+                                ${participantesHTML}
+                            </div>
+
+                            <!-- Cartas de Patrocinio -->
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Cartas de Patrocinio
+                                </h3>
+                                ${cartasHTML}
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-6 rounded-b-xl flex justify-end border-t border-gray-200">
+                            <button onclick="cerrarModalDetalles()" class="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-md hover:shadow-lg">
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function cerrarModalDetalles(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById('modalDetallesProyecto');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Función unificada de exportación
+        function exportarProyectos() {
+            const formato = document.getElementById('formato-exportacion').value;
+            const url = `{{ route('vicepresidente.proyectos.exportar') }}?formato=${formato}`;
+            window.location.href = url;
         }
 
         function exportarProyectosPDF() {

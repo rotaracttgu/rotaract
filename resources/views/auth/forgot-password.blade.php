@@ -73,52 +73,25 @@
         .logo-container {
             text-align: center;
             animation: fadeInDown 0.8s ease-out;
-            background: linear-gradient(135deg, #e84d98 0%, #7b68ee 50%, #2dd4bf 100%);
-            padding: 35px 45px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(232, 77, 152, 0.3);
-            position: relative;
-            overflow: hidden;
+            padding: 0;
+            margin-bottom: 20px;
         }
 
-        .logo-container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transform: rotate(45deg);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% {
-                transform: translateX(-100%) translateY(-100%) rotate(45deg);
-            }
-            100% {
-                transform: translateX(100%) translateY(100%) rotate(45deg);
-            }
-        }
-
-        .logo-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .logo-container h1 {
-            color: white;
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .logo-container p {
-            color: rgba(255, 255, 255, 0.95);
-            font-size: 16px;
-            font-weight: 500;
+        .logo-container img {
+            max-width: 200px;
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            filter: 
+                brightness(0) 
+                saturate(100%) 
+                invert(24%) 
+                sepia(98%) 
+                saturate(3500%) 
+                hue-rotate(330deg) 
+                brightness(90%) 
+                contrast(92%);
         }
 
         @keyframes fadeInDown {
@@ -352,16 +325,11 @@
 </head>
 <body>
     <div class="forgot-wrapper">
-        <!-- Logo del Club con diseño moderno -->
-        <div class="logo-container">
-            <div class="logo-content">
-                <h1>Rotaract</h1>
-                <p>Club Tegucigalpa Sur</p>
-            </div>
-        </div>
-
         <div class="forgot-container">
-            <!-- Título y descripción -->
+            <!-- Logo y Título -->
+            <div class="logo-container">
+                <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract Club Tegucigalpa Sur">
+            </div>
             <h2 class="page-title">Recuperar Contraseña</h2>
             <p class="page-description">
                 ¿Olvidaste tu contraseña? No hay problema. Solo ingresa tu dirección de email y te enviaremos un enlace para restablecer tu contraseña.

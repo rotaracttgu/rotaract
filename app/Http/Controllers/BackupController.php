@@ -28,7 +28,7 @@ class BackupController extends Controller
             'ultimo_automatico' => Backup::where('tipo', 'automatico')->latest('fecha_ejecucion')->first()
         ];
         
-        return view('users.backup.index', compact('ultimoBackup', 'configuracion', 'historial', 'estadisticas'));
+        return view('modulos.users.backup.index', compact('ultimoBackup', 'configuracion', 'historial', 'estadisticas'));
     }
 
     public function ejecutarBackup(Request $request)

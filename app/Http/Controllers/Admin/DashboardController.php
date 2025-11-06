@@ -56,7 +56,7 @@ class DashboardController extends Controller
         
         $bitacoraStats = $this->obtenerEstadisticasBitacora();
 
-        return view('users.dashboard', compact(
+        return view('modulos.users.dashboard', compact(
             'totalUsuarios',
             'usuariosVerificados',
             'usuariosPendientes',
@@ -348,14 +348,48 @@ class DashboardController extends Controller
     }
 
     /**
+     * Muestra el calendario del Admin
+     */
+    public function calendario()
+    {
+        return view('modulos.admin.calendario');
+    }
+
+    /**
      * Mostrar el centro de notificaciones del Super Admin
      */
     public function notificaciones()
     {
-        // Por ahora retornamos un array vacío
-        // Aquí se implementará la lógica de notificaciones específicas del Super Admin
-        $notificaciones = [];
+        $notificacionService = app(\App\Services\NotificacionService::class);
         
-        return view('admin.notificaciones', compact('notificaciones'));
+        // Obtener todas las notificaciones del usuario actual
+        $notificaciones = $notificacionService->obtenerTodas(auth()->id(), 50);
+        
+        // Contar notificaciones no leídas
+        $noLeidas = $notificaciones->where('leida', false)->count();
+        
+        return view('modulos.admin.notificaciones', compact('notificaciones', 'noLeidas'));
+    }
+
+    /**
+     * Marcar una notificación como leída
+     */
+    public function marcarNotificacionLeida($id)
+    {
+        $notificacionService = app(\App\Services\NotificacionService::class);
+        $notificacionService->marcarComoLeida($id);
+        
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Marcar todas las notificaciones como leídas
+     */
+    public function marcarTodasNotificacionesLeidas()
+    {
+        $notificacionService = app(\App\Services\NotificacionService::class);
+        $notificacionService->marcarTodasComoLeidas(auth()->id());
+        
+        return response()->json(['success' => true]);
     }
 }

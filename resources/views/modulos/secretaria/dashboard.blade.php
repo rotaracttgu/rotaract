@@ -89,7 +89,7 @@
         </div>
 
         <!-- Tarjetas Principales con Enlaces Funcionales -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             
             <!-- Consultas Pendientes -->
             <a href="{{ route('secretaria.consultas.pendientes') }}" class="group bg-white rounded-2xl shadow-md hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 overflow-hidden">
@@ -171,6 +171,27 @@
                     <div class="text-sm text-gray-500 flex items-center gap-1">
                         <i class="fas fa-database"></i>
                         <span>{{ $estadisticas['categorias_documentos'] ?? 0 }} categorías</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Calendario -->
+            <a href="{{ route('secretaria.calendario') }}" class="group bg-white rounded-2xl shadow-md hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 overflow-hidden">
+                <div class="bg-gradient-to-r from-pink-500 to-rose-500 h-1.5"></div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-calendar-alt text-white text-2xl"></i>
+                        </div>
+                        <i class="fas fa-arrow-right text-gray-400 group-hover:text-pink-600 group-hover:translate-x-1 transition-all duration-300"></i>
+                    </div>
+                    <div class="text-4xl font-bold bg-gradient-to-r from-pink-500 to-rose-600 bg-clip-text text-transparent mb-2">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="text-gray-600 font-semibold mb-2">Calendario</div>
+                    <div class="text-sm text-gray-500 flex items-center gap-1">
+                        <i class="fas fa-clock"></i>
+                        <span>Eventos y reuniones</span>
                     </div>
                 </div>
             </a>

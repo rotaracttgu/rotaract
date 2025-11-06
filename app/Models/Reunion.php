@@ -9,19 +9,22 @@ class Reunion extends Model
 {
     use HasFactory;
 
+    protected $table = 'reunions';
+
     protected $fillable = [
-        'nombre',
+        'titulo',
         'descripcion',
-        'tipo', // directiva, general, comite, extraordinaria
-        'fecha',
-        'hora',
+        'fecha_hora',
         'lugar',
-        'total_esperados',
+        'tipo',
+        'estado',
+        'asistentes_esperados',
+        'observaciones',
     ];
 
     protected $casts = [
-        'fecha' => 'date',
-        'hora' => 'datetime',
+        'fecha_hora' => 'datetime',
+        'asistentes_esperados' => 'integer',
     ];
 
     // Relación con Asistencias
@@ -34,8 +37,8 @@ class Reunion extends Model
     public function porcentajeAsistencia()
     {
         $totalAsistentes = $this->asistencias()->where('asistio', true)->count();
-        return $this->total_esperados > 0 
-            ? round(($totalAsistentes / $this->total_esperados) * 100, 2) 
+        return $this->asistentes_esperados > 0 
+            ? round(($totalAsistentes / $this->asistentes_esperados) * 100, 2) 
             : 0;
     }
 }

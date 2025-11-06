@@ -1,1 +1,1 @@
-<img src="{{ asset('images/Logo_Rotarac.webp') }}" {{ $attributes }} alt="Rotaract Club Tegucigalpa Sur" style="filter: brightness(0) saturate(100%);">
+<img src="{{ asset('images/LogoRotaract.png') }}" {{ $attributes }} alt="Rotaract Club Tegucigalpa Sur" style="filter: brightness(0) saturate(100%) invert(24%) sepia(98%) saturate(3500%) hue-rotate(330deg) brightness(90%) contrast(92%);">

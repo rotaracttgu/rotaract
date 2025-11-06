@@ -7,8 +7,9 @@
     <title>{{ config('app.name', 'Laravel') }} - Vicepresidente</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @stack('styles')
 </head>
-<body class="font-sans antialiased bg-gray-50">
+<body class="font-sans antialiased bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
     <div class="min-h-screen">
         @include('layouts.navigation')
 
@@ -17,9 +18,9 @@
             <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
 
             <!-- Sidebar Mejorado con Responsive -->
-            <aside id="sidebar" class="fixed lg:static w-64 bg-white shadow-lg min-h-screen border-r border-gray-200 flex-shrink-0 z-40 -translate-x-full lg:translate-x-0 transition-transform duration-300">
+            <aside id="sidebar" class="fixed lg:static w-64 bg-white shadow-xl min-h-screen border-r border-gray-200 flex-shrink-0 z-40 -translate-x-full lg:translate-x-0 transition-transform duration-300">
                 <!-- Header del Sidebar -->
-                <div class="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white flex justify-between items-center">
+                <div class="p-6 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 text-white flex justify-between items-center">
                     <h2 class="text-xl font-bold">Vicepresidente</h2>
                     <!-- Botón cerrar en móvil -->
                     <button id="closeSidebar" class="lg:hidden text-white">
@@ -38,15 +39,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                         </svg>
                         Inicio
-                    </a>
-
-                    <!-- Calendario -->
-                    <a href="{{ route('vicepresidente.calendario') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('vicepresidente.calendario') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        Calendario
                     </a>
 
                     <!-- Cartas Patrocinio -->
@@ -76,22 +68,13 @@
                         Estado Proyectos
                     </a>
 
-                    <!-- Asist. Reuniones -->
-                    <a href="{{ route('vicepresidente.asistencia.reuniones') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('vicepresidente.asistencia.reuniones') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <!-- Gestión de Usuarios -->
+                    <a href="{{ route('vicepresidente.usuarios.lista') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('vicepresidente.usuarios.*') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
-                        Asist. Reuniones
-                    </a>
-
-                    <!-- Particip. Proyectos -->
-                    <a href="{{ route('vicepresidente.asistencia.proyectos') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('vicepresidente.asistencia.proyectos') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                        Particip. Proyectos
+                        Gestión de Usuarios
                     </a>
                 </nav>
 
@@ -192,5 +175,7 @@
             });
         });
     </script>
+    
+    @stack('scripts')
 </body>
 </html>

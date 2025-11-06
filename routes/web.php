@@ -7,6 +7,7 @@ use App\Http\Controllers\VoceroController;
 use App\Http\Controllers\TesoreroController;
 use App\Http\Controllers\VicepresidenteController;
 use App\Http\Controllers\SecretariaController;
+use App\Http\Controllers\PresidenteController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\CompleteProfileController;
@@ -126,7 +127,12 @@ Route::middleware(['auth', 'check.first.login'])->group(function () {
 Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Super Admin'])->name('admin.')->group(function () {
     // Dashboard de Super Admin
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/calendario', [DashboardController::class, 'calendario'])->name('calendario');
+    
+    // Notificaciones
     Route::get('/notificaciones', [DashboardController::class, 'notificaciones'])->name('notificaciones');
+    Route::post('/notificaciones/{id}/marcar-leida', [DashboardController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
+    Route::post('/notificaciones/marcar-todas-leidas', [DashboardController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
 
     // Gestión de usuarios (solo Super Admin)
     Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios.lista');
@@ -174,12 +180,38 @@ Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware:
 // RUTAS DEL MÓDULO PRESIDENTE
 // ============================================================================
 Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Presidente|Super Admin'])->name('presidente.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('presidente.dashboard');
-    })->name('dashboard');
-    Route::get('/notificaciones', function () {
-        return view('presidente.notificaciones', ['notificaciones' => []]);
-    })->name('notificaciones');
+    Route::get('/dashboard', [PresidenteController::class, 'dashboard'])->name('dashboard');
+    
+    // Notificaciones
+    Route::get('/notificaciones', [PresidenteController::class, 'notificaciones'])->name('notificaciones');
+    Route::post('/notificaciones/{id}/marcar-leida', [PresidenteController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
+    Route::post('/notificaciones/marcar-todas-leidas', [PresidenteController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
+    
+    // Cartas Formales
+    Route::get('/cartas/formales', [PresidenteController::class, 'cartasFormales'])->name('cartas.formales');
+    Route::get('/cartas/formales/{id}', [PresidenteController::class, 'showCartaFormal'])->name('cartas.formales.show');
+    Route::post('/cartas/formales', [PresidenteController::class, 'storeCartaFormal'])->name('cartas.formales.store');
+    Route::put('/cartas/formales/{id}', [PresidenteController::class, 'updateCartaFormal'])->name('cartas.formales.update');
+    Route::delete('/cartas/formales/{id}', [PresidenteController::class, 'destroyCartaFormal'])->name('cartas.formales.destroy');
+    
+    // Cartas Patrocinio
+    Route::get('/cartas/patrocinio', [PresidenteController::class, 'cartasPatrocinio'])->name('cartas.patrocinio');
+    Route::get('/cartas/patrocinio/{id}', [PresidenteController::class, 'showCartaPatrocinio'])->name('cartas.patrocinio.show');
+    Route::post('/cartas/patrocinio', [PresidenteController::class, 'storeCartaPatrocinio'])->name('cartas.patrocinio.store');
+    Route::put('/cartas/patrocinio/{id}', [PresidenteController::class, 'updateCartaPatrocinio'])->name('cartas.patrocinio.update');
+    Route::delete('/cartas/patrocinio/{id}', [PresidenteController::class, 'destroyCartaPatrocinio'])->name('cartas.patrocinio.destroy');
+    Route::get('/cartas/patrocinio/{id}/pdf', [PresidenteController::class, 'exportarCartaPatrocinioPDF'])->name('cartas.patrocinio.pdf');
+    Route::get('/cartas/formales/{id}/pdf', [PresidenteController::class, 'exportarCartaFormalPDF'])->name('cartas.formales.pdf');
+    Route::get('/cartas/formales/export/excel', [PresidenteController::class, 'exportarCartasFormalesExcel'])->name('cartas.formales.excel');
+    Route::get('/cartas/patrocinio/export/excel', [PresidenteController::class, 'exportarCartasPatrocinioExcel'])->name('cartas.patrocinio.excel');
+    
+    // Estado de Proyectos
+    Route::get('/estado/proyectos', [PresidenteController::class, 'estadoProyectos'])->name('estado.proyectos');
+    Route::get('/proyectos/{id}/detalles', [PresidenteController::class, 'detallesProyecto'])->name('proyectos.detalles');
+    Route::get('/proyectos/exportar', [PresidenteController::class, 'exportarProyectos'])->name('proyectos.exportar');
+    
+    Route::get('/reportes/dashboard', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
+    Route::get('/reportes/mensuales', [ReporteController::class, 'mensuales'])->name('reportes.mensuales');
     
     Route::prefix('bitacora')->name('bitacora.')->group(function () {
         Route::get('/', [BitacoraController::class, 'index'])->name('index');
@@ -193,17 +225,47 @@ Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddle
         Route::post('/{id}/resetear-intentos', [UsuariosBloqueadosController::class, 'resetearIntentos'])->name('resetear');
         Route::post('/desbloquear-todos', [UsuariosBloqueadosController::class, 'desbloquearTodos'])->name('desbloquear-todos');
     });
+
+    // Gestión de Usuarios
+    Route::prefix('usuarios')->name('usuarios.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('lista');
+        Route::get('/crear', [UserController::class, 'create'])->name('crear');
+        Route::post('/', [UserController::class, 'store'])->name('guardar');
+        Route::get('/{usuario}', [UserController::class, 'show'])->name('ver');
+        Route::get('/{usuario}/editar', [UserController::class, 'edit'])->name('editar');
+        Route::put('/{usuario}', [UserController::class, 'update'])->name('actualizar');
+        Route::delete('/{usuario}', [UserController::class, 'destroy'])->name('eliminar');
+    });
 });
 
+// ============================================================================
+// 🆕 RUTAS API DEL CALENDARIO (PRESIDENTE) - Sistema Integrado
+// ============================================================================
+Route::prefix('api/presidente/calendario')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Presidente|Super Admin'])->group(function () {
+    Route::get('/eventos', [PresidenteController::class, 'obtenerEventos']);
+    Route::post('/eventos', [PresidenteController::class, 'crearEvento']);
+    Route::put('/eventos/{id}', [PresidenteController::class, 'actualizarEvento']);
+    Route::delete('/eventos/{id}', [PresidenteController::class, 'eliminarEvento']);
+    Route::patch('/eventos/{id}/fechas', [PresidenteController::class, 'actualizarFechas']);
+    Route::get('/miembros', [PresidenteController::class, 'obtenerMiembros']);
+    Route::get('/eventos/{id}/asistencias', [PresidenteController::class, 'obtenerAsistenciasEvento']);
+    Route::post('/asistencias', [PresidenteController::class, 'registrarAsistencia']);
+    Route::put('/asistencias/{id}', [PresidenteController::class, 'actualizarAsistencia']);
+    Route::delete('/asistencias/{id}', [PresidenteController::class, 'eliminarAsistencia']);
+});
+
+// ============================================================================
+// ============================================================================
 // ============================================================================
 // RUTAS DEL MÓDULO VICEPRESIDENTE
 // ============================================================================
     Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Vicepresidente|Presidente|Super Admin'])->name('vicepresidente.')->group(function () {
     Route::get('/dashboard', [VicepresidenteController::class, 'dashboard'])->name('dashboard');
-    Route::get('/calendario', [VicepresidenteController::class, 'calendario'])->name('calendario');
+    
+    // Notificaciones
     Route::get('/notificaciones', [VicepresidenteController::class, 'notificaciones'])->name('notificaciones');
-    Route::get('/asistencia/proyectos', [VicepresidenteController::class, 'asistenciaProyectos'])->name('asistencia.proyectos');
-    Route::get('/asistencia/reuniones', [VicepresidenteController::class, 'asistenciaReuniones'])->name('asistencia.reuniones');
+    Route::post('/notificaciones/{id}/marcar-leida', [VicepresidenteController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
+    Route::post('/notificaciones/marcar-todas-leidas', [VicepresidenteController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
     
     // Cartas Formales
     Route::get('/cartas/formales', [VicepresidenteController::class, 'cartasFormales'])->name('cartas.formales');
@@ -218,11 +280,45 @@ Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddle
     Route::post('/cartas/patrocinio', [VicepresidenteController::class, 'storeCartaPatrocinio'])->name('cartas.patrocinio.store');
     Route::put('/cartas/patrocinio/{id}', [VicepresidenteController::class, 'updateCartaPatrocinio'])->name('cartas.patrocinio.update');
     Route::delete('/cartas/patrocinio/{id}', [VicepresidenteController::class, 'destroyCartaPatrocinio'])->name('cartas.patrocinio.destroy');
+    Route::get('/cartas/patrocinio/{id}/pdf', [VicepresidenteController::class, 'exportarCartaPatrocinioPDF'])->name('cartas.patrocinio.pdf');
+    Route::get('/cartas/formales/{id}/pdf', [VicepresidenteController::class, 'exportarCartaFormalPDF'])->name('cartas.formales.pdf');
+    Route::get('/cartas/formales/export/excel', [VicepresidenteController::class, 'exportarCartasFormalesExcel'])->name('cartas.formales.excel');
+    Route::get('/cartas/patrocinio/export/excel', [VicepresidenteController::class, 'exportarCartasPatrocinioExcel'])->name('cartas.patrocinio.excel');
     
+    // Estado de Proyectos
     Route::get('/estado/proyectos', [VicepresidenteController::class, 'estadoProyectos'])->name('estado.proyectos');
+    Route::get('/proyectos/{id}/detalles', [VicepresidenteController::class, 'detallesProyecto'])->name('proyectos.detalles');
+    Route::get('/proyectos/exportar', [VicepresidenteController::class, 'exportarProyectos'])->name('proyectos.exportar');
     
     Route::get('/reportes/dashboard', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
     Route::get('/reportes/mensuales', [ReporteController::class, 'mensuales'])->name('reportes.mensuales');
+
+    // Gestión de Usuarios
+    Route::prefix('usuarios')->name('usuarios.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('lista');
+        Route::get('/crear', [UserController::class, 'create'])->name('crear');
+        Route::post('/', [UserController::class, 'store'])->name('guardar');
+        Route::get('/{usuario}', [UserController::class, 'show'])->name('ver');
+        Route::get('/{usuario}/editar', [UserController::class, 'edit'])->name('editar');
+        Route::put('/{usuario}', [UserController::class, 'update'])->name('actualizar');
+        Route::delete('/{usuario}', [UserController::class, 'destroy'])->name('eliminar');
+    });
+});
+
+// ============================================================================
+// 🆕 RUTAS API DEL CALENDARIO (VICEPRESIDENTE) - Sistema Integrado
+// ============================================================================
+Route::prefix('api/vicepresidente/calendario')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Vicepresidente|Presidente|Super Admin'])->group(function () {
+    Route::get('/eventos', [VicepresidenteController::class, 'obtenerEventos']);
+    Route::post('/eventos', [VicepresidenteController::class, 'crearEvento']);
+    Route::put('/eventos/{id}', [VicepresidenteController::class, 'actualizarEvento']);
+    Route::delete('/eventos/{id}', [VicepresidenteController::class, 'eliminarEvento']);
+    Route::patch('/eventos/{id}/fechas', [VicepresidenteController::class, 'actualizarFechas']);
+    Route::get('/miembros', [VicepresidenteController::class, 'obtenerMiembros']);
+    Route::get('/eventos/{id}/asistencias', [VicepresidenteController::class, 'obtenerAsistenciasEvento']);
+    Route::post('/asistencias', [VicepresidenteController::class, 'registrarAsistencia']);
+    Route::put('/asistencias/{id}', [VicepresidenteController::class, 'actualizarAsistencia']);
+    Route::delete('/asistencias/{id}', [VicepresidenteController::class, 'eliminarAsistencia']);
 });
 
 // ============================================================================
@@ -233,6 +329,11 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
     Route::get('/dashboard', [TesoreroController::class, 'index'])->name('dashboard');
     Route::get('/calendario', [TesoreroController::class, 'calendario'])->name('calendario');
     Route::get('/finanzas', [TesoreroController::class, 'finanzas'])->name('finanzas');
+    
+    // Notificaciones
+    Route::get('/notificaciones', [TesoreroController::class, 'notificaciones'])->name('notificaciones');
+    Route::post('/notificaciones/{id}/marcar-leida', [TesoreroController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
+    Route::post('/notificaciones/marcar-todas-leidas', [TesoreroController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
 });
 
 // ============================================================================
@@ -241,6 +342,7 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
 Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Secretario|Presidente|Super Admin'])->group(function () {
     // Dashboard principal
     Route::get('/dashboard', [SecretariaController::class, 'dashboard'])->name('dashboard');
+    Route::get('/calendario', [SecretariaController::class, 'calendario'])->name('calendario');
     
     // Consultas
     Route::get('/consultas', [SecretariaController::class, 'consultas'])->name('consultas');
@@ -271,6 +373,34 @@ Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.fir
     Route::post('/documentos', [SecretariaController::class, 'storeDocumento']);
     Route::post('/documentos/{id}', [SecretariaController::class, 'updateDocumento']);
     Route::delete('/documentos/{id}', [SecretariaController::class, 'eliminarDocumento']);
+    
+    // Notificaciones
+    Route::get('/notificaciones', [SecretariaController::class, 'notificaciones'])->name('notificaciones');
+    Route::post('/notificaciones/{id}/marcar-leida', [SecretariaController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
+    Route::post('/notificaciones/marcar-todas-leidas', [SecretariaController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
+    
+    // 🆕 Asistencias
+    Route::get('/asistencias', [SecretariaController::class, 'gestionAsistencias'])->name('asistencias');
+    Route::get('/eventos/{id}/asistencias', [SecretariaController::class, 'obtenerAsistenciasEvento']);
+    Route::post('/asistencias', [SecretariaController::class, 'registrarAsistencia']);
+    Route::put('/asistencias/{id}', [SecretariaController::class, 'actualizarAsistencia']);
+    Route::delete('/asistencias/{id}', [SecretariaController::class, 'eliminarAsistencia']);
+});
+
+// ============================================================================
+// 🆕 RUTAS API DEL CALENDARIO (SECRETARIA)
+// ============================================================================
+Route::prefix('api/secretaria/calendario')->middleware(['auth', 'check.first.login'])->group(function () {
+    Route::get('/eventos', [SecretariaController::class, 'obtenerEventos']);
+    Route::post('/eventos', [SecretariaController::class, 'crearEvento']);
+    Route::put('/eventos/{id}', [SecretariaController::class, 'actualizarEvento']);
+    Route::delete('/eventos/{id}', [SecretariaController::class, 'eliminarEvento']);
+    Route::patch('/eventos/{id}/fechas', [SecretariaController::class, 'actualizarFechas']);
+    Route::get('/miembros', [SecretariaController::class, 'obtenerMiembros']);
+    Route::get('/eventos/{id}/asistencias', [SecretariaController::class, 'obtenerAsistenciasEvento']);
+    Route::post('/asistencias', [SecretariaController::class, 'registrarAsistencia']);
+    Route::put('/asistencias/{id}', [SecretariaController::class, 'actualizarAsistencia']);
+    Route::delete('/asistencias/{id}', [SecretariaController::class, 'eliminarAsistencia']);
 });
 
 // ============================================================================
@@ -281,9 +411,9 @@ Route::prefix('vocero')->middleware(['auth', 'check.first.login', RoleMiddleware
     Route::get('/bienvenida', [VoceroController::class, 'welcome'])->name('bienvenida');
     Route::get('/calendario', [VoceroController::class, 'calendario'])->name('calendario');
     Route::get('/dashboard', [VoceroController::class, 'dashboard'])->name('dashboard');
-    Route::get('/notificaciones', function () {
-        return view('modulos.vocero.notificaciones', ['notificaciones' => []]);
-    })->name('notificaciones');
+    Route::get('/notificaciones', [VoceroController::class, 'notificaciones'])->name('notificaciones');
+    Route::post('/notificaciones/{id}/marcar-leida', [VoceroController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
+    Route::post('/notificaciones/marcar-todas-leidas', [VoceroController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
     Route::get('/asistencias', [VoceroController::class, 'gestionAsistencias'])->name('asistencias');
     Route::get('/eventos', [VoceroController::class, 'gestionEventos'])->name('eventos');
     Route::get('/reportes', [VoceroController::class, 'reportesAnalisis'])->name('reportes');
