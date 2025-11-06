@@ -17,12 +17,12 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProyectosExport;
 
-class VicepresidenteController extends Controller
+class PresidenteController extends Controller
 {
     // *** 1. PANEL PRINCIPAL (DASHBOARD) ***
 
     /**
-     * Muestra el panel principal (Dashboard) del vicepresidente.
+     * Muestra el panel principal (Dashboard) del presidente.
      */
     public function dashboard()
     {
@@ -57,7 +57,7 @@ class VicepresidenteController extends Controller
             'datosActividad' => $datosActividad,
         ];
 
-        return view('modulos.vicepresidente.dashboard', $datos);
+        return view('modulos.presidente.dashboard', $datos);
     }
 
     /**
@@ -704,7 +704,7 @@ class VicepresidenteController extends Controller
                 } elseif ($usuario->hasRole(['Admin', 'Super Admin'])) {
                     $urlCalendario = route('admin.dashboard');
                 } else {
-                    $urlCalendario = route('vicepresidente.dashboard'); // Fallback
+                    $urlCalendario = route('presidente.dashboard'); // Fallback
                 }
                 
                 $notificacionService->crear(
@@ -763,7 +763,7 @@ class VicepresidenteController extends Controller
         // Contar notificaciones no leídas
         $noLeidas = $notificaciones->where('leida', false)->count();
         
-        return view('modulos.vicepresidente.notificaciones', compact('notificaciones', 'noLeidas'));
+        return view('modulos.presidente.notificaciones', compact('notificaciones', 'noLeidas'));
     }
 
     /**
@@ -806,7 +806,7 @@ class VicepresidenteController extends Controller
             'recibidas' => $cartas->where('estado', 'Recibida')->count(),
         ];
 
-        return view('modulos.vicepresidente.cartas-formales', compact('cartas', 'estadisticas'));
+        return view('modulos.presidente.cartas-formales', compact('cartas', 'estadisticas'));
     }
 
     // *** 3. CARTAS DE PATROCINIO ***
@@ -831,7 +831,7 @@ class VicepresidenteController extends Controller
         // Obtener lista de proyectos para los dropdowns
         $proyectos = Proyecto::orderBy('Nombre')->get();
 
-        return view('modulos.vicepresidente.cartas-patrocinio', compact('cartas', 'estadisticas', 'proyectos'));
+        return view('modulos.presidente.cartas-patrocinio', compact('cartas', 'estadisticas', 'proyectos'));
     }
 
     // *** 4. ESTADO DE PROYECTOS ***
@@ -861,7 +861,7 @@ class VicepresidenteController extends Controller
             'cancelados' => 0,
         ];
 
-        return view('modulos.vicepresidente.estado-proyectos', compact('proyectos', 'estadisticas'));
+        return view('modulos.presidente.estado-proyectos', compact('proyectos', 'estadisticas'));
     }
 
     /**
@@ -895,7 +895,7 @@ class VicepresidenteController extends Controller
      */
     private function exportarProyectosPDF($proyectos)
     {
-        $pdf = Pdf::loadView('modulos.vicepresidente.exports.proyectos-pdf', compact('proyectos'));
+        $pdf = Pdf::loadView('modulos.presidente.exports.proyectos-pdf', compact('proyectos'));
         return $pdf->download('proyectos-' . now()->format('Y-m-d') . '.pdf');
     }
 
@@ -997,7 +997,7 @@ class VicepresidenteController extends Controller
 
         CartaFormal::create($validated);
 
-        return redirect()->route('vicepresidente.cartas.formales')
+        return redirect()->route('presidente.cartas.formales')
                         ->with('success', 'Carta formal creada exitosamente.');
     }
 
@@ -1021,7 +1021,7 @@ class VicepresidenteController extends Controller
 
         $carta->update($validated);
 
-        return redirect()->route('vicepresidente.cartas.formales')
+        return redirect()->route('presidente.cartas.formales')
                         ->with('success', 'Carta formal actualizada exitosamente.');
     }
 
@@ -1033,7 +1033,7 @@ class VicepresidenteController extends Controller
         $carta = CartaFormal::findOrFail($id);
         $carta->delete();
 
-        return redirect()->route('vicepresidente.cartas.formales')
+        return redirect()->route('presidente.cartas.formales')
                         ->with('success', 'Carta formal eliminada exitosamente.');
     }
 
@@ -1070,7 +1070,7 @@ class VicepresidenteController extends Controller
 
         CartaPatrocinio::create($validated);
 
-        return redirect()->route('vicepresidente.cartas.patrocinio')
+        return redirect()->route('presidente.cartas.patrocinio')
                         ->with('success', 'Carta de patrocinio creada exitosamente.');
     }
 
@@ -1095,7 +1095,7 @@ class VicepresidenteController extends Controller
 
         $carta->update($validated);
 
-        return redirect()->route('vicepresidente.cartas.patrocinio')
+        return redirect()->route('presidente.cartas.patrocinio')
                         ->with('success', 'Carta de patrocinio actualizada exitosamente.');
     }
 
@@ -1107,7 +1107,7 @@ class VicepresidenteController extends Controller
         $carta = CartaPatrocinio::findOrFail($id);
         $carta->delete();
 
-        return redirect()->route('vicepresidente.cartas.patrocinio')
+        return redirect()->route('presidente.cartas.patrocinio')
                         ->with('success', 'Carta de patrocinio eliminada exitosamente.');
     }
 
@@ -1120,7 +1120,7 @@ class VicepresidenteController extends Controller
     {
         $carta = CartaFormal::with('usuario')->findOrFail($id);
         
-        $pdf = Pdf::loadView('modulos.vicepresidente.exports.carta-formal-pdf', compact('carta'));
+        $pdf = Pdf::loadView('modulos.presidente.exports.carta-formal-pdf', compact('carta'));
         $pdf->setPaper('letter');
         
         $filename = 'carta-formal-' . $carta->numero_carta . '-' . now()->format('Y-m-d') . '.pdf';
@@ -1135,7 +1135,7 @@ class VicepresidenteController extends Controller
     {
         $carta = CartaPatrocinio::with(['proyecto', 'usuario'])->findOrFail($id);
         
-        $pdf = Pdf::loadView('modulos.vicepresidente.exports.carta-patrocinio-pdf', compact('carta'));
+        $pdf = Pdf::loadView('modulos.presidente.exports.carta-patrocinio-pdf', compact('carta'));
         $pdf->setPaper('letter');
         
         $filename = 'carta-patrocinio-' . $carta->numero_carta . '-' . now()->format('Y-m-d') . '.pdf';

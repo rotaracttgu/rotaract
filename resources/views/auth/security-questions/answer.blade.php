@@ -23,24 +23,25 @@
             transform: translateY(-5px);
         }
         .logo-circle {
-            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
+            width: auto;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto;
-            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
-            transition: transform 0.3s ease;
-        }
-        .logo-circle:hover {
-            transform: scale(1.1) rotate(5deg);
         }
         .logo-pink {
-            max-width: 50px;
+            max-width: 150px;
+            width: 100%;
             height: auto;
-            filter: brightness(0) invert(1);
+            filter: 
+                brightness(0) 
+                saturate(100%) 
+                invert(24%) 
+                sepia(98%) 
+                saturate(3500%) 
+                hue-rotate(330deg) 
+                brightness(90%) 
+                contrast(92%);
         }
         .btn-custom {
             background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
@@ -126,7 +127,7 @@
         <div class="w-full max-w-md card-custom">
             <header class="text-center px-6 pt-8 pb-6">
                 <div class="logo-circle">
-                    <img src="{{ asset('images/Logo_Rotarac.webp') }}" alt="Rotaract" class="logo-pink" />
+                    <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract" class="logo-pink" />
                 </div>
                 <h1 id="page-title" class="text-2xl font-black gradient-text mt-4">
                     🔒 Preguntas de Seguridad

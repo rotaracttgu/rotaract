@@ -1,4 +1,4 @@
-@extends('modulos.vicepresidente.layout')
+@extends('modulos.presidente.layout')
 
 @push('styles')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/index.global.min.css" rel="stylesheet">
@@ -42,7 +42,7 @@
         <h1 class="text-2xl font-bold">
             Resumen general de actividades y <span class="text-yellow-300">proyectos</span>
         </h1>
-        <p class="text-blue-100 mt-2">Bienvenido al panel de control del Vicepresidente</p>
+        <p class="text-blue-100 mt-2">Bienvenido al panel de control del presidente</p>
     </div>
 
     <!-- Tarjetas de Estadísticas con diseño mejorado -->
@@ -173,7 +173,7 @@
                 </h2>
 
                 <div class="space-y-3">
-                    <a href="{{ route('vicepresidente.estado.proyectos') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 shadow-sm hover:shadow-md group">
+                    <a href="{{ route('presidente.estado.proyectos') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 shadow-sm hover:shadow-md group">
                         <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl mr-3 group-hover:scale-110 transition-transform">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -182,7 +182,7 @@
                         <span class="font-bold">Nuevo Proyecto</span>
                     </a>
 
-                    <a href="{{ route('vicepresidente.cartas.patrocinio') }}" class="flex items-center p-4 bg-gradient-to-r from-orange-50 to-orange-100 text-orange-700 rounded-xl hover:from-orange-100 hover:to-orange-200 transition-all duration-300 shadow-sm hover:shadow-md group">
+                    <a href="{{ route('presidente.cartas.patrocinio') }}" class="flex items-center p-4 bg-gradient-to-r from-orange-50 to-orange-100 text-orange-700 rounded-xl hover:from-orange-100 hover:to-orange-200 transition-all duration-300 shadow-sm hover:shadow-md group">
                         <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-3 rounded-xl mr-3 group-hover:scale-110 transition-transform">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -191,7 +191,7 @@
                         <span class="font-bold">Enviar Carta</span>
                     </a>
 
-                    <a href="{{ route('vicepresidente.cartas.formales') }}" class="flex items-center p-4 bg-gradient-to-r from-green-50 to-green-100 text-green-700 rounded-xl hover:from-green-100 hover:to-green-200 transition-all duration-300 shadow-sm hover:shadow-md group">
+                    <a href="{{ route('presidente.cartas.formales') }}" class="flex items-center p-4 bg-gradient-to-r from-green-50 to-green-100 text-green-700 rounded-xl hover:from-green-100 hover:to-green-200 transition-all duration-300 shadow-sm hover:shadow-md group">
                         <div class="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-xl mr-3 group-hover:scale-110 transition-transform">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -286,13 +286,17 @@
                 selectMirror: true,
                 dayMaxEvents: true,
                 events: {
-                    url: '/api/vicepresidente/calendario/eventos',
+                    url: '/api/presidente/calendario/eventos',
                     method: 'GET',
-                    failure: function() {
+                    extraParams: function() {
+                        return {};
+                    },
+                    failure: function(error) {
+                        console.error('Error al cargar eventos:', error);
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'No se pudieron cargar los eventos'
+                            text: 'No se pudieron cargar los eventos: ' + (error.message || 'Error desconocido')
                         });
                     }
                 },
@@ -312,7 +316,7 @@
             // Botón Nuevo Evento
             document.getElementById('btnNuevoEvento').addEventListener('click', function() {
                 // Primero cargar lista de miembros
-                fetch('/api/vicepresidente/calendario/miembros', {
+                fetch('/api/presidente/calendario/miembros', {
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     }
@@ -327,11 +331,11 @@
                     }
                     
                     Swal.fire({
-                        title: '<span style="color: #ea580c;">Crear Nuevo Evento</span>',
+                        title: '<span style="color: #7c3aed;">Crear Nuevo Evento</span>',
                         html: `
                             <style>
-                                .custom-modal-vicepresidente .swal2-title {
-                                    background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%);
+                                .custom-modal-presidente .swal2-title {
+                                    background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
                                     -webkit-background-clip: text;
                                     -webkit-text-fill-color: transparent;
                                     font-weight: 700;
@@ -363,8 +367,8 @@
                                 }
                                 .form-input-custom:focus {
                                     outline: none;
-                                    border-color: #ea580c;
-                                    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+                                    border-color: #7c3aed;
+                                    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
                                 }
                                 .form-select-custom {
                                     width: 100%;
@@ -378,8 +382,8 @@
                                 }
                                 .form-select-custom:focus {
                                     outline: none;
-                                    border-color: #ea580c;
-                                    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+                                    border-color: #7c3aed;
+                                    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
                                 }
                                 .form-textarea-custom {
                                     width: 100%;
@@ -394,8 +398,8 @@
                                 }
                                 .form-textarea-custom:focus {
                                     outline: none;
-                                    border-color: #ea580c;
-                                    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+                                    border-color: #7c3aed;
+                                    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
                                 }
                                 .row-custom {
                                     display: grid;
@@ -461,14 +465,14 @@
                         width: '750px',
                         heightAuto: false,
                         customClass: {
-                            container: 'custom-modal-vicepresidente',
+                            container: 'custom-modal-presidente',
                             confirmButton: 'swal2-confirm swal2-styled',
                             cancelButton: 'swal2-cancel swal2-styled'
                         },
                         showCancelButton: true,
                         confirmButtonText: '<i class="fas fa-plus-circle"></i> Crear Evento',
                         cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
-                        confirmButtonColor: '#ea580c',
+                        confirmButtonColor: '#7c3aed',
                         cancelButtonColor: '#6b7280',
                         didOpen: () => {
                             // Agregar función para actualizar campos de detalle
@@ -565,7 +569,7 @@
 
             // Función para crear evento
             function crearEvento(datos) {
-                fetch('/api/vicepresidente/calendario/eventos', {
+                fetch('/api/presidente/calendario/eventos', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -642,7 +646,7 @@
                 const detalles = props.detalles || {};
                 
                 // Primero cargar lista de miembros
-                fetch('/api/vicepresidente/calendario/miembros', {
+                fetch('/api/presidente/calendario/miembros', {
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     }
@@ -662,11 +666,11 @@
                     const fechaFin = evento.end ? evento.end.toISOString().slice(0, 16) : '';
                     
                     Swal.fire({
-                        title: '<span style="color: #ea580c;">Editar Evento</span>',
+                        title: '<span style="color: #7c3aed;">Editar Evento</span>',
                         html: `
                             <style>
-                                .custom-modal-vicepresidente .swal2-title {
-                                    background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%);
+                                .custom-modal-presidente .swal2-title {
+                                    background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
                                     -webkit-background-clip: text;
                                     -webkit-text-fill-color: transparent;
                                     font-weight: 700;
@@ -698,8 +702,8 @@
                                 }
                                 .form-input-custom:focus {
                                     outline: none;
-                                    border-color: #ea580c;
-                                    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+                                    border-color: #7c3aed;
+                                    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
                                 }
                                 .form-select-custom {
                                     width: 100%;
@@ -713,8 +717,8 @@
                                 }
                                 .form-select-custom:focus {
                                     outline: none;
-                                    border-color: #ea580c;
-                                    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+                                    border-color: #7c3aed;
+                                    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
                                 }
                                 .row-custom {
                                     display: grid;
@@ -780,14 +784,14 @@
                         width: '750px',
                         heightAuto: false,
                         customClass: {
-                            container: 'custom-modal-vicepresidente',
+                            container: 'custom-modal-presidente',
                             confirmButton: 'swal2-confirm swal2-styled',
                             cancelButton: 'swal2-cancel swal2-styled'
                         },
                         showCancelButton: true,
                         confirmButtonText: '<i class="fas fa-save"></i> Guardar Cambios',
                         cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
-                        confirmButtonColor: '#ea580c',
+                        confirmButtonColor: '#7c3aed',
                         cancelButtonColor: '#6b7280',
                         didOpen: () => {
                             // Agregar función para actualizar campos de detalle en edición
@@ -887,7 +891,7 @@
 
             // 🆕 Función para actualizar evento
             function actualizarEvento(eventoId, datos) {
-                fetch(`/api/vicepresidente/calendario/eventos/${eventoId}`, {
+                fetch(`/api/presidente/calendario/eventos/${eventoId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -955,7 +959,7 @@
                     cancelButtonText: 'Cancelar'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch(`/api/vicepresidente/calendario/eventos/${eventoId}`, {
+                        fetch(`/api/presidente/calendario/eventos/${eventoId}`, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
@@ -994,7 +998,7 @@
 
             // Función para actualizar fechas del evento (drag & drop)
             function actualizarFechasEvento(evento) {
-                fetch(`/api/vicepresidente/calendario/eventos/${evento.id}/fechas`, {
+                fetch(`/api/presidente/calendario/eventos/${evento.id}/fechas`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',

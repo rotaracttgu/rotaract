@@ -3,7 +3,7 @@
 @section('header')
     <div class="flex justify-between items-center p-6 bg-gradient-to-br from-indigo-900 to-gray-900 text-white shadow-xl">
         <div class="flex items-center space-x-4">
-            <a href="{{ route('admin.usuarios.lista') }}" class="flex items-center text-white hover:text-indigo-200 transition-colors duration-200 transform hover:scale-105">
+            <a href="{{ route(($moduloActual ?? 'admin') . '.usuarios.lista') }}" class="flex items-center text-white hover:text-indigo-200 transition-colors duration-200 transform hover:scale-105">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -16,7 +16,7 @@
         
         <!-- Botones de Acción -->
         <div class="flex items-center space-x-3">
-            <a href="{{ route('admin.usuarios.editar', $usuario) }}" 
+            <a href="{{ route(($moduloActual ?? 'admin') . '.usuarios.editar', $usuario) }}" 
                 class="inline-flex items-center px-4 py-2 border border-teal-300 text-sm font-bold rounded-xl text-teal-700 bg-teal-50 hover:bg-teal-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all duration-200 transform hover:scale-105 shadow-md">
                 <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -24,7 +24,7 @@
                 Editar
             </a>
             
-            <form method="POST" action="{{ route('admin.usuarios.eliminar', $usuario) }}" class="inline-block" 
+            <form method="POST" action="{{ route(($moduloActual ?? 'admin') . '.usuarios.eliminar', $usuario) }}" class="inline-block" 
                   onsubmit="return confirm('¿Está seguro de que desea eliminar este usuario? Esta acción no se puede deshacer.');">
                 @csrf
                 @method('DELETE')

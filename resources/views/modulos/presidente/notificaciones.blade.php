@@ -1,20 +1,18 @@
-@extends('layouts.app')
-
-@section('title', 'Notificaciones - Vicepresidente')
+@extends('modulos.presidente.layout')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+<div class="flex-1 p-6 ml-0 lg:ml-64">
     <div class="max-w-7xl mx-auto">
         
         <!-- Header -->
         <div class="mb-6 flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                     Centro de Notificaciones
                 </h1>
                 <p class="text-gray-600 mt-1">Alertas y avisos importantes del sistema</p>
             </div>
-            <a href="{{ route('vicepresidente.dashboard') }}" class="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
+            <a href="{{ route('presidente.dashboard') }}" class="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
@@ -73,11 +71,13 @@
                                     $enlace = route('admin.dashboard');
                                 }
                             } elseif(str_contains($notificacion->tipo, 'proyecto')) {
-                                // Proyectos - redirigir a estado de proyectos
-                                $enlace = route('vicepresidente.estado.proyectos');
+                                // Proyectos en Presidente
+                                $enlace = route('presidente.estado.proyectos');
                             } elseif(str_contains($notificacion->tipo, 'carta')) {
-                                // Cartas en Vicepresidente
-                                $enlace = route('vicepresidente.cartas.formales');
+                                // Cartas en Presidente
+                                if($userRole === 'Presidente') {
+                                    $enlace = route('presidente.cartas.formales');
+                                }
                             }
                         @endphp
                         
@@ -190,7 +190,7 @@
     }
 
     function markAsRead(id) {
-        fetch(`/vicepresidente/notificaciones/${id}/marcar-leida`, {
+        fetch(`/presidente/notificaciones/${id}/marcar-leida`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -218,7 +218,7 @@
     function markAsReadAndGo(event, id, url) {
         event.preventDefault();
         
-        fetch(`/vicepresidente/notificaciones/${id}/marcar-leida`, {
+        fetch(`/presidente/notificaciones/${id}/marcar-leida`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -235,7 +235,7 @@
 
     function markAllAsRead() {
         if (confirm('¿Marcar todas las notificaciones como leídas?')) {
-            fetch('/vicepresidente/notificaciones/marcar-todas-leidas', {
+            fetch('/presidente/notificaciones/marcar-todas-leidas', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

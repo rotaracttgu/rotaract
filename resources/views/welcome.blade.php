@@ -40,9 +40,9 @@
         position: relative;
         z-index: 2;
         text-align: center;
-        max-width: 500px;
+        max-width: 420px;
         width: 100%;
-        padding: 40px;
+        padding: 35px;
         background-color: rgba(255, 255, 255, 0.1); 
         border-radius: 15px;
         border: 1px solid rgba(255, 255, 255, 0.2); 
@@ -54,13 +54,16 @@
     .logo-impact {
         width: 340px; 
         height: auto;
-        margin-bottom: 25px;
-        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+        margin: 0 auto 25px auto;
+        display: block;
+        filter: 
+            brightness(0) 
+            invert(1);
     }
 
     /* 4. Tipografía */
     .impact-title {
-        font-size: 2.8em;
+        font-size: 2.4em;
         font-weight: 800;
         color: #ffffff;
         margin-bottom: 10px;
@@ -69,9 +72,9 @@
     }
 
     .impact-subtitle {
-        font-size: 1.2em;
+        font-size: 1.1em;
         color: #e0e0e0;
-        margin-bottom: 35px;
+        margin-bottom: 30px;
         font-weight: 300;
         line-height: 1.5;
         text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
@@ -118,7 +121,7 @@
 
 <div class="impact-hero-container">
     <div class="impact-card">
-        <img src="{{ asset('images/Logo_Rotarac.webp') }}" alt="Logo Rotaract Club" class="logo-impact">
+        <img src="{{ asset('images/LogoRotaract.png') }}" alt="Logo Rotaract Club" class="logo-impact">
 
         <h1 class="impact-title">Haciendo la Diferencia en Tegucigalpa</h1> 
         

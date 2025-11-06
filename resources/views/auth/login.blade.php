@@ -36,9 +36,9 @@
             background: #ffffff; /* White */
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
-            padding: 30px 40px;
+            padding: 25px 35px;
             animation: fadeInUp 0.8s ease-out;
             position: relative;
             z-index: 1;
@@ -75,13 +75,8 @@
             text-align: center;
             animation: fadeInDown 0.8s ease-out;
             width: 100%;
-            padding: 15px 0 25px 0;
-            margin-bottom: 10px;
-        }
-
-        .logo-container {
-            position: relative;
-            display: inline-block;
+            padding: 0;
+            margin-bottom: 20px;
         }
 
         .logo-container img {
@@ -90,63 +85,16 @@
             height: auto;
             display: block;
             margin: 0 auto;
+            transition: all 0.3s ease;
             filter: 
                 brightness(0) 
                 saturate(100%) 
-                invert(27%) 
-                sepia(51%) 
-                saturate(2878%) 
-                hue-rotate(346deg) 
-                brightness(104%) 
-                contrast(97%);
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Multicolor gradient overlay with blend modes */
-        .logo-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 280px;
-            height: 100%;
-            background: linear-gradient(135deg, #d41367 0%, #901f93 25%, #00adbb 50%, #009739 75%, #d41367 100%);
-            background-size: 200% 200%;
-            animation: gradientShift 4s ease-in-out infinite;
-            mix-blend-mode: multiply;
-            opacity: 0.8;
-            pointer-events: none;
-            z-index: 1;
-            border-radius: 8px;
-        }
-
-        /* Enhanced filter for better color vibrancy */
-        .logo-container img {
-            filter: 
-                drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))
-                hue-rotate(0deg) 
-                saturate(1.8) 
-                brightness(1.1) 
-                contrast(1.2);
-        }
-
-        @keyframes gradientShift {
-            0%, 100% {
-                background-position: 0% 50%;
-            }
-            25% {
-                background-position: 100% 0%;
-            }
-            50% {
-                background-position: 100% 100%;
-            }
-            75% {
-                background-position: 0% 100%;
-            }
+                invert(24%) 
+                sepia(98%) 
+                saturate(3500%) 
+                hue-rotate(330deg) 
+                brightness(90%) 
+                contrast(92%);
         }
 
         @keyframes fadeInDown {
@@ -443,8 +391,7 @@
         <div class="login-container">
             <!-- Logo del Club -->
             <div class="logo-container">
-                <img src="{{ asset('images/Logo_Rotarac.webp') }}" alt="Rotaract Club Tegucigalpa Sur" 
-                     onerror="this.onerror=null; this.src='{{ asset('build/images/LogoRotaract.png') }}'">
+                <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract Club Tegucigalpa Sur">
             </div>
 
             <!-- Mensajes de error -->

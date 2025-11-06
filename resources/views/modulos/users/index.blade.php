@@ -14,7 +14,7 @@
             <div class="text-sm font-medium text-gray-300 bg-gray-800 px-5 py-2.5 rounded-full shadow-md border border-gray-700">
                 <span class="text-purple-300 font-bold">{{ $totalUsuarios ?? 0 }}</span> {{ $totalUsuarios === 1 ? 'usuario' : 'usuarios' }}
             </div>
-            <a href="{{ route('admin.usuarios.crear') }}" 
+            <a href="{{ route(($moduloActual ?? 'admin') . '.usuarios.crear') }}" 
                 class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 hover:from-pink-700 hover:via-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 shadow-lg transition-all duration-200 transform hover:scale-105">
                 <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
@@ -134,7 +134,7 @@
 
                 <!-- Botón Flotante Grande para Agregar Usuario -->
                 <div class="mb-6">
-                    <a href="{{ route('admin.usuarios.crear') }}" 
+                    <a href="{{ route(($moduloActual ?? 'admin') . '.usuarios.crear') }}" 
                         class="group flex items-center justify-center w-full p-6 rounded-2xl bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 hover:from-pink-700 hover:via-purple-700 hover:to-blue-700 shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
                         <div class="flex items-center space-x-4">
                             <div class="bg-white/20 rounded-full p-4 group-hover:scale-110 transition-transform duration-300">
@@ -214,7 +214,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <div class="flex items-center justify-center space-x-2">
                                             <!-- Botón Editar -->
-                                            <a href="{{ route('admin.usuarios.editar', $usuario) }}" 
+                                            <a href="{{ route(($moduloActual ?? 'admin') . '.usuarios.editar', $usuario) }}" 
                                                 class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white text-xs font-bold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -223,7 +223,7 @@
                                             </a>
                                             
                                             <!-- Botón Eliminar -->
-                                            <form method="POST" action="{{ route('admin.usuarios.eliminar', $usuario) }}" 
+                                            <form method="POST" action="{{ route(($moduloActual ?? 'admin') . '.usuarios.eliminar', $usuario) }}" 
                                                   onsubmit="return confirm('¿Está seguro de que desea eliminar al usuario {{ $usuario->name }}? Esta acción no se puede deshacer.');"
                                                   class="inline-block">
                                                 @csrf
@@ -238,7 +238,7 @@
                                             </form>
 
                                             <!-- Botón Ver -->
-                                            <a href="{{ route('admin.usuarios.ver', $usuario) }}" 
+                                            <a href="{{ route(($moduloActual ?? 'admin') . '.usuarios.ver', $usuario) }}" 
                                                 class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white text-xs font-bold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -260,7 +260,7 @@
                                             </div>
                                             <p class="text-gray-400 font-medium">No hay usuarios registrados</p>
                                             <p class="text-gray-500 text-sm mt-1">Comienza creando tu primer usuario</p>
-                                            <a href="{{ route('admin.usuarios.crear') }}" 
+                                            <a href="{{ route(($moduloActual ?? 'admin') . '.usuarios.crear') }}" 
                                                 class="mt-4 inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-700 hover:from-purple-700 hover:to-pink-800 text-white text-sm font-bold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md">
                                                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>

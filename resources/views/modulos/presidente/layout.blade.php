@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel') }} - Vicepresidente</title>
+    <title>{{ config('app.name', 'Laravel') }} - Presidente</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @stack('styles')
@@ -20,8 +20,8 @@
             <!-- Sidebar Mejorado con Responsive -->
             <aside id="sidebar" class="fixed lg:static w-64 bg-white shadow-xl min-h-screen border-r border-gray-200 flex-shrink-0 z-40 -translate-x-full lg:translate-x-0 transition-transform duration-300">
                 <!-- Header del Sidebar -->
-                <div class="p-6 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 text-white flex justify-between items-center">
-                    <h2 class="text-xl font-bold">Vicepresidente</h2>
+                <div class="p-6 bg-gradient-to-br from-purple-600 via-purple-700 to-pink-700 text-white flex justify-between items-center">
+                    <h2 class="text-xl font-bold">Presidente</h2>
                     <!-- Botón cerrar en móvil -->
                     <button id="closeSidebar" class="lg:hidden text-white">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,8 +33,8 @@
                 <!-- Navegación -->
                 <nav class="p-3">
                     <!-- Inicio -->
-                    <a href="{{ route('vicepresidente.dashboard') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('vicepresidente.dashboard') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <a href="{{ route('presidente.dashboard') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('presidente.dashboard') ? 'bg-purple-500 text-white shadow-md' : 'text-gray-700 hover:bg-purple-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                         </svg>
@@ -42,8 +42,8 @@
                     </a>
 
                     <!-- Cartas Patrocinio -->
-                    <a href="{{ route('vicepresidente.cartas.patrocinio') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('vicepresidente.cartas.patrocinio') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <a href="{{ route('presidente.cartas.patrocinio') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('presidente.cartas.patrocinio') ? 'bg-purple-500 text-white shadow-md' : 'text-gray-700 hover:bg-purple-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
@@ -51,8 +51,8 @@
                     </a>
 
                     <!-- Cartas Formales -->
-                    <a href="{{ route('vicepresidente.cartas.formales') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('vicepresidente.cartas.formales') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <a href="{{ route('presidente.cartas.formales') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('presidente.cartas.formales') ? 'bg-purple-500 text-white shadow-md' : 'text-gray-700 hover:bg-purple-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
@@ -60,8 +60,8 @@
                     </a>
 
                     <!-- Estado Proyectos -->
-                    <a href="{{ route('vicepresidente.estado.proyectos') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('vicepresidente.estado.proyectos') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <a href="{{ route('presidente.estado.proyectos') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('presidente.estado.proyectos') ? 'bg-purple-500 text-white shadow-md' : 'text-gray-700 hover:bg-purple-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                         </svg>
@@ -69,8 +69,8 @@
                     </a>
 
                     <!-- Gestión de Usuarios -->
-                    <a href="{{ route('vicepresidente.usuarios.lista') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('vicepresidente.usuarios.*') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <a href="{{ route('presidente.usuarios.lista') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('presidente.usuarios.*') ? 'bg-purple-500 text-white shadow-md' : 'text-gray-700 hover:bg-purple-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
@@ -179,3 +179,4 @@
     @stack('scripts')
 </body>
 </html>
+

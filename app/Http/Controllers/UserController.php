@@ -11,6 +11,31 @@ use Illuminate\Validation\Rules;
 class UserController extends Controller
 {
     /**
+     * Determina el módulo actual basado en la ruta
+     */
+    private function getModuloActual()
+    {
+        $routeName = request()->route()->getName();
+        
+        if (str_starts_with($routeName, 'presidente.')) {
+            return 'presidente';
+        } elseif (str_starts_with($routeName, 'vicepresidente.')) {
+            return 'vicepresidente';
+        } else {
+            return 'admin';
+        }
+    }
+
+    /**
+     * Obtiene la ruta de listado según el módulo
+     */
+    private function getListaRoute()
+    {
+        $modulo = $this->getModuloActual();
+        return $modulo . '.usuarios.lista';
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index()
@@ -26,12 +51,26 @@ class UserController extends Controller
             // Contar total de usuarios
             $totalUsuarios = User::count();
             
-            return view('users.index', compact('usuarios', 'totalUsuarios'));
+            // Pasar el módulo actual a la vista
+            $moduloActual = $this->getModuloActual();
+            
+            // Determinar la vista según el módulo
+            $vista = $moduloActual === 'admin' 
+                ? 'modulos.users.index' 
+                : "modulos.{$moduloActual}.usuarios";
+            
+            return view($vista, compact('usuarios', 'totalUsuarios', 'moduloActual'));
             
         } catch (\Exception $e) {
-            return view('users.index', [
+            $moduloActual = $this->getModuloActual();
+            $vista = $moduloActual === 'admin' 
+                ? 'modulos.users.index' 
+                : "modulos.{$moduloActual}.usuarios";
+                
+            return view($vista, [
                 'usuarios' => collect([]),
                 'totalUsuarios' => 0,
+                'moduloActual' => $moduloActual,
                 'error' => $e->getMessage()
             ]);
         }
@@ -42,7 +81,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('users.create');
+        $moduloActual = $this->getModuloActual();
+        return view('modulos.users.create', compact('moduloActual'));
     }
 
     /**
@@ -92,7 +132,7 @@ class UserController extends Controller
                 ],
             ]);
 
-            return redirect()->route('admin.usuarios.lista')
+            return redirect()->route($this->getListaRoute())
                 ->with('success', 'Usuario creado exitosamente. Deberá completar su perfil en el primer inicio de sesión.')
                 ->with('usuario_creado', $user->name);
 
@@ -133,7 +173,8 @@ class UserController extends Controller
             'estado' => 'exitoso',
         ]);
         
-        return view('users.ver', compact('usuario'));
+        $moduloActual = $this->getModuloActual();
+        return view('modulos.users.ver', compact('usuario', 'moduloActual'));
     }
 
     /**
@@ -143,7 +184,8 @@ class UserController extends Controller
     {
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
-        return view('users.edit', compact('usuario'));
+        $moduloActual = $this->getModuloActual();
+        return view('modulos.users.edit', compact('usuario', 'moduloActual'));
     }
 
     /**
@@ -238,7 +280,7 @@ class UserController extends Controller
                 'datos_nuevos' => $datosNuevos,
             ]);
             
-            return redirect()->route('admin.usuarios.lista')
+            return redirect()->route($this->getListaRoute())
                 ->with('success', 'Usuario actualizado exitosamente.')
                 ->with('usuario_actualizado', $usuario->name);
 
@@ -289,7 +331,7 @@ class UserController extends Controller
 
             $usuario->delete();
 
-            return redirect()->route('admin.usuarios.lista')
+            return redirect()->route($this->getListaRoute())
                 ->with('success', 'Usuario eliminado exitosamente.')
                 ->with('usuario_eliminado', $userName);
 

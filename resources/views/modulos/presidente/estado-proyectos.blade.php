@@ -1,4 +1,4 @@
-@extends('modulos.vicepresidente.layout')
+@extends('modulos.presidente.layout')
 
 @section('content')
     <div class="mb-6 flex justify-between items-center">
@@ -10,7 +10,7 @@
             <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full flex items-center">
                 🔒 Solo Lectura
             </span>
-            <a href="{{ route('vicepresidente.dashboard') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
+            <a href="{{ route('presidente.dashboard') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
@@ -510,7 +510,7 @@
         // Función unificada de exportación
         function exportarProyectos() {
             const formato = document.getElementById('formato-exportacion').value;
-            const url = `{{ route('vicepresidente.proyectos.exportar') }}?formato=${formato}`;
+            const url = `{{ route('presidente.proyectos.exportar') }}?formato=${formato}`;
             window.location.href = url;
         }
 

@@ -96,15 +96,35 @@
         .card-custom {
             animation: fadeIn 0.6s ease-out;
         }
+        .logo-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .logo-header img {
+            max-width: 190px;
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            filter: 
+                brightness(0) 
+                saturate(100%) 
+                invert(24%) 
+                sepia(98%) 
+                saturate(3500%) 
+                hue-rotate(330deg) 
+                brightness(90%) 
+                contrast(92%);
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <main role="main" aria-labelledby="page-title" class="w-full max-w-md">
         <div class="card-custom">
             <header class="text-center">
-                <h1 id="page-title" class="text-3xl font-black gradient-text">
-                    🔐 Recuperar Contraseña
-                </h1>
+                <div class="logo-header">
+                    <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract Club Tegucigalpa Sur">
+                </div>
                 <p class="text-gray-600 mt-3 font-medium">Usando preguntas de seguridad</p>
             </header>
 

@@ -24,7 +24,7 @@ class UsuariosBloqueadosController extends Controller
             ->orderBy('failed_login_attempts', 'desc')
             ->paginate(15);
 
-        return view('users.usuarios-bloqueados.index', compact('usuariosBloqueados', 'usuariosConIntentos'));
+        return view('modulos.users.usuarios-bloqueados.index', compact('usuariosBloqueados', 'usuariosConIntentos'));
     }
 
     /**

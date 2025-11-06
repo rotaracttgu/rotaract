@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Notificacion;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,8 +25,10 @@ class AppServiceProvider extends ServiceProvider
         // Compartir contador de notificaciones en todas las vistas
         View::composer('*', function ($view) {
             if (Auth::check()) {
-                // Por ahora, un número de ejemplo. Luego puedes conectar con tu tabla de notificaciones
-                $notificacionesNoLeidas = 3;
+                // Contar notificaciones no leídas del usuario actual
+                $notificacionesNoLeidas = Notificacion::where('usuario_id', Auth::id())
+                    ->where('leida', false)
+                    ->count();
                 $view->with('notificacionesNoLeidas', $notificacionesNoLeidas);
             }
         });

@@ -134,7 +134,7 @@
                     <div class="bg-white shadow-xl sm:rounded-2xl">
                         <div class="px-6 py-8">
                             <div class="max-w-xl mx-auto">
-                                @include('profile.partials.update-profile-information-form')
+                                @include('modulos.profile.partials.update-profile-information-form')
                             </div>
                         </div>
                     </div>
@@ -145,7 +145,7 @@
                     <div class="bg-white shadow-xl sm:rounded-2xl">
                         <div class="px-6 py-8">
                             <div class="max-w-xl mx-auto">
-                                @include('profile.partials.update-password-form')
+                                @include('modulos.profile.partials.update-password-form')
                             </div>
                         </div>
                     </div>
@@ -155,7 +155,7 @@
                 <div class="bg-red-50 shadow-xl sm:rounded-2xl border border-red-200">
                     <div class="px-6 py-8">
                         <div class="max-w-xl mx-auto">
-                            @include('profile.partials.delete-user-form')
+                            @include('modulos.profile.partials.delete-user-form')
                         </div>
                     </div>
                 </div>

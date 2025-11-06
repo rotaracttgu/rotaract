@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Notificaciones - Vicepresidente')
+@section('title', 'Notificaciones - Admin')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
@@ -14,7 +14,7 @@
                 </h1>
                 <p class="text-gray-600 mt-1">Alertas y avisos importantes del sistema</p>
             </div>
-            <a href="{{ route('vicepresidente.dashboard') }}" class="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
+            <a href="{{ route('admin.dashboard') }}" class="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
@@ -52,32 +52,46 @@
                 
                 <div id="notificationsList" class="space-y-3">
                     @forelse($notificaciones as $notificacion)
-                                                @php
+                        @php
                             // Determinar enlace según tipo de notificación y rol del usuario
                             $enlace = '#';
                             $userRole = auth()->user()->getRoleNames()->first();
                             
                             if(str_contains($notificacion->tipo, 'reunion')) {
-                                // Cada módulo va a su dashboard (con calendario integrado)
-                                if($userRole === 'Vocero') {
-                                    $enlace = route('vocero.dashboard');
-                                } elseif($userRole === 'Vicepresidente') {
-                                    $enlace = route('vicepresidente.dashboard');
-                                } elseif($userRole === 'Secretario') {
-                                    $enlace = route('secretaria.dashboard');
-                                } elseif($userRole === 'Tesorero') {
-                                    $enlace = route('tesorero.dashboard');
-                                } elseif($userRole === 'Presidente') {
-                                    $enlace = route('presidente.dashboard');
-                                } elseif($userRole === 'Super Admin') {
-                                    $enlace = route('admin.dashboard');
+                                // Cada módulo va a su propio calendario
+                                switch($userRole) {
+                                    case 'Vocero':
+                                        $enlace = route('vocero.calendario');
+                                        break;
+                                    case 'Vicepresidente':
+                                        $enlace = route('vicepresidente.calendario');
+                                        break;
+                                    case 'Secretario':
+                                        $enlace = route('secretaria.calendario');
+                                        break;
+                                    case 'Tesorero':
+                                        $enlace = route('tesorero.calendario');
+                                        break;
+                                    case 'Presidente':
+                                        $enlace = route('presidente.calendario');
+                                        break;
+                                    case 'Super Admin':
+                                        $enlace = route('admin.calendario');
+                                        break;
+                                    default:
+                                        $enlace = route('admin.calendario'); // Por defecto admin
+                                        break;
                                 }
                             } elseif(str_contains($notificacion->tipo, 'proyecto')) {
-                                // Proyectos - redirigir a estado de proyectos
+                                // Proyectos en Vicepresidente
                                 $enlace = route('vicepresidente.estado.proyectos');
                             } elseif(str_contains($notificacion->tipo, 'carta')) {
-                                // Cartas en Vicepresidente
-                                $enlace = route('vicepresidente.cartas.formales');
+                                // Cartas en Secretario o Vicepresidente según el tipo
+                                if($userRole === 'Secretario') {
+                                    $enlace = route('secretaria.cartas.index');
+                                } elseif($userRole === 'Vicepresidente') {
+                                    $enlace = route('vicepresidente.cartas.formales');
+                                }
                             }
                         @endphp
                         
@@ -190,7 +204,7 @@
     }
 
     function markAsRead(id) {
-        fetch(`/vicepresidente/notificaciones/${id}/marcar-leida`, {
+        fetch(`/admin/notificaciones/${id}/marcar-leida`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -218,7 +232,7 @@
     function markAsReadAndGo(event, id, url) {
         event.preventDefault();
         
-        fetch(`/vicepresidente/notificaciones/${id}/marcar-leida`, {
+        fetch(`/admin/notificaciones/${id}/marcar-leida`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -235,7 +249,7 @@
 
     function markAllAsRead() {
         if (confirm('¿Marcar todas las notificaciones como leídas?')) {
-            fetch('/vicepresidente/notificaciones/marcar-todas-leidas', {
+            fetch('/admin/notificaciones/marcar-todas-leidas', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
