@@ -1225,4 +1225,42 @@ class PresidenteController extends Controller
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
             ->header('Content-Transfer-Encoding', 'binary');
     }
+
+    /**
+     * Verificar actualizaciones para notificaciones en tiempo real
+     */
+    public function verificarActualizaciones()
+    {
+        try {
+            $userId = Auth::id();
+            
+            // Contar notificaciones no leídas
+            $notificacionesNuevas = Notificacion::where('usuario_id', $userId)
+                ->where('leida', false)
+                ->count();
+            
+            // Obtener la última notificación
+            $ultimaNotificacion = Notificacion::where('usuario_id', $userId)
+                ->where('leida', false)
+                ->orderBy('created_at', 'desc')
+                ->first();
+            
+            return response()->json([
+                'success' => true,
+                'notificaciones_nuevas' => $notificacionesNuevas,
+                'ultima_notificacion' => $ultimaNotificacion ? [
+                    'id' => $ultimaNotificacion->NotificacionID,
+                    'titulo' => $ultimaNotificacion->titulo,
+                    'mensaje' => $ultimaNotificacion->mensaje,
+                    'created_at' => $ultimaNotificacion->created_at->format('Y-m-d H:i:s')
+                ] : null,
+                'timestamp' => now()->timestamp
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'mensaje' => 'Error al verificar actualizaciones'
+            ], 500);
+        }
+    }
 }

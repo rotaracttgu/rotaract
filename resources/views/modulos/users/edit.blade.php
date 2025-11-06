@@ -161,6 +161,67 @@
                             @enderror
                         </div>
 
+                        <!-- Rotary ID -->
+                        <div class="group">
+                            <label for="rotary_id" class="block text-sm font-bold text-gray-700 mb-3">
+                                <span class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                    </svg>
+                                    Rotary ID
+                                </span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg class="h-6 w-6 text-gray-400 group-hover:text-purple-500 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                </div>
+                                <input id="rotary_id" name="rotary_id" type="text"
+                                    class="block w-full pl-12 pr-4 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('rotary_id') border-red-400 bg-red-50 @enderror" 
+                                    placeholder="Ej: R123456" 
+                                    value="{{ old('rotary_id', $usuario->rotary_id) }}">
+                            </div>
+                            @error('rotary_id')
+                                <div class="mt-2 flex items-center text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
+                                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>{{ $message }}</span>
+                                </div>
+                            @enderror
+                        </div>
+
+                        <!-- Fecha de Juramentación -->
+                        <div class="group">
+                            <label for="fecha_juramentacion" class="block text-sm font-bold text-gray-700 mb-3">
+                                <span class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    Fecha de Juramentación
+                                </span>
+                            </label>
+                            <input id="fecha_juramentacion" name="fecha_juramentacion" type="date"
+                                class="block w-full px-4 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" 
+                                value="{{ old('fecha_juramentacion', $usuario->fecha_juramentacion?->format('Y-m-d')) }}">
+                        </div>
+
+                        <!-- Fecha de Cumpleaños -->
+                        <div class="group">
+                            <label for="fecha_cumpleaños" class="block text-sm font-bold text-gray-700 mb-3">
+                                <span class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Fecha de Cumpleaños
+                                </span>
+                            </label>
+                            <input id="fecha_cumpleaños" name="fecha_cumpleaños" type="date"
+                                class="block w-full px-4 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" 
+                                value="{{ old('fecha_cumpleaños', $usuario->fecha_cumpleaños?->format('Y-m-d')) }}">
+                        </div>
+
                         <!-- Contraseña (Opcional) -->
                         <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6">
                             <div class="flex items-start mb-4">
@@ -324,6 +385,32 @@
                                             Verificado el {{ $usuario->two_factor_verified_at->format('d/m/Y H:i') }}
                                         @else
                                             Marca esta casilla para verificar manualmente la 2FA
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estado del Usuario (Activo/Inactivo) -->
+                        <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border-2 border-green-200 mt-6">
+                            <div class="flex items-start">
+                                <div class="flex items-center h-6">
+                                    <input id="activo" name="activo" type="checkbox" 
+                                        class="h-5 w-5 text-green-600 border-gray-300 rounded focus:ring-green-500 focus:ring-2 cursor-pointer" 
+                                        {{ old('activo', $usuario->activo ?? true) ? 'checked' : '' }}>
+                                </div>
+                                <div class="ml-4">
+                                    <label for="activo" class="text-sm font-bold text-gray-900 cursor-pointer flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Usuario Activo
+                                    </label>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        @if($usuario->activo ?? true)
+                                            El usuario actualmente tiene acceso al sistema
+                                        @else
+                                            El usuario NO puede acceder al sistema actualmente
                                         @endif
                                     </p>
                                 </div>

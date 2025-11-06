@@ -17,6 +17,36 @@ Bienvenido a la documentación del Sistema de Gestión del Club Rotaract.
 
 ### 📖 Documentación de Módulos
 
+- **[MODULO_SECRETARIA.md](./MODULO_SECRETARIA.md)** ⭐ _NUEVO - COMPLETADO_
+  - Documentación completa del módulo Secretaría (100+ páginas)
+  - Gestión de Consultas, Actas, Diplomas y Documentos
+  - 4 Stored Procedures optimizados
+  - Testing automatizado completo
+  - Guías de uso para secretarios y administradores
+  - Troubleshooting y solución de problemas
+
+- **[STORED_PROCEDURES_SECRETARIA.md](./STORED_PROCEDURES_SECRETARIA.md)** ⭐ _NUEVO - COMPLETADO_
+  - Guía detallada de Stored Procedures (80+ páginas)
+  - SP_EstadisticasSecretaria, SP_ReporteDiplomas, SP_BusquedaDocumentos, SP_ResumenActas
+  - Ejemplos de uso en PHP, JavaScript y MySQL
+  - Performance tips y troubleshooting
+  - Integración en controllers y frontend
+
+- **[CHECKLIST_SECRETARIA.md](./CHECKLIST_SECRETARIA.md)** ⭐ _NUEVO - COMPLETADO_
+  - Checklist completo de implementación (15+ páginas)
+  - Verificaciones pre-producción
+  - Testing manual paso a paso
+  - Comandos rápidos de desarrollo y producción
+  - Estado final del módulo
+
+- **[RESUMEN_EJECUTIVO_SECRETARIA.md](./RESUMEN_EJECUTIVO_SECRETARIA.md)** ⭐ _NUEVO - COMPLETADO_
+  - Resumen ejecutivo del módulo de Secretaría
+  - Entregables completados y estadísticas
+  - Funcionalidades implementadas
+  - Performance y optimización
+  - Casos de uso cubiertos
+  - Estado del proyecto: PRODUCCIÓN READY ✅
+
 - **[MODULO_VICEPRESIDENTE_README.md](./MODULO_VICEPRESIDENTE_README.md)**
   - Documentación completa del módulo Vicepresidente
   - Estructura de archivos y código

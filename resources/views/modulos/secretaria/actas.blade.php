@@ -29,7 +29,7 @@
                             <i class="fas fa-sync-alt"></i>
                             <span>Actualizar</span>
                         </button>
-                        <button onclick="alert('Funci贸n en desarrollo')" class="px-4 py-2 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
+                        <button onclick="nuevaActa()" class="px-4 py-2 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
                             <i class="fas fa-plus"></i>
                             <span>Nueva Acta</span>
                         </button>
@@ -124,13 +124,13 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-center gap-2">
-                                    <button onclick="alert('Ver acta #{{ $acta->id }}')" class="w-8 h-8 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors">
+                                    <button onclick="verActa({{ $acta->id }})" class="w-8 h-8 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors" title="Ver detalles">
                                         <i class="fas fa-eye text-sm"></i>
                                     </button>
-                                    <button onclick="alert('Editar acta #{{ $acta->id }}')" class="w-8 h-8 bg-amber-100 hover:bg-amber-200 text-amber-600 rounded-lg transition-colors">
+                                    <button onclick="editarActa({{ $acta->id }})" class="w-8 h-8 bg-amber-100 hover:bg-amber-200 text-amber-600 rounded-lg transition-colors" title="Editar">
                                         <i class="fas fa-edit text-sm"></i>
                                     </button>
-                                    <button onclick="if(confirm('驴Eliminar esta acta?')) alert('Eliminar #{{ $acta->id }}')" class="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors">
+                                    <button onclick="eliminarActa({{ $acta->id }})" class="w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors" title="Eliminar">
                                         <i class="fas fa-trash text-sm"></i>
                                     </button>
                                 </div>
@@ -159,10 +159,171 @@
         </div>
     </div>
 </div>
+    </div>
+</div>
+
+<!-- Modal Crear/Editar Acta -->
+<div id="modalActa" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full my-8">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 id="tituloModalActa" class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-file-signature text-sky-600"></i>
+                    <span id="textoTituloActa">Nueva Acta</span>
+                </h3>
+                <button onclick="cerrarModalActa()" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                    <i class="fas fa-times text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+        
+        <form id="formActa" enctype="multipart/form-data" class="p-6">
+            <input type="hidden" id="actaId" name="acta_id">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- T铆tulo -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-heading text-sky-500"></i> T铆tulo del Acta *
+                    </label>
+                    <input type="text" name="titulo" id="titulo" required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                        placeholder="Ej: Acta de Reuni贸n Ordinaria #05">
+                </div>
+
+                <!-- Fecha Reuni贸n -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-calendar text-sky-500"></i> Fecha de Reuni贸n *
+                    </label>
+                    <input type="date" name="fecha_reunion" id="fecha_reunion" required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                </div>
+
+                <!-- Tipo de Reuni贸n -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-tag text-sky-500"></i> Tipo de Reuni贸n *
+                    </label>
+                    <select name="tipo_reunion" id="tipo_reunion" required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                        <option value="">Seleccionar...</option>
+                        <option value="ordinaria">Ordinaria</option>
+                        <option value="extraordinaria">Extraordinaria</option>
+                        <option value="junta">Junta Directiva</option>
+                        <option value="asamblea">Asamblea General</option>
+                    </select>
+                </div>
+
+                <!-- Contenido/Descripci贸n -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-file-alt text-sky-500"></i> Contenido del Acta *
+                    </label>
+                    <textarea name="contenido" id="contenido" rows="6" required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                        placeholder="Describe el desarrollo de la reuni贸n, temas tratados, decisiones tomadas..."></textarea>
+                </div>
+
+                <!-- Asistentes -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-users text-sky-500"></i> Asistentes
+                    </label>
+                    <textarea name="asistentes" id="asistentes" rows="3" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                        placeholder="Nombres de los asistentes, separados por comas..."></textarea>
+                </div>
+
+                <!-- Archivo PDF -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-file-pdf text-red-500"></i> Archivo PDF
+                    </label>
+                    <input type="file" name="archivo_pdf" id="archivo_pdf" accept=".pdf"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Formato: PDF. Tama帽o m谩ximo: 5MB</p>
+                    <div id="archivoActual" class="hidden mt-2 p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-blue-700">
+                            <i class="fas fa-file-pdf text-red-500"></i>
+                            <span>Archivo actual: </span>
+                            <a href="#" id="linkArchivoActual" target="_blank" class="font-semibold hover:underline">Ver archivo</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6 pt-6 border-t border-gray-200">
+                <button type="submit" id="btnGuardarActa" 
+                    class="flex-1 px-6 py-3 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                    <i class="fas fa-save mr-2"></i><span id="textoBotonGuardar">Crear Acta</span>
+                </button>
+                <button type="button" onclick="cerrarModalActa()" 
+                    class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Ver Acta -->
+<div id="modalVerActa" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-eye text-sky-600"></i>
+                    Detalles del Acta
+                </h3>
+                <button onclick="cerrarModal('modalVerActa')" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                    <i class="fas fa-times text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+        <div id="contenidoActa" class="p-6">
+            <div class="animate-pulse space-y-4">
+                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
+
 @push('scripts')
 <script>
+// ============================================================================
+// FUNCIONES PARA GESTI脫N DE ACTAS
+// ============================================================================
+
+/**
+ * Abrir modal para crear nueva acta
+ */
+function nuevaActa() {
+    document.getElementById('actaId').value = '';
+    document.getElementById('formActa').reset();
+    document.getElementById('textoTituloActa').textContent = 'Nueva Acta';
+    document.getElementById('textoBotonGuardar').textContent = 'Crear Acta';
+    document.getElementById('archivoActual').classList.add('hidden');
+    document.getElementById('modalActa').classList.remove('hidden');
+}
+
+/**
+ * Ver detalles de un acta
+ */
 function verActa(id) {
+    document.getElementById('modalVerActa').classList.remove('hidden');
+    document.getElementById('contenidoActa').innerHTML = `
+        <div class="animate-pulse space-y-4">
+            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+        </div>
+    `;
+    
     fetch(`/secretaria/actas/${id}`, {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
@@ -171,24 +332,177 @@ function verActa(id) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.archivo_pdf) {
-            window.open(`/storage/${data.archivo_pdf}`, '_blank');
-        } else {
-            alert('El acta no tiene archivo PDF disponible');
-        }
+        const fechaReunion = new Date(data.fecha_reunion).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        document.getElementById('contenidoActa').innerHTML = `
+            <div class="space-y-6">
+                <!-- Encabezado -->
+                <div class="bg-gradient-to-r from-sky-50 to-cyan-50 p-6 rounded-xl border border-sky-200">
+                    <h4 class="text-2xl font-bold text-gray-800 mb-2">${data.titulo}</h4>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="px-3 py-1 bg-sky-100 text-sky-800 text-sm font-semibold rounded-full capitalize">
+                            <i class="fas fa-tag"></i> ${data.tipo_reunion}
+                        </span>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
+                            <i class="fas fa-calendar"></i> ${fechaReunion}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Contenido -->
+                <div>
+                    <h5 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-file-alt text-sky-500"></i>
+                        Contenido del Acta
+                    </h5>
+                    <div class="prose max-w-none bg-gray-50 p-4 rounded-lg">
+                        <p class="text-gray-700 whitespace-pre-wrap">${data.contenido || 'Sin contenido'}</p>
+                    </div>
+                </div>
+
+                <!-- Asistentes -->
+                ${data.asistentes ? `
+                <div>
+                    <h5 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-users text-sky-500"></i>
+                        Asistentes
+                    </h5>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-gray-700">${data.asistentes}</p>
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- Archivo PDF -->
+                ${data.archivo_path ? `
+                <div>
+                    <h5 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-file-pdf text-red-500"></i>
+                        Documento
+                    </h5>
+                    <a href="/storage/${data.archivo_path}" target="_blank" 
+                       class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                        <i class="fas fa-download"></i>
+                        Descargar PDF
+                    </a>
+                </div>
+                ` : '<p class="text-gray-500 italic">No hay archivo adjunto</p>'}
+
+                <!-- Metadata -->
+                <div class="pt-4 border-t border-gray-200 text-sm text-gray-500">
+                    <p><i class="fas fa-user"></i> Creado por: <strong>${data.creador?.name || 'Sistema'}</strong></p>
+                    <p><i class="fas fa-clock"></i> Fecha de creaci贸n: ${new Date(data.created_at).toLocaleString('es-ES')}</p>
+                </div>
+            </div>
+        `;
     })
     .catch(error => {
-        alert('Error al cargar el acta');
+        document.getElementById('contenidoActa').innerHTML = `
+            <div class="text-center text-red-600 py-8">
+                <i class="fas fa-exclamation-circle text-4xl mb-3"></i>
+                <p class="text-lg font-semibold">Error al cargar el acta</p>
+                <p class="text-sm">Por favor, intenta de nuevo</p>
+            </div>
+        `;
         console.error(error);
     });
 }
 
+/**
+ * Editar un acta existente
+ */
 function editarActa(id) {
-    alert('Editar acta #' + id + ' - Por implementar modal de edici髇');
+    // Cargar datos del acta
+    fetch(`/secretaria/actas/${id}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('actaId').value = data.id;
+        document.getElementById('titulo').value = data.titulo;
+        document.getElementById('fecha_reunion').value = data.fecha_reunion;
+        document.getElementById('tipo_reunion').value = data.tipo_reunion;
+        document.getElementById('contenido').value = data.contenido || '';
+        document.getElementById('asistentes').value = data.asistentes || '';
+        
+        document.getElementById('textoTituloActa').textContent = 'Editar Acta';
+        document.getElementById('textoBotonGuardar').textContent = 'Actualizar Acta';
+        
+        // Mostrar archivo actual si existe
+        if (data.archivo_path) {
+            document.getElementById('archivoActual').classList.remove('hidden');
+            document.getElementById('linkArchivoActual').href = `/storage/${data.archivo_path}`;
+        } else {
+            document.getElementById('archivoActual').classList.add('hidden');
+        }
+        
+        document.getElementById('modalActa').classList.remove('hidden');
+    })
+    .catch(error => {
+        alert('Error al cargar los datos del acta');
+        console.error(error);
+    });
 }
 
+/**
+ * Guardar acta (crear o actualizar)
+ */
+document.getElementById('formActa').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const actaId = document.getElementById('actaId').value;
+    const formData = new FormData(this);
+    const isEdit = actaId !== '';
+    
+    const url = isEdit ? `/secretaria/actas/${actaId}` : '/secretaria/actas';
+    const method = 'POST';
+    
+    // Deshabilitar bot贸n
+    const btnGuardar = document.getElementById('btnGuardarActa');
+    const textoOriginal = btnGuardar.innerHTML;
+    btnGuardar.disabled = true;
+    btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...';
+    
+    fetch(url, {
+        method: method,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(isEdit ? 'Acta actualizada exitosamente' : 'Acta creada exitosamente');
+            cerrarModalActa();
+            window.location.reload();
+        } else {
+            alert(data.message || 'Error al guardar el acta');
+            btnGuardar.disabled = false;
+            btnGuardar.innerHTML = textoOriginal;
+        }
+    })
+    .catch(error => {
+        alert('Error de conexi贸n. Por favor, intenta de nuevo.');
+        console.error(error);
+        btnGuardar.disabled = false;
+        btnGuardar.innerHTML = textoOriginal;
+    });
+});
+
+/**
+ * Eliminar acta
+ */
 function eliminarActa(id) {
-    if (!confirm('縀st醩 seguro de eliminar esta acta?')) return;
+    if (!confirm('驴Est谩s seguro de eliminar esta acta? Esta acci贸n no se puede deshacer.')) return;
     
     fetch(`/secretaria/actas/${id}`, {
         method: 'DELETE',
@@ -207,9 +521,33 @@ function eliminarActa(id) {
         }
     })
     .catch(error => {
-        alert('Error de conexi髇');
+        alert('Error de conexi贸n');
         console.error(error);
     });
 }
+
+/**
+ * Cerrar modal de acta
+ */
+function cerrarModalActa() {
+    document.getElementById('modalActa').classList.add('hidden');
+    document.getElementById('formActa').reset();
+}
+
+/**
+ * Cerrar modal gen茅rico
+ */
+function cerrarModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+
+// Cerrar modales al hacer clic fuera
+document.querySelectorAll('[id^="modal"]').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden');
+        }
+    });
+});
 </script>
 @endpush

@@ -56,7 +56,7 @@ class DashboardController extends Controller
         
         $bitacoraStats = $this->obtenerEstadisticasBitacora();
 
-        return view('modulos.users.dashboard', compact(
+        return view('modulos.admin.dashboard', compact(
             'totalUsuarios',
             'usuariosVerificados',
             'usuariosPendientes',

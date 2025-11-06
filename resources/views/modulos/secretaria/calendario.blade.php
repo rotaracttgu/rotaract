@@ -23,7 +23,8 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
+    // Hacer calendar global para el sistema de notificaciones
+    window.calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'es',
         headerToolbar: {
@@ -32,10 +33,16 @@ document.addEventListener('DOMContentLoaded', function() {
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         height: 'auto',
-        events: '/vocero/api/eventos',
-        eventColor: '#ec4899'
+        events: '/api/secretaria/calendario/eventos',
+        eventColor: '#ec4899',
+        editable: false,  // Secretaría NO puede mover eventos
+        selectable: false, // Secretaría NO puede seleccionar fechas
+        eventClick: function(info) {
+            // Solo ver información del evento
+            alert('Evento: ' + info.event.title + '\nFecha: ' + info.event.start.toLocaleDateString());
+        }
     });
-    calendar.render();
+    window.calendar.render();
 });
 </script>
 @endsection

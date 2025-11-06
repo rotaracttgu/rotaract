@@ -19,62 +19,79 @@ class SecretariaController extends Controller
 {
     /**
      * Dashboard principal de secretaría
+     * Usa stored procedure SP_EstadisticasSecretaria para optimizar consultas
      */
     public function dashboard()
     {
-        // Calcular estadísticas
-        $estadisticas = [
-            // Consultas
-            'consultas_pendientes' => Consulta::where('estado', 'pendiente')->count(),
-            'consultas_nuevas' => Consulta::whereDate('created_at', today())->count(),
+        // Obtener estadísticas usando stored procedure
+        try {
+            $results = DB::select('CALL SP_EstadisticasSecretaria()');
             
-            // Actas
-            'total_actas' => Acta::count(),
-            'actas_este_mes' => Acta::whereMonth('created_at', now()->month)
-                                   ->whereYear('created_at', now()->year)
-                                   ->count(),
-            
-            // Diplomas
-            'total_diplomas' => Diploma::count(),
-            'diplomas_este_mes' => Diploma::whereMonth('created_at', now()->month)
-                                         ->whereYear('created_at', now()->year)
-                                         ->count(),
-            
-            // Documentos
-            'total_documentos' => Documento::count(),
-            'categorias_documentos' => Documento::distinct('TipoDocumento')->count('TipoDocumento'),
-        ];
+            // Los resultados vienen en 4 grupos (consultas, actas, diplomas, documentos)
+            // Pero DB::select() los aplana en un solo array
+            $estadisticas = [
+                // Consultas (primer grupo)
+                'consultas_total' => $results[0]->total ?? 0,
+                'consultas_pendientes' => $results[0]->pendientes ?? 0,
+                'consultas_respondidas' => $results[0]->respondidas ?? 0,
+                'consultas_cerradas' => $results[0]->cerradas ?? 0,
+                'consultas_hoy' => $results[0]->hoy ?? 0,
+                'consultas_este_mes' => $results[0]->este_mes ?? 0,
+                
+                // Actas (segundo grupo)
+                'total_actas' => $results[1]->total ?? 0,
+                'actas_ordinarias' => $results[1]->ordinarias ?? 0,
+                'actas_extraordinarias' => $results[1]->extraordinarias ?? 0,
+                'actas_juntas' => $results[1]->juntas ?? 0,
+                'actas_este_mes' => $results[1]->este_mes ?? 0,
+                'actas_este_anio' => $results[1]->este_anio ?? 0,
+                
+                // Diplomas (tercer grupo)
+                'total_diplomas' => $results[2]->total ?? 0,
+                'diplomas_participacion' => $results[2]->participacion ?? 0,
+                'diplomas_reconocimiento' => $results[2]->reconocimiento ?? 0,
+                'diplomas_merito' => $results[2]->merito ?? 0,
+                'diplomas_asistencia' => $results[2]->asistencia ?? 0,
+                'diplomas_enviados' => $results[2]->enviados ?? 0,
+                
+                // Documentos (cuarto grupo)
+                'total_documentos' => $results[3]->total ?? 0,
+                'documentos_oficiales' => $results[3]->oficiales ?? 0,
+                'documentos_internos' => $results[3]->internos ?? 0,
+                'categorias_documentos' => $results[3]->categorias ?? 0,
+                'documentos_este_mes' => $results[3]->este_mes ?? 0,
+                'documentos_este_anio' => $results[3]->este_anio ?? 0,
+            ];
+        } catch (\Exception $e) {
+            // Fallback a consultas individuales si falla el SP
+            $estadisticas = [
+                'consultas_pendientes' => Consulta::where('estado', 'pendiente')->count(),
+                'consultas_nuevas' => Consulta::whereDate('created_at', today())->count(),
+                'total_actas' => Acta::count(),
+                'actas_este_mes' => Acta::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
+                'total_diplomas' => Diploma::count(),
+                'diplomas_este_mes' => Diploma::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
+                'total_documentos' => Documento::count(),
+                'categorias_documentos' => Documento::distinct('categoria')->count('categoria'),
+            ];
+        }
         
         // Contadores para las tarjetas
-        $consultasPendientes = Consulta::where('estado', 'pendiente')->count();
-        $consultasRecientes = Consulta::latest()->take(5)->get();
+        $consultasPendientes = $estadisticas['consultas_pendientes'];
         
-        // Datos recientes
-        $actas = Acta::latest()->take(5)->get();
-        $diplomas = Diploma::with('miembro')->latest()->take(5)->get();
-        $documentos = Documento::orderBy('FechaSubida', 'desc')->take(5)->get();
+        // Datos recientes (mantener consultas individuales para datos específicos)
+        $consultasRecientes = Consulta::with('usuario')->latest()->take(5)->get();
+        $actas = Acta::with('creador')->latest()->take(5)->get();
+        $diplomas = Diploma::with('miembro', 'emisor')->latest()->take(5)->get();
+        $documentos = Documento::with('creador')->latest()->take(5)->get();
         
         // Consultas recientes para la sección
-        $consultasRecientesSeccion = Consulta::with('usuario')
-            ->latest()
-            ->take(5)
-            ->get();
+        $consultasRecientesSeccion = $consultasRecientes;
         
-        // Documentos recientes
-        $documentosRecientes = Documento::orderBy('FechaSubida', 'desc')
-            ->take(5)
-            ->get();
-        
-        // Actas recientes
-        $actasRecientes = Acta::latest()
-            ->take(5)
-            ->get();
-        
-        // Diplomas recientes
-        $diplomasRecientes = Diploma::with('miembro')
-            ->latest()
-            ->take(5)
-            ->get();
+        // Documentos, actas y diplomas recientes
+        $documentosRecientes = $documentos;
+        $actasRecientes = $actas;
+        $diplomasRecientes = $diplomas;
 
         return view('modulos.secretaria.dashboard', compact(
             'estadisticas',
@@ -252,27 +269,23 @@ class SecretariaController extends Controller
     public function storeActa(Request $request)
     {
         $request->validate([
-            'fecha_reunion' => 'required|date',
-            'tipo_reunion' => 'required|string|in:ordinaria,extraordinaria',
             'titulo' => 'required|string|max:255',
-            'descripcion' => 'required|string',
+            'fecha_reunion' => 'required|date',
+            'tipo_reunion' => 'required|in:ordinaria,extraordinaria,junta,asamblea',
+            'contenido' => 'required|string',
             'asistentes' => 'nullable|string',
-            'acuerdos' => 'nullable|string',
-            'firma_presidente' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
-            'firma_secretario' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
+            'archivo_pdf' => 'nullable|file|mimes:pdf|max:5120', // 5MB máximo
         ]);
 
-        $data = $request->except(['firma_presidente', 'firma_secretario']);
+        $data = $request->only(['titulo', 'fecha_reunion', 'tipo_reunion', 'contenido', 'asistentes']);
         $data['creado_por'] = Auth::id();
 
-        if ($request->hasFile('firma_presidente')) {
-            $path = $request->file('firma_presidente')->store('firmas', 'public');
-            $data['firma_presidente_path'] = $path;
-        }
-
-        if ($request->hasFile('firma_secretario')) {
-            $path = $request->file('firma_secretario')->store('firmas', 'public');
-            $data['firma_secretario_path'] = $path;
+        // Manejo de archivo PDF
+        if ($request->hasFile('archivo_pdf')) {
+            $archivo = $request->file('archivo_pdf');
+            $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+            $path = $archivo->storeAs('actas', $nombreArchivo, 'public');
+            $data['archivo_path'] = $path;
         }
 
         $acta = Acta::create($data);
@@ -290,33 +303,28 @@ class SecretariaController extends Controller
     public function updateActa(Request $request, $id)
     {
         $request->validate([
-            'fecha_reunion' => 'required|date',
-            'tipo_reunion' => 'required|string|in:ordinaria,extraordinaria',
             'titulo' => 'required|string|max:255',
-            'descripcion' => 'required|string',
+            'fecha_reunion' => 'required|date',
+            'tipo_reunion' => 'required|in:ordinaria,extraordinaria,junta,asamblea',
+            'contenido' => 'required|string',
             'asistentes' => 'nullable|string',
-            'acuerdos' => 'nullable|string',
-            'firma_presidente' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
-            'firma_secretario' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
+            'archivo_pdf' => 'nullable|file|mimes:pdf|max:5120', // 5MB máximo
         ]);
 
         $acta = Acta::findOrFail($id);
-        $data = $request->except(['firma_presidente', 'firma_secretario']);
+        $data = $request->only(['titulo', 'fecha_reunion', 'tipo_reunion', 'contenido', 'asistentes']);
 
-        if ($request->hasFile('firma_presidente')) {
-            if ($acta->firma_presidente_path) {
-                Storage::disk('public')->delete($acta->firma_presidente_path);
+        // Manejo de archivo PDF
+        if ($request->hasFile('archivo_pdf')) {
+            // Eliminar archivo anterior si existe
+            if ($acta->archivo_path) {
+                Storage::disk('public')->delete($acta->archivo_path);
             }
-            $path = $request->file('firma_presidente')->store('firmas', 'public');
-            $data['firma_presidente_path'] = $path;
-        }
-
-        if ($request->hasFile('firma_secretario')) {
-            if ($acta->firma_secretario_path) {
-                Storage::disk('public')->delete($acta->firma_secretario_path);
-            }
-            $path = $request->file('firma_secretario')->store('firmas', 'public');
-            $data['firma_secretario_path'] = $path;
+            
+            $archivo = $request->file('archivo_pdf');
+            $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+            $path = $archivo->storeAs('actas', $nombreArchivo, 'public');
+            $data['archivo_path'] = $path;
         }
 
         $acta->update($data);
@@ -324,7 +332,7 @@ class SecretariaController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Acta actualizada exitosamente',
-            'acta' => $acta
+            'acta' => $acta->fresh()
         ]);
     }
 
@@ -335,12 +343,9 @@ class SecretariaController extends Controller
     {
         $acta = Acta::findOrFail($id);
 
-        if ($acta->firma_presidente_path) {
-            Storage::disk('public')->delete($acta->firma_presidente_path);
-        }
-
-        if ($acta->firma_secretario_path) {
-            Storage::disk('public')->delete($acta->firma_secretario_path);
+        // Eliminar archivo si existe
+        if ($acta->archivo_path) {
+            Storage::disk('public')->delete($acta->archivo_path);
         }
 
         $acta->delete();
@@ -377,7 +382,12 @@ class SecretariaController extends Controller
             'enviados' => Diploma::where('enviado_email', true)->count(),
         ];
 
-        return view('modulos.secretaria.diplomas', compact('diplomas', 'estadisticas'));
+        // Obtener lista de usuarios para el selector
+        $usuarios = User::select('id', 'name', 'email')
+            ->orderBy('name')
+            ->get();
+
+        return view('modulos.secretaria.diplomas', compact('diplomas', 'estadisticas', 'usuarios'));
     }
 
     /**
@@ -396,26 +406,33 @@ class SecretariaController extends Controller
     {
         $request->validate([
             'miembro_id' => 'required|exists:users,id',
-            'tipo' => 'required|string|in:participacion,reconocimiento,merito,asistencia',
+            'tipo' => 'required|in:participacion,reconocimiento,merito,asistencia',
             'motivo' => 'required|string|max:500',
             'fecha_emision' => 'required|date',
-            'archivo' => 'nullable|file|mimes:pdf|max:5120',
+            'archivo_pdf' => 'nullable|file|mimes:pdf|max:5120', // 5MB máximo
         ]);
 
-        $data = $request->except('archivo');
+        $data = $request->only(['miembro_id', 'tipo', 'motivo', 'fecha_emision']);
         $data['emitido_por'] = Auth::id();
 
-        if ($request->hasFile('archivo')) {
-            $path = $request->file('archivo')->store('diplomas', 'public');
-            $data['archivo_path'] = $path;
-        }
-
+        // Crear el diploma
         $diploma = Diploma::create($data);
+
+        // Generar PDF automáticamente
+        try {
+            $pdfService = new \App\Services\DiplomaPdfService();
+            $result = $pdfService->generarPDF($diploma);
+            
+            // Actualizar con la ruta del PDF generado
+            $diploma->update(['archivo_path' => $result['path']]);
+        } catch (\Exception $e) {
+            \Log::error('Error generando PDF del diploma: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Diploma creado exitosamente',
-            'diploma' => $diploma
+            'diploma' => $diploma->load('miembro', 'emisor')
         ]);
     }
 
@@ -478,17 +495,43 @@ class SecretariaController extends Controller
      */
     public function enviarEmailDiploma(Request $request, $id)
     {
-        $diploma = Diploma::with('miembro')->findOrFail($id);
+        $diploma = Diploma::with(['miembro', 'emisor'])->findOrFail($id);
 
-        // Aquí puedes implementar el envío de email
-        // Mail::to($diploma->miembro->email)->send(new DiplomaMail($diploma));
+        try {
+            // Generar PDF si no existe
+            if (!$diploma->archivo_path) {
+                $pdfService = new \App\Services\DiplomaPdfService();
+                $result = $pdfService->generarPDF($diploma);
+                $diploma->update(['archivo_path' => $result['path']]);
+            }
 
-        $diploma->update(['enviado_email' => true, 'fecha_envio_email' => now()]);
+            // Enviar email con PDF adjunto
+            $pdfPath = storage_path('app/public/' . $diploma->archivo_path);
+            
+            Mail::send('emails.diploma', ['diploma' => $diploma], function ($message) use ($diploma, $pdfPath) {
+                $message->to($diploma->miembro->email, $diploma->miembro->name)
+                    ->subject('Diploma de ' . ucfirst($diploma->tipo) . ' - Club Rotaract')
+                    ->attach($pdfPath, [
+                        'as' => 'Diploma_' . str_replace(' ', '_', $diploma->miembro->name) . '.pdf',
+                        'mime' => 'application/pdf',
+                    ]);
+            });
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Diploma enviado por email exitosamente'
-        ]);
+            $diploma->update([
+                'enviado_email' => true, 
+                'fecha_envio_email' => now()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Diploma enviado por email exitosamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al enviar el diploma: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     // ============================================================================
@@ -501,16 +544,16 @@ class SecretariaController extends Controller
     public function documentos()
     {
         $documentos = Documento::with('creador')
-            ->orderBy('FechaSubida', 'desc')
+            ->latest()
             ->paginate(15);
 
         $estadisticas = [
             'total' => Documento::count(),
-            'este_mes' => Documento::whereMonth('FechaSubida', now()->month)
-                                  ->whereYear('FechaSubida', now()->year)
+            'este_mes' => Documento::whereMonth('created_at', now()->month)
+                                  ->whereYear('created_at', now()->year)
                                   ->count(),
-            'este_anio' => Documento::whereYear('FechaSubida', now()->year)->count(),
-            'categorias' => Documento::distinct('TipoDocumento')->count('TipoDocumento'),
+            'este_anio' => Documento::whereYear('created_at', now()->year)->count(),
+            'categorias' => Documento::distinct('categoria')->count('categoria'),
             'oficiales' => Documento::where('tipo', 'oficial')->count(),
             'internos' => Documento::where('tipo', 'interno')->count(),
         ];
@@ -1244,4 +1287,310 @@ class SecretariaController extends Controller
         
         return $mapa[$estado] ?? 'programado';
     }
+
+    // ============================================================================
+    // REPORTES CON STORED PROCEDURES
+    // ============================================================================
+
+    /**
+     * Generar reporte de diplomas por período
+     * Usa stored procedure SP_ReporteDiplomas
+     */
+    public function reporteDiplomas(Request $request)
+    {
+        $request->validate([
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'tipo' => 'nullable|in:participacion,reconocimiento,merito,asistencia'
+        ]);
+
+        try {
+            $results = DB::select('CALL SP_ReporteDiplomas(?, ?, ?)', [
+                $request->fecha_inicio,
+                $request->fecha_fin,
+                $request->tipo
+            ]);
+
+            // El SP retorna 2 conjuntos: diplomas detallados y resumen
+            // Separamos los resultados
+            $diplomas = [];
+            $resumen = null;
+
+            foreach ($results as $index => $row) {
+                if (isset($row->total_diplomas)) {
+                    // Este es el resumen
+                    $resumen = $row;
+                } else {
+                    // Estos son los diplomas individuales
+                    $diplomas[] = $row;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'diplomas' => $diplomas,
+                'resumen' => $resumen
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar el reporte: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Búsqueda avanzada de documentos
+     * Usa stored procedure SP_BusquedaDocumentos
+     */
+    public function buscarDocumentos(Request $request)
+    {
+        $request->validate([
+            'busqueda' => 'nullable|string|max:255',
+            'tipo' => 'nullable|in:oficial,interno,comunicado,carta,informe,otro',
+            'categoria' => 'nullable|string|max:100',
+            'fecha_inicio' => 'nullable|date',
+            'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio'
+        ]);
+
+        try {
+            $results = DB::select('CALL SP_BusquedaDocumentos(?, ?, ?, ?, ?)', [
+                $request->busqueda,
+                $request->tipo,
+                $request->categoria,
+                $request->fecha_inicio,
+                $request->fecha_fin
+            ]);
+
+            // El SP retorna 2 conjuntos: documentos encontrados y resumen
+            $documentos = [];
+            $resumen = null;
+
+            foreach ($results as $row) {
+                if (isset($row->total_encontrados)) {
+                    // Este es el resumen
+                    $resumen = $row;
+                } else {
+                    // Estos son los documentos individuales
+                    $documentos[] = $row;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'documentos' => $documentos,
+                'resumen' => $resumen
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error en la búsqueda: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generar resumen de actas por período
+     * Usa stored procedure SP_ResumenActas
+     */
+    public function resumenActas(Request $request)
+    {
+        $request->validate([
+            'anio' => 'nullable|integer|min:2020|max:2100',
+            'mes' => 'nullable|integer|min:1|max:12'
+        ]);
+
+        try {
+            $results = DB::select('CALL SP_ResumenActas(?, ?)', [
+                $request->anio,
+                $request->mes
+            ]);
+
+            // El SP retorna 3 conjuntos: resumen por período, estadísticas generales, top 5 actas
+            $resumenPorPeriodo = [];
+            $estadisticasGenerales = null;
+            $topActas = [];
+
+            $currentSection = 'resumen';
+            foreach ($results as $row) {
+                if (isset($row->total_actas) && isset($row->promedio_longitud_contenido)) {
+                    // Estadísticas generales
+                    $estadisticasGenerales = $row;
+                    $currentSection = 'estadisticas';
+                } elseif (isset($row->periodo)) {
+                    // Resumen por período
+                    $resumenPorPeriodo[] = $row;
+                } elseif (isset($row->titulo) && $currentSection === 'estadisticas') {
+                    // Top actas (vienen después de estadísticas)
+                    $topActas[] = $row;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'resumen_por_periodo' => $resumenPorPeriodo,
+                'estadisticas_generales' => $estadisticasGenerales,
+                'top_actas' => $topActas
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar el resumen: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Descargar diploma en PDF
+     */
+    public function descargarDiploma($id)
+    {
+        $diploma = Diploma::with(['miembro', 'emisor'])->findOrFail($id);
+        $pdfService = new \App\Services\DiplomaPdfService();
+        return $pdfService->descargarPDF($diploma);
+    }
+
+    /**
+     * Descargar acta en PDF
+     */
+    public function descargarActa($id)
+    {
+        $acta = Acta::with('creador')->findOrFail($id);
+        $pdfService = new \App\Services\ActaPdfService();
+        return $pdfService->descargarPDF($acta);
+    }
+
+    /**
+     * Exportar consultas a PDF
+     */
+    public function exportarConsultasPDF(Request $request)
+    {
+        $query = Consulta::with(['usuario', 'respondedor'])
+            ->orderBy('created_at', 'desc');
+
+        // Filtros opcionales
+        if ($request->has('estado')) {
+            $query->where('estado', $request->estado);
+        }
+        if ($request->has('fecha_desde')) {
+            $query->whereDate('created_at', '>=', $request->fecha_desde);
+        }
+        if ($request->has('fecha_hasta')) {
+            $query->whereDate('created_at', '<=', $request->fecha_hasta);
+        }
+
+        $consultas = $query->get();
+
+        $data = [
+            'consultas' => $consultas,
+            'fecha_generacion' => now()->format('d/m/Y H:i'),
+            'total' => $consultas->count(),
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdfs.consultas', $data);
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download('Consultas_' . now()->format('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * Exportar consultas a Word
+     */
+    public function exportarConsultasWord(Request $request)
+    {
+        $query = Consulta::with(['usuario', 'respondedor'])
+            ->orderBy('created_at', 'desc');
+
+        // Filtros opcionales
+        if ($request->has('estado')) {
+            $query->where('estado', $request->estado);
+        }
+        if ($request->has('fecha_desde')) {
+            $query->whereDate('created_at', '>=', $request->fecha_desde);
+        }
+        if ($request->has('fecha_hasta')) {
+            $query->whereDate('created_at', '<=', $request->fecha_hasta);
+        }
+
+        $consultas = $query->get();
+
+        $phpWord = new \PhpOffice\PhpWord\PhpWord();
+        $section = $phpWord->addSection();
+
+        // Título
+        $section->addText('Reporte de Consultas', ['bold' => true, 'size' => 18]);
+        $section->addText('Generado: ' . now()->format('d/m/Y H:i'), ['size' => 10]);
+        $section->addText('Total de consultas: ' . $consultas->count(), ['size' => 10]);
+        $section->addTextBreak(2);
+
+        foreach ($consultas as $consulta) {
+            $section->addText('Asunto: ' . $consulta->asunto, ['bold' => true, 'size' => 12]);
+            $section->addText('Usuario: ' . $consulta->usuario->name);
+            $section->addText('Estado: ' . ucfirst($consulta->estado));
+            $section->addText('Fecha: ' . $consulta->created_at->format('d/m/Y H:i'));
+            $section->addText('Mensaje:', ['bold' => true]);
+            $section->addText($consulta->mensaje);
+            
+            if ($consulta->respuesta) {
+                $section->addText('Respuesta:', ['bold' => true]);
+                $section->addText($consulta->respuesta);
+                $section->addText('Respondido por: ' . ($consulta->respondedor->name ?? 'N/A'));
+            }
+            
+            $section->addTextBreak(2);
+            $section->addText(str_repeat('_', 80));
+            $section->addTextBreak(1);
+        }
+
+        $fileName = 'Consultas_' . now()->format('Y-m-d') . '.docx';
+        $tempFile = storage_path('app/temp/' . $fileName);
+        
+        // Asegurar que el directorio existe
+        if (!file_exists(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0777, true);
+        }
+
+        $phpWord->save($tempFile, 'Word2007');
+
+        return response()->download($tempFile)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Verificar actualizaciones para notificaciones en tiempo real
+     */
+    public function verificarActualizaciones()
+    {
+        $userId = Auth::id();
+        
+        // Obtener notificaciones no leídas
+        $notificacionesNuevas = \App\Models\Notificacion::where('usuario_id', $userId)
+            ->where('leida', false)
+            ->count();
+        
+        $ultimaNotificacion = \App\Models\Notificacion::where('usuario_id', $userId)
+            ->where('leida', false)
+            ->latest()
+            ->first();
+        
+        // Consultas pendientes
+        $consultasPendientes = Consulta::where('estado', 'pendiente')->count();
+        
+        // Eventos próximos (próximos 7 días)
+        $eventosProximos = 0; // Aquí puedes agregar la lógica del calendario
+        
+        return response()->json([
+            'success' => true,
+            'notificaciones_nuevas' => $notificacionesNuevas,
+            'ultima_notificacion' => $ultimaNotificacion ? [
+                'id' => $ultimaNotificacion->id,
+                'titulo' => $ultimaNotificacion->titulo ?? 'Notificación',
+                'mensaje' => $ultimaNotificacion->mensaje,
+                'created_at' => $ultimaNotificacion->created_at->diffForHumans(),
+            ] : null,
+            'consultas_pendientes' => $consultasPendientes,
+            'eventos_proximos' => $eventosProximos,
+            'timestamp' => now()->timestamp,
+        ]);
+    }
 }
+
