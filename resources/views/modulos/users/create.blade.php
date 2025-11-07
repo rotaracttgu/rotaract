@@ -294,6 +294,7 @@
                             @enderror
                         </div>
 
+<<<<<<< Updated upstream:resources/views/modulos/users/create.blade.php
                         <!-- Estado del Email -->
                         <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200">
                             <div class="flex items-start">
@@ -355,6 +356,8 @@
                             </div>
                         </div>
 
+=======
+>>>>>>> Stashed changes:resources/views/users/create.blade.php
                         <!-- Botones -->
                         <div class="flex items-center justify-between pt-8 border-t-2 border-gray-200">
                             <a href="{{ route(($moduloActual ?? 'admin') . '.usuarios.lista') }}" 
