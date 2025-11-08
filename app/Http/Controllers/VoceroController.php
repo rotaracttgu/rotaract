@@ -159,11 +159,11 @@ class VoceroController extends Controller
     public function crearEvento(Request $request)
     {
         try {
-            // Validar datos
+            // Validar datos - 🆕 AGREGADO "otros" en la validación
             $validated = $request->validate([
                 'titulo' => 'required|string|max:100',
                 'descripcion' => 'nullable|string',
-                'tipo_evento' => 'required|in:reunion-virtual,reunion-presencial,inicio-proyecto,finalizar-proyecto',
+                'tipo_evento' => 'required|in:reunion-virtual,reunion-presencial,inicio-proyecto,finalizar-proyecto,otros',
                 'estado' => 'required|in:programado,en-curso,finalizado',
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'required|date|after:fecha_inicio',
@@ -193,6 +193,8 @@ class VoceroController extends Controller
                     $ubicacion = $validated['detalles']['lugar'];
                 } elseif (isset($validated['detalles']['ubicacion_proyecto'])) {
                     $ubicacion = $validated['detalles']['ubicacion_proyecto'];
+                } elseif (isset($validated['detalles']['ubicacion_otros'])) {
+                    $ubicacion = $validated['detalles']['ubicacion_otros'];
                 }
             }
             
@@ -254,11 +256,11 @@ class VoceroController extends Controller
     public function actualizarEvento(Request $request, $id)
     {
         try {
-            // Validar datos
+            // Validar datos - 🆕 AGREGADO "otros" en la validación
             $validated = $request->validate([
                 'titulo' => 'required|string|max:100',
                 'descripcion' => 'nullable|string',
-                'tipo_evento' => 'required|in:reunion-virtual,reunion-presencial,inicio-proyecto,finalizar-proyecto',
+                'tipo_evento' => 'required|in:reunion-virtual,reunion-presencial,inicio-proyecto,finalizar-proyecto,otros',
                 'estado' => 'required|in:programado,en-curso,finalizado',
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'required|date|after:fecha_inicio',
@@ -288,6 +290,8 @@ class VoceroController extends Controller
                     $ubicacion = $validated['detalles']['lugar'];
                 } elseif (isset($validated['detalles']['ubicacion_proyecto'])) {
                     $ubicacion = $validated['detalles']['ubicacion_proyecto'];
+                } elseif (isset($validated['detalles']['ubicacion_otros'])) {
+                    $ubicacion = $validated['detalles']['ubicacion_otros'];
                 }
             }
             
@@ -586,12 +590,13 @@ class VoceroController extends Controller
         // Convertir estado de DB a formato de vista
         $estado = $this->convertirEstadoDesdeDB($evento->EstadoEvento);
         
-        // Determinar color según tipo
+        // Determinar color según tipo - 🆕 AGREGADO COLOR PARA "otros"
         $colores = [
             'reunion-virtual' => '#3b82f6',
             'reunion-presencial' => '#10b981',
             'inicio-proyecto' => '#f59e0b',
-            'finalizar-proyecto' => '#ef4444'
+            'finalizar-proyecto' => '#ef4444',
+            'otros' => '#8b5cf6'  // 🆕 Color púrpura para "Otros"
         ];
         
         // Preparar detalles
@@ -603,6 +608,8 @@ class VoceroController extends Controller
             $detalles['enlace'] = $evento->Ubicacion ?? '';
         } elseif ($tipoEvento === 'reunion-presencial') {
             $detalles['lugar'] = $evento->Ubicacion ?? '';
+        } elseif ($tipoEvento === 'otros') {  // 🆕 AGREGADO MANEJO PARA "otros"
+            $detalles['ubicacion_otros'] = $evento->Ubicacion ?? '';
         } else {
             $detalles['ubicacion_proyecto'] = $evento->Ubicacion ?? '';
         }
@@ -627,6 +634,7 @@ class VoceroController extends Controller
 
     /**
      * Convertir tipo de evento de vista a DB
+     * 🆕 AGREGADO MAPEO PARA "otros"
      */
     private function convertirTipoEvento($tipo)
     {
@@ -634,7 +642,8 @@ class VoceroController extends Controller
             'reunion-virtual' => 'Virtual',
             'reunion-presencial' => 'Presencial',
             'inicio-proyecto' => 'InicioProyecto',
-            'finalizar-proyecto' => 'FinProyecto'
+            'finalizar-proyecto' => 'FinProyecto',
+            'otros' => 'Otros'  // 🆕 AGREGADO
         ];
         
         return $mapa[$tipo] ?? 'Virtual';
@@ -642,6 +651,7 @@ class VoceroController extends Controller
 
     /**
      * Convertir tipo de evento de DB a vista
+     * 🆕 AGREGADO MAPEO PARA "Otros"
      */
     private function convertirTipoEventoDesdeDB($tipo)
     {
@@ -649,7 +659,8 @@ class VoceroController extends Controller
             'Virtual' => 'reunion-virtual',
             'Presencial' => 'reunion-presencial',
             'InicioProyecto' => 'inicio-proyecto',
-            'FinProyecto' => 'finalizar-proyecto'
+            'FinProyecto' => 'finalizar-proyecto',
+            'Otros' => 'otros'  // 🆕 AGREGADO
         ];
         
         return $mapa[$tipo] ?? 'reunion-virtual';
@@ -879,6 +890,11 @@ class VoceroController extends Controller
             // Obtener reporte detallado
             $reporteDetallado = DB::select('CALL sp_generar_reporte_detallado_eventos()');
             
+            // 🆕 Contar eventos tipo "Otros" manualmente
+            $totalOtros = DB::table('calendarios')
+                ->where('TipoEvento', 'Otros')
+                ->count();
+            
             // Preparar datos para gráficos
             $datosGraficos = [
                 'estados' => [
@@ -890,7 +906,8 @@ class VoceroController extends Controller
                     'virtual' => $statsGenerales[0]->TotalVirtual ?? 0,
                     'presencial' => $statsGenerales[0]->TotalPresencial ?? 0,
                     'inicio_proyecto' => $statsGenerales[0]->TotalInicioProyecto ?? 0,
-                    'fin_proyecto' => $statsGenerales[0]->TotalFinProyecto ?? 0
+                    'fin_proyecto' => $statsGenerales[0]->TotalFinProyecto ?? 0,
+                    'otros' => $totalOtros  // 🆕 AGREGADO
                 ],
                 'asistencias' => [],
                 'tendencia' => []

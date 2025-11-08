@@ -29,7 +29,7 @@
         /* AJUSTE CLAVE 1: Estilos del Menú Lateral (Sidebar) */
         .sidebar-vocero {
             background: var(--sidebar-bg);
-            width: 250px;
+            width: 200px;
             position: fixed;
             left: 0;
             top: 0; 
@@ -41,14 +41,14 @@
         
         /* AJUSTE CLAVE 2: Modifica la barra de navegación de Breeze */
         nav.bg-white {
-            margin-left: 250px; 
-            width: calc(100% - 250px);
+            margin-left: 200px; 
+            width: calc(100% - 200px);
             z-index: 30; 
         }
         
         /* AJUSTE CLAVE 3: Estilos del contenido principal */
         .main-content-vocero {
-            margin-left: 250px; 
+            margin-left: 200px; 
             min-height: 100vh;
             padding: 0;
             flex-grow: 1;
@@ -78,6 +78,11 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            font-size: 1.5rem;
+        }
+
+        .sidebar-brand h4 i {
+            font-size: 1.75rem;
         }
 
         .sidebar-nav {
@@ -232,13 +237,13 @@
         {{-- ⭐ 1. MENÚ LATERAL (SIDEBAR) ⭐ --}}
         <div class="sidebar-vocero">
             <div class="sidebar-brand">
-                <h4><i class="fas fa-calendar-alt text-primary"></i> Vocero</h4>
+                <h4><i class="fas fa-calendar-alt text-primary"></i> Macero</h4>
             </div>
             
             <nav class="sidebar-nav">
                 <a class="nav-link active" href="{{ route('vocero.dashboard') }}"> 
                     <i class="fas fa-chart-line"></i>
-                    Dashboard
+                    Resumen General
                 </a>
                 <a class="nav-link" href="{{ route('vocero.calendario') }}">
                     <i class="fas fa-calendar"></i>
@@ -265,7 +270,7 @@
                 {{-- TÍTULO Y BOTÓN DE ACTUALIZACIÓN --}}
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h2><i class="fas fa-chart-line me-2"></i>Dashboard</h2>
+                        <h2><i class="fas fa-chart-line me-2"></i>RESUMEN GENERAL</h2>
                         <p class="text-muted mb-0">Resumen general del módulo Vocero</p>
                     </div>
                     <button class="btn btn-outline-primary" onclick="refreshDashboard()">

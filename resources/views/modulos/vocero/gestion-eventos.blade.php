@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Vocero - Gestión de Eventos</title>
+    <title>Macero - Gestión de Eventos</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -12,6 +12,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 🆕 jsPDF para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         :root {
@@ -21,8 +24,8 @@
             --warning-color: #f59e0b;
             --danger-color: #ef4444;
             --info-color: #06b6d4;
-            --sidebar-bg: #2c3e50;
-            --sidebar-text: #ecf0f1;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #e2e8f0;
             --light-bg: #f1f5f9;
             --dark-color: #1e293b;
             --border-color: #e2e8f0;
@@ -42,7 +45,7 @@
         }
 
         body {
-            background: var(--light-bg);
+            background: #d0cfcd;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
@@ -55,7 +58,7 @@
         .sidebar {
             background: var(--sidebar-bg);
             min-height: 100vh;
-            width: 250px;
+            width: 200px;
             position: fixed;
             left: 0;
             top: 0;
@@ -75,6 +78,12 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: 1.5rem;
+        }
+
+        .sidebar-brand h4 i {
+            color: var(--primary-color);
+            font-size: 1.75rem;
         }
 
         .sidebar-nav {
@@ -83,7 +92,7 @@
 
         .sidebar .nav-link {
             color: var(--sidebar-text);
-            padding: 15px 20px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -92,11 +101,13 @@
             background: none;
             text-decoration: none;
             font-weight: 500;
+            border-radius: 8px;
+            margin: 4px 16px;
         }
 
         .sidebar .nav-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
         }
 
         .sidebar .nav-link.active {
@@ -105,12 +116,12 @@
         }
 
         .main-content {
-            margin-left: 250px;
+            margin-left: 200px;
             min-height: 100vh;
-            background: var(--light-bg);
+            background: #d0cfcd;
             padding: 0;
-            width: calc(100% - 250px);
-            max-width: calc(100% - 250px);
+            width: calc(100% - 200px);
+            max-width: calc(100% - 200px);
             overflow-x: hidden;
         }
 
@@ -120,6 +131,7 @@
 
         .page-header {
             margin-bottom: 30px;
+            text-align: center;
         }
 
         .page-header h1 {
@@ -127,18 +139,24 @@
             font-weight: 700;
             color: var(--dark-color);
             margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .page-subtitle {
             color: var(--secondary-color);
             margin: 0 0 25px 0;
             font-size: 1rem;
+            text-align: center;
         }
 
         .header-actions {
             display: flex;
             gap: 12px;
             margin-top: 20px;
+            justify-content: center;
         }
 
         .stats-row {
@@ -319,6 +337,7 @@
         .badge-category-reunion-presencial { background: #d1fae5; color: #065f46; }
         .badge-category-inicio-proyecto { background: #fef3c7; color: #92400e; }
         .badge-category-finalizar-proyecto { background: #fee2e2; color: #991b1b; }
+        .badge-category-otros { background: #ede9fe; color: #6b21a8; }
 
         .action-buttons {
             display: flex;
@@ -362,14 +381,28 @@
         }
 
         .btn-outline-secondary {
-            border: 1px solid var(--border-color);
-            color: var(--secondary-color);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: white;
+            font-weight: 600;
         }
 
         .btn-outline-secondary:hover {
-            background: var(--light-bg);
-            border-color: var(--secondary-color);
-            color: var(--dark-color);
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-export-pdf {
+            background: #10b981;
+            border: none;
+            color: white;
+            font-weight: 600;
+        }
+
+        .btn-export-pdf:hover {
+            background: #059669;
+            color: white;
         }
 
         .empty-state {
@@ -444,6 +477,8 @@
             }
             .main-content {
                 margin-left: 0;
+                width: 100%;
+                max-width: 100%;
             }
             .stat-number {
                 font-size: 2rem;
@@ -460,12 +495,12 @@
         <div class="row">
             <div class="sidebar">
                 <div class="sidebar-brand">
-                    <h4><i class="fas fa-calendar-alt"></i> Vocero</h4>
+                    <h4><i class="fas fa-calendar-alt"></i> Macero</h4>
                 </div>
                 <nav class="sidebar-nav">
                     <a class="nav-link {{ request()->routeIs('vocero.dashboard') ? 'active' : '' }}" href="{{ route('vocero.dashboard') }}">
                         <i class="fas fa-chart-line"></i>
-                        Dashboard
+                        Resumen General
                     </a>
                     <a class="nav-link {{ request()->routeIs('vocero.calendario') ? 'active' : '' }}" href="{{ route('vocero.calendario') }}">
                         <i class="fas fa-calendar"></i>
@@ -489,7 +524,7 @@
             <div class="main-content">
                 <div class="content-area">
                     <div class="page-header">
-                        <h1><i class="fas fa-calendar-check me-2"></i>Gestión de Eventos</h1>
+                        <h1><i class="fas fa-calendar-check"></i>Gestión de Eventos</h1>
                         <p class="page-subtitle">Administra y visualiza todos tus eventos programados</p>
                         
                         <div class="header-actions">
@@ -499,8 +534,8 @@
                             <button class="btn btn-outline-secondary" onclick="refreshEvents()">
                                 <i class="fas fa-sync-alt me-2"></i>Actualizar
                             </button>
-                            <button class="btn btn-outline-secondary" onclick="exportEvents()">
-                                <i class="fas fa-download me-2"></i>Exportar
+                            <button class="btn btn-export-pdf" onclick="exportEvents()">
+                                <i class="fas fa-download me-2"></i>Exportar PDF
                             </button>
                         </div>
                     </div>
@@ -599,6 +634,7 @@
                                     <option value="reunion-presencial">Reunión Presencial</option>
                                     <option value="inicio-proyecto">Inicio Proyecto</option>
                                     <option value="finalizar-proyecto">Fin Proyecto</option>
+                                    <option value="otros">Otros</option>
                                 </select>
                             </div>
 
@@ -678,10 +714,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
 
     <script>
-        // ============================================================================
-        // 🔄 CÓDIGO MODIFICADO - CONECTADO A BASE DE DATOS
-        // ============================================================================
-        
         let eventsData = [];
         let filteredEvents = [];
         let currentFilter = 'all';
@@ -698,9 +730,6 @@
             $('#status-filter, #category-filter, #date-from, #date-to').on('change', applyFilters);
         }
 
-        // ============================================================================
-        // ✅ FUNCIÓN MODIFICADA: Cargar eventos desde la base de datos
-        // ============================================================================
         function loadEvents() {
             showLoading();
             
@@ -880,13 +909,21 @@
                 
                 let ubicacion = '';
                 if (event.extendedProps?.detalles) {
-                    if (event.extendedProps.detalles.lugar) {
-                        ubicacion = event.extendedProps.detalles.lugar;
-                    } else if (event.extendedProps.detalles.enlace) {
-                        ubicacion = `<a href="${event.extendedProps.detalles.enlace}" target="_blank" class="text-primary"><i class="fas fa-link"></i> Virtual</a>`;
-                    } else if (event.extendedProps.detalles.ubicacion_proyecto) {
-                        ubicacion = event.extendedProps.detalles.ubicacion_proyecto;
+                    const detalles = event.extendedProps.detalles;
+                    
+                    if (detalles.lugar) {
+                        ubicacion = `<i class="fas fa-map-marker-alt me-1 text-muted"></i> ${detalles.lugar}`;
+                    } else if (detalles.enlace) {
+                        ubicacion = `<a href="${detalles.enlace}" target="_blank" class="text-primary"><i class="fas fa-video me-1"></i> Virtual</a>`;
+                    } else if (detalles.ubicacion_proyecto) {
+                        ubicacion = `<i class="fas fa-project-diagram me-1 text-muted"></i> ${detalles.ubicacion_proyecto}`;
+                    } else if (detalles.ubicacion_otros) {
+                        ubicacion = `<i class="fas fa-info-circle me-1 text-muted"></i> ${detalles.ubicacion_otros}`;
                     }
+                }
+
+                if (!ubicacion) {
+                    ubicacion = '<span class="text-muted"><i class="fas fa-question-circle me-1"></i> Sin ubicación</span>';
                 }
 
                 const fechaFormateada = fechaInicio.toLocaleDateString('es-ES', {
@@ -909,7 +946,7 @@
                             <div><i class="fas fa-calendar me-2 text-muted"></i>${fechaFormateada}</div>
                             <div class="text-muted small"><i class="fas fa-clock me-2"></i>${horaFormateada}</div>
                         </td>
-                        <td>${ubicacion || '<span class="text-muted">Sin ubicación</span>'}</td>
+                        <td>${ubicacion}</td>
                         <td><span class="badge badge-category-${getCategoryClass(tipoEvento)}">${getCategoryName(tipoEvento)}</span></td>
                         <td><span class="badge badge-status-${getStatusClass(estado)}">${getStatusName(estado)}</span></td>
                         <td>${organizador}</td>
@@ -951,13 +988,17 @@
             let detallesAdicionales = '';
             
             if (event.extendedProps?.detalles) {
-                if (event.extendedProps.detalles.lugar) {
-                    ubicacion = event.extendedProps.detalles.lugar;
-                } else if (event.extendedProps.detalles.enlace) {
+                const detalles = event.extendedProps.detalles;
+                
+                if (detalles.lugar) {
+                    ubicacion = detalles.lugar;
+                } else if (detalles.enlace) {
                     ubicacion = 'Reunión Virtual';
-                    detallesAdicionales = `<p style="margin: 0;"><strong>Enlace:</strong> <a href="${event.extendedProps.detalles.enlace}" target="_blank">${event.extendedProps.detalles.enlace}</a></p>`;
-                } else if (event.extendedProps.detalles.ubicacion_proyecto) {
-                    ubicacion = event.extendedProps.detalles.ubicacion_proyecto;
+                    detallesAdicionales = `<p style="margin: 0;"><strong>Enlace:</strong> <a href="${detalles.enlace}" target="_blank">${detalles.enlace}</a></p>`;
+                } else if (detalles.ubicacion_proyecto) {
+                    ubicacion = detalles.ubicacion_proyecto;
+                } else if (detalles.ubicacion_otros) {
+                    ubicacion = detalles.ubicacion_otros;
                 }
             }
 
@@ -997,9 +1038,6 @@
             });
         }
 
-        // ============================================================================
-        // ✅ FUNCIÓN MODIFICADA: Eliminar evento de la base de datos
-        // ============================================================================
         function deleteEvent(id) {
             const event = eventsData.find(e => e.id == id);
             if (!event) {
@@ -1029,7 +1067,6 @@
                 if (result.isConfirmed) {
                     showLoading();
                     
-                    // ✅ CAMBIO: Eliminar del servidor
                     $.ajax({
                         url: `/api/calendario/eventos/${id}`,
                         method: 'DELETE',
@@ -1080,7 +1117,8 @@
             loadEvents();
         }
 
-        function exportEvents() {
+        // 🆕 FUNCIÓN MEJORADA: Exportar a PDF
+        async function exportEvents() {
             const eventsToExport = filteredEvents.length > 0 ? filteredEvents : eventsData;
             
             if (eventsToExport.length === 0) {
@@ -1088,65 +1126,223 @@
                 return;
             }
 
-            Swal.fire({
-                title: 'Exportar Eventos',
-                text: 'Selecciona el formato de exportación',
-                icon: 'question',
-                showCancelButton: true,
-                showDenyButton: true,
-                confirmButtonText: 'CSV',
-                denyButtonText: 'Excel',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    exportToCSV(eventsToExport);
-                } else if (result.isDenied) {
-                    showToast('Función de Excel próximamente...', 'info');
+            showToast('📄 Generando PDF de eventos...', 'info');
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'mm', 'a4'); // Orientación horizontal
+                
+                let yPos = 20;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 15;
+                const usableWidth = pageWidth - (margin * 2);
+                
+                // ENCABEZADO
+                doc.setFillColor(37, 99, 235);
+                doc.rect(0, 0, pageWidth, 50, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont(undefined, 'bold');
+                doc.text('Lista de Eventos', pageWidth / 2, 25, { align: 'center' });
+                
+                let filtroTexto = '';
+                switch(currentFilter) {
+                    case 'month': filtroTexto = 'Eventos del Mes Actual'; break;
+                    case 'upcoming': filtroTexto = 'Eventos Próximos'; break;
+                    case 'completed': filtroTexto = 'Eventos Completados'; break;
+                    default: filtroTexto = 'Todos los Eventos';
                 }
-            });
-        }
-
-        function exportToCSV(events) {
-            const headers = ['Título', 'Fecha Inicio', 'Fecha Fin', 'Ubicación', 'Categoría', 'Estado', 'Organizador'];
-            const rows = events.map(event => [
-                event.titulo || event.title || '',
-                event.fecha_inicio || event.start || '',
-                event.fecha_fin || event.end || '',
-                event.extendedProps?.detalles?.lugar || event.extendedProps?.detalles?.enlace || '',
-                getCategoryName(event.extendedProps?.tipo_evento || ''),
-                getStatusName(event.extendedProps?.estado || ''),
-                event.extendedProps?.organizador || ''
-            ]);
-
-            const csvContent = [headers, ...rows]
-                .map(row => row.map(field => `"${field}"`).join(','))
-                .join('\n');
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            
-            let filename = 'eventos';
-            switch(currentFilter) {
-                case 'month':
-                    filename += '_mes_actual';
-                    break;
-                case 'upcoming':
-                    filename += '_proximos';
-                    break;
-                case 'today':
-                    filename += '_hoy';
-                    break;
-                case 'completed':
-                    filename += '_completados';
-                    break;
+                
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
+                doc.text(filtroTexto, pageWidth / 2, 38, { align: 'center' });
+                
+                yPos = 60;
+                doc.setTextColor(0, 0, 0);
+                
+                // INFO GENERAL
+                doc.setFontSize(10);
+                doc.setTextColor(100, 116, 139);
+                const fechaActual = new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                doc.text(`Generado: ${fechaActual}`, margin, yPos);
+                yPos += 8;
+                
+                doc.text(`Total de eventos: ${eventsToExport.length}`, margin, yPos);
+                yPos += 12;
+                
+                doc.setTextColor(0, 0, 0);
+                
+                // ENCABEZADOS DE TABLA
+                const colWidths = {
+                    titulo: 55,
+                    fecha: 35,
+                    ubicacion: 45,
+                    tipo: 35,
+                    estado: 25,
+                    organizador: 45
+                };
+                
+                doc.setFillColor(241, 245, 249);
+                doc.rect(margin, yPos, usableWidth, 10, 'F');
+                
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(71, 85, 105);
+                
+                let xPos = margin + 2;
+                doc.text('Título', xPos, yPos + 7);
+                xPos += colWidths.titulo;
+                doc.text('Fecha', xPos, yPos + 7);
+                xPos += colWidths.fecha;
+                doc.text('Ubicación', xPos, yPos + 7);
+                xPos += colWidths.ubicacion;
+                doc.text('Tipo', xPos, yPos + 7);
+                xPos += colWidths.tipo;
+                doc.text('Estado', xPos, yPos + 7);
+                xPos += colWidths.estado;
+                doc.text('Organizador', xPos, yPos + 7);
+                
+                yPos += 12;
+                
+                doc.setDrawColor(226, 232, 240);
+                doc.line(margin, yPos, pageWidth - margin, yPos);
+                yPos += 2;
+                
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(0, 0, 0);
+                
+                let rowCount = 0;
+                let alternateRow = false;
+                
+                // FILAS DE DATOS
+                eventsToExport.forEach(event => {
+                    if (yPos > pageHeight - 30) {
+                        doc.addPage();
+                        yPos = 20;
+                        
+                        // Repetir encabezados en nueva página
+                        doc.setFillColor(241, 245, 249);
+                        doc.rect(margin, yPos, usableWidth, 10, 'F');
+                        
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(71, 85, 105);
+                        
+                        xPos = margin + 2;
+                        doc.text('Título', xPos, yPos + 7);
+                        xPos += colWidths.titulo;
+                        doc.text('Fecha', xPos, yPos + 7);
+                        xPos += colWidths.fecha;
+                        doc.text('Ubicación', xPos, yPos + 7);
+                        xPos += colWidths.ubicacion;
+                        doc.text('Tipo', xPos, yPos + 7);
+                        xPos += colWidths.tipo;
+                        doc.text('Estado', xPos, yPos + 7);
+                        xPos += colWidths.estado;
+                        doc.text('Organizador', xPos, yPos + 7);
+                        
+                        yPos += 12;
+                        doc.setDrawColor(226, 232, 240);
+                        doc.line(margin, yPos, pageWidth - margin, yPos);
+                        yPos += 2;
+                        
+                        doc.setFont(undefined, 'normal');
+                        doc.setFontSize(8);
+                        doc.setTextColor(0, 0, 0);
+                    }
+                    
+                    if (alternateRow) {
+                        doc.setFillColor(248, 250, 252);
+                        doc.rect(margin, yPos, usableWidth, 8, 'F');
+                    }
+                    alternateRow = !alternateRow;
+                    
+                    const titulo = (event.title || event.titulo || 'Sin título').substring(0, 35);
+                    const fechaInicio = new Date(event.start || event.fecha_inicio);
+                    const fechaStr = fechaInicio.toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    let ubicacion = 'Sin ubicación';
+                    if (event.extendedProps?.detalles) {
+                        const det = event.extendedProps.detalles;
+                        ubicacion = det.lugar || det.ubicacion_proyecto || det.ubicacion_otros || (det.enlace ? 'Virtual' : 'Sin ubicación');
+                    }
+                    ubicacion = ubicacion.substring(0, 30);
+                    
+                    const tipo = getCategoryName(event.extendedProps?.tipo_evento || '').substring(0, 20);
+                    const estado = getStatusName(event.extendedProps?.estado || '').substring(0, 15);
+                    const organizador = (event.extendedProps?.organizador || 'Sin organizador').substring(0, 30);
+                    
+                    xPos = margin + 2;
+                    doc.setFont(undefined, 'bold');
+                    doc.text(titulo, xPos, yPos + 6);
+                    
+                    doc.setFont(undefined, 'normal');
+                    xPos += colWidths.titulo;
+                    doc.text(fechaStr, xPos, yPos + 6);
+                    
+                    xPos += colWidths.fecha;
+                    doc.text(ubicacion, xPos, yPos + 6);
+                    
+                    xPos += colWidths.ubicacion;
+                    doc.text(tipo, xPos, yPos + 6);
+                    
+                    xPos += colWidths.tipo;
+                    doc.text(estado, xPos, yPos + 6);
+                    
+                    xPos += colWidths.estado;
+                    doc.text(organizador, xPos, yPos + 6);
+                    
+                    yPos += 10;
+                    rowCount++;
+                });
+                
+                // PIE DE PÁGINA
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    
+                    doc.setDrawColor(226, 232, 240);
+                    doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+                    
+                    doc.setFontSize(8);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(
+                        `Página ${i} de ${pageCount}`,
+                        margin,
+                        pageHeight - 10
+                    );
+                    doc.text(
+                        'Sistema Macero',
+                        pageWidth - margin,
+                        pageHeight - 10,
+                        { align: 'right' }
+                    );
+                }
+                
+                const nombreArchivo = `Eventos_${filtroTexto.replace(/\s/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(nombreArchivo);
+                
+                showToast(`✅ PDF generado (${rowCount} eventos)`, 'success');
+                
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                showToast('❌ Error al generar el PDF', 'error');
             }
-            filename += `_${new Date().toISOString().split('T')[0]}.csv`;
-            
-            link.download = filename;
-            link.click();
-            
-            showToast('Archivo CSV descargado correctamente', 'success');
         }
 
         function updatePaginationInfo(total) {
@@ -1166,7 +1362,7 @@
                 'reunion-presencial': 'reunion-presencial',
                 'inicio-proyecto': 'inicio-proyecto',
                 'finalizar-proyecto': 'finalizar-proyecto',
-                'cumpleanos': 'cumpleanos'
+                'otros': 'otros'
             };
             return mapping[category] || 'sin-categoria';
         }
@@ -1177,13 +1373,12 @@
                 'reunion-presencial': 'Reunión Presencial',
                 'inicio-proyecto': 'Inicio de Proyecto',
                 'finalizar-proyecto': 'Fin de Proyecto',
-                'cumpleanos': 'Cumpleaños'
+                'otros': 'Otros'
             };
             return mapping[category] || 'Sin categoría';
         }
 
         function getStatusName(status) {
-            // Normalizar el estado a minúsculas y sin espacios
             const normalizedStatus = String(status).toLowerCase().trim();
             
             const mapping = {
@@ -1199,10 +1394,7 @@
         }
 
         function getStatusClass(status) {
-            // Convertir el estado a formato CSS compatible
             const normalizedStatus = String(status).toLowerCase().trim();
-            
-            // Convertir espacios y guiones a guiones bajos para CSS
             return normalizedStatus.replace(/[\s-]+/g, '_');
         }
 
