@@ -96,7 +96,8 @@
                         </div>
                         
                         <div class="form-check mb-4">
-                            <input type="checkbox" class="form-check-input bg-gray-700 border-gray-600 text-emerald-600" name="activo" id="activo">
+                            <input type="hidden" name="activo" value="0">
+                            <input type="checkbox" class="form-check-input bg-gray-700 border-gray-600 text-emerald-600" name="activo" id="activo" value="1">
                             <label class="form-check-label text-gray-200" for="activo">
                                 Activar respaldo automático
                             </label>

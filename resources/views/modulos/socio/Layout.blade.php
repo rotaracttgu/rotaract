@@ -24,13 +24,10 @@
                 <div class="flex items-center justify-between h-16">
 
                     <!-- Logo + Nombre del Club -->
-                    <div class="flex items-center space-x-4">
-                        <img src="{{ asset('images/Logo_Rotaract.webp') }}" alt="Rotaract" class="h-10">
-                        <div>
-                            <h1 class="text-lg font-bold text-pink-600">Rotaract</h1>
-                            <p class="text-xs text-gray-600">Fuerza Tegucigalpa Sur</p>
+                        <!-- Logo del Club (mostrar sólo el logo, quitar título textual) -->
+                        <div class="flex items-center space-x-4">
+                            <img src="{{ asset('images/Logo_Rotaract.webp') }}" alt="Rotaract" class="h-10">
                         </div>
-                    </div>
 
                     <!-- Right Side -->
                     <div class="flex items-center space-x-6">
@@ -41,18 +38,20 @@
 
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open" class="flex items-center space-x-3 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
+                                @php $socioDisplay = Auth::user()->username ?? Auth::user()->name; @endphp
                                 <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                    {{ substr(Auth::user()->name, 0, 1) }}
+                                    {{ strtoupper(substr($socioDisplay, 0, 1)) }}
                                 </div>
                                 <div class="hidden md:block text-left">
-                                    <p class="font-medium">{{ Auth::user()->name }}</p>
-                                    <p class="text-xs text-gray-500">Aspirante</p>
+                                    <p class="font-medium">{{ $socioDisplay }}</p>
+                                        <p class="text-xs text-gray-500">Socio</p>
                                 </div>
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </button>
 
                             <div x-show="open" @click.away="open = false" 
                                  class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border">
+                                <a href="{{ route('perfil.editar') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Perfil</a>
                                 <form method="POST" action="{{ route('logout') }}" class="block">
                                     @csrf
                                     <button type="submit" 
@@ -82,7 +81,7 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-bold">Aspirante</h2>
-                            <p class="text-xs text-blue-300">{{ Auth::user()->name }}</p>
+                            <p class="text-xs text-blue-300">{{ Auth::user()->username ?? Auth::user()->name }}</p>
                         </div>
                     </div>
                     <button id="closeSidebar" class="lg:hidden text-white">
@@ -130,16 +129,7 @@
                         @endif
                     </a>
 
-                    <a href="{{ route('socio.voceria.index') }}" 
-                       class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('socio.voceria*') ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
-                        <i class="fas fa-bullhorn w-5"></i>
-                        <span class="ml-3">Vocalía</span>
-                        @if(isset($consultasVoceriaPendientes) && $consultasVoceriaPendientes > 0)
-                            <span class="ml-auto bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                {{ $consultasVoceriaPendientes }}
-                            </span>
-                        @endif
-                    </a>
+                        <!-- Eliminado: Vocalía (no se utiliza) -->
 
                     <div class="my-4 border-t border-blue-700"></div>
                     <div class="px-4 py-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Personal</div>

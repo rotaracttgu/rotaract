@@ -294,12 +294,12 @@
                             @enderror
                         </div>
 
-<<<<<<< Updated upstream:resources/views/modulos/users/create.blade.php
                         <!-- Estado del Email -->
                         <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200">
                             <div class="flex items-start">
                                 <div class="flex items-center h-6">
-                                    <input id="correo_verificado" name="email_verified" type="checkbox" 
+                                    <input type="hidden" name="email_verified" value="0">
+                                    <input id="correo_verificado" name="email_verified" value="1" type="checkbox" 
                                         class="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 focus:ring-2 cursor-pointer" 
                                         {{ old('email_verified') ? 'checked' : '' }}>
                                 </div>
@@ -319,7 +319,8 @@
                         <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200 mt-6">
                             <div class="flex items-start">
                                 <div class="flex items-center h-6">
-                                    <input id="two_factor_verified" name="two_factor_verified" type="checkbox" 
+                                    <input type="hidden" name="two_factor_verified" value="0">
+                                    <input id="two_factor_verified" name="two_factor_verified" value="1" type="checkbox" 
                                         class="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 focus:ring-2 cursor-pointer" 
                                         {{ old('two_factor_verified') ? 'checked' : '' }}>
                                 </div>
@@ -340,7 +341,8 @@
                         <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border-2 border-green-200 mt-6">
                             <div class="flex items-start">
                                 <div class="flex items-center h-6">
-                                    <input id="activo" name="activo" type="checkbox" 
+                                    <input type="hidden" name="activo" value="0">
+                                    <input id="activo" name="activo" value="1" type="checkbox" 
                                         class="h-5 w-5 text-green-600 border-gray-300 rounded focus:ring-green-500 focus:ring-2 cursor-pointer" 
                                         {{ old('activo', true) ? 'checked' : '' }}>
                                 </div>
@@ -355,9 +357,6 @@
                                 </div>
                             </div>
                         </div>
-
-=======
->>>>>>> Stashed changes:resources/views/users/create.blade.php
                         <!-- Botones -->
                         <div class="flex items-center justify-between pt-8 border-t-2 border-gray-200">
                             <a href="{{ route(($moduloActual ?? 'admin') . '.usuarios.lista') }}" 

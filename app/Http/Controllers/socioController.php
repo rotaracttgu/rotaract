@@ -167,17 +167,24 @@ class SocioController extends Controller
 
     public function verConsultaSecretaria($id)
     {
+        // Mock consulta: provide the fields expected by the Blade view to avoid undefined/null parsing errors
         $consulta = (object)[
             'ConsultaID' => $id,
             'Asunto' => 'Solicitud de certificado',
             'Mensaje' => 'Necesito un certificado de membresía para presentar en mi empresa. ¿Pueden emitirlo con fecha de este mes?',
             'Categoria' => 'Documentacion',
             'Estado' => 'Pendiente',
-            'FechaEnvio' => '07/11/2025 04:10 PM',
-            'RespondidoPor' => null
+            // Blade expects FechaConsulta (used with Carbon::parse)
+            'FechaConsulta' => '2025-11-07 16:10:00',
+            // Prioridad (Alta/Media/Baja) - view shows badges
+            'Prioridad' => 'Media',
+            // When answered these will be filled; keep null for demo
+            'FechaRespuesta' => null,
+            'RespondidoPor' => null,
+            'Respuesta' => null
         ];
 
-        $historial = collect([]);
+        $historial = collect([]); // empty conversation for demo
 
         return view('modulos.socio.ver-consulta-secretaria', compact('consulta', 'historial'));
     }
@@ -432,7 +439,7 @@ class SocioController extends Controller
         $miembro = (object)[
             'Nombre' => Auth::user()->name,
             'Correo' => Auth::user()->email,
-            'Rol' => 'Aspirante',
+            'Rol' => 'Socio',
             'DNI_Pasaporte' => '0801-2001-14521',
             'Apuntes' => 'Aspirante activo'
         ];

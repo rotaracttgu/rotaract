@@ -6,7 +6,8 @@
     <!-- Header -->
     <div class="mb-6 bg-gradient-to-r from-blue-50 to-orange-50 rounded-lg p-6 border border-blue-200">
         <h1 class="text-2xl font-bold text-gray-800">
-            Bienvenido, <span class="text-blue-600">{{ Auth::user()->name }}</span>
+            @php $welcomeName = Auth::user()->username ?? Auth::user()->name; @endphp
+            Bienvenido, <span class="text-blue-600">{{ $welcomeName }}</span>
         </h1>
         <p class="text-gray-600 mt-2">Panel de control del Aspirante - Aquí encontrarás toda tu información importante</p>
     </div>
