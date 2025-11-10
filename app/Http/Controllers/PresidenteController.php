@@ -1288,10 +1288,23 @@ class PresidenteController extends Controller
     {
         try {
             $notificacionService = app(\App\Services\NotificacionService::class);
-            $ultimasNotificaciones = $notificacionService->obtenerNoLeidas(Auth::id())
-                ->take(1)
-                ->get();
-            
+
+            // obtenerNoLeidas puede devolver un Builder (consulta) o una Collection.
+            // Normalizamos para obtener una Collection con hasta 1 elemento.
+            $ultimasNotificaciones = $notificacionService->obtenerNoLeidas(Auth::id());
+
+            if ($ultimasNotificaciones instanceof \Illuminate\Database\Eloquent\Builder ||
+                $ultimasNotificaciones instanceof \Illuminate\Database\Query\Builder) {
+                // Si es un builder, ejecutamos la consulta y limitamos a 1
+                $ultimasNotificaciones = $ultimasNotificaciones->take(1)->get();
+            } elseif ($ultimasNotificaciones instanceof \Illuminate\Support\Collection) {
+                // Si es una Collection, aplicamos take(1) directamente
+                $ultimasNotificaciones = $ultimasNotificaciones->take(1);
+            } else {
+                // Fallback: convertir a collection y limitar
+                $ultimasNotificaciones = \Illuminate\Support\Collection::make($ultimasNotificaciones)->take(1);
+            }
+
             if ($ultimasNotificaciones->isEmpty()) {
                 return response()->json([
                     'hay_nuevas' => false,
