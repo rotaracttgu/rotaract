@@ -13,16 +13,19 @@ return new class extends Migration
     public function up(): void
     {
         $vistasPath = database_path('../sql_import/Vistas');
-        
+
+        // Si la carpeta no existe o está vacía, no fallamos en producción: hacemos log y salimos.
         if (!File::isDirectory($vistasPath)) {
-            throw new \Exception("La carpeta de vistas no existe en: {$vistasPath}");
+            \Log::warning("SQL Views Migration: carpeta no encontrada, se omite registro de vistas en: {$vistasPath}");
+            return;
         }
 
         // Obtener todos los archivos .sql de la carpeta
         $sqlFiles = File::glob($vistasPath . '/*.sql');
-        
+
         if (empty($sqlFiles)) {
-            throw new \Exception("No se encontraron archivos SQL en: {$vistasPath}");
+            \Log::warning("SQL Views Migration: no se encontraron archivos .sql en: {$vistasPath}. Se omite registro de vistas.");
+            return;
         }
 
         $vistasRegistradas = 0;
