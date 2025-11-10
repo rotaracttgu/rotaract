@@ -62,12 +62,11 @@ return [
         ],
 
         'resend' => [
-            // Soporte dual: por compatibilidad mantenemos el nombre 'resend',
-            // pero por defecto usamos el transport 'symfony' y un DSN.
-            // Esto permite usar MAIL_DSN o RESEND_API_KEY en el .env.
-            'transport' => env('RESEND_TRANSPORT', 'symfony'),
-            // Prioriza MAIL_DSN; si no existe, construye un DSN con RESEND_API_KEY
-            'dsn' => env('MAIL_DSN', env('RESEND_DSN', 'resend+api://' . env('RESEND_API_KEY') . '@default')),
+            // Use Symfony transport with DSN from MAIL_DSN environment variable.
+            // In .env set: MAIL_MAILER=resend and MAIL_DSN=resend+api://YOUR_API_KEY@default
+            'transport' => 'symfony',
+            // Django style: URL/DSN is read from MAIL_DSN in .env
+            'url' => env('MAIL_DSN'),
         ],
 
         'sendmail' => [
