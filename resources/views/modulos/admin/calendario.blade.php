@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         height: 'auto',
-        events: '/vocero/api/eventos',
+        events: '/admin/api/calendario/eventos',
         eventColor: '#8b5cf6'
     });
     calendar.render();

@@ -13,26 +13,59 @@ class DiplomaPdfService
      */
     public function generarPDF(Diploma $diploma)
     {
-        $data = [
-            'diploma' => $diploma,
-            'miembro' => $diploma->miembro,
-            'emisor' => $diploma->emisor,
-            'fecha_emision' => $diploma->fecha_emision->format('d \d\e F \d\e Y'),
-        ];
+        try {
+            $data = [
+                'diploma' => $diploma,
+                'miembro' => $diploma->miembro,
+                'emisor' => $diploma->emisor,
+                'fecha_emision' => $diploma->fecha_emision->format('d \d\e F \d\e Y'),
+            ];
 
-        $pdf = Pdf::loadView('pdfs.diploma', $data);
-        $pdf->setPaper('a4', 'landscape');
-        
-        // Guardar el PDF
-        $fileName = 'diploma_' . $diploma->id . '_' . time() . '.pdf';
-        $path = 'diplomas/' . $fileName;
-        
-        Storage::disk('public')->put($path, $pdf->output());
-        
-        return [
-            'path' => $path,
-            'pdf' => $pdf
-        ];
+            // Verificar que la vista existe
+            if (!view()->exists('pdfs.diploma')) {
+                throw new \Exception('La vista pdfs.diploma no existe');
+            }
+
+            $pdf = Pdf::loadView('pdfs.diploma', $data);
+            $pdf->setPaper('a4', 'landscape');
+            
+            // Crear directorio si no existe
+            $directory = 'diplomas';
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory);
+            }
+            
+            // Guardar el PDF
+            $fileName = 'diploma_' . $diploma->id . '_' . time() . '.pdf';
+            $path = $directory . '/' . $fileName;
+            
+            $pdfContent = $pdf->output();
+            
+            // Verificar que el PDF tiene contenido
+            if (empty($pdfContent)) {
+                throw new \Exception('El PDF generado está vacío');
+            }
+            
+            Storage::disk('public')->put($path, $pdfContent);
+            
+            // Verificar que el archivo se guardó correctamente
+            if (!Storage::disk('public')->exists($path)) {
+                throw new \Exception('El archivo PDF no se pudo guardar');
+            }
+            
+            return [
+                'path' => $path,
+                'pdf' => $pdf
+            ];
+        } catch (\Exception $e) {
+            // Log del error
+            \Log::error('Error generando PDF del diploma: ' . $e->getMessage(), [
+                'diploma_id' => $diploma->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            throw $e;
+        }
     }
     
     /**

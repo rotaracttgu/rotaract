@@ -180,12 +180,16 @@
                                         <span class="text-sm font-bold text-gray-200">#{{ $usuario->id }}</span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
+                                        @php $userDisplay = $usuario->username ?? $usuario->nombre_completo; @endphp
                                         <div class="flex items-center">
                                             <div class="h-11 w-11 rounded-full bg-gradient-to-br from-pink-600 via-purple-600 to-indigo-700 flex items-center justify-center text-white text-sm font-bold shadow-md">
-                                                {{ strtoupper(substr($usuario->name, 0, 2)) }}
+                                                {{ strtoupper(substr($userDisplay, 0, 2)) }}
                                             </div>
                                             <div class="ml-4">
-                                                <div class="text-sm font-bold text-gray-200">{{ $usuario->name }}</div>
+                                                <div class="text-sm font-bold text-gray-200">{{ $usuario->username ?? $usuario->name }}</div>
+                                                @if($usuario->username)
+                                                    <div class="text-xs text-gray-400">{{ $usuario->nombre_completo }}</div>
+                                                @endif
                                             </div>
                                         </div>
                                     </td>
@@ -194,7 +198,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-purple-900/50 text-purple-200">
-                                            {{ $usuario->role ?? 'Sin rol' }}
+                                            {{ $usuario->getRolPrincipal() ?? 'Sin rol' }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">

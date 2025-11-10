@@ -391,12 +391,29 @@ function verDiploma(id) {
                         Documento
                     </h5>
                     <a href="/storage/${data.archivo_path}" target="_blank" 
-                       class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                       class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 mr-2">
+                        <i class="fas fa-eye"></i>
+                        Ver PDF
+                    </a>
+                    <a href="{{ route('secretaria.diplomas.descargar', '') }}/${data.id}" 
+                       class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                         <i class="fas fa-download"></i>
                         Descargar Diploma (PDF)
                     </a>
                 </div>
-                ` : '<p class="text-gray-500 italic">No hay archivo adjunto</p>'}
+                ` : `
+                <div>
+                    <h5 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-file-pdf text-red-500"></i>
+                        Documento
+                    </h5>
+                    <a href="{{ route('secretaria.diplomas.descargar', '') }}/${data.id}" 
+                       class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                        <i class="fas fa-download"></i>
+                        Generar y Descargar PDF
+                    </a>
+                </div>
+                `}
 
                 <!-- Metadata -->
                 <div class="pt-4 border-t border-gray-200 text-sm text-gray-500 space-y-1">

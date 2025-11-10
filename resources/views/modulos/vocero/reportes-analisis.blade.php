@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Vocero - Reportes y Análisis</title>
+    <title>Macero - Reportes y Análisis</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -24,7 +24,7 @@
             --info-color: #06b6d4;
             --purple-color: #8b5cf6;
             --sidebar-bg: #1e293b;
-            --sidebar-text: #ecf0f1;
+            --sidebar-text: #e2e8f0;
             --light-bg: #f8fafc;
             --dark-color: #1e293b;
             --border-color: #e2e8f0;
@@ -35,7 +35,7 @@
         }
 
         body {
-            background-color: var(--light-bg);
+            background-color: #d0cfcd;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 0;
@@ -45,7 +45,7 @@
         .sidebar {
             background: var(--sidebar-bg);
             min-height: 100vh;
-            width: 250px;
+            width: 200px;
             position: fixed;
             top: 0;
             left: 0;
@@ -64,10 +64,14 @@
             align-items: center;
         }
 
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
+        .sidebar .nav-link:hover {
             background: rgba(59, 130, 246, 0.1);
             color: #60a5fa;
+        }
+
+        .sidebar .nav-link.active {
+            background: var(--primary-color);
+            color: white;
         }
 
         .sidebar .nav-link i {
@@ -94,11 +98,11 @@
         }
 
         .main-content {
-            margin-left: 250px;
+            margin-left: 200px;
             min-height: 100vh;
             padding: 0;
-            width: calc(100% - 250px);
-            max-width: calc(100% - 250px);
+            width: calc(100% - 200px);
+            max-width: calc(100% - 200px);
             overflow-x: hidden;
         }
 
@@ -372,13 +376,13 @@
             <div class="sidebar-brand">
                 <h4>
                     <i class="fas fa-calendar-alt text-primary"></i>
-                    Vocero
+                    Macero
                 </h4>
             </div>
 
             <nav class="sidebar-nav">
                 <a class="nav-link {{ request()->routeIs('vocero.dashboard') ? 'active' : '' }}" href="{{ route('vocero.dashboard') }}">
-                    <i class="fas fa-chart-line"></i> Dashboard
+                    <i class="fas fa-chart-line"></i> Resumen General
                 </a>
                 <a class="nav-link {{ request()->routeIs('vocero.calendario') ? 'active' : '' }}" href="{{ route('vocero.calendario') }}">
                     <i class="fas fa-calendar"></i> Calendario
@@ -655,6 +659,7 @@
             });
         }
 
+        // 🆕 FUNCIÓN MODIFICADA: Incluye "Otros" en el gráfico
         function crearGraficos(datos) {
             if (estadosChart) estadosChart.destroy();
             if (tiposChart) tiposChart.destroy();
@@ -694,21 +699,22 @@
                 }
             });
 
-            // Gráfico de Tipos
+            // 🆕 Gráfico de Tipos - AGREGADO "Otros"
             const ctxTipos = document.getElementById('tiposChart').getContext('2d');
             tiposChart = new Chart(ctxTipos, {
                 type: 'bar',
                 data: {
-                    labels: ['Virtual', 'Presencial', 'Inicio Proyecto', 'Fin Proyecto'],
+                    labels: ['Virtual', 'Presencial', 'Inicio Proyecto', 'Fin Proyecto', 'Otros'],  // 🆕 AGREGADO
                     datasets: [{
                         label: 'Cantidad de Eventos',
                         data: [
                             datos.tipos.virtual,
                             datos.tipos.presencial,
                             datos.tipos.inicio_proyecto,
-                            datos.tipos.fin_proyecto
+                            datos.tipos.fin_proyecto,
+                            datos.tipos.otros || 0  // 🆕 AGREGADO con valor por defecto 0
                         ],
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],  // 🆕 AGREGADO color púrpura
                         borderRadius: 8
                     }]
                 },
@@ -725,7 +731,7 @@
                     onClick: function(evt, activeElements) {
                         if (activeElements.length > 0) {
                             const index = activeElements[0].index;
-                            const tipos = ['Virtual', 'Presencial', 'InicioProyecto', 'FinProyecto'];
+                            const tipos = ['Virtual', 'Presencial', 'InicioProyecto', 'FinProyecto', 'Otros'];  // 🆕 AGREGADO
                             filtrarEventosPorTipo(tipos[index]);
                         }
                     }
@@ -916,9 +922,6 @@
             });
         }
 
-        // ============================================================================
-        // 🆕 FUNCIÓN: Exportar Reporte Completo en PDF (BOTÓN VERDE)
-        // ============================================================================
         async function exportarReporteCompletoPDF() {
             showToast('📄 Generando reporte PDF completo...', 'info');
             
@@ -931,7 +934,6 @@
                 const pageHeight = doc.internal.pageSize.getHeight();
                 const margin = 15;
                 
-                // ========== PORTADA ==========
                 doc.setFillColor(37, 99, 235);
                 doc.rect(0, 0, pageWidth, 60, 'F');
                 
@@ -952,7 +954,6 @@
                 yPos = 80;
                 doc.setTextColor(0, 0, 0);
                 
-                // ========== ESTADÍSTICAS ==========
                 doc.setFontSize(18);
                 doc.setFont(undefined, 'bold');
                 doc.setTextColor(37, 99, 235);
@@ -992,7 +993,6 @@
                 
                 yPos += 90;
                 
-                // ========== GRÁFICOS ==========
                 if (yPos > pageHeight - 100) {
                     doc.addPage();
                     yPos = 20;
@@ -1004,14 +1004,12 @@
                 doc.text('Gráficos y Análisis', margin, yPos);
                 yPos += 10;
                 
-                // Gráfico de Estados
                 const estadosCanvas = document.getElementById('estadosChart');
                 if (estadosCanvas) {
                     const estadosImg = estadosCanvas.toDataURL('image/png');
                     doc.addImage(estadosImg, 'PNG', margin, yPos, 80, 60);
                 }
                 
-                // Gráfico de Tipos
                 const tiposCanvas = document.getElementById('tiposChart');
                 if (tiposCanvas) {
                     const tiposImg = tiposCanvas.toDataURL('image/png');
@@ -1025,7 +1023,6 @@
                     yPos = 20;
                 }
                 
-                // Gráfico de Tendencia
                 const tendenciaCanvas = document.getElementById('tendenciaChart');
                 if (tendenciaCanvas) {
                     const tendenciaImg = tendenciaCanvas.toDataURL('image/png');
@@ -1034,7 +1031,6 @@
                     yPos += 80;
                 }
                 
-                // ========== ASISTENCIAS ==========
                 doc.addPage();
                 yPos = 20;
                 
@@ -1056,7 +1052,6 @@
                     doc.text('No hay datos de asistencias registradas', pageWidth / 2, yPos + 20, { align: 'center' });
                 }
                 
-                // ========== PIE DE PÁGINA ==========
                 const pageCount = doc.internal.getNumberOfPages();
                 for (let i = 1; i <= pageCount; i++) {
                     doc.setPage(i);
@@ -1081,9 +1076,6 @@
             }
         }
 
-        // ============================================================================
-        // 🔵 FUNCIÓN: Exportar Tabla a PDF (BOTÓN AZUL)
-        // ============================================================================
         async function exportarTablaPDF() {
             showToast('📄 Generando PDF de tabla de eventos...', 'info');
             
@@ -1097,7 +1089,6 @@
                 const margin = 15;
                 const usableWidth = pageWidth - (margin * 2);
                 
-                // ========== ENCABEZADO ==========
                 doc.setFillColor(37, 99, 235);
                 doc.rect(0, 0, pageWidth, 50, 'F');
                 
@@ -1106,7 +1097,6 @@
                 doc.setFont(undefined, 'bold');
                 doc.text('Eventos Detallados', pageWidth / 2, 25, { align: 'center' });
                 
-                // Mostrar filtro activo si existe
                 const filtroActivo = $('#filtro-activo-badge').is(':visible') 
                     ? $('#filtro-activo-badge').text() 
                     : 'Todos los eventos';
@@ -1118,7 +1108,6 @@
                 yPos = 60;
                 doc.setTextColor(0, 0, 0);
                 
-                // ========== INFORMACIÓN DEL REPORTE ==========
                 doc.setFontSize(10);
                 doc.setTextColor(100, 116, 139);
                 const fechaActual = new Date().toLocaleDateString('es-ES', {
@@ -1131,7 +1120,6 @@
                 doc.text(`Generado: ${fechaActual}`, margin, yPos);
                 yPos += 8;
                 
-                // Contar eventos visibles
                 let totalEventosVisibles = 0;
                 $('#eventos-tbody tr').each(function() {
                     if ($(this).find('td').length > 1) {
@@ -1144,8 +1132,6 @@
                 
                 doc.setTextColor(0, 0, 0);
                 
-                // ========== TABLA DE EVENTOS ==========
-                // Configuración de columnas
                 const colWidths = {
                     titulo: 55,
                     tipo: 30,
@@ -1155,7 +1141,6 @@
                     porcentaje: 25
                 };
                 
-                // Encabezados de tabla
                 doc.setFillColor(241, 245, 249);
                 doc.rect(margin, yPos, usableWidth, 10, 'F');
                 
@@ -1178,12 +1163,10 @@
                 
                 yPos += 12;
                 
-                // Línea separadora
                 doc.setDrawColor(226, 232, 240);
                 doc.line(margin, yPos, pageWidth - margin, yPos);
                 yPos += 2;
                 
-                // Datos de la tabla
                 doc.setFont(undefined, 'normal');
                 doc.setFontSize(8);
                 doc.setTextColor(0, 0, 0);
@@ -1194,15 +1177,12 @@
                 $('#eventos-tbody tr').each(function() {
                     const $row = $(this);
                     
-                    // Ignorar filas de carga o sin datos
                     if ($row.find('td').length <= 1) return;
                     
-                    // Verificar si necesitamos nueva página
                     if (yPos > pageHeight - 30) {
                         doc.addPage();
                         yPos = 20;
                         
-                        // Repetir encabezados en nueva página
                         doc.setFillColor(241, 245, 249);
                         doc.rect(margin, yPos, usableWidth, 10, 'F');
                         
@@ -1233,14 +1213,12 @@
                         doc.setTextColor(0, 0, 0);
                     }
                     
-                    // Fondo alternado para filas
                     if (alternateRow) {
                         doc.setFillColor(248, 250, 252);
                         doc.rect(margin, yPos, usableWidth, 8, 'F');
                     }
                     alternateRow = !alternateRow;
                     
-                    // Extraer datos de la fila
                     const titulo = $row.find('td:eq(0)').text().trim();
                     const tipo = $row.find('td:eq(1)').text().trim();
                     const estado = $row.find('td:eq(2)').text().trim();
@@ -1248,10 +1226,8 @@
                     const asistencias = $row.find('td:eq(4)').text().trim();
                     const porcentaje = $row.find('td:eq(5) .progress-bar').text().trim();
                     
-                    // Truncar título si es muy largo
                     const tituloCorto = titulo.length > 35 ? titulo.substring(0, 35) + '...' : titulo;
                     
-                    // Dibujar datos
                     xPos = margin + 2;
                     doc.setFont(undefined, 'bold');
                     doc.text(tituloCorto, xPos, yPos + 6);
@@ -1259,7 +1235,6 @@
                     doc.setFont(undefined, 'normal');
                     xPos += colWidths.titulo;
                     
-                    // Truncar tipo si es muy largo
                     const tipoCorto = tipo.length > 18 ? tipo.substring(0, 18) + '...' : tipo;
                     doc.text(tipoCorto, xPos, yPos + 6);
                     
@@ -1274,25 +1249,21 @@
                     
                     xPos += colWidths.asistencias;
                     
-                    // Dibujar barra de porcentaje
                     const porcentajeNum = parseInt(porcentaje) || 0;
                     const barWidth = 20;
                     const barHeight = 4;
                     const barX = xPos;
                     const barY = yPos + 2;
                     
-                    // Fondo de la barra
                     doc.setFillColor(229, 231, 235);
                     doc.roundedRect(barX, barY, barWidth, barHeight, 1, 1, 'F');
                     
-                    // Relleno según porcentaje
                     if (porcentajeNum > 0) {
                         const fillWidth = (barWidth * porcentajeNum) / 100;
                         doc.setFillColor(5, 150, 105);
                         doc.roundedRect(barX, barY, fillWidth, barHeight, 1, 1, 'F');
                     }
                     
-                    // Texto del porcentaje
                     doc.setFontSize(7);
                     doc.text(porcentaje, barX + barWidth + 2, yPos + 6);
                     doc.setFontSize(8);
@@ -1301,19 +1272,16 @@
                     rowCount++;
                 });
                 
-                // Mensaje si no hay eventos
                 if (rowCount === 0) {
                     doc.setTextColor(100, 116, 139);
                     doc.setFontSize(11);
                     doc.text('No hay eventos para mostrar', pageWidth / 2, yPos + 20, { align: 'center' });
                 }
                 
-                // ========== PIE DE PÁGINA EN TODAS LAS PÁGINAS ==========
                 const pageCount = doc.internal.getNumberOfPages();
                 for (let i = 1; i <= pageCount; i++) {
                     doc.setPage(i);
                     
-                    // Línea separadora
                     doc.setDrawColor(226, 232, 240);
                     doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
                     
@@ -1332,7 +1300,6 @@
                     );
                 }
                 
-                // Guardar PDF
                 const filtroNombre = filtroActivo !== 'Todos los eventos' 
                     ? `_${filtroActivo.replace(/[^a-zA-Z0-9]/g, '_')}`
                     : '';
@@ -1347,9 +1314,6 @@
             }
         }
 
-        // ============================================================================
-        // FUNCIONES DE FILTRADO
-        // ============================================================================
         function filtrarEventosPorEstado(estado) {
             const nombreEstado = obtenerNombreEstado(estado);
             const eventosFiltrados = eventosDetallados.filter(e => e.EstadoEvento === estado);
@@ -1439,9 +1403,6 @@
             showToast(`Mostrando todos los eventos (${eventosDetallados.length})`, 'success');
         }
 
-        // ============================================================================
-        // FUNCIONES AUXILIARES
-        // ============================================================================
         function verDetalleEvento(eventoId) {
             $.ajax({
                 url: `/api/calendario/reportes/evento/${eventoId}`,
@@ -1490,12 +1451,14 @@
             cargarDatos();
         }
 
+        // 🆕 FUNCIÓN MODIFICADA: Incluye "Otros"
         function obtenerNombreTipo(tipo) {
             const tipos = {
                 'Virtual': 'Reunión Virtual',
                 'Presencial': 'Reunión Presencial',
                 'InicioProyecto': 'Inicio de Proyecto',
-                'FinProyecto': 'Fin de Proyecto'
+                'FinProyecto': 'Fin de Proyecto',
+                'Otros': 'Otros'  // 🆕 AGREGADO
             };
             return tipos[tipo] || tipo;
         }

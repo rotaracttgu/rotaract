@@ -135,26 +135,14 @@
                                     <p class="text-xs text-gray-500 mt-2">{{ $notificacion->created_at->diffForHumans() }}</p>
                                     
                                     <!-- Botones de acción -->
-                                    <div class="flex gap-2 mt-3">
-                                        @if($enlace !== '#')
-                                            <a href="{{ $enlace }}" onclick="markAsReadAndGo(event, {{ $notificacion->id }}, '{{ $enlace }}')" class="text-xs px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-md hover:from-blue-600 hover:to-blue-700 transition">
+                                    @if($enlace !== '#')
+                                        <div class="mt-3">
+                                            <a href="{{ $enlace }}" class="text-xs px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-md hover:from-blue-600 hover:to-blue-700 transition inline-block">
                                                 Ver detalles
                                             </a>
-                                        @endif
-                                        @if(!$notificacion->leida)
-                                            <button onclick="markAsRead({{ $notificacion->id }})" class="text-xs px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">
-                                                Marcar como leída
-                                            </button>
-                                        @endif
-                                    </div>
+                                        </div>
+                                    @endif
                                 </div>
-                                
-                                <!-- Indicador de no leída -->
-                                @if(!$notificacion->leida)
-                                    <div class="flex-shrink-0">
-                                        <div class="w-3 h-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full animate-pulse"></div>
-                                    </div>
-                                @endif
                             </div>
                         </div>
                     @empty

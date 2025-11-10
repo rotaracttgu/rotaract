@@ -70,7 +70,7 @@
                     } elseif (auth()->user()->hasRole('Secretario')) {
                         $notificacionesRoute = route('secretaria.notificaciones');
                     } elseif (auth()->user()->hasRole('Tesorero')) {
-                        $notificacionesRoute = route('tesorero.notificaciones');
+                        $notificacionesRoute = route('tesorero.notificaciones.index');
                     } elseif (auth()->user()->hasRole('Aspirante')) {
                         $notificacionesRoute = route('aspirante.notificaciones');
                     }
@@ -80,21 +80,37 @@
                 @endphp
                 
                 @if($notificacionesRoute)
-                    <a href="{{ $notificacionesRoute }}" class="relative inline-flex items-center p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-150" title="Notificaciones">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                        </svg>
-                        <!-- Badge de notificaciones no leídas -->
-                        @if($notificacionesNoLeidas > 0)
-                            <span data-notificaciones-badge class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full animate-pulse">
-                                {{ $notificacionesNoLeidas }}
-                            </span>
-                        @else
-                            <span data-notificaciones-badge class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full animate-pulse hidden">
-                                0
-                            </span>
-                        @endif
-                    </a>
+                    @if(auth()->user()->hasRole('Tesorero'))
+                        <!-- Botón con modal para Tesorero -->
+                        <button onclick="abrirModalNotificaciones()" class="relative inline-flex items-center p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-150" title="Notificaciones">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <!-- Badge de notificaciones no leídas -->
+                            @if($notificacionesNoLeidas > 0)
+                                <span id="notificaciones-badge-nav" class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full animate-pulse">
+                                    {{ $notificacionesNoLeidas }}
+                                </span>
+                            @else
+                                <span id="notificaciones-badge-nav" class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full animate-pulse hidden">
+                                    0
+                                </span>
+                            @endif
+                        </button>
+                    @else
+                        <!-- Link a página completa para otros roles -->
+                        <a href="{{ $notificacionesRoute }}" class="relative inline-flex items-center p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-150" title="Notificaciones">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <!-- Badge de notificaciones no leídas -->
+                            @if($notificacionesNoLeidas > 0)
+                                <span class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full animate-pulse">
+                                    {{ $notificacionesNoLeidas }}
+                                </span>
+                            @endif
+                        </a>
+                    @endif
                 @endif
 
                 <!-- Dropdown del Usuario - Oculto en la página de perfil -->
@@ -102,14 +118,15 @@
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button class="inline-flex items-center gap-3 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 shadow-sm">
-                                <!-- Avatar con iniciales -->
+                                <!-- Avatar con iniciales (usa username si existe) -->
+                                @php $displayName = Auth::user()->username ?? Auth::user()->name; @endphp
                                 <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white font-semibold text-sm">
-                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                    {{ strtoupper(substr($displayName, 0, 1)) }}
                                 </div>
                                 
-                                <!-- Nombre y Rol -->
+                                <!-- Nombre de usuario y Rol -->
                                 <div class="flex flex-col items-start">
-                                    <span class="font-semibold text-gray-900">{{ Auth::user()->name }}</span>
+                                    <span class="font-semibold text-gray-900">{{ $displayName }}</span>
                                     <span class="text-xs text-gray-500">{{ Auth::user()->getRoleNames()->first() }}</span>
                                 </div>
 
@@ -244,7 +261,8 @@
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                @php $respDisplay = Auth::user()->username ?? Auth::user()->name; @endphp
+                <div class="font-medium text-base text-gray-800">{{ $respDisplay }}</div>
                 <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
             </div>
 

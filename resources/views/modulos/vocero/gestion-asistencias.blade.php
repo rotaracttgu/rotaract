@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Vocero - Gestión de Asistencias</title>
+    <title>Macero - Gestión de Asistencias</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -19,14 +19,14 @@
             --danger-color: #dc2626;
             --info-color: #06b6d4;
             --sidebar-bg: #1e293b;
-            --sidebar-text: #ecf0f1;
+            --sidebar-text: #e2e8f0;
             --light-bg: #f8fafc;
             --dark-color: #1e293b;
             --border-color: #e2e8f0;
         }
 
         body {
-            background-color: var(--light-bg);
+            background-color: #d0cfcd;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 0;
@@ -35,7 +35,7 @@
         .sidebar {
             background: var(--sidebar-bg);
             min-height: 100vh;
-            width: 250px;
+            width: 200px;
             position: fixed;
             top: 0;
             left: 0;
@@ -44,7 +44,7 @@
         }
 
         .main-content {
-            margin-left: 250px;
+            margin-left: 200px;
             min-height: 100vh;
             padding: 0;
         }
@@ -59,10 +59,14 @@
             align-items: center;
         }
 
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
+        .sidebar .nav-link:hover {
             background: rgba(59, 130, 246, 0.1);
             color: #60a5fa;
+        }
+
+        .sidebar .nav-link.active {
+            background: var(--primary-color);
+            color: white;
         }
 
         .sidebar .nav-link i {
@@ -190,13 +194,13 @@
             <div class="sidebar-brand">
                 <h4>
                     <i class="fas fa-calendar-alt text-primary"></i>
-                    Vocero
+                    Macero
                 </h4>
             </div>
 
             <nav class="sidebar-nav">
                 <a class="nav-link {{ request()->routeIs('vocero.dashboard') ? 'active' : '' }}" href="{{ route('vocero.dashboard') }}">
-                    <i class="fas fa-chart-line"></i> Dashboard
+                    <i class="fas fa-chart-line"></i> Resumen General
                 </a>
                 <a class="nav-link {{ request()->routeIs('vocero.calendario') ? 'active' : '' }}" href="{{ route('vocero.calendario') }}">
                     <i class="fas fa-calendar"></i> Calendario

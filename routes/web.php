@@ -2,7 +2,7 @@
 //use App\Services\ResendService;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\Aspirante\AspiranteController;
+use App\Http\Controllers\SocioController; // NUEVO - Reemplaza AspiranteController
 use App\Http\Controllers\VoceroController;
 use App\Http\Controllers\TesoreroController;
 use App\Http\Controllers\VicepresidenteController;
@@ -11,11 +11,11 @@ use App\Http\Controllers\PresidenteController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\CompleteProfileController;
-use App\Http\Controllers\Auth\SecurityQuestionPasswordResetController; // ⭐ NUEVO
+use App\Http\Controllers\Auth\SecurityQuestionPasswordResetController; // NUEVO
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BitacoraController;
 use App\Http\Controllers\Admin\UsuariosBloqueadosController;
-use App\Http\Controllers\BackupController;  // ⭐ NUEVO: Importación para rutas de backup
+use App\Http\Controllers\BackupController;  // NUEVO: Importación para rutas de backup
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Mail;
@@ -28,7 +28,7 @@ Route::get('/', function () {
 //Verificación de correo resend
 Route::get('/mail-test', function () {
     \Illuminate\Support\Facades\Mail::raw(
-        'Prueba de correo vía Resend ✅',
+        'Prueba de correo vía Resend',
         function ($m) {
             $m->to('cinteriano25@gmail.com')
               ->subject('Test Resend desde Laravel');
@@ -38,7 +38,7 @@ Route::get('/mail-test', function () {
 });
 
 // ============================================================================
-// ⭐ RUTAS PARA COMPLETAR PERFIL (PRIMER LOGIN)
+// RUTAS PARA COMPLETAR PERFIL (PRIMER LOGIN)
 // ============================================================================
 Route::middleware('auth')->group(function () {
     Route::get('/completar-perfil', [CompleteProfileController::class, 'showForm'])
@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // ============================================================================
-// ⭐ RUTAS PARA RECUPERACIÓN DE CONTRASEÑA CON PREGUNTAS DE SEGURIDAD (NUEVO)
+// RUTAS PARA RECUPERACIÓN DE CONTRASEÑA CON PREGUNTAS DE SEGURIDAD (NUEVO)
 // ============================================================================
 Route::middleware('guest')->group(function () {
     // Página de selección de método de recuperación
@@ -92,7 +92,7 @@ Route::get('/dashboard', function () {
     } elseif ($user->hasRole('Vocero')) {
         return redirect()->route('vocero.dashboard');
     } elseif ($user->hasRole('Aspirante')) {
-        return redirect()->route('aspirante.dashboard');
+        return redirect()->route('socio.dashboard'); // ACTUALIZADO
     }
     
     // Si no tiene rol definido, redirigir al login con mensaje
@@ -261,7 +261,7 @@ Route::prefix('api/presidente/calendario')->middleware(['auth', 'check.first.log
 // ============================================================================
 // RUTAS DEL MÓDULO VICEPRESIDENTE
 // ============================================================================
-    Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Vicepresidente|Presidente|Super Admin'])->name('vicepresidente.')->group(function () {
+Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Vicepresidente|Presidente|Super Admin'])->name('vicepresidente.')->group(function () {
     Route::get('/dashboard', [VicepresidenteController::class, 'dashboard'])->name('dashboard');
     
     // Notificaciones
@@ -328,15 +328,138 @@ Route::prefix('api/vicepresidente/calendario')->middleware(['auth', 'check.first
 // RUTAS DEL MÓDULO TESORERO
 // ============================================================================
 Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Tesorero|Presidente|Super Admin'])->name('tesorero.')->group(function () {
-    Route::get('/', [TesoreroController::class, 'welcome'])->name('welcome');
+    // Dashboard principal - ÚNICA RUTA
     Route::get('/dashboard', [TesoreroController::class, 'index'])->name('dashboard');
     Route::get('/calendario', [TesoreroController::class, 'calendario'])->name('calendario');
-    Route::get('/finanzas', [TesoreroController::class, 'finanzas'])->name('finanzas');
     
-    // Notificaciones
-    Route::get('/notificaciones', [TesoreroController::class, 'notificaciones'])->name('notificaciones');
-    Route::post('/notificaciones/{id}/marcar-leida', [TesoreroController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
-    Route::post('/notificaciones/marcar-todas-leidas', [TesoreroController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
+    // ============================================================================
+    // NOTIFICACIONES
+    // ============================================================================
+    Route::prefix('notificaciones')->name('notificaciones.')->group(function () {
+        Route::get('/', [TesoreroController::class, 'notificaciones'])->name('index');
+        Route::post('/{id}/leer', [TesoreroController::class, 'marcarNotificacionLeida'])->name('leer');
+        Route::post('/todas/leer', [TesoreroController::class, 'marcarTodasNotificacionesLeidas'])->name('todas-leer');
+    });
+    
+    // ============================================================================
+    // CRUD INGRESOS
+    // ============================================================================
+    Route::prefix('ingresos')->name('ingresos.')->group(function () {
+        Route::get('/', [TesoreroController::class, 'ingresosIndex'])->name('index');
+        Route::get('/crear', [TesoreroController::class, 'ingresosCreate'])->name('create');
+        Route::post('/', [TesoreroController::class, 'ingresosStore'])->name('store');
+        Route::get('/{id}', [TesoreroController::class, 'ingresosShow'])->name('show');
+        Route::get('/{id}/editar', [TesoreroController::class, 'ingresosEdit'])->name('edit');
+        Route::put('/{id}', [TesoreroController::class, 'ingresosUpdate'])->name('update');
+        Route::delete('/{id}', [TesoreroController::class, 'ingresosDestroy'])->name('destroy');
+    });
+    
+    // ============================================================================
+    // CRUD GASTOS
+    // ============================================================================
+    Route::prefix('gastos')->name('gastos.')->group(function () {
+        Route::get('/', [TesoreroController::class, 'gastosIndex'])->name('index');
+        Route::get('/crear', [TesoreroController::class, 'gastosCreate'])->name('create');
+        Route::post('/', [TesoreroController::class, 'gastosStore'])->name('store');
+        Route::get('/{id}', [TesoreroController::class, 'gastosShow'])->name('show');
+        Route::get('/{id}/editar', [TesoreroController::class, 'gastosEdit'])->name('edit');
+        Route::put('/{id}', [TesoreroController::class, 'gastosUpdate'])->name('update');
+        Route::delete('/{id}', [TesoreroController::class, 'gastosDestroy'])->name('destroy');
+        
+        // Acciones especiales
+        Route::post('/{id}/aprobar', [TesoreroController::class, 'aprobarGasto'])->name('aprobar');
+        Route::post('/{id}/rechazar', [TesoreroController::class, 'rechazarGasto'])->name('rechazar');
+        Route::get('/{id}/detalles', [TesoreroController::class, 'verDetallesGasto'])->name('detalles');
+    });
+    
+    // ============================================================================
+    // CRUD TRANSFERENCIAS
+    // ============================================================================
+    Route::prefix('transferencias')->name('transferencias.')->group(function () {
+        Route::get('/', [TesoreroController::class, 'transferenciasIndex'])->name('index');
+        Route::get('/crear', [TesoreroController::class, 'transferenciasCreate'])->name('create');
+        Route::post('/', [TesoreroController::class, 'transferenciasStore'])->name('store');
+        Route::get('/{id}', [TesoreroController::class, 'transferenciasShow'])->name('show');
+        Route::get('/{id}/editar', [TesoreroController::class, 'transferenciasEdit'])->name('edit');
+        Route::put('/{id}', [TesoreroController::class, 'transferenciasUpdate'])->name('update');
+        Route::delete('/{id}', [TesoreroController::class, 'transferenciasDestroy'])->name('destroy');
+    });
+    
+    // ============================================================================
+    // CRUD MEMBRESÍAS
+    // ============================================================================
+    Route::prefix('membresias')->name('membresias.')->group(function () {
+        Route::get('/', [TesoreroController::class, 'membresiasIndex'])->name('index');
+        Route::get('/crear', [TesoreroController::class, 'membresiasCreate'])->name('create');
+        // Membresías personales - Rutas específicas ANTES de rutas paramétrizadas
+        Route::get('/mis/membresias', [TesoreroController::class, 'misMembresías'])->name('mis');
+        Route::post('/solicitar/renovacion', [TesoreroController::class, 'solicitarRenovacion'])->name('renovacion');
+        Route::post('/guardar/recordatorio', [TesoreroController::class, 'guardarRecordatorio'])->name('recordatorio');
+        Route::post('/eliminar/pago', [TesoreroController::class, 'eliminarPagoHistorial'])->name('eliminar-pago');
+        Route::post('/limpiar/historial', [TesoreroController::class, 'limpiarHistorial'])->name('limpiar-historial');
+        // Rutas paramétrizadas
+        Route::post('/', [TesoreroController::class, 'membresiasStore'])->name('store');
+        Route::get('/{id}', [TesoreroController::class, 'membresiasShow'])->name('show');
+        Route::get('/{id}/editar', [TesoreroController::class, 'membresiasEdit'])->name('edit');
+        Route::put('/{id}', [TesoreroController::class, 'membresiasUpdate'])->name('update');
+        Route::delete('/{id}', [TesoreroController::class, 'membresiasDestroy'])->name('destroy');
+    });
+    
+    // ============================================================================
+    // CRUD PRESUPUESTOS
+    // ============================================================================
+    Route::prefix('presupuestos')->name('presupuestos.')->group(function () {
+        Route::get('/', [TesoreroController::class, 'presupuestosIndex'])->name('index');
+        Route::get('/crear', [TesoreroController::class, 'presupuestosCreate'])->name('create');
+        Route::post('/', [TesoreroController::class, 'presupuestosStore'])->name('store');
+        Route::get('/{id}', [TesoreroController::class, 'presupuestosShow'])->name('show');
+        Route::get('/{id}/editar', [TesoreroController::class, 'presupuestosEdit'])->name('edit');
+        Route::put('/{id}', [TesoreroController::class, 'presupuestosUpdate'])->name('update');
+        Route::delete('/{id}', [TesoreroController::class, 'presupuestosDestroy'])->name('destroy');
+        Route::get('/seguimiento', [TesoreroController::class, 'presupuestosSeguimiento'])->name('seguimiento');
+        Route::post('/{id}/duplicar', [TesoreroController::class, 'presupuestosDuplicar'])->name('duplicar');
+        Route::prefix('exportar')->name('exportar.')->group(function () {
+            Route::post('/excel', [TesoreroController::class, 'presupuestosExportarExcel'])->name('excel');
+            Route::post('/pdf', [TesoreroController::class, 'presupuestosExportarPDF'])->name('pdf');
+        });
+    });
+    
+    // ============================================================================
+    // MOVIMIENTOS Y TRANSACCIONES
+    // ============================================================================
+    Route::prefix('movimientos')->name('movimientos.')->group(function () {
+        Route::get('/', [TesoreroController::class, 'movimientos'])->name('index');
+        Route::get('/{id}', [TesoreroController::class, 'verDetalle'])->name('detalle');
+    });
+    
+    // ============================================================================
+    // REPORTES Y ESTADÍSTICAS
+    // ============================================================================
+    Route::prefix('reportes')->name('reportes.')->group(function () {
+        Route::get('/', [TesoreroController::class, 'reportes'])->name('index');
+        Route::match(['get', 'post'], '/generar', [TesoreroController::class, 'generarReporte'])->name('generar');
+        Route::get('/mensual', [TesoreroController::class, 'reporteMensual'])->name('mensual');
+        Route::get('/anual', [TesoreroController::class, 'reporteAnual'])->name('anual');
+        Route::post('/exportar/{tipo?}', [TesoreroController::class, 'exportar'])->name('exportar');
+    });
+    
+    // ============================================================================
+    // ESTADÍSTICAS PERSONALES
+    // ============================================================================
+    Route::get('/mis-transacciones', [TesoreroController::class, 'misTransacciones'])->name('mis-transacciones');
+    Route::get('/mis-estadisticas', [TesoreroController::class, 'misEstadisticas'])->name('mis-estadisticas');
+    
+    // ============================================================================
+    // APIs para funcionalidades del dashboard
+    // ============================================================================
+    Route::get('/mis-notificaciones', [TesoreroController::class, 'obtenerMisNotificaciones'])->name('api.mis-notificaciones');
+    Route::post('/marcar-notificacion-leida/{id}', [TesoreroController::class, 'marcarNotificacionLeida'])->name('api.marcar-leida');
+    Route::post('/marcar-todas-leidas', [TesoreroController::class, 'marcarTodasNotificacionesLeidas'])->name('api.marcar-todas-leidas');
+    Route::get('/mis-membresias', [TesoreroController::class, 'obtenerMisMembresías'])->name('api.mis-membresias');
+    Route::post('/solicitar-renovacion', [TesoreroController::class, 'procesarRenovacion'])->name('api.solicitar-renovacion');
+    Route::post('/eliminar-pago-historial', [TesoreroController::class, 'eliminarPagoHistorial'])->name('api.eliminar-pago');
+    Route::post('/limpiar-historial', [TesoreroController::class, 'limpiarHistorial'])->name('api.limpiar-historial');
+    Route::post('/guardar-recordatorio', [TesoreroController::class, 'guardarRecordatorio'])->name('api.guardar-recordatorio');
 });
 
 // ============================================================================
@@ -432,8 +555,9 @@ Route::prefix('vocero')->middleware(['auth', 'check.first.login', RoleMiddleware
     Route::get('/eventos', [VoceroController::class, 'gestionEventos'])->name('eventos');
     Route::get('/reportes', [VoceroController::class, 'reportesAnalisis'])->name('reportes');
 });
+
 // ============================================================================
-// 🆕 RUTAS API DEL CALENDARIO (VOCERO)
+// RUTAS API DEL CALENDARIO (VOCERO)
 // ============================================================================
 Route::prefix('api/calendario')->middleware(['auth', 'check.first.login'])->group(function () {
     Route::get('/eventos', [VoceroController::class, 'obtenerEventos']);
@@ -447,7 +571,7 @@ Route::prefix('api/calendario')->middleware(['auth', 'check.first.login'])->grou
     Route::put('/asistencias/{id}', [VoceroController::class, 'actualizarAsistencia']);
     Route::delete('/asistencias/{id}', [VoceroController::class, 'eliminarAsistencia']);
     // ============================================================================
-    // 🆕 RUTAS DE REPORTES Y ESTADÍSTICAS
+    // RUTAS DE REPORTES Y ESTADÍSTICAS
     // ============================================================================
     Route::get('/reportes/estadisticas-generales', [VoceroController::class, 'obtenerEstadisticasGenerales']);
     Route::get('/reportes/detallado', [VoceroController::class, 'obtenerReporteDetallado']);
@@ -458,34 +582,62 @@ Route::prefix('api/calendario')->middleware(['auth', 'check.first.login'])->grou
 });
 
 // ============================================================================
-// RUTAS DEL MÓDULO ASPIRANTE
+// RUTAS DEL MÓDULO SOCIO/ASPIRANTE (CORREGIDO: RUTAS DE SECRETARÍA Y VOCERÍA)
 // ============================================================================
-Route::prefix('aspirante')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Aspirante|Vocero|Secretario|Tesorero|Vicepresidente|Presidente|Super Admin'])->name('aspirante.')->group(function () {
-    Route::get('/dashboard', [AspiranteController::class, 'dashboard'])->name('dashboard');
-    Route::get('/notificaciones', function () {
-        return view('modulos.aspirante.notificaciones', ['notificaciones' => []]);
-    })->name('notificaciones');
-    Route::get('/perfil', [AspiranteController::class, 'perfil'])->name('mi-perfil');
-    Route::post('/perfil', [AspiranteController::class, 'actualizarPerfil'])->name('perfil.actualizar');
-    Route::get('/proyectos', [AspiranteController::class, 'proyectos'])->name('mis-proyectos');
-    Route::get('/proyectos/{id}', [AspiranteController::class, 'detalleProyecto'])->name('proyectos.detalle');
-    Route::get('/reuniones', [AspiranteController::class, 'reuniones'])->name('mis-reuniones');
-    Route::post('/reuniones/asistencia', [AspiranteController::class, 'registrarAsistencia'])->name('reuniones.asistencia');
-    Route::get('/calendario', [AspiranteController::class, 'calendario'])->name('calendario-consulta');
-    Route::get('/calendario/eventos', [AspiranteController::class, 'eventosDelDia'])->name('calendario.eventos');
-    Route::get('/notas', [AspiranteController::class, 'notas'])->name('blog-notas');
-    Route::get('/notas/crear', [AspiranteController::class, 'crearNota'])->name('crear-nota');
-    Route::post('/notas', [AspiranteController::class, 'guardarNota'])->name('notas.guardar');
-    Route::get('/notas/{id}/editar', [AspiranteController::class, 'editarNota'])->name('notas.editar');
-    Route::put('/notas/{id}', [AspiranteController::class, 'actualizarNota'])->name('notas.actualizar');
-    Route::delete('/notas/{id}', [AspiranteController::class, 'eliminarNota'])->name('notas.eliminar');
-    Route::get('/secretaria', [AspiranteController::class, 'secretaria'])->name('comunicacion-secretaria');
-    Route::post('/secretaria/consulta', [AspiranteController::class, 'enviarConsultaSecretaria'])->name('secretaria.consulta');
-    Route::get('/voceria', [AspiranteController::class, 'voceria'])->name('comunicacion-voceria');
-    Route::post('/voceria/consulta', [AspiranteController::class, 'enviarConsultaVoceria'])->name('voceria.consulta');
-    Route::get('/conversacion/{id}', [AspiranteController::class, 'obtenerConversacion'])->name('conversacion');
-    Route::post('/chat/mensaje', [AspiranteController::class, 'enviarMensajeChat'])->name('chat.mensaje');
-    Route::get('/buscar', [AspiranteController::class, 'buscar'])->name('buscar');
+Route::prefix('socio')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Aspirante|Vocero|Secretario|Tesorero|Vicepresidente|Presidente|Super Admin'])->name('socio.')->group(function () {
+    
+    // Dashboard principal
+    Route::get('/dashboard', [SocioController::class, 'dashboard'])->name('dashboard');
+    
+    // Notificaciones
+    Route::get('/notificaciones', [SocioController::class, 'notificaciones'])->name('notificaciones');
+    Route::post('/notificaciones/{id}/marcar-leida', [SocioController::class, 'marcarNotificacionLeida'])->name('notificaciones.marcar-leida');
+    Route::post('/notificaciones/marcar-todas-leidas', [SocioController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
+    Route::get('/notificaciones/verificar', [SocioController::class, 'verificarActualizaciones'])->name('notificaciones.verificar');
+    
+    // Calendario (solo lectura)
+    Route::get('/calendario', [SocioController::class, 'calendario'])->name('calendario');
+    Route::get('/calendario/eventos/{year}/{month}', [SocioController::class, 'obtenerEventosCalendario'])->name('calendario.eventos');
+    
+    // Mis Proyectos
+    Route::get('/proyectos', [SocioController::class, 'misProyectos'])->name('proyectos');
+    Route::get('/proyectos/{id}', [SocioController::class, 'detalleProyecto'])->name('proyectos.detalle');
+    
+    // Mis Reuniones
+    Route::get('/reuniones', [SocioController::class, 'misReuniones'])->name('reuniones');
+    Route::get('/reuniones/{id}', [SocioController::class, 'detalleReunion'])->name('reuniones.detalle');
+    
+    // Comunicación con Secretaría
+    Route::prefix('comunicacion-secretaria')->name('secretaria.')->group(function () {
+        Route::get('/', [SocioController::class, 'comunicacionSecretaria'])->name('index');
+        Route::get('/crear', [SocioController::class, 'crearConsultaSecretaria'])->name('crear');
+        Route::post('/store', [SocioController::class, 'storeConsultaSecretaria'])->name('store');
+        Route::get('/{id}', [SocioController::class, 'verConsultaSecretaria'])->name('ver');
+        Route::post('/{id}/responder', [SocioController::class, 'responderConsultaSecretaria'])->name('responder');
+    });
+    
+    // Comunicación con Vocalía
+    Route::prefix('comunicacion-voceria')->name('voceria.')->group(function () {
+        Route::get('/', [SocioController::class, 'comunicacionVoceria'])->name('index');
+        Route::get('/crear', [SocioController::class, 'crearConsultaVoceria'])->name('crear');
+        Route::post('/store', [SocioController::class, 'storeConsultaVoceria'])->name('store');
+        Route::get('/{id}', [SocioController::class, 'verConsultaVoceria'])->name('ver');
+    });
+    
+    // Blog de Notas Personales
+    Route::prefix('notas')->name('notas.')->group(function () {
+        Route::get('/', [SocioController::class, 'blogNotas'])->name('index');
+        Route::get('/crear', [SocioController::class, 'crearNota'])->name('crear');
+        Route::post('/store', [SocioController::class, 'storeNota'])->name('store');
+        Route::get('/{id}', [SocioController::class, 'verNota'])->name('ver');
+        Route::get('/{id}/editar', [SocioController::class, 'editarNota'])->name('editar');
+        Route::put('/{id}', [SocioController::class, 'updateNota'])->name('update');
+        Route::delete('/{id}', [SocioController::class, 'eliminarNota'])->name('eliminar');
+    });
+    
+    // Perfil del socio/aspirante
+    Route::get('/perfil', [SocioController::class, 'perfil'])->name('perfil');
+    Route::put('/perfil', [SocioController::class, 'actualizarPerfil'])->name('perfil.actualizar');
 });
 
 // ============================================================================

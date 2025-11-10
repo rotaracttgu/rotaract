@@ -22,11 +22,12 @@
             --info-color: #06b6d4;
             --sidebar-bg: #1e293b;
             --sidebar-text: #e2e8f0;
+            --otros-color: #8b5cf6; /* 🆕 Color para "Otros" */
         }
 
         /* Estilos base */
         body {
-            background-color: #f8fafc;
+            background-color: #d0cfcd;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 0;
@@ -52,7 +53,7 @@
             flex-grow: 1;
             width: 900px;
             padding: 100;
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            background: linear-gradient(135deg, #d0cfcd 0%, #c5c3c1 100%);
             position: relative;
             overflow-y: auto;
         }
@@ -223,7 +224,6 @@
             transform: translateY(0);
         }
 
-        /* 🆕 MEJORA: Eventos con título arriba y hora abajo */
         .fc-event {
             white-space: normal !important;
             overflow: visible !important;
@@ -265,7 +265,6 @@
             display: none !important;
         }
 
-        /* 🆕 Indicador de múltiples eventos */
         .fc-daygrid-day-bottom {
             font-size: 10px;
             text-align: center;
@@ -399,7 +398,6 @@
             background-image: none !important;
         }
 
-        /* 🆕 ESTILOS MEJORADOS PARA MODAL DE SELECCIÓN DE EVENTOS */
         .event-list-item {
             padding: 16px;
             border-left: 5px solid;
@@ -545,7 +543,16 @@
             color: #ef4444;
         }
 
-        /* Badges de estado */
+        /* 🆕 ESTILOS PARA "OTROS" */
+        .event-list-item.otros {
+            border-left-color: #8b5cf6;
+        }
+
+        .event-list-item.otros .event-icon {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+
         .badge-programado {
             background: #fef3c7;
             color: #92400e;
@@ -613,7 +620,6 @@
             margin-bottom: 10px;
         }
 
-        /* 🆕 Animación para la lista de eventos */
         @keyframes slideInList {
             from {
                 opacity: 0;
@@ -636,7 +642,6 @@
         .event-list-item:nth-child(4) { animation-delay: 0.2s; }
         .event-list-item:nth-child(5) { animation-delay: 0.25s; }
 
-        /* Media Query para móviles */
         @media (max-width: 768px) {
             .sidebar-vocero { 
                 position: relative; 
@@ -660,7 +665,6 @@
             }
         }
 
-        /* 🆕 Scroll suave en lista de eventos */
         #events-list-container {
             max-height: 60vh;
             overflow-y: auto;
@@ -684,6 +688,32 @@
         #events-list-container::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
+        /* 🆕 Estilos para el modal de detalles del evento */
+        .animated-modal {
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .swal2-popup .swal2-html-container a.btn {
+            text-decoration: none !important;
+            transition: all 0.3s ease;
+        }
+
+        .swal2-popup .swal2-html-container a.btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+        }
     </style>
 </head>
 <body>
@@ -691,13 +721,13 @@
         {{-- MENÚ LATERAL (SIDEBAR) --}}
         <div class="sidebar-vocero">
             <div class="sidebar-brand">
-                <h4><i class="fas fa-calendar-alt text-primary"></i> Vocero</h4>
+                <h4><i class="fas fa-calendar-alt text-primary"></i> Macero</h4>
             </div>
             
             <nav class="sidebar-nav">
                 <a class="nav-link {{ request()->routeIs('vocero.dashboard') ? 'active' : '' }}" href="{{ route('vocero.dashboard') }}">
                     <i class="fas fa-chart-line me-2"></i>
-                    Dashboard
+                    Resumen General
                 </a>
                 <a class="nav-link {{ request()->routeIs('vocero.calendario') ? 'active' : '' }}" href="{{ route('vocero.calendario') }}">
                     <i class="fas fa-calendar me-2"></i>
@@ -770,6 +800,7 @@
                                     <option value="reunion-presencial">Reunión Presencial</option>
                                     <option value="inicio-proyecto">Inicio de Proyecto</option>
                                     <option value="finalizar-proyecto">Finalización de Proyecto</option>
+                                    <option value="otros">Otros</option>
                                 </select>
                             </div>
                         </div>
@@ -819,6 +850,11 @@
                             <label class="form-label">Ubicación del Proyecto</label>
                             <input type="text" class="form-control" id="ubicacion_proyecto" placeholder="Ubicación del proyecto">
                         </div>
+
+                        <div id="otrosFields" class="event-fields" style="display: none;">
+                            <label class="form-label">Ubicación / Detalles</label>
+                            <input type="text" class="form-control" id="ubicacion_otros" placeholder="Ubicación o detalles adicionales">
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -834,7 +870,7 @@
         </div>
     </div>
 
-    {{-- 🆕 MODAL MEJORADO PARA SELECCIONAR EVENTO DEL DÍA --}}
+    {{-- MODAL PARA SELECCIONAR EVENTO DEL DÍA --}}
     <div class="modal fade" id="eventSelectorModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -879,14 +915,16 @@
             'reunion-virtual': '#3b82f6',
             'reunion-presencial': '#10b981',
             'inicio-proyecto': '#f59e0b',
-            'finalizar-proyecto': '#ef4444'
+            'finalizar-proyecto': '#ef4444',
+            'otros': '#8b5cf6'  // 🆕 Color para "Otros"
         };
 
         const iconosPorTipo = {
             'reunion-virtual': 'fa-video',
             'reunion-presencial': 'fa-users',
             'inicio-proyecto': 'fa-rocket',
-            'finalizar-proyecto': 'fa-flag-checkered'
+            'finalizar-proyecto': 'fa-flag-checkered',
+            'otros': 'fa-star'  // 🆕 Icono para "Otros"
         };
 
         $(document).ready(function() {
@@ -939,7 +977,7 @@
                 editable: true,
                 selectable: false,
                 selectMirror: false,
-                dayMaxEvents: 2, // 🆕 Mostrar máximo 2 eventos, luego "+X más"
+                dayMaxEvents: 2,
                 height: '100%',
                 
                 events: function(info, successCallback, failureCallback) {
@@ -960,7 +998,6 @@
                     });
                 },
                 
-                // 🆕 MEJORADO: Click en día ahora siempre muestra el selector
                 dateClick: function(info) {
                     const eventosDelDia = calendar.getEvents().filter(event => {
                         const eventDate = new Date(event.start).toDateString();
@@ -968,35 +1005,29 @@
                         return eventDate === clickedDate;
                     });
                     
-                    // Siempre mostrar el selector, incluso si no hay eventos
                     showEventSelector(info.date, eventosDelDia);
                 },
                 
-                // 🆕 MEJORADO: Click en evento individual
                 eventClick: function(info) {
                     info.jsEvent.stopPropagation();
                     
-                    // Obtener todos los eventos del mismo día
                     const eventosDelDia = calendar.getEvents().filter(event => {
                         const eventDate = new Date(event.start).toDateString();
                         const clickedDate = new Date(info.event.start).toDateString();
                         return eventDate === clickedDate;
                     });
                     
-                    // Si hay más de 1 evento en el día, mostrar selector
                     if (eventosDelDia.length > 1) {
                         showEventSelector(info.event.start, eventosDelDia);
                     } else {
-                        // Si es el único, abrirlo directamente
                         editEvent(info);
                     }
                 },
                 
-                // 🆕 MEJORADO: Click en "+X más"
                 moreLinkClick: function(info) {
                     info.jsEvent.stopPropagation();
                     showEventSelector(info.date, info.allSegs.map(seg => seg.event));
-                    return 'popover'; // No usar el comportamiento por defecto
+                    return 'popover';
                 },
                 
                 eventDrop: function(info) {
@@ -1007,12 +1038,10 @@
                     updateEventDates(info);
                 },
                 
-                // 🆕 Texto personalizado para "+X más"
                 moreLinkText: function(num) {
                     return `+${num} más`;
                 },
                 
-                // 🆕 Contenido mejorado: título arriba, hora abajo
                 eventContent: function(arg) {
                     const horaInicio = new Date(arg.event.start).toLocaleTimeString('es-ES', { 
                         hour: '2-digit', 
@@ -1050,7 +1079,7 @@
             $('#tipoEvento').change(function() {
                 const selectedType = $(this).val();
                 
-                $('#virtualFields, #presencialFields, #proyectoFields').hide();
+                $('#virtualFields, #presencialFields, #proyectoFields, #otrosFields').hide();
                 
                 if (selectedType === 'reunion-virtual') {
                     $('#virtualFields').show();
@@ -1058,6 +1087,8 @@
                     $('#presencialFields').show();
                 } else if (selectedType === 'inicio-proyecto' || selectedType === 'finalizar-proyecto') {
                     $('#proyectoFields').show();
+                } else if (selectedType === 'otros') {  // 🆕 AGREGADO
+                    $('#otrosFields').show();
                 }
             });
 
@@ -1075,11 +1106,9 @@
             eventSelectorModal = new bootstrap.Modal(document.getElementById('eventSelectorModal'));
         }
 
-        // 🆕 FUNCIÓN MEJORADA: Mostrar selector con mejor formato
         function showEventSelector(date, eventos) {
             selectedDateForSelector = date;
             
-            // Formatear fecha
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const fechaFormateada = date.toLocaleDateString('es-ES', options);
             const fechaCapitalizada = fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1);
@@ -1100,7 +1129,6 @@
                     </div>
                 `;
             } else {
-                // Ordenar por hora
                 eventos.sort((a, b) => new Date(a.start) - new Date(b.start));
                 
                 eventos.forEach(evento => {
@@ -1109,7 +1137,6 @@
                     const estado = props.estado || 'programado';
                     const detalles = props.detalles || {};
                     
-                    // Calcular duración
                     const horaInicio = new Date(evento.start);
                     const horaFin = evento.end ? new Date(evento.end) : new Date(horaInicio.getTime() + 60*60*1000);
                     const duracionMinutos = Math.round((horaFin - horaInicio) / 60000);
@@ -1130,7 +1157,8 @@
                         'reunion-virtual': 'Reunión Virtual',
                         'reunion-presencial': 'Reunión Presencial',
                         'inicio-proyecto': 'Inicio de Proyecto',
-                        'finalizar-proyecto': 'Finalización de Proyecto'
+                        'finalizar-proyecto': 'Finalización de Proyecto',
+                        'otros': 'Otros'  // 🆕 AGREGADO
                     };
                     
                     const estadoBadges = {
@@ -1183,10 +1211,156 @@
             const evento = calendar.getEventById(eventId);
             if (evento) {
                 eventSelectorModal.hide();
+                
+                // Mostrar modal de detalles del evento
                 setTimeout(() => {
-                    editEvent({ event: evento });
+                    mostrarDetallesEvento(evento);
                 }, 300);
             }
+        }
+
+        // 🆕 NUEVA FUNCIÓN: Mostrar detalles del evento con opciones
+        function mostrarDetallesEvento(evento) {
+            const props = evento.extendedProps || {};
+            const detalles = props.detalles || {};
+            const tipo = props.tipo_evento || '';
+            const estado = props.estado || 'programado';
+            
+            const fechaInicio = new Date(evento.start);
+            const fechaFin = evento.end ? new Date(evento.end) : fechaInicio;
+            
+            const fechaFormateada = fechaInicio.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            const horaInicio = fechaInicio.toLocaleTimeString('es-ES', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            const horaFin = fechaFin.toLocaleTimeString('es-ES', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            const tipoNombres = {
+                'reunion-virtual': 'Reunión Virtual',
+                'reunion-presencial': 'Reunión Presencial',
+                'inicio-proyecto': 'Inicio de Proyecto',
+                'finalizar-proyecto': 'Finalización de Proyecto',
+                'otros': 'Otros'
+            };
+            
+            const estadoNombres = {
+                'programado': '🟡 Programado',
+                'en-curso': '🔵 En Curso',
+                'finalizado': '🟢 Finalizado'
+            };
+            
+            let ubicacionHTML = '';
+            
+            // 🆕 ENLACE CLICKEABLE PARA REUNIÓN VIRTUAL
+            if (tipo === 'reunion-virtual' && detalles.enlace) {
+                ubicacionHTML = `
+                    <div style="margin: 15px 0; padding: 15px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 10px; text-align: center;">
+                        <p style="margin: 0 0 10px 0; color: white; font-weight: 600; font-size: 14px;">
+                            <i class="fas fa-video" style="margin-right: 8px;"></i>Enlace de Reunión Virtual
+                        </p>
+                        <a href="${detalles.enlace}" target="_blank" class="btn btn-light btn-sm" 
+                           style="font-weight: 600; padding: 10px 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                            <i class="fas fa-external-link-alt me-2"></i>Unirse a la Reunión
+                        </a>
+                    </div>
+                `;
+            } else if (tipo === 'reunion-presencial' && detalles.lugar) {
+                ubicacionHTML = `
+                    <p style="margin: 10px 0;"><strong><i class="fas fa-map-marker-alt me-2"></i>Lugar:</strong> ${detalles.lugar}</p>
+                `;
+            } else if (detalles.ubicacion_proyecto) {
+                ubicacionHTML = `
+                    <p style="margin: 10px 0;"><strong><i class="fas fa-project-diagram me-2"></i>Ubicación del Proyecto:</strong> ${detalles.ubicacion_proyecto}</p>
+                `;
+            } else if (detalles.ubicacion_otros) {
+                ubicacionHTML = `
+                    <p style="margin: 10px 0;"><strong><i class="fas fa-info-circle me-2"></i>Ubicación:</strong> ${detalles.ubicacion_otros}</p>
+                `;
+            }
+            
+            Swal.fire({
+                title: evento.title,
+                html: `
+                    <div style="text-align: left; padding: 10px;">
+                        <div style="background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                            <p style="margin: 5px 0;"><strong><i class="fas fa-calendar me-2"></i>Fecha:</strong> ${fechaFormateada.charAt(0).toUpperCase() + fechaFormateada.slice(1)}</p>
+                            <p style="margin: 5px 0;"><strong><i class="fas fa-clock me-2"></i>Horario:</strong> ${horaInicio} - ${horaFin}</p>
+                            <p style="margin: 5px 0;"><strong><i class="fas fa-tag me-2"></i>Tipo:</strong> ${tipoNombres[tipo] || tipo}</p>
+                            <p style="margin: 5px 0;"><strong><i class="fas fa-info-circle me-2"></i>Estado:</strong> ${estadoNombres[estado] || estado}</p>
+                            <p style="margin: 5px 0;"><strong><i class="fas fa-user me-2"></i>Organizador:</strong> ${detalles.organizador || 'Sin asignar'}</p>
+                        </div>
+                        
+                        ${ubicacionHTML}
+                    </div>
+                `,
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: '<i class="fas fa-edit me-2"></i>Editar',
+                denyButtonText: '<i class="fas fa-trash me-2"></i>Eliminar',
+                cancelButtonText: '<i class="fas fa-times me-2"></i>Cerrar',
+                confirmButtonColor: '#3b82f6',
+                denyButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                width: '600px',
+                customClass: {
+                    popup: 'animated-modal'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Editar evento
+                    editEvent({ event: evento });
+                } else if (result.isDenied) {
+                    // Eliminar evento
+                    eliminarEventoDesdeDetalle(evento.id);
+                }
+            });
+        }
+
+        // 🆕 NUEVA FUNCIÓN: Eliminar evento desde modal de detalles
+        function eliminarEventoDesdeDetalle(eventoId) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Esta acción no se puede deshacer',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/api/calendario/eventos/${eventoId}`,
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                calendar.refetchEvents();
+                                showToast('Evento eliminado exitosamente', 'success');
+                            } else {
+                                showToast(response.mensaje || 'Error al eliminar el evento', 'error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error al eliminar evento:', error);
+                            const mensaje = xhr.responseJSON?.mensaje || 'Error al eliminar el evento';
+                            showToast(mensaje, 'error');
+                        }
+                    });
+                }
+            });
         }
 
         function showCreateEventFromSelector() {
@@ -1231,7 +1405,7 @@
             $('#eventoForm')[0].reset();
             $('#eventoId').val('');
             $('#eliminarBtn').hide();
-            $('#virtualFields, #presencialFields, #proyectoFields').hide();
+            $('#virtualFields, #presencialFields, #proyectoFields, #otrosFields').hide();
             
             $('#titulo').removeClass('is-invalid');
             $('#titulo-validation-message').removeClass('show');
@@ -1287,12 +1461,12 @@
                 $('#enlace').val(detalles.enlace || '');
                 $('#lugar').val(detalles.lugar || '');
                 $('#ubicacion_proyecto').val(detalles.ubicacion_proyecto || '');
+                $('#ubicacion_otros').val(detalles.ubicacion_otros || '');  // 🆕 AGREGADO
             }
             
             eventModal.show();
         }
 
-        // 🆕 FUNCIÓN MEJORADA: Actualización optimizada sin mover otros eventos
         function saveEvent() {
             const titulo = $('#titulo').val().trim();
             if (tieneLetrasConsecutivasExcesivas(titulo)) {
@@ -1334,6 +1508,8 @@
                 detalles.lugar = $('#lugar').val();
             } else if (tipo === 'inicio-proyecto' || tipo === 'finalizar-proyecto') {
                 detalles.ubicacion_proyecto = $('#ubicacion_proyecto').val();
+            } else if (tipo === 'otros') {  // 🆕 AGREGADO
+                detalles.ubicacion_otros = $('#ubicacion_otros').val();
             }
             
             const eventData = {
@@ -1373,7 +1549,6 @@
                                     (fechaInicioActual !== originalEventDates.inicio || 
                                      fechaFinActual !== originalEventDates.fin);
                                 
-                                // Actualizar propiedades del evento
                                 evento.setProp('title', titulo);
                                 evento.setExtendedProp('tipo_evento', tipo);
                                 evento.setExtendedProp('estado', $('#estado').val());
@@ -1384,7 +1559,6 @@
                                 evento.setProp('backgroundColor', nuevoColor);
                                 evento.setProp('borderColor', nuevoColor);
                                 
-                                // Solo actualizar fechas si cambiaron
                                 if (fechasCambiaron) {
                                     evento.setStart(fechaInicioActual);
                                     evento.setEnd(fechaFinActual);
