@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_actualizar_asistencia`(IN `p_asistencia_id` INT, IN `p_estado_asistencia` ENUM('Presente','Ausente','Justificado'), IN `p_hora_llegada` TIME, IN `p_minutos_tarde` INT, IN `p_observacion` TEXT, OUT `p_mensaje` VARCHAR(255))
+        DB::unprepared("CREATE PROCEDURE `sp_actualizar_asistencia`(IN `p_asistencia_id` INT, IN `p_estado_asistencia` ENUM('Presente','Ausente','Justificado'), IN `p_hora_llegada` TIME, IN `p_minutos_tarde` INT, IN `p_observacion` TEXT, OUT `p_mensaje` VARCHAR(255))
 BEGIN
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN

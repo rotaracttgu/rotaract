@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_buscar_eventos_por_fecha`(IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)
+        DB::unprepared("CREATE PROCEDURE `sp_buscar_eventos_por_fecha`(IN `p_fecha_inicio` DATE, IN `p_fecha_fin` DATE)
 BEGIN
   SELECT 
     c.CalendarioID,

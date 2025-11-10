@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_EnviarMensajeChat`(IN `p_user_id` BIGINT, IN `p_mensaje_id` INT, IN `p_texto_mensaje` TEXT)
+        DB::unprepared("CREATE PROCEDURE `SP_EnviarMensajeChat`(IN `p_user_id` BIGINT, IN `p_mensaje_id` INT, IN `p_texto_mensaje` TEXT)
 BEGIN
     DECLARE v_miembro_id INT;
     

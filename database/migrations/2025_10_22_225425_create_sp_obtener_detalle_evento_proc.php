@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_detalle_evento`(IN `p_calendario_id` INT)
+        DB::unprepared("CREATE PROCEDURE `sp_obtener_detalle_evento`(IN `p_calendario_id` INT)
 BEGIN
   SELECT 
     c.CalendarioID,

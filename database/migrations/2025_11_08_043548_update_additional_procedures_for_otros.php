@@ -15,7 +15,7 @@ return new class extends Migration
         // ============================================================================
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_obtener_eventos_por_tipo");
         
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_eventos_por_tipo`(
+        DB::unprepared("CREATE PROCEDURE `sp_obtener_eventos_por_tipo`(
             IN `p_tipo_evento` ENUM('Virtual','Presencial','InicioProyecto','FinProyecto','Otros')
         )
         BEGIN
@@ -52,7 +52,7 @@ return new class extends Migration
         // ============================================================================
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_obtener_eventos_por_tipo");
         
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_eventos_por_tipo`(
+        DB::unprepared("CREATE PROCEDURE `sp_obtener_eventos_por_tipo`(
             IN `p_tipo_evento` ENUM('Virtual','Presencial','InicioProyecto','FinProyecto')
         )
         BEGIN

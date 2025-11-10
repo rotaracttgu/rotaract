@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_EnviarConsulta`(IN `p_user_id` BIGINT, IN `p_destinatario_tipo` ENUM('secretaria','voceria','directiva','otro'), IN `p_tipo_consulta` VARCHAR(50), IN `p_asunto` VARCHAR(200), IN `p_mensaje` TEXT, IN `p_prioridad` ENUM('baja','media','alta','urgente'))
+        DB::unprepared("CREATE PROCEDURE `SP_EnviarConsulta`(IN `p_user_id` BIGINT, IN `p_destinatario_tipo` ENUM('secretaria','voceria','directiva','otro'), IN `p_tipo_consulta` VARCHAR(50), IN `p_asunto` VARCHAR(200), IN `p_mensaje` TEXT, IN `p_prioridad` ENUM('baja','media','alta','urgente'))
 BEGIN
     DECLARE v_miembro_id INT;
     DECLARE v_mensaje_id INT;
