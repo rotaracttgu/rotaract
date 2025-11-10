@@ -13,6 +13,7 @@ use App\Models\Notificacion;
 use App\Models\User;
 use App\Services\NotificacionService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProyectosExport;
