@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_generar_reporte_general_eventos`()
+        DB::unprepared("CREATE PROCEDURE `sp_generar_reporte_general_eventos`()
 BEGIN
   -- Resumen general de eventos
   SELECT

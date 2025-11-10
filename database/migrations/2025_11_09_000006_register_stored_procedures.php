@@ -13,16 +13,19 @@ return new class extends Migration
     public function up(): void
     {
         $procedimientosPath = database_path('../sql_import/Procedimientos');
-        
+
+        // Si la carpeta no existe o está vacía, no fallamos en producción: hacemos log y salimos.
         if (!File::isDirectory($procedimientosPath)) {
-            throw new \Exception("La carpeta de procedimientos no existe en: {$procedimientosPath}");
+            \Log::warning("Stored Procedures Migration: carpeta no encontrada, se omite registro de procedimientos en: {$procedimientosPath}");
+            return;
         }
 
         // Obtener todos los archivos .sql de la carpeta
         $sqlFiles = File::glob($procedimientosPath . '/*.sql');
-        
+
         if (empty($sqlFiles)) {
-            throw new \Exception("No se encontraron archivos SQL en: {$procedimientosPath}");
+            \Log::warning("Stored Procedures Migration: no se encontraron archivos .sql en: {$procedimientosPath}. Se omite registro de procedimientos.");
+            return;
         }
 
         $procedimientosRegistrados = 0;

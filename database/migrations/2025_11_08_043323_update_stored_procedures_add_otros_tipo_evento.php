@@ -15,7 +15,7 @@ return new class extends Migration
         // ============================================================================
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_crear_evento_calendario");
         
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_crear_evento_calendario`(
+        DB::unprepared("CREATE PROCEDURE `sp_crear_evento_calendario`(
             IN `p_titulo` VARCHAR(100), 
             IN `p_descripcion` TEXT, 
             IN `p_tipo_evento` ENUM('Virtual','Presencial','InicioProyecto','FinProyecto','Otros'), 
@@ -74,7 +74,7 @@ return new class extends Migration
         // ============================================================================
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_actualizar_evento");
         
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_actualizar_evento`(
+        DB::unprepared("CREATE PROCEDURE `sp_actualizar_evento`(
             IN `p_calendario_id` INT, 
             IN `p_titulo` VARCHAR(100), 
             IN `p_descripcion` TEXT, 
@@ -141,7 +141,7 @@ return new class extends Migration
         // ============================================================================
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_crear_evento_calendario");
         
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_crear_evento_calendario`(
+        DB::unprepared("CREATE PROCEDURE `sp_crear_evento_calendario`(
             IN `p_titulo` VARCHAR(100), 
             IN `p_descripcion` TEXT, 
             IN `p_tipo_evento` ENUM('Virtual','Presencial','InicioProyecto','FinProyecto'), 
@@ -197,7 +197,7 @@ return new class extends Migration
         // ============================================================================
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_actualizar_evento");
         
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_actualizar_evento`(
+        DB::unprepared("CREATE PROCEDURE `sp_actualizar_evento`(
             IN `p_calendario_id` INT, 
             IN `p_titulo` VARCHAR(100), 
             IN `p_descripcion` TEXT, 

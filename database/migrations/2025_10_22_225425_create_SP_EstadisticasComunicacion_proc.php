@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_EstadisticasComunicacion`(IN `p_user_id` BIGINT)
+        DB::unprepared("CREATE PROCEDURE `SP_EstadisticasComunicacion`(IN `p_user_id` BIGINT)
 BEGIN
     DECLARE v_miembro_id INT;
     

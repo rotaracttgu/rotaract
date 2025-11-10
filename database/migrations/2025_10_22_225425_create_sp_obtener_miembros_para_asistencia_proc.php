@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_miembros_para_asistencia`(IN `p_calendario_id` INT)
+        DB::unprepared("CREATE PROCEDURE `sp_obtener_miembros_para_asistencia`(IN `p_calendario_id` INT)
 BEGIN
   -- Obtener miembros que aún no tienen asistencia registrada para este evento
   SELECT 

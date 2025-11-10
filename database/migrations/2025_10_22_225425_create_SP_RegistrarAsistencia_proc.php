@@ -10,7 +10,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::unprepared("CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_RegistrarAsistencia`(IN `p_user_id` BIGINT, IN `p_calendario_id` INT, IN `p_estado_asistencia` ENUM('Presente','Ausente','Justificado'), IN `p_hora_llegada` TIME, IN `p_observacion` TEXT)
+        DB::unprepared("CREATE PROCEDURE `SP_RegistrarAsistencia`(IN `p_user_id` BIGINT, IN `p_calendario_id` INT, IN `p_estado_asistencia` ENUM('Presente','Ausente','Justificado'), IN `p_hora_llegada` TIME, IN `p_observacion` TEXT)
 BEGIN
     DECLARE v_miembro_id INT;
     DECLARE v_hora_inicio TIME;
