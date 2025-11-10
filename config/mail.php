@@ -62,7 +62,12 @@ return [
         ],
 
         'resend' => [
-            'transport' => 'resend',
+            // Soporte dual: por compatibilidad mantenemos el nombre 'resend',
+            // pero por defecto usamos el transport 'symfony' y un DSN.
+            // Esto permite usar MAIL_DSN o RESEND_API_KEY en el .env.
+            'transport' => env('RESEND_TRANSPORT', 'symfony'),
+            // Prioriza MAIL_DSN; si no existe, construye un DSN con RESEND_API_KEY
+            'dsn' => env('MAIL_DSN', env('RESEND_DSN', 'resend+api://' . env('RESEND_API_KEY') . '@default')),
         ],
 
         'sendmail' => [
