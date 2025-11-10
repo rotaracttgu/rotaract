@@ -49,7 +49,7 @@
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">Consultas Pendientes</p>
                     <h3 class="text-4xl font-bold text-gray-900">{{ ($consultasSecretariaPendientes ?? 0) + ($consultasVoceriaPendientes ?? 0) }}</h3>
-                    <p class="text-xs text-orange-600 mt-2">Secretaría y Vocalía</p>
+                    <p class="text-xs text-orange-600 mt-2">Secretaría</p>
                 </div>
                 <div class="bg-orange-100 p-4 rounded-xl">
                     <i class="fas fa-comment-dots text-orange-600 text-2xl"></i>
@@ -232,18 +232,6 @@
                         <i class="fas fa-chevron-right text-green-400"></i>
                     </a>
 
-                    <a href="{{ route('socio.voceria.crear') }}" 
-                       class="flex items-center p-4 bg-gradient-to-r from-orange-50 to-orange-100 text-orange-700 rounded-lg hover:from-orange-100 hover:to-orange-200 transition-all group">
-                        <div class="bg-orange-500 p-3 rounded-lg mr-4 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-bullhorn text-white text-xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <span class="font-semibold block">Contactar Vocalía</span>
-                            <span class="text-xs text-orange-600">Nueva solicitud</span>
-                        </div>
-                        <i class="fas fa-chevron-right text-orange-400"></i>
-                    </a>
-
                     <a href="{{ route('socio.notas.crear') }}" 
                        class="flex items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-700 rounded-lg hover:from-purple-100 hover:to-purple-200 transition-all group">
                         <div class="bg-purple-500 p-3 rounded-lg mr-4 group-hover:scale-110 transition-transform">
@@ -272,14 +260,6 @@
                             <span class="font-medium">Secretaría</span>
                         </div>
                         <span class="text-2xl font-bold">{{ $consultasSecretariaPendientes ?? 0 }}</span>
-                    </div>
-
-                    <div class="flex items-center justify-between p-3 bg-white bg-opacity-20 rounded-lg backdrop-blur">
-                        <div class="flex items-center">
-                            <i class="fas fa-bullhorn text-2xl mr-3"></i>
-                            <span class="font-medium">Vocalía</span>
-                        </div>
-                        <span class="text-2xl font-bold">{{ $consultasVoceriaPendientes ?? 0 }}</span>
                     </div>
                 </div>
 

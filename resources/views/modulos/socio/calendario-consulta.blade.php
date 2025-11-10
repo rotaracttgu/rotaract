@@ -193,6 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
+        initialDate: new Date(),
         locale: 'es',
         headerToolbar: {
             left: 'prev,next today',
@@ -214,12 +215,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Cargar eventos
         events: function(info, successCallback, failureCallback) {
-            const year = info.start.getFullYear();
-            const month = info.start.getMonth() + 1;
+            // Usar la fecha del medio del rango para asegurar que obtenemos el mes correcto
+            const startTime = info.start.getTime();
+            const endTime = info.end.getTime();
+            const midTime = new Date((startTime + endTime) / 2);
+            
+            const year = midTime.getFullYear();
+            const month = String(midTime.getMonth() + 1).padStart(2, '0');
 
+            console.log(`Cargando eventos: ${year}-${month} (rango: ${info.start.toISOString()} a ${info.end.toISOString()})`);
+            
             fetch(`/socio/calendario/eventos/${year}/${month}`)
                 .then(response => response.json())
                 .then(data => {
+                    console.log(`Se cargaron ${data.length} eventos:`, data);
                     successCallback(data);
                 })
                 .catch(error => {

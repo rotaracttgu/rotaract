@@ -167,10 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname;
     let modulo = null;
 
-    if (path.includes('/vocero')) modulo = 'vocero';
+    if (path.includes('/admin')) modulo = 'admin';
+    else if (path.includes('/vocero')) modulo = 'vocero';
     else if (path.includes('/presidente')) modulo = 'presidente';
     else if (path.includes('/vicepresidente')) modulo = 'vicepresidente';
     else if (path.includes('/secretaria')) modulo = 'secretaria';
+    else if (path.includes('/socio')) modulo = 'socio';
 
     if (modulo) {
         window.notificacionesTiempoReal = new NotificacionesTiempoReal(modulo);

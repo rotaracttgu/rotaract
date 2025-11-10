@@ -667,13 +667,18 @@ class SecretariaController extends Controller
      */
     public function notificaciones()
     {
+        // Auto-marcar todas las notificaciones como leídas al entrar
+        \App\Models\Notificacion::where('usuario_id', auth()->id())
+            ->where('leida', false)
+            ->update(['leida' => true, 'leida_en' => now()]);
+
         $notificacionService = app(NotificacionService::class);
         
         // Obtener todas las notificaciones del usuario actual
         $notificaciones = $notificacionService->obtenerTodas(auth()->id(), 50);
         
-        // Contar notificaciones no leídas
-        $noLeidas = $notificaciones->where('leida', false)->count();
+        // Contar notificaciones no leídas (ahora será 0)
+        $noLeidas = 0;
         
         return view('modulos.secretaria.notificaciones', compact('notificaciones', 'noLeidas'));
     }
@@ -710,16 +715,60 @@ class SecretariaController extends Controller
     public function obtenerEventos()
     {
         try {
-            $eventos = DB::select('CALL sp_obtener_todos_eventos()');
+            // Obtener eventos directamente desde la tabla calendarios
+            $eventos = DB::table('calendarios')
+                ->select(
+                    'CalendarioID',
+                    'TituloEvento',
+                    'Descripcion',
+                    'TipoEvento',
+                    'EstadoEvento',
+                    'FechaInicio',
+                    'FechaFin',
+                    'HoraInicio',
+                    'HoraFin',
+                    'Ubicacion',
+                    'OrganizadorID',
+                    'ProyectoID'
+                )
+                ->orderBy('FechaInicio', 'desc')
+                ->get();
             
             // Formatear eventos para FullCalendar
-            $eventosFormateados = array_map(function($evento) {
-                return $this->formatearEvento($evento);
-            }, $eventos);
+            $eventosFormateados = $eventos->map(function($evento) {
+                // Determinar color según tipo
+                $colores = [
+                    'Virtual' => '#3b82f6',
+                    'Presencial' => '#10b981',
+                    'InicioProyecto' => '#f59e0b',
+                    'FinProyecto' => '#ef4444',
+                    'Otros' => '#8b5cf6'
+                ];
+                
+                return [
+                    'id' => $evento->CalendarioID,
+                    'title' => $evento->TituloEvento,
+                    'start' => $evento->FechaInicio,
+                    'end' => $evento->FechaFin,
+                    'backgroundColor' => $colores[$evento->TipoEvento] ?? '#6b7280',
+                    'borderColor' => $colores[$evento->TipoEvento] ?? '#6b7280',
+                    'extendedProps' => [
+                        'descripcion' => $evento->Descripcion,
+                        'tipo_evento' => $evento->TipoEvento,
+                        'estado' => $evento->EstadoEvento,
+                        'hora_inicio' => $evento->HoraInicio,
+                        'hora_fin' => $evento->HoraFin,
+                        'ubicacion' => $evento->Ubicacion,
+                        'organizador_id' => $evento->OrganizadorID,
+                        'proyecto_id' => $evento->ProyectoID
+                    ]
+                ];
+            });
             
             return response()->json($eventosFormateados);
             
         } catch (\Exception $e) {
+            \Log::error('Error al obtener eventos en Secretaria: ' . $e->getMessage());
             return response()->json([
                 'error' => 'Error al obtener eventos',
                 'mensaje' => $e->getMessage()
@@ -887,12 +936,12 @@ class SecretariaController extends Controller
             ]);
             
             $output = DB::select('SELECT @mensaje as mensaje');
-            $evento = DB::select('CALL sp_obtener_detalle_evento(?)', [$id]);
+            $evento = $this->obtenerDetalleEvento($id);
             
             return response()->json([
                 'success' => true,
                 'mensaje' => $output[0]->mensaje,
-                'evento' => $this->formatearEvento($evento[0])
+                'evento' => $this->formatearEvento($evento)
             ]);
             
         } catch (\Exception $e) {
@@ -1591,6 +1640,36 @@ class SecretariaController extends Controller
             'eventos_proximos' => $eventosProximos,
             'timestamp' => now()->timestamp,
         ]);
+    }
+
+    /**
+     * Obtener detalle de un evento sin usar stored procedure
+     */
+    private function obtenerDetalleEvento($calendarioId)
+    {
+        return DB::table('calendarios as c')
+            ->leftJoin('miembros as m', 'c.OrganizadorID', '=', 'm.MiembroID')
+            ->leftJoin('proyectos as p', 'c.ProyectoID', '=', 'p.ProyectoID')
+            ->select(
+                'c.CalendarioID',
+                'c.TituloEvento',
+                'c.Descripcion',
+                'c.TipoEvento',
+                'c.EstadoEvento',
+                'c.FechaInicio',
+                'c.FechaFin',
+                'c.HoraInicio',
+                'c.HoraFin',
+                'c.Ubicacion',
+                'c.OrganizadorID',
+                DB::raw('COALESCE(m.Nombre, "Sin Organizador") as NombreOrganizador'),
+                'm.Correo as CorreoOrganizador',
+                'c.ProyectoID',
+                'p.Nombre as NombreProyecto',
+                'p.Descripcion as DescripcionProyecto'
+            )
+            ->where('c.CalendarioID', $calendarioId)
+            ->first();
     }
 }
 

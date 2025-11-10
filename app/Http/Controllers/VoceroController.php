@@ -62,13 +62,18 @@ class VoceroController extends Controller
      */
     public function notificaciones()
     {
+        // Auto-marcar todas las notificaciones como leídas al entrar
+        \App\Models\Notificacion::where('usuario_id', auth()->id())
+            ->where('leida', false)
+            ->update(['leida' => true, 'leida_en' => now()]);
+
         $notificacionService = app(NotificacionService::class);
         
         // Obtener todas las notificaciones del usuario actual
         $notificaciones = $notificacionService->obtenerTodas(auth()->id(), 50);
         
-        // Contar notificaciones no leídas
-        $noLeidas = $notificaciones->where('leida', false)->count();
+        // Contar notificaciones no leídas (ahora será 0)
+        $noLeidas = 0;
         
         return view('modulos.vocero.notificaciones', compact('notificaciones', 'noLeidas'));
     }
@@ -105,16 +110,60 @@ class VoceroController extends Controller
     public function obtenerEventos()
     {
         try {
-            $eventos = DB::select('CALL sp_obtener_todos_eventos()');
+            // Obtener eventos directamente desde la tabla calendarios
+            $eventos = DB::table('calendarios')
+                ->select(
+                    'CalendarioID',
+                    'TituloEvento',
+                    'Descripcion',
+                    'TipoEvento',
+                    'EstadoEvento',
+                    'FechaInicio',
+                    'FechaFin',
+                    'HoraInicio',
+                    'HoraFin',
+                    'Ubicacion',
+                    'OrganizadorID',
+                    'ProyectoID'
+                )
+                ->orderBy('FechaInicio', 'desc')
+                ->get();
             
             // Formatear eventos para FullCalendar
-            $eventosFormateados = array_map(function($evento) {
-                return $this->formatearEvento($evento);
-            }, $eventos);
+            $eventosFormateados = $eventos->map(function($evento) {
+                // Determinar color según tipo
+                $colores = [
+                    'Virtual' => '#3b82f6',
+                    'Presencial' => '#10b981',
+                    'InicioProyecto' => '#f59e0b',
+                    'FinProyecto' => '#ef4444',
+                    'Otros' => '#8b5cf6'
+                ];
+                
+                return [
+                    'id' => $evento->CalendarioID,
+                    'title' => $evento->TituloEvento,
+                    'start' => $evento->FechaInicio,
+                    'end' => $evento->FechaFin,
+                    'backgroundColor' => $colores[$evento->TipoEvento] ?? '#6b7280',
+                    'borderColor' => $colores[$evento->TipoEvento] ?? '#6b7280',
+                    'extendedProps' => [
+                        'descripcion' => $evento->Descripcion,
+                        'tipo_evento' => $evento->TipoEvento,
+                        'estado' => $evento->EstadoEvento,
+                        'hora_inicio' => $evento->HoraInicio,
+                        'hora_fin' => $evento->HoraFin,
+                        'ubicacion' => $evento->Ubicacion,
+                        'organizador_id' => $evento->OrganizadorID,
+                        'proyecto_id' => $evento->ProyectoID
+                    ]
+                ];
+            });
             
             return response()->json($eventosFormateados);
             
         } catch (Exception $e) {
+            \Log::error('Error al obtener eventos en Vocero: ' . $e->getMessage());
             return response()->json([
                 'error' => 'Error al obtener eventos',
                 'mensaje' => $e->getMessage()
@@ -317,6 +366,18 @@ class VoceroController extends Controller
             // Obtener el evento actualizado
             $evento = DB::select('CALL sp_obtener_detalle_evento(?)', [$id]);
             
+            // Enviar notificación de actualización de evento
+            $notificacionService = app(\App\Services\NotificacionService::class);
+            $notificacionService->crearParaMultiples(
+                User::pluck('id')->toArray(),
+                'evento_actualizado',
+                'Evento Actualizado',
+                "El evento \"{$validated['titulo']}\" ha sido actualizado",
+                route('vocero.calendario'),
+                $id,
+                'evento'
+            );
+            
             return response()->json([
                 'success' => true,
                 'mensaje' => $output[0]->mensaje,
@@ -338,11 +399,28 @@ class VoceroController extends Controller
     public function eliminarEvento($id)
     {
         try {
+            // Obtener datos del evento antes de eliminarlo para la notificación
+            $evento = DB::select('CALL sp_obtener_detalle_evento(?)', [$id]);
+            
             // Ejecutar procedimiento almacenado
             DB::select('CALL sp_eliminar_evento(?, @mensaje)', [$id]);
             
             // Obtener el mensaje de salida
             $output = DB::select('SELECT @mensaje as mensaje');
+            
+            // Enviar notificación de eliminación de evento
+            if (!empty($evento)) {
+                $notificacionService = app(\App\Services\NotificacionService::class);
+                $notificacionService->crearParaMultiples(
+                    User::pluck('id')->toArray(),
+                    'evento_eliminado',
+                    'Evento Eliminado',
+                    "El evento \"{$evento[0]->TituloEvento}\" ha sido eliminado",
+                    route('vocero.calendario'),
+                    $id,
+                    'evento'
+                );
+            }
             
             return response()->json([
                 'success' => true,
@@ -380,6 +458,7 @@ class VoceroController extends Controller
             }
 
             $evento = $eventoActual[0];
+            $fechaAnterior = $evento->FechaInicio;
             
             // Extraer fecha y hora
             $fechaInicio = date('Y-m-d H:i:s', strtotime($validated['fecha_inicio']));
@@ -402,6 +481,10 @@ class VoceroController extends Controller
                 $evento->OrganizadorID,
                 $evento->ProyectoID
             ]);
+            
+            // Enviar notificación de cambio de evento
+            $notificacionService = app(\App\Services\NotificacionService::class);
+            $notificacionService->notificarEventoRescheduleado($evento, $fechaAnterior, $fechaInicio);
             
             $output = DB::select('SELECT @mensaje as mensaje');
             
@@ -1056,35 +1139,74 @@ class VoceroController extends Controller
     public function verificarActualizaciones()
     {
         try {
-            $userId = Auth::id();
+            $notificacionService = app(\App\Services\NotificacionService::class);
+            $ultimasNotificaciones = $notificacionService->obtenerNoLeidas(Auth::id())
+                ->take(1)
+                ->get();
             
-            // Contar notificaciones no leídas
-            $notificacionesNuevas = Notificacion::where('usuario_id', $userId)
-                ->where('leida', false)
-                ->count();
+            if ($ultimasNotificaciones->isEmpty()) {
+                return response()->json([
+                    'hay_nuevas' => false,
+                    'notificaciones' => [],
+                    'success' => true,
+                    'notificaciones_nuevas' => 0
+                ]);
+            }
             
-            // Obtener la última notificación
-            $ultimaNotificacion = Notificacion::where('usuario_id', $userId)
-                ->where('leida', false)
-                ->orderBy('created_at', 'desc')
-                ->first();
+            $notificacion = $ultimasNotificaciones->first();
             
             return response()->json([
                 'success' => true,
-                'notificaciones_nuevas' => $notificacionesNuevas,
-                'ultima_notificacion' => $ultimaNotificacion ? [
-                    'id' => $ultimaNotificacion->NotificacionID,
-                    'titulo' => $ultimaNotificacion->titulo,
-                    'mensaje' => $ultimaNotificacion->mensaje,
-                    'created_at' => $ultimaNotificacion->created_at->format('Y-m-d H:i:s')
-                ] : null,
+                'notificaciones_nuevas' => $ultimasNotificaciones->count(),
+                'ultima_notificacion' => [
+                    'id' => $notificacion->id,
+                    'titulo' => $notificacion->titulo,
+                    'mensaje' => $notificacion->mensaje,
+                    'icono' => $notificacion->icono ?? 'fa-bell',
+                    'color' => $notificacion->color ?? 'blue',
+                    'url' => $notificacion->url ?? '#',
+                    'created_at' => $notificacion->created_at->diffForHumans()
+                ],
                 'timestamp' => now()->timestamp
             ]);
+            
         } catch (\Exception $e) {
+            \Log::error('Error verificando notificaciones en Vocero: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
+                'notificaciones_nuevas' => 0,
                 'mensaje' => 'Error al verificar actualizaciones'
             ], 500);
         }
+    }
+
+    /**
+     * Obtener detalle de un evento sin usar stored procedure
+     */
+    private function obtenerDetalleEvento($calendarioId)
+    {
+        return DB::table('calendarios as c')
+            ->leftJoin('miembros as m', 'c.OrganizadorID', '=', 'm.MiembroID')
+            ->leftJoin('proyectos as p', 'c.ProyectoID', '=', 'p.ProyectoID')
+            ->select(
+                'c.CalendarioID',
+                'c.TituloEvento',
+                'c.Descripcion',
+                'c.TipoEvento',
+                'c.EstadoEvento',
+                'c.FechaInicio',
+                'c.FechaFin',
+                'c.HoraInicio',
+                'c.HoraFin',
+                'c.Ubicacion',
+                'c.OrganizadorID',
+                DB::raw('COALESCE(m.Nombre, "Sin Organizador") as NombreOrganizador'),
+                'm.Correo as CorreoOrganizador',
+                'c.ProyectoID',
+                'p.Nombre as NombreProyecto',
+                'p.Descripcion as DescripcionProyecto'
+            )
+            ->where('c.CalendarioID', $calendarioId)
+            ->first();
     }
 }

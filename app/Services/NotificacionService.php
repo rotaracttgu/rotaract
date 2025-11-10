@@ -87,6 +87,26 @@ class NotificacionService
     }
 
     /**
+     * Notificar cambio de fechas de evento (arrastrar en calendario)
+     */
+    public function notificarEventoRescheduleado($evento, $fechaAnterior, $fechaNueva): void
+    {
+        $usuariosIds = User::pluck('id')->toArray();
+        
+        $fechaNuevaFormato = \Carbon\Carbon::parse($fechaNueva)->format('d/m/Y H:i');
+        
+        $this->crearParaMultiples(
+            $usuariosIds,
+            'evento_rescheduleado',
+            'Evento Reprogramado',
+            "El evento \"{$evento->TituloEvento}\" ha sido reprogramado para: {$fechaNuevaFormato}",
+            route('vocero.calendario'),
+            $evento->CalendarioID ?? $evento->id,
+            'evento'
+        );
+    }
+
+    /**
      * Notificar finalización de proyecto
      */
     public function notificarProyectoFinalizado($proyecto, array $usuariosIds = []): void
@@ -146,9 +166,19 @@ class NotificacionService
     }
 
     /**
-     * Obtener todas las notificaciones de un usuario
+     * Obtener todas las notificaciones de un usuario (con paginación)
      */
-    public function obtenerTodas(int $usuarioId, int $limite = 20): Collection
+    public function obtenerTodas(int $usuarioId, int $limite = 20)
+    {
+        return Notificacion::delUsuario($usuarioId)
+            ->orderBy('created_at', 'desc')
+            ->paginate($limite);
+    }
+
+    /**
+     * Obtener todas las notificaciones de un usuario (sin paginación, como colección)
+     */
+    public function obtenerTodasColeccion(int $usuarioId, int $limite = 50): Collection
     {
         return Notificacion::delUsuario($usuarioId)
             ->orderBy('created_at', 'desc')
@@ -201,6 +231,18 @@ class NotificacionService
             'proyecto_finalizado' => [
                 'icono' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
                 'color' => 'purple',
+            ],
+            'evento_rescheduleado' => [
+                'icono' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+                'color' => 'amber',
+            ],
+            'evento_actualizado' => [
+                'icono' => 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H14v-2.172l8.586-8.586z',
+                'color' => 'blue',
+            ],
+            'evento_eliminado' => [
+                'icono' => 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16',
+                'color' => 'red',
             ],
             'carta_pendiente' => [
                 'icono' => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Notificacion;
 use App\Models\BitacoraSistema;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Carbon\Carbon;
@@ -360,13 +362,18 @@ class DashboardController extends Controller
      */
     public function notificaciones()
     {
+        // Auto-marcar todas las notificaciones como leídas al entrar
+        \App\Models\Notificacion::where('usuario_id', auth()->id())
+            ->where('leida', false)
+            ->update(['leida' => true, 'leida_en' => now()]);
+
         $notificacionService = app(\App\Services\NotificacionService::class);
         
         // Obtener todas las notificaciones del usuario actual
         $notificaciones = $notificacionService->obtenerTodas(auth()->id(), 50);
         
-        // Contar notificaciones no leídas
-        $noLeidas = $notificaciones->where('leida', false)->count();
+        // Contar notificaciones no leídas (ahora será 0)
+        $noLeidas = 0;
         
         return view('modulos.admin.notificaciones', compact('notificaciones', 'noLeidas'));
     }
@@ -383,6 +390,69 @@ class DashboardController extends Controller
     }
 
     /**
+     * Obtener todos los eventos del calendario para Admin
+     */
+    public function obtenerEventos()
+    {
+        try {
+            // Obtener eventos directamente desde la tabla calendarios
+            $eventos = DB::table('calendarios')
+                ->select(
+                    'CalendarioID',
+                    'TituloEvento',
+                    'Descripcion',
+                    'TipoEvento',
+                    'EstadoEvento',
+                    'FechaInicio',
+                    'FechaFin',
+                    'HoraInicio',
+                    'HoraFin',
+                    'Ubicacion'
+                )
+                ->orderBy('FechaInicio', 'desc')
+                ->get();
+            
+            // Formatear eventos para FullCalendar
+            $eventosFormateados = $eventos->map(function($evento) {
+                // Determinar color según tipo
+                $colores = [
+                    'Virtual' => '#3b82f6',
+                    'Presencial' => '#10b981',
+                    'InicioProyecto' => '#f59e0b',
+                    'FinProyecto' => '#ef4444',
+                    'Otros' => '#8b5cf6'
+                ];
+                
+                return [
+                    'id' => $evento->CalendarioID,
+                    'title' => $evento->TituloEvento,
+                    'start' => $evento->FechaInicio,
+                    'end' => $evento->FechaFin,
+                    'backgroundColor' => $colores[$evento->TipoEvento] ?? '#6b7280',
+                    'borderColor' => $colores[$evento->TipoEvento] ?? '#6b7280',
+                    'extendedProps' => [
+                        'descripcion' => $evento->Descripcion,
+                        'tipo_evento' => $evento->TipoEvento,
+                        'estado' => $evento->EstadoEvento,
+                        'hora_inicio' => $evento->HoraInicio,
+                        'hora_fin' => $evento->HoraFin,
+                        'ubicacion' => $evento->Ubicacion
+                    ]
+                ];
+            });
+            
+            return response()->json($eventosFormateados);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error al obtener eventos en Admin: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error al obtener eventos',
+                'mensaje' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Marcar todas las notificaciones como leídas
      */
     public function marcarTodasNotificacionesLeidas()
@@ -391,5 +461,42 @@ class DashboardController extends Controller
         $notificacionService->marcarTodasComoLeidas(auth()->id());
         
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Verificar actualizaciones de notificaciones (usado por el sistema de polling en tiempo real)
+     */
+    public function verificarActualizaciones()
+    {
+        try {
+            $userId = Auth::id();
+            
+            // Contar notificaciones no leídas
+            $notificacionesNuevas = Notificacion::where('usuario_id', $userId)
+                ->where('leida', false)
+                ->count();
+            
+            // Obtener la última notificación
+            $ultimaNotificacion = Notificacion::where('usuario_id', $userId)
+                ->where('leida', false)
+                ->orderBy('created_at', 'desc')
+                ->first();
+            
+            return response()->json([
+                'success' => true,
+                'notificaciones_nuevas' => $notificacionesNuevas,
+                'ultima_notificacion' => $ultimaNotificacion ? [
+                    'id' => $ultimaNotificacion->id,
+                    'mensaje' => $ultimaNotificacion->mensaje,
+                    'tipo' => $ultimaNotificacion->tipo,
+                    'created_at' => $ultimaNotificacion->created_at->diffForHumans(),
+                ] : null,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al verificar actualizaciones',
+            ], 500);
+        }
     }
 }

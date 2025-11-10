@@ -19,5 +19,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Ejecutar seeders del módulo tesorero
+        $this->call(TesoreroSeeder::class);
     }
 }

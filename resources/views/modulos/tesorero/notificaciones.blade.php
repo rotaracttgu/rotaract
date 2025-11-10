@@ -1,260 +1,379 @@
 @extends('layouts.app')
 
-@section('title', 'Notificaciones - Tesorero')
+@section('title', 'Notificaciones del Sistema')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-    <div class="max-w-7xl mx-auto">
-        
-        <!-- Header -->
-        <div class="mb-6 flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    Centro de Notificaciones
-                </h1>
-                <p class="text-gray-600 mt-1">Alertas y avisos importantes del sistema</p>
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1><i class="fas fa-bell me-2"></i> Centro de Notificaciones</h1>
+                <a href="{{ route('tesorero.dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i> Atrás
+                </a>
             </div>
-            <a href="{{ route('tesorero.dashboard') }}" class="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                Volver al Dashboard
-            </a>
         </div>
+    </div>
 
-        <!-- Filtros y Acciones -->
-        <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 mb-6">
-            <div class="flex flex-wrap gap-4 items-center justify-between">
-                <div class="flex gap-3">
-                    <button onclick="filterNotifications('todas')" class="px-4 py-2 rounded-lg font-medium transition filter-btn active bg-gradient-to-r from-purple-600 to-blue-600 text-white" data-filter="todas">
-                        Todas
-                    </button>
-                    <button onclick="filterNotifications('reunion_creada')" class="px-4 py-2 rounded-lg font-medium transition filter-btn bg-gray-100 text-gray-700 hover:bg-gray-200" data-filter="reunion_creada">
-                        Reuniones
-                    </button>
-                    <button onclick="filterNotifications('proyecto_creado')" class="px-4 py-2 rounded-lg font-medium transition filter-btn bg-gray-100 text-gray-700 hover:bg-gray-200" data-filter="proyecto_creado">
-                        Proyectos Nuevos
-                    </button>
-                    <button onclick="filterNotifications('proyecto_finalizado')" class="px-4 py-2 rounded-lg font-medium transition filter-btn bg-gray-100 text-gray-700 hover:bg-gray-200" data-filter="proyecto_finalizado">
-                        Proyectos Finalizados
-                    </button>
+    @if ($errors->has('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>Error:</strong> {{ $errors->first('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    <!-- Resumen de Notificaciones -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-envelope text-primary" style="font-size: 2rem;"></i>
+                    <h6 class="mt-2 mb-0">Total de Notificaciones</h6>
+                    <h3 class="text-primary">{{ $totalNotificaciones }}</h3>
                 </div>
-                <button onclick="markAllAsRead()" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition font-medium shadow-md hover:shadow-lg">
-                    Marcar todas como leídas
-                </button>
             </div>
         </div>
-
-        <!-- Lista de Notificaciones -->
-        <div class="bg-white rounded-xl shadow-lg border border-gray-100">
-            <div class="p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Notificaciones Recientes</h3>
-                
-                <div id="notificationsList" class="space-y-3">
-                    @forelse($notificaciones as $notificacion)
-                                                @php
-                            // Determinar enlace según tipo de notificación y rol del usuario
-                            $enlace = '#';
-                            $userRole = auth()->user()->getRoleNames()->first();
-                            
-                            if(str_contains($notificacion->tipo, 'reunion')) {
-                                // Cada módulo va a su propio calendario
-                                if($userRole === 'Vocero') {
-                                    $enlace = route('vocero.calendario');
-                                } elseif($userRole === 'Vicepresidente') {
-                                    $enlace = route('vicepresidente.calendario');
-                                } elseif($userRole === 'Secretario') {
-                                    $enlace = route('secretaria.calendario');
-                                } elseif($userRole === 'Tesorero') {
-                                    $enlace = route('tesorero.calendario');
-                                } elseif($userRole === 'Presidente') {
-                                    $enlace = route('presidente.calendario');
-                                } elseif($userRole === 'Super Admin') {
-                                    $enlace = route('admin.calendario');
-                                }
-                            } elseif(str_contains($notificacion->tipo, 'proyecto')) {
-                                // Proyectos en Vicepresidente
-                                $enlace = route('vicepresidente.estado.proyectos');
-                            } elseif(str_contains($notificacion->tipo, 'carta')) {
-                                // Cartas en Secretario o Vicepresidente según el tipo
-                                if($userRole === 'Secretario') {
-                                    $enlace = route('secretaria.cartas.index');
-                                } elseif($userRole === 'Vicepresidente') {
-                                    $enlace = route('vicepresidente.cartas.formales');
-                                }
-                            }
-                        @endphp
-                        
-                        <div class="notification-item p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition {{ $notificacion->leida ? 'bg-gray-50' : 'bg-blue-50 border-blue-200' }}" 
-                             data-type="{{ $notificacion->tipo }}"
-                             data-id="{{ $notificacion->id }}">
-                            <div class="flex items-start gap-4">
-                                <!-- Icono según tipo -->
-                                <div class="flex-shrink-0">
-                                    @if(str_contains($notificacion->tipo, 'proyecto'))
-                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
-                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                            </svg>
-                                        </div>
-                                    @elseif(str_contains($notificacion->tipo, 'reunion'))
-                                        <div class="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center">
-                                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                            </svg>
-                                        </div>
-                                    @elseif(str_contains($notificacion->tipo, 'carta'))
-                                        <div class="w-10 h-10 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center">
-                                            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                            </svg>
-                                        </div>
-                                    @else
-                                        <div class="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                                            </svg>
-                                        </div>
-                                    @endif
-                                </div>
-                                
-                                <!-- Contenido -->
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-semibold text-gray-900">{{ $notificacion->titulo }}</p>
-                                    <p class="text-sm text-gray-600 mt-1">{{ $notificacion->mensaje }}</p>
-                                    <p class="text-xs text-gray-500 mt-2">{{ $notificacion->created_at->diffForHumans() }}</p>
-                                    
-                                    <!-- Botones de acción -->
-                                    <div class="flex gap-2 mt-3">
-                                        @if($enlace !== '#')
-                                            <a href="{{ $enlace }}" onclick="markAsReadAndGo(event, {{ $notificacion->id }}, '{{ $enlace }}')" class="text-xs px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-md hover:from-blue-600 hover:to-blue-700 transition">
-                                                Ver detalles
-                                            </a>
-                                        @endif
-                                        @if(!$notificacion->leida)
-                                            <button onclick="markAsRead({{ $notificacion->id }})" class="text-xs px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">
-                                                Marcar como leída
-                                            </button>
-                                        @endif
-                                    </div>
-                                </div>
-                                
-                                <!-- Indicador de no leída -->
-                                @if(!$notificacion->leida)
-                                    <div class="flex-shrink-0">
-                                        <div class="w-3 h-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full animate-pulse"></div>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    @empty
-                        <!-- Estado vacío -->
-                        <div class="text-center py-12">
-                            <div class="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">No hay notificaciones</h3>
-                            <p class="text-gray-500">Cuando recibas alertas importantes, aparecerán aquí</p>
-                        </div>
-                    @endforelse
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-envelope-open text-success" style="font-size: 2rem;"></i>
+                    <h6 class="mt-2 mb-0">Notificaciones Leídas</h6>
+                    <h3 class="text-success">{{ $totalNotificaciones - $notificacionesNoLeidas }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                    <h6 class="mt-2 mb-0">Pendientes de Leer</h6>
+                    <h3 class="text-warning" id="notificacionesNoLeidasCount">{{ $notificacionesNoLeidas }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    @if ($notificacionesNoLeidas > 0)
+                        <form action="{{ route('tesorero.notificaciones.todas-leer') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <i class="fas fa-check-double me-1"></i> Marcar Todas como Leídas
+                            </button>
+                        </form>
+                    @else
+                        <p class="text-muted mb-0">✓ Todas las notificaciones han sido leídas</p>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Filtros -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="filtroTexto" placeholder="Buscar notificación...">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="filtroEstado">
+                        <option value="">Todas las notificaciones</option>
+                        <option value="no-leidas">No leídas</option>
+                        <option value="leidas">Leídas</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="filtroTipo">
+                        <option value="">Todos los tipos</option>
+                        <option value="ingreso">Ingresos</option>
+                        <option value="gasto">Gastos</option>
+                        <option value="membresia">Membresías</option>
+                        <option value="presupuesto">Presupuestos</option>
+                        <option value="sistema">Sistema</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" onclick="aplicarFiltros()">
+                        <i class="fas fa-filter me-1"></i> Filtrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Notificaciones -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i> Mis Notificaciones
+                <span class="badge bg-primary ms-2" id="badgeNotificaciones">{{ $notificacionesNoLeidas }}</span>
+            </h5>
+        </div>
+        <div class="card-body p-0" id="listaNotificaciones">
+            @if ($notificaciones->count() > 0)
+                @foreach ($notificaciones as $notificacion)
+                    <div class="notificacion-item border-bottom p-3" 
+                         data-id="{{ $notificacion->id }}" 
+                         data-leida="{{ $notificacion->leida ? 'leidas' : 'no-leidas' }}"
+                         data-tipo="{{ $notificacion->tipo ?? 'sistema' }}">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                @if (!$notificacion->leida)
+                                    <span class="badge bg-primary rounded-pill">Nuevo</span>
+                                @else
+                                    <span class="badge bg-secondary rounded-pill">Leído</span>
+                                @endif
+                            </div>
+                            <div class="col">
+                                <h6 class="mb-1 {{ !$notificacion->leida ? 'fw-bold' : '' }}">
+                                    {{ $notificacion->titulo }}
+                                </h6>
+                                <p class="mb-1 text-muted small">{{ $notificacion->mensaje }}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i> 
+                                    {{ $notificacion->created_at->diffForHumans() }}
+                                </small>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    @if (!$notificacion->leida)
+                                        <button type="button" 
+                                                class="btn btn-outline-primary" 
+                                                onclick="marcarLeida({{ $notificacion->id }})"
+                                                title="Marcar como leída">
+                                            <i class="fas fa-envelope-open"></i>
+                                        </button>
+                                    @endif
+                                    <button type="button" 
+                                            class="btn btn-outline-danger" 
+                                            onclick="eliminarNotificacion({{ $notificacion->id }})"
+                                            title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+
+                <!-- Paginación -->
+                <div class="d-flex justify-content-center p-4">
+                    {{ $notificaciones->links('pagination::bootstrap-5') }}
+                </div>
+            @else
+                <div class="p-5 text-center text-muted">
+                    <i class="fas fa-inbox" style="font-size: 3rem;"></i>
+                    <p class="mt-3">No hay notificaciones</p>
+                </div>
+            @endif
+        </div>
+    </div>
 </div>
 
-@push('scripts')
+<!-- Toast Container para notificaciones en tiempo real -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+<style>
+    .notificacion-item {
+        transition: background-color 0.3s ease;
+    }
+
+    .notificacion-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .notificacion-item.no-leida {
+        background-color: #f0f7ff;
+    }
+
+    .btn-group-sm {
+        gap: 4px;
+    }
+
+    .toast {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+</style>
+
 <script>
-    function filterNotifications(tipo) {
-        const items = document.querySelectorAll('.notification-item');
-        const buttons = document.querySelectorAll('.filter-btn');
-        
-        // Actualizar botones activos
-        buttons.forEach(btn => {
-            if (btn.dataset.filter === tipo) {
-                btn.classList.add('active');
-                btn.classList.remove('bg-gray-100', 'text-gray-700');
-                btn.classList.add('bg-gradient-to-r', 'from-purple-600', 'to-blue-600', 'text-white');
-            } else {
-                btn.classList.remove('active', 'bg-gradient-to-r', 'from-purple-600', 'to-blue-600', 'text-white');
-                btn.classList.add('bg-gray-100', 'text-gray-700');
-            }
-        });
-        
-        // Filtrar notificaciones
-        items.forEach(item => {
-            if (tipo === 'todas' || item.dataset.type === tipo) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    }
+// Polling para actualizaciones en tiempo real
+let pollingInterval;
+let ultimoTimestamp = new Date().toISOString();
 
-    function markAsRead(id) {
-        fetch(`/tesorero/notificaciones/${id}/marcar-leida`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const item = document.querySelector(`[data-id="${id}"]`);
-                if (item) {
-                    item.classList.remove('bg-blue-50', 'border-blue-200');
-                    item.classList.add('bg-gray-50');
-                    const indicator = item.querySelector('.animate-pulse');
-                    if (indicator) {
-                        indicator.remove();
-                    }
-                    // Recargar para actualizar el badge
-                    location.reload();
-                }
-            }
-        });
-    }
+function iniciarPolling() {
+    // Verificar actualizaciones cada 30 segundos
+    pollingInterval = setInterval(verificarActualizaciones, 30000);
+}
 
-    function markAsReadAndGo(event, id, url) {
-        event.preventDefault();
-        
-        fetch(`/tesorero/notificaciones/${id}/marcar-leida`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = url;
-            }
-        });
-    }
-
-    function markAllAsRead() {
-        if (confirm('¿Marcar todas las notificaciones como leídas?')) {
-            fetch('/tesorero/notificaciones/marcar-todas-leidas', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                }
-            });
+function verificarActualizaciones() {
+    fetch("{{ route('tesorero.notificaciones.verificar') }}", {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         }
-    }
-</script>
-@endpush
-@endsection
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Actualizar contador de notificaciones no leídas
+        if (data.notificaciones_no_leidas !== undefined) {
+            document.getElementById('notificacionesNoLeidasCount').textContent = data.notificaciones_no_leidas;
+            document.getElementById('badgeNotificaciones').textContent = data.notificaciones_no_leidas;
+        }
 
+        // Mostrar nuevas notificaciones
+        if (data.nuevas_notificaciones > 0) {
+            mostrarToastNotificacion(`Tienes ${data.nuevas_notificaciones} nueva(s) notificación(es)`, 'info');
+            // Recargar la página o actualizar la lista (opcional)
+            // location.reload();
+        }
+
+        // Mostrar alertas de gastos pendientes
+        if (data.gastos_pendientes > 0) {
+            mostrarToastNotificacion(`Tienes ${data.gastos_pendientes} gasto(s) pendiente(s) de aprobación`, 'warning');
+        }
+
+        // Mostrar alertas de membresías próximas a vencer
+        if (data.membresias_proximas_vencer > 0) {
+            mostrarToastNotificacion(`${data.membresias_proximas_vencer} membresía(s) próxima(s) a vencer`, 'danger');
+        }
+
+        ultimoTimestamp = data.timestamp || new Date().toISOString();
+    })
+    .catch(error => console.error('Error en polling:', error));
+}
+
+function marcarLeida(id) {
+    fetch(`/tesorero/notificaciones/${id}/marcar-leida`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Actualizar el elemento en la UI
+            const elemento = document.querySelector(`[data-id="${id}"]`);
+            if (elemento) {
+                elemento.dataset.leida = 'leidas';
+                elemento.querySelector('.badge').textContent = 'Leído';
+                elemento.querySelector('.badge').classList.remove('bg-primary');
+                elemento.querySelector('.badge').classList.add('bg-secondary');
+                elemento.querySelector('button:first-child').remove();
+                mostrarToastNotificacion('Notificación marcada como leída', 'success');
+            }
+            verificarActualizaciones();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function eliminarNotificacion(id) {
+    if (confirm('¿Estás seguro de que deseas eliminar esta notificación?')) {
+        fetch(`/tesorero/notificaciones/${id}/marcar-leida`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const elemento = document.querySelector(`[data-id="${id}"]`);
+                if (elemento) {
+                    elemento.style.opacity = '0.5';
+                    setTimeout(() => elemento.remove(), 300);
+                    mostrarToastNotificacion('Notificación eliminada', 'success');
+                }
+                verificarActualizaciones();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+}
+
+function aplicarFiltros() {
+    const textoFiltro = document.getElementById('filtroTexto').value.toLowerCase();
+    const estadoFiltro = document.getElementById('filtroEstado').value;
+    const tipoFiltro = document.getElementById('filtroTipo').value;
+
+    document.querySelectorAll('.notificacion-item').forEach(item => {
+        let mostrar = true;
+
+        // Filtro de texto
+        if (textoFiltro) {
+            const texto = item.textContent.toLowerCase();
+            mostrar = mostrar && texto.includes(textoFiltro);
+        }
+
+        // Filtro de estado
+        if (estadoFiltro) {
+            mostrar = mostrar && item.dataset.leida === estadoFiltro;
+        }
+
+        // Filtro de tipo
+        if (tipoFiltro) {
+            mostrar = mostrar && item.dataset.tipo === tipoFiltro;
+        }
+
+        item.style.display = mostrar ? '' : 'none';
+    });
+}
+
+function mostrarToastNotificacion(mensaje, tipo = 'info') {
+    const toastContainer = document.getElementById('toastContainer');
+    const toastId = 'toast-' + Date.now();
+    
+    const colores = {
+        'success': { bg: 'success', icon: 'check-circle' },
+        'error': { bg: 'danger', icon: 'exclamation-circle' },
+        'warning': { bg: 'warning', icon: 'exclamation-triangle' },
+        'info': { bg: 'info', icon: 'info-circle' },
+        'danger': { bg: 'danger', icon: 'exclamation-circle' }
+    };
+
+    const config = colores[tipo] || colores['info'];
+
+    const toastHTML = `
+        <div id="${toastId}" class="toast show" role="alert">
+            <div class="toast-header bg-${config.bg} text-white">
+                <i class="fas fa-${config.icon} me-2"></i>
+                <strong class="me-auto">Notificación</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                ${mensaje}
+            </div>
+        </div>
+    `;
+
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
+    toast.show();
+
+    setTimeout(() => {
+        toastElement.remove();
+    }, 5500);
+}
+
+// Inicializar polling cuando carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    iniciarPolling();
+    verificarActualizaciones();
+
+    // Limpiar interval cuando abandona la página
+    window.addEventListener('beforeunload', function() {
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+        }
+    });
+});
+</script>
+@endsection

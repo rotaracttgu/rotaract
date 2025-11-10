@@ -31,10 +31,23 @@
                             <i class="fas fa-sync-alt"></i>
                             <span>Actualizar</span>
                         </button>
-                        <button onclick="alert('Función de exportar en desarrollo')" class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
-                            <i class="fas fa-file-excel"></i>
-                            <span>Exportar</span>
-                        </button>
+                        <div class="relative inline-block">
+                            <button id="exportDropdownBtn" type="button" class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
+                                <i class="fas fa-download"></i>
+                                <span>Exportar</span>
+                                <i class="fas fa-chevron-down text-xs ml-1"></i>
+                            </button>
+                            <div id="exportDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                                <a href="{{ route('secretaria.consultas.exportar.pdf') }}" class="block px-4 py-3 text-gray-700 hover:bg-red-50 transition-colors rounded-t-lg">
+                                    <i class="fas fa-file-pdf text-red-500 mr-2"></i>
+                                    Exportar a PDF
+                                </a>
+                                <a href="{{ route('secretaria.consultas.exportar.word') }}" class="block px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors rounded-b-lg">
+                                    <i class="fas fa-file-word text-blue-500 mr-2"></i>
+                                    Exportar a Word
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -399,6 +412,26 @@ function eliminarConsulta(id) {
 function cerrarModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
+
+// Dropdown de exportar
+document.addEventListener('DOMContentLoaded', function() {
+    const exportBtn = document.getElementById('exportDropdownBtn');
+    const exportDropdown = document.getElementById('exportDropdown');
+    
+    if (exportBtn && exportDropdown) {
+        exportBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            exportDropdown.classList.toggle('hidden');
+        });
+        
+        // Cerrar dropdown al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!exportBtn.contains(e.target) && !exportDropdown.contains(e.target)) {
+                exportDropdown.classList.add('hidden');
+            }
+        });
+    }
+});
 
 // Cerrar modal al hacer clic fuera
 document.querySelectorAll('[id^="modal"]').forEach(modal => {

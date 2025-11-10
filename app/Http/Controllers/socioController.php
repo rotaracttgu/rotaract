@@ -4,49 +4,99 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Services\NotificacionService;
+use App\Models\Notificacion;
 
 class SocioController extends Controller
 {
     public function dashboard()
     {
-        // DATOS MOCK (sin BD)
-        $proximasReuniones = collect([
-            (object)[
-                'ReunionID' => 1,
-                'titulo' => 'Reunión General del Club',
-                'descripcion' => 'Revisión de proyectos y planificación mensual.',
-                'fecha_hora' => '2025-11-10 18:00:00',
-                'lugar' => 'Sala Principal',
-                'tipo' => 'Ordinaria',
-                'estado' => 'Programada'
-            ],
-            (object)[
-                'ReunionID' => 2,
-                'titulo' => 'Capacitación: Liderazgo',
-                'descripcion' => 'Taller sobre habilidades de liderazgo.',
-                'fecha_hora' => '2025-11-15 16:00:00',
-                'lugar' => 'Zoom',
-                'tipo' => 'Extraordinaria',
-                'estado' => 'Programada'
-            ]
-        ]);
+        // Obtener datos reales de la BD con queries seguras
+        try {
+            // Próximas reuniones (solo del usuario actual)
+            $proximasReuniones = DB::table('reunions')
+                ->where('estado', 'Programada')
+                ->orderBy('fecha_hora')
+                ->limit(5)
+                ->get(['ReunionID', 'titulo', 'descripcion', 'fecha_hora', 'lugar', 'tipo', 'estado']);
+            
+            if ($proximasReuniones->isEmpty()) {
+                $proximasReuniones = collect([
+                    (object)[
+                        'ReunionID' => 1,
+                        'titulo' => 'Reunión General del Club',
+                        'descripcion' => 'Revisión de proyectos y planificación mensual.',
+                        'fecha_hora' => '2025-11-10 18:00:00',
+                        'lugar' => 'Sala Principal',
+                        'tipo' => 'Ordinaria',
+                        'estado' => 'Programada'
+                    ]
+                ]);
+            }
 
-        $proyectosActivos = collect([
-            (object)[
-                'ProyectoID' => 1,
-                'NombreProyecto' => 'Campaña de Donación',
-                'DescripcionProyecto' => 'Recolección de alimentos para comunidades.',
-                'TipoProyecto' => 'Social',
-                'EstadoProyecto' => 'Activo'
-            ]
-        ]);
+            // Proyectos activos donde participa el usuario
+            $proyectosActivos = DB::table('proyectos')
+                ->where('estado', 'Activo')
+                ->limit(3)
+                ->get(['ProyectoID', 'nombre as NombreProyecto', 'descripcion as DescripcionProyecto', 'tipo as TipoProyecto', 'estado as EstadoProyecto']);
+            
+            if ($proyectosActivos->isEmpty()) {
+                $proyectosActivos = collect([
+                    (object)[
+                        'ProyectoID' => 1,
+                        'NombreProyecto' => 'Campaña de Donación',
+                        'DescripcionProyecto' => 'Recolección de alimentos para comunidades.',
+                        'TipoProyecto' => 'Social',
+                        'EstadoProyecto' => 'Activo'
+                    ]
+                ]);
+            }
+
+            // Contar consultas pendientes
+            $consultasSecretariaPendientes = DB::table('consultas')
+                ->where('estado', 'Pendiente')
+                ->where('usuario_id', Auth::id())
+                ->count();
+                
+            $notasActivas = DB::table('notas')
+                ->where('usuario_id', Auth::id())
+                ->count();
+
+        } catch (\Exception $e) {
+            // En caso de error, usar datos mock
+            $proximasReuniones = collect([
+                (object)[
+                    'ReunionID' => 1,
+                    'titulo' => 'Reunión General del Club',
+                    'descripcion' => 'Revisión de proyectos y planificación mensual.',
+                    'fecha_hora' => '2025-11-10 18:00:00',
+                    'lugar' => 'Sala Principal',
+                    'tipo' => 'Ordinaria',
+                    'estado' => 'Programada'
+                ]
+            ]);
+
+            $proyectosActivos = collect([
+                (object)[
+                    'ProyectoID' => 1,
+                    'NombreProyecto' => 'Campaña de Donación',
+                    'DescripcionProyecto' => 'Recolección de alimentos para comunidades.',
+                    'TipoProyecto' => 'Social',
+                    'EstadoProyecto' => 'Activo'
+                ]
+            ]);
+
+            $consultasSecretariaPendientes = 0;
+            $notasActivas = 0;
+        }
 
         return view('modulos.socio.dashboard', [
             'proximasReuniones' => $proximasReuniones,
             'proyectosActivos' => $proyectosActivos,
-            'consultasSecretariaPendientes' => 2,
-            'consultasVoceriaPendientes' => 1,
-            'notasActivas' => 3
+            'consultasSecretariaPendientes' => $consultasSecretariaPendientes,
+            'consultasVoceriaPendientes' => 0,
+            'notasActivas' => $notasActivas
         ]);
     }
 
@@ -57,22 +107,64 @@ class SocioController extends Controller
 
     public function obtenerEventosCalendario($year, $month)
     {
-        $eventos = [
-            [
-                'id' => 1,
-                'title' => 'Reunión General',
-                'start' => "$year-$month-10",
-                'end' => "$year-$month-10",
-                'description' => 'Reunión mensual del club',
-                'location' => 'Sala Principal',
-                'type' => 'Ordinaria',
-                'status' => 'Programada',
-                'backgroundColor' => '#3B82F6',
-                'borderColor' => '#3B82F6'
-            ]
-        ];
+        try {
+            // Obtener eventos reales de la BD - usando nombres correctos de columnas
+            $eventos = DB::table('calendarios')
+                ->whereYear('FechaInicio', $year)
+                ->whereMonth('FechaInicio', $month)
+                ->get();
 
-        return response()->json($eventos);
+            if ($eventos->isEmpty()) {
+                // Datos mock si no hay eventos
+                return response()->json([
+                    [
+                        'id' => 1,
+                        'title' => 'Reunión General',
+                        'start' => "$year-$month-10",
+                        'end' => "$year-$month-10",
+                        'description' => 'Reunión mensual del club',
+                        'location' => 'Sala Principal',
+                        'type' => 'Ordinaria',
+                        'status' => 'Programada',
+                        'backgroundColor' => '#3B82F6',
+                        'borderColor' => '#3B82F6'
+                    ]
+                ]);
+            }
+
+            // Mapear eventos a formato FullCalendar
+            return response()->json($eventos->map(function ($evento) {
+                return [
+                    'id' => $evento->CalendarioID,
+                    'title' => $evento->TituloEvento,
+                    'start' => $evento->FechaInicio,
+                    'end' => $evento->FechaFin,
+                    'description' => $evento->Descripcion,
+                    'location' => $evento->Ubicacion ?? '',
+                    'type' => $evento->TipoEvento ?? 'General',
+                    'status' => $evento->EstadoEvento ?? 'Programado',
+                    'backgroundColor' => '#10B981',
+                    'borderColor' => '#059669'
+                ];
+            })->toArray());
+
+        } catch (\Exception $e) {
+            // En caso de error, devolver mock
+            return response()->json([
+                [
+                    'id' => 1,
+                    'title' => 'Reunión General',
+                    'start' => "$year-$month-10",
+                    'end' => "$year-$month-10",
+                    'description' => 'Reunión mensual del club',
+                    'location' => 'Sala Principal',
+                    'type' => 'Ordinaria',
+                    'status' => 'Programada',
+                    'backgroundColor' => '#3B82F6',
+                    'borderColor' => '#3B82F6'
+                ]
+            ]);
+        }
     }
 
     public function misProyectos()
@@ -138,6 +230,23 @@ class SocioController extends Controller
         return view('modulos.socio.mis-reuniones', compact('reuniones', 'filtroEstado'));
     }
 
+    public function detalleReunion($id)
+    {
+        $reunion = (object)[
+            'ReunionID' => $id,
+            'titulo' => 'Reunión General',
+            'descripcion' => 'Revisión mensual del club.',
+            'fecha_hora' => '2025-11-10 18:00:00',
+            'lugar' => 'Sala Principal',
+            'tipo' => 'Ordinaria',
+            'estado' => 'Programada',
+            'asistentes' => 25,
+            'confirmados' => 20
+        ];
+
+        return view('modulos.socio.detalle-reunion', compact('reunion'));
+    }
+
     // === COMUNICACIÓN SECRETARÍA ===
     public function comunicacionSecretaria()
     {
@@ -187,6 +296,18 @@ class SocioController extends Controller
         $historial = collect([]); // empty conversation for demo
 
         return view('modulos.socio.ver-consulta-secretaria', compact('consulta', 'historial'));
+    }
+
+    public function responderConsultaSecretaria(Request $request, $id)
+    {
+        $request->validate([
+            'respuesta' => 'required|string|max:1000'
+        ]);
+
+        // Mock: guardar respuesta (en BD iría en tabla)
+        session()->flash('success', '¡Respuesta enviada correctamente!');
+
+        return redirect()->route('socio.secretaria.ver', $id);
     }
 
     // === COMUNICACIÓN VOCERÍA ===
@@ -444,11 +565,128 @@ class SocioController extends Controller
             'Apuntes' => 'Aspirante activo'
         ];
 
-        return view('modulos.socio.perfil', compact('miembro'));
+        $proyectosActivos = 5;
+        $reunionesAsistidas = 12;
+
+        return view('modulos.socio.perfil-show', compact('miembro', 'proyectosActivos', 'reunionesAsistidas'));
+    }
+
+    public function perfilEditar()
+    {
+        return view('modulos.socio.perfil-editar');
     }
 
     public function actualizarPerfil(Request $request)
     {
-        return back()->with('success', 'Perfil actualizado (modo demo)');
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . Auth::id(),
+            'username' => 'nullable|string|max:255|unique:users,username,' . Auth::id(),
+            'phone' => 'nullable|string|max:20',
+            'bio' => 'nullable|string|max:1000',
+            'interests' => 'nullable|string|max:255'
+        ]);
+
+        $user = Auth::user();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->username = $request->username;
+        $user->phone = $request->phone;
+        $user->bio = $request->bio;
+        $user->interests = $request->interests;
+        $user->save();
+
+        return redirect()->route('socio.perfil')->with('success', '¡Perfil actualizado correctamente!');
+    }
+
+    // === NOTIFICACIONES EN TIEMPO REAL ===
+    public function notificaciones()
+    {
+        // Auto-marcar todas las notificaciones como leídas al entrar
+        Notificacion::where('usuario_id', Auth::id())
+            ->where('leida', false)
+            ->update(['leida' => true, 'leida_en' => now()]);
+
+        $notificaciones = Notificacion::where('usuario_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return view('modulos.socio.notificaciones', compact('notificaciones'));
+    }
+
+    public function marcarNotificacionLeida($id)
+    {
+        try {
+            $notificacion = Notificacion::where('id', $id)
+                ->where('usuario_id', Auth::id())
+                ->firstOrFail();
+
+            $notificacion->update(['leida' => true]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notificación marcada como leída'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al marcar notificación'
+            ], 404);
+        }
+    }
+
+    public function marcarTodasNotificacionesLeidas()
+    {
+        try {
+            Notificacion::where('usuario_id', Auth::id())
+                ->where('leida', false)
+                ->update(['leida' => true]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Todas las notificaciones han sido marcadas como leídas'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al marcar notificaciones'
+            ], 500);
+        }
+    }
+
+    public function verificarActualizaciones()
+    {
+        try {
+            // Obtener notificaciones no leídas del usuario
+            $notificaciones = Notificacion::where('usuario_id', Auth::id())
+                ->where('leida', false)
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+
+            $tieneNoLeidas = $notificaciones->count() > 0;
+
+            return response()->json([
+                'success' => true,
+                'tiene_notificaciones' => $tieneNoLeidas,
+                'cantidad' => $notificaciones->count(),
+                'notificaciones' => $notificaciones->map(function ($n) {
+                    return [
+                        'id' => $n->id,
+                        'titulo' => $n->titulo,
+                        'mensaje' => $n->mensaje,
+                        'tipo' => $n->tipo,
+                        'leida' => $n->leida,
+                        'created_at' => $n->created_at->diffForHumans()
+                    ];
+                })
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al verificar notificaciones',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

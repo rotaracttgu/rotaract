@@ -10,8 +10,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
 
     @stack('styles')
 </head>
@@ -26,15 +24,22 @@
                     <!-- Logo + Nombre del Club -->
                         <!-- Logo del Club (mostrar sólo el logo, quitar título textual) -->
                         <div class="flex items-center space-x-4">
-                            <img src="{{ asset('images/Logo_Rotaract.webp') }}" alt="Rotaract" class="h-10">
+                            <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract" class="h-10">
                         </div>
 
                     <!-- Right Side -->
                     <div class="flex items-center space-x-6">
-                        <button class="relative text-gray-600 hover:text-gray-900 transition">
+                        <a href="{{ route('socio.notificaciones') }}" class="relative text-gray-600 hover:text-gray-900 transition">
                             <i class="fas fa-bell text-xl"></i>
-                            <span class="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
-                        </button>
+                            @php
+                                $notificacionesNoLeidas = \App\Models\Notificacion::where('usuario_id', Auth::id())
+                                    ->where('leida', false)
+                                    ->count();
+                            @endphp
+                            @if($notificacionesNoLeidas > 0)
+                                <span class="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">{{ $notificacionesNoLeidas }}</span>
+                            @endif
+                        </a>
 
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open" class="flex items-center space-x-3 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
@@ -51,7 +56,8 @@
 
                             <div x-show="open" @click.away="open = false" 
                                  class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border">
-                                <a href="{{ route('perfil.editar') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Perfil</a>
+                                <a href="{{ route('socio.perfil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mi Perfil</a>
+                                <a href="{{ route('perfil.editar') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuración</a>
                                 <form method="POST" action="{{ route('logout') }}" class="block">
                                     @csrf
                                     <button type="submit" 
@@ -77,10 +83,10 @@
                 <div class="flex items-center justify-between h-16 px-6 bg-blue-950 border-b border-blue-700">
                     <div class="flex items-center space-x-3">
                         <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-user-graduate text-white text-xl"></i>
+                            <i class="fas fa-user text-white text-xl"></i>
                         </div>
                         <div>
-                            <h2 class="text-lg font-bold">Aspirante</h2>
+                            <h2 class="text-lg font-bold">Socio</h2>
                             <p class="text-xs text-blue-300">{{ Auth::user()->username ?? Auth::user()->name }}</p>
                         </div>
                     </div>
@@ -185,7 +191,7 @@
     </div>
 
     @stack('scripts')
-
+    
     <script>
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
