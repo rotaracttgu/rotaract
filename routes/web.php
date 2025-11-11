@@ -127,7 +127,7 @@ Route::middleware(['auth', 'check.first.login'])->group(function () {
 // ============================================================================
 Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Super Admin'])->name('admin.')->group(function () {
     // Dashboard de Super Admin
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'indexTabs'])->name('dashboard');
     Route::get('/calendario', [DashboardController::class, 'calendario'])->name('calendario');
     
     // Notificaciones

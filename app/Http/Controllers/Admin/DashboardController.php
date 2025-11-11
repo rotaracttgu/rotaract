@@ -499,4 +499,44 @@ class DashboardController extends Controller
             ], 500);
         }
     }
+    /**
+     * Dashboard con sistema de pestañas para Super Admin
+     */
+    public function indexTabs()
+    {
+        try {
+            $totalUsuarios = User::count();
+            $verificados = User::whereNotNull('email_verified_at')->count();
+            $pendientes = User::whereNull('email_verified_at')->count();
+            $nuevosEsteMes = User::whereMonth('created_at', now()->month)
+                                ->whereYear('created_at', now()->year)
+                                ->count();
+            $porcentajeVerificados = $totalUsuarios > 0 
+                ? round(($verificados / $totalUsuarios) * 100, 1) 
+                : 0;
+            $rolesActivos = Role::has('users')->count();
+            $eventosHoy = BitacoraSistema::whereDate('fecha_hora', today())->count();
+            $loginsHoy = BitacoraSistema::where('accion', 'login')
+                           ->whereDate('fecha_hora', today())
+                           ->count();
+            $erroresHoy = BitacoraSistema::where('estado', 'fallido')
+                            ->whereDate('fecha_hora', today())
+                            ->count();
+            $totalEventos = BitacoraSistema::count();
+            
+            return view('modulos.admin.dashboard-nuevo', compact(
+                'totalUsuarios', 'verificados', 'pendientes', 'nuevosEsteMes',
+                'porcentajeVerificados', 'rolesActivos', 'eventosHoy',
+                'loginsHoy', 'erroresHoy', 'totalEventos'
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Error en dashboard: ' . $e->getMessage());
+            return view('modulos.admin.dashboard-nuevo', [
+                'totalUsuarios' => 0, 'verificados' => 0, 'pendientes' => 0,
+                'nuevosEsteMes' => 0, 'porcentajeVerificados' => 0, 'rolesActivos' => 0,
+                'eventosHoy' => 0, 'loginsHoy' => 0, 'erroresHoy' => 0, 'totalEventos' => 0,
+                'error' => 'Error al cargar las estadísticas'
+            ]);
+        }
+    }
 }

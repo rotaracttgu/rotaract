@@ -983,10 +983,26 @@ class TesoreroController extends Controller
         return view('modulos.tesorero.transferencias.index', compact('transferencias'));
     }
 
-    public function transferenciasCreate()
-    {
-        return view('modulos.tesorero.transferencias.create');
-    }
+   public function transferenciasCreate()
+{
+    // Definir tipos de transferencia
+    $tipos_transferencia = [
+        'interna' => 'Transferencia Interna',
+        'externa' => 'Transferencia Externa',
+        'bancaria' => 'Transferencia Bancaria',
+        'internacional' => 'Transferencia Internacional'
+    ];
+    
+    // Definir cuentas disponibles
+    $cuentas = [
+        'cuenta_principal' => 'Cuenta Principal',
+        'cuenta_ahorros' => 'Cuenta de Ahorros',
+        'cuenta_corriente' => 'Cuenta Corriente',
+        'caja_chica' => 'Caja Chica'
+    ];
+    
+    return view('modulos.tesorero.transferencias.create', compact('tipos_transferencia', 'cuentas'));
+}
 
     public function transferenciasStore(Request $request)
     {
