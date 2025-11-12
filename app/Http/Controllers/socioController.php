@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Services\NotificacionService;
 use App\Models\Notificacion;
 
@@ -270,8 +271,144 @@ class SocioController extends Controller
 
     public function storeConsultaSecretaria(Request $request)
     {
-        return redirect()->route('socio.secretaria.index')
-            ->with('success', 'Consulta enviada (modo demo)');
+        // Validar datos básicos
+        $validated = $request->validate([
+            'asunto' => 'required|string|min:5|max:200',
+            'tipo' => 'required|in:Certificado,Constancia,Pago,Informacion,Queja,Otro',
+            'mensaje' => 'required|string|min:20',
+            'comprobante' => 'nullable|file|mimes:jpeg,jpg,png,webp,pdf|max:5120', // 5MB máximo
+        ], [
+            'asunto.required' => 'El asunto es obligatorio',
+            'asunto.min' => 'El asunto debe tener al menos 5 caracteres',
+            'asunto.max' => 'El asunto no puede exceder 200 caracteres',
+            'tipo.required' => 'Debes seleccionar un tipo de consulta',
+            'tipo.in' => 'El tipo de consulta seleccionado no es válido',
+            'mensaje.required' => 'El mensaje es obligatorio',
+            'mensaje.min' => 'El mensaje debe tener al menos 20 caracteres',
+            'comprobante.file' => 'El archivo debe ser un documento válido',
+            'comprobante.mimes' => 'Solo se permiten archivos JPG, PNG, WEBP o PDF',
+            'comprobante.max' => 'El archivo no debe superar los 5MB',
+        ]);
+
+        // Validaciones adicionales de contenido
+        $erroresAdicionales = [];
+
+        // Validar letras repetidas en asunto
+        if (!$this->validarLetrasRepetidas($validated['asunto'])) {
+            $erroresAdicionales['asunto'] = 'El asunto contiene letras repetidas más de 3 veces consecutivas';
+        }
+
+        // Validar caracteres especiales en asunto
+        if (!$this->validarCaracteresEspeciales($validated['asunto'])) {
+            $erroresAdicionales['asunto'] = 'El asunto contiene demasiados caracteres especiales consecutivos';
+        }
+
+        // Validar mayúsculas excesivas en asunto
+        if (!$this->validarMayusculas($validated['asunto'])) {
+            $erroresAdicionales['asunto'] = 'El asunto contiene demasiadas mayúsculas';
+        }
+
+        // Validar letras repetidas en mensaje
+        if (!$this->validarLetrasRepetidas($validated['mensaje'])) {
+            $erroresAdicionales['mensaje'] = 'El mensaje contiene letras repetidas más de 3 veces consecutivas';
+        }
+
+        // Validar texto coherente en mensaje
+        if (!$this->validarTextoCoherente($validated['mensaje'])) {
+            $erroresAdicionales['mensaje'] = 'El mensaje debe contener texto coherente';
+        }
+
+        // Si hay errores adicionales, retornar con errores
+        if (!empty($erroresAdicionales)) {
+            return back()->withErrors($erroresAdicionales)->withInput();
+        }
+
+        // Validar que si es tipo "Pago", debe tener comprobante
+        if ($validated['tipo'] === 'Pago' && !$request->hasFile('comprobante')) {
+            return back()->withErrors(['comprobante' => 'Debes adjuntar un comprobante de pago'])->withInput();
+        }
+
+        try {
+            // Procesar el archivo si existe
+            $comprobanteRuta = null;
+            if ($request->hasFile('comprobante')) {
+                $archivo = $request->file('comprobante');
+                
+                // Generar nombre único para el archivo
+                $nombreArchivo = 'comprobante_' . Auth::id() . '_' . time() . '.' . $archivo->getClientOriginalExtension();
+                
+                // Guardar en storage/app/public/comprobantes
+                $comprobanteRuta = $archivo->storeAs('comprobantes', $nombreArchivo, 'public');
+            }
+
+            // Aquí guardarías en la base de datos
+            // Ejemplo (ajusta según tu estructura de BD):
+            /*
+            DB::table('consultas')->insert([
+                'usuario_id' => Auth::id(),
+                'asunto' => $validated['asunto'],
+                'tipo' => $validated['tipo'],
+                'mensaje' => $validated['mensaje'],
+                'comprobante_ruta' => $comprobanteRuta,
+                'estado' => 'Pendiente',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            */
+
+            return redirect()->route('socio.secretaria.index')
+                ->with('success', '¡Consulta enviada exitosamente! La Secretaría la revisará pronto.');
+
+        } catch (\Exception $e) {
+            // Si hubo error y se subió archivo, eliminarlo
+            if ($comprobanteRuta) {
+                Storage::disk('public')->delete($comprobanteRuta);
+            }
+
+            return back()
+                ->withErrors(['error' => 'Ocurrió un error al enviar la consulta. Por favor, intenta nuevamente.'])
+                ->withInput();
+        }
+    }
+
+    // Métodos auxiliares de validación
+    private function validarLetrasRepetidas($texto)
+    {
+        $palabras = preg_split('/\s+/', $texto);
+        foreach ($palabras as $palabra) {
+            if (preg_match('/(.)\1{3,}/i', $palabra)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function validarCaracteresEspeciales($texto)
+    {
+        return !preg_match('/[^a-záéíóúñA-ZÁÉÍÓÚÑ0-9\s]{6,}/', $texto);
+    }
+
+    private function validarMayusculas($texto)
+    {
+        $letras = preg_replace('/[^a-záéíóúñA-ZÁÉÍÓÚÑ]/', '', $texto);
+        if (strlen($letras) === 0) return true;
+        
+        $mayusculas = preg_replace('/[^A-ZÁÉÍÓÚÑ]/', '', $texto);
+        $porcentaje = (strlen($mayusculas) / strlen($letras)) * 100;
+        
+        return $porcentaje <= 60;
+    }
+
+    private function validarTextoCoherente($texto)
+    {
+        $textoLimpio = preg_replace('/\s/', '', $texto);
+        $letras = preg_replace('/[^a-záéíóúñA-ZÁÉÍÓÚÑ]/', '', $textoLimpio);
+        
+        if (strlen($textoLimpio) > 10 && strlen($letras) < strlen($textoLimpio) * 0.3) {
+            return false;
+        }
+        
+        return true;
     }
 
     public function verConsultaSecretaria($id)
@@ -290,7 +427,8 @@ class SocioController extends Controller
             // When answered these will be filled; keep null for demo
             'FechaRespuesta' => null,
             'RespondidoPor' => null,
-            'Respuesta' => null
+            'Respuesta' => null,
+            'comprobante_ruta' => null, // Ruta del comprobante si existe
         ];
 
         $historial = collect([]); // empty conversation for demo
@@ -524,34 +662,163 @@ class SocioController extends Controller
 
     public function storeNota(Request $request)
     {
-        $request->validate([
-            'titulo' => 'required|string|max:200',
+        // Validar datos básicos
+        $validated = $request->validate([
+            'titulo' => 'required|string|min:5|max:200',
             'categoria' => 'required|in:proyecto,reunion,capacitacion,idea,personal',
             'visibilidad' => 'required|in:publica,privada',
-            'contenido' => 'required|string',
+            'contenido' => 'required|string|min:10',
             'etiquetas' => 'nullable|string|max:500'
+        ], [
+            'titulo.required' => 'El título es obligatorio',
+            'titulo.min' => 'El título debe tener al menos 5 caracteres',
+            'titulo.max' => 'El título no puede exceder 200 caracteres',
+            'categoria.required' => 'Debes seleccionar una categoría',
+            'categoria.in' => 'La categoría seleccionada no es válida',
+            'visibilidad.required' => 'Debes seleccionar la visibilidad',
+            'visibilidad.in' => 'La visibilidad seleccionada no es válida',
+            'contenido.required' => 'El contenido es obligatorio',
+            'contenido.min' => 'El contenido debe tener al menos 10 caracteres',
+            'etiquetas.max' => 'Las etiquetas no pueden exceder 500 caracteres',
         ]);
 
-        $id = rand(100, 999);
+        // Validaciones adicionales de contenido
+        $erroresAdicionales = [];
 
-        session()->flash('success', '¡Nota creada exitosamente!');
+        // Validar letras repetidas en título
+        if (!$this->validarLetrasRepetidas($validated['titulo'])) {
+            $erroresAdicionales['titulo'] = 'El título contiene letras repetidas más de 3 veces consecutivas';
+        }
 
-        return redirect()->route('socio.notas.ver', $id);
+        // Validar caracteres especiales en título
+        if (!$this->validarCaracteresEspeciales($validated['titulo'])) {
+            $erroresAdicionales['titulo'] = 'El título contiene demasiados caracteres especiales consecutivos';
+        }
+
+        // Validar mayúsculas excesivas en título
+        if (!$this->validarMayusculas($validated['titulo'])) {
+            $erroresAdicionales['titulo'] = 'El título contiene demasiadas mayúsculas';
+        }
+
+        // Validar letras repetidas en contenido
+        if (!$this->validarLetrasRepetidas($validated['contenido'])) {
+            $erroresAdicionales['contenido'] = 'El contenido contiene letras repetidas más de 3 veces consecutivas';
+        }
+
+        // Validar texto coherente en contenido
+        if (!$this->validarTextoCoherente($validated['contenido'])) {
+            $erroresAdicionales['contenido'] = 'El contenido debe contener texto coherente';
+        }
+
+        // Si hay errores adicionales, retornar con errores
+        if (!empty($erroresAdicionales)) {
+            return back()->withErrors($erroresAdicionales)->withInput();
+        }
+
+        try {
+            // Aquí guardarías en la base de datos
+            // Ejemplo:
+            /*
+            DB::table('notas')->insert([
+                'usuario_id' => Auth::id(),
+                'titulo' => $validated['titulo'],
+                'categoria' => $validated['categoria'],
+                'visibilidad' => $validated['visibilidad'],
+                'contenido' => $validated['contenido'],
+                'etiquetas' => $validated['etiquetas'],
+                'estado' => 'activa',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            */
+
+            $id = rand(100, 999);
+
+            session()->flash('success', '¡Nota creada exitosamente!');
+
+            return redirect()->route('socio.notas.ver', $id);
+
+        } catch (\Exception $e) {
+            return back()
+                ->withErrors(['error' => 'Ocurrió un error al crear la nota. Por favor, intenta nuevamente.'])
+                ->withInput();
+        }
     }
 
     public function updateNota(Request $request, $id)
     {
-        $request->validate([
-            'titulo' => 'required|string|max:200',
+        // Validar datos básicos
+        $validated = $request->validate([
+            'titulo' => 'required|string|min:5|max:200',
             'categoria' => 'required|in:proyecto,reunion,capacitacion,idea,personal',
             'visibilidad' => 'required|in:publica,privada',
-            'contenido' => 'required|string',
+            'contenido' => 'required|string|min:10',
             'etiquetas' => 'nullable|string|max:500'
+        ], [
+            'titulo.required' => 'El título es obligatorio',
+            'titulo.min' => 'El título debe tener al menos 5 caracteres',
+            'titulo.max' => 'El título no puede exceder 200 caracteres',
+            'categoria.required' => 'Debes seleccionar una categoría',
+            'categoria.in' => 'La categoría seleccionada no es válida',
+            'visibilidad.required' => 'Debes seleccionar la visibilidad',
+            'visibilidad.in' => 'La visibilidad seleccionada no es válida',
+            'contenido.required' => 'El contenido es obligatorio',
+            'contenido.min' => 'El contenido debe tener al menos 10 caracteres',
+            'etiquetas.max' => 'Las etiquetas no pueden exceder 500 caracteres',
         ]);
 
-        session()->flash('success', '¡Nota actualizada correctamente!');
+        // Validaciones adicionales de contenido
+        $erroresAdicionales = [];
 
-        return redirect()->route('socio.notas.ver', $id);
+        if (!$this->validarLetrasRepetidas($validated['titulo'])) {
+            $erroresAdicionales['titulo'] = 'El título contiene letras repetidas más de 3 veces consecutivas';
+        }
+
+        if (!$this->validarCaracteresEspeciales($validated['titulo'])) {
+            $erroresAdicionales['titulo'] = 'El título contiene demasiados caracteres especiales consecutivos';
+        }
+
+        if (!$this->validarMayusculas($validated['titulo'])) {
+            $erroresAdicionales['titulo'] = 'El título contiene demasiadas mayúsculas';
+        }
+
+        if (!$this->validarLetrasRepetidas($validated['contenido'])) {
+            $erroresAdicionales['contenido'] = 'El contenido contiene letras repetidas más de 3 veces consecutivas';
+        }
+
+        if (!$this->validarTextoCoherente($validated['contenido'])) {
+            $erroresAdicionales['contenido'] = 'El contenido debe contener texto coherente';
+        }
+
+        if (!empty($erroresAdicionales)) {
+            return back()->withErrors($erroresAdicionales)->withInput();
+        }
+
+        try {
+            // Aquí actualizarías en la base de datos
+            /*
+            DB::table('notas')
+                ->where('NotaID', $id)
+                ->where('usuario_id', Auth::id())
+                ->update([
+                    'titulo' => $validated['titulo'],
+                    'categoria' => $validated['categoria'],
+                    'visibilidad' => $validated['visibilidad'],
+                    'contenido' => $validated['contenido'],
+                    'etiquetas' => $validated['etiquetas'],
+                    'updated_at' => now(),
+                ]);
+            */
+
+            session()->flash('success', '¡Nota actualizada correctamente!');
+
+            return redirect()->route('socio.notas.ver', $id);
+
+        } catch (\Exception $e) {
+            return back()
+                ->withErrors(['error' => 'Ocurrió un error al actualizar la nota. Por favor, intenta nuevamente.'])
+                ->withInput();
+        }
     }
 
     // === PERFIL ===
