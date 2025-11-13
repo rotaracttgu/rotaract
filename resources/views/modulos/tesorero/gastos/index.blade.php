@@ -2,287 +2,308 @@
 
 @section('title', 'Gastos')
 
-@push('styles')
+@section('content')
 <style>
-    body {
-        background-color: #1e2836 !important;
-    }
-
     .gastos-header {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-        color: white !important;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
         box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
-    
-    .gastos-header h1, .gastos-header p {
-        color: #ffffff !important;
-        opacity: 1 !important;
-    }
-    
-    .gastos-header .btn-light {
-        background: rgba(255,255,255,0.2) !important;
-        border: none;
-        color: #ffffff !important;
-    }
-    
-    .gastos-header .btn-light:hover {
-        background: rgba(255,255,255,0.3) !important;
-        color: #ffffff !important;
-    }
-    
-    .stats-card {
-        background: #2a3544 !important;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        transition: all 0.3s ease;
-        border-left: 4px solid #ef4444;
-    }
-    
-    .stats-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
-    }
-    
-    .stats-card h3 {
-        color: #ef4444 !important;
-        font-size: 2rem;
+
+    .gastos-header-content h1 {
+        font-size: 1.5rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-    
-    .stats-card p {
-        color: #9ca3af !important;
+        margin-bottom: 0.25rem;
         margin: 0;
-        font-size: 0.9rem;
     }
 
-    .table-container {
-        background: #2a3544 !important;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-
-    /* Estilos de tabla */
-    .table thead th {
-        background-color: #2a3544 !important;
-        color: #ffffff !important;
-        border: 1px solid #3d4757 !important;
-        padding: 12px !important;
-        font-weight: 600;
-    }
-
-    .table tbody td {
-        background-color: #2a3544 !important;
-        color: #ffffff !important;
-        border: 1px solid #3d4757 !important;
-        padding: 12px !important;
-    }
-
-    .table tbody tr:hover {
-        background-color: #34495e !important;
-    }
-
-    /* Botones de acciÃ³n */
-    .btn-view {
-        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
-        color: white !important;
-        border: none;
-    }
-
-    .btn-edit {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-        color: white !important;
-        border: none;
-    }
-
-    .btn-delete {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-        color: white !important;
-        border: none;
+    .gastos-header-content p {
+        opacity: 0.95;
+        font-size: 0.85rem;
+        margin: 0;
     }
 
     .btn-nuevo {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-        color: white !important;
-        border: none;
-        padding: 0.75rem 1.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        color: white;
+        padding: 0.55rem 1.1rem;
         border-radius: 8px;
         font-weight: 600;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
     }
 
     .btn-nuevo:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
-        color: white !important;
     }
 
-    /* Badges */
-    .badge-aprobado {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-        color: white !important;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 600;
+    .filters-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border: 1px solid #E2E8F0;
     }
 
-    .badge-pendiente {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-        color: white !important;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 600;
+    .filters-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+        align-items: flex-end;
     }
 
-    .badge-rechazado {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-        color: white !important;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 600;
+    .filter-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748B;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.4rem;
     }
 
-    /* Filtros */
     .form-control, .form-select {
-        background-color: #2a3544 !important;
-        border: 1px solid #3d4757 !important;
-        color: #ffffff !important;
-    }
-
-    .form-control::placeholder {
-        color: #9ca3af !important;
-        opacity: 1 !important;
+        border-radius: 8px;
+        border: 2px solid #E2E8F0;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        background: white;
+        color: #1E293B;
     }
 
     .form-control:focus, .form-select:focus {
-        background-color: #34495e !important;
-        border-color: #ef4444 !important;
-        color: #ffffff !important;
-        box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.25);
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        outline: none;
     }
 
-    .form-select option {
-        background-color: #2a3544 !important;
-        color: #ffffff !important;
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ef4444' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        padding-right: 2rem;
     }
 
-    /* PaginaciÃ³n */
+    .btn-filter {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .btn-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        padding: 1.2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border: 1px solid #E2E8F0;
+        overflow-x: auto;
+    }
+
+    .table {
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: 1px solid #dc2626;
+        padding: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody td {
+        border: 1px solid #E2E8F0;
+        padding: 0.8rem;
+        color: #1E293B;
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+        background-color: #F8FAFC;
+    }
+
+    .badge {
+        padding: 0.35rem 0.7rem;
+        border-radius: 100px;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+
+    .badge-pendiente {
+        background: #FEF3C7;
+        color: #92400E;
+    }
+
+    .badge-aprobado {
+        background: #DCFCE7;
+        color: #166534;
+    }
+
+    .badge-rechazado {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .btn-action {
+        padding: 0.4rem 0.7rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        text-decoration: none;
+        color: white;
+        margin: 0 2px;
+    }
+
+    .btn-view {
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
     .pagination {
         margin-top: 1.5rem;
+        justify-content: center;
     }
 
     .page-link {
-        background-color: #2a3544 !important;
-        border-color: #3d4757 !important;
-        color: #ffffff !important;
+        background-color: white;
+        border-color: #E2E8F0;
+        color: #1E293B;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.85rem;
     }
 
     .page-link:hover {
-        background-color: #ef4444 !important;
-        border-color: #ef4444 !important;
-        color: white !important;
+        background-color: #ef4444;
+        border-color: #ef4444;
+        color: white;
     }
 
     .page-item.active .page-link {
-        background-color: #ef4444 !important;
-        border-color: #ef4444 !important;
+        background-color: #ef4444;
+        border-color: #ef4444;
     }
 
-    /* Alertas */
-    .alert-success {
-        background-color: rgba(16, 185, 129, 0.15) !important;
-        border: 1px solid #10b981;
-        color: #6ee7b7 !important;
-    }
+    @media (max-width: 768px) {
+        .gastos-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
 
-    .alert-danger {
-        background-color: rgba(239, 68, 68, 0.15) !important;
-        border: 1px solid #ef4444;
-        color: #fca5a5 !important;
-    }
-
-    /* Texto general */
-    p, span, label, div, small {
-        opacity: 1 !important;
-    }
-
-    .text-muted {
-        color: #9ca3af !important;
+        .filters-row {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
-@endpush
 
 @section('content')
-<div class="container-fluid px-4 py-4">
-    <!-- Header con gradiente rojo -->
+<div class="px-3 py-3" style="background: #F8FAFC; min-height: 100vh;">
+    <!-- Header -->
     <div class="gastos-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="mb-2">
-                    <i class="fas fa-arrow-down me-2"></i>
-                    Gestio de Gastos
-                </h1>
-                <p class="mb-0 opacity-90">Administra y controla todos los gastos del club</p>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('tesorero.dashboard') }}" class="btn btn-light">
-                    <i class="fas fa-home me-2"></i> Dashboard Principal
-                </a>
-                <a href="{{ route('tesorero.gastos.create') }}" class="btn btn-nuevo">
-                    <i class="fas fa-plus me-2"></i> Nuevo Gasto
-                </a>
-            </div>
+        <div class="gastos-header-content">
+            <h1><i class="fas fa-arrow-down me-2"></i>Gestión de Gastos</h1>
+            <p>Administra y controla todos los gastos del club Rotaract</p>
         </div>
+        <a href="{{ route('tesorero.gastos.create') }}" class="btn-nuevo">
+            <i class="fas fa-plus"></i> Nuevo Gasto
+        </a>
     </div>
 
-    <!-- Tabla de gastos -->
-    <div class="table-container">
-        <!-- Filtros -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <input type="text" class="form-control" id="searchInput" placeholder="Buscar por concepto...">
+    <!-- Filtros -->
+    <div class="filters-section">
+        <form method="GET" action="{{ route('tesorero.gastos.index') }}" class="filters-row">
+            <div>
+                <label class="filter-label">Buscar</label>
+                <input type="text" name="search" class="form-control" placeholder="Concepto, proveedor..." 
+                       value="{{ request('search') }}">
             </div>
-            <div class="col-md-3">
-                <select class="form-select" id="filterCategoria">
-                    <option value="">Todas las categorias</option>
-                    <option value="Servicios">Servicios</option>
-                    <option value="Suministros">Suministros</option>
-                    <option value="Equipamiento">Equipamiento</option>
+            <div>
+                <label class="filter-label">Categoría</label>
+                <select name="categoria" class="form-select">
+                    <option value="">Todas</option>
+                    <option value="Servicios" {{ request('categoria') === 'Servicios' ? 'selected' : '' }}>Servicios</option>
+                    <option value="Suministros" {{ request('categoria') === 'Suministros' ? 'selected' : '' }}>Suministros</option>
+                    <option value="Equipamiento" {{ request('categoria') === 'Equipamiento' ? 'selected' : '' }}>Equipamiento</option>
                 </select>
             </div>
-            <div class="col-md-3">
-                <select class="form-select" id="filterEstado">
-                    <option value="">Todos los estados</option>
-                    <option value="aprobado">Aprobado</option>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="rechazado">Rechazado</option>
+            <div>
+                <label class="filter-label">Estado</label>
+                <select name="estado" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="aprobado" {{ request('estado') === 'aprobado' ? 'selected' : '' }}>Aprobado</option>
+                    <option value="pendiente" {{ request('estado') === 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                    <option value="rechazado" {{ request('estado') === 'rechazado' ? 'selected' : '' }}>Rechazado</option>
                 </select>
             </div>
-            <div class="col-md-3">
-                <button class="btn btn-nuevo w-100" id="btnFilter">
-                    <i class="fas fa-filter me-2"></i> Filtrar
-                </button>
-            </div>
-        </div>
+            <button type="submit" class="btn-filter">
+                <i class="fas fa-search me-1"></i> Filtrar
+            </button>
+        </form>
+    </div>
 
-        <!-- Tabla -->
+    <!-- Tabla -->
+    <div class="table-container">
         <div class="table-responsive">
-            <table class="table table-hover" id="gastosTable">
+            <table class="table">
                 <thead>
                     <tr>
-                        <th width="5%">#</th>
-                        <th width="20%">Concepto</th>
-                        <th width="10%">Categoria</th>
-                        <th width="10%">Monto</th>
-                        <th width="10%">Fecha</th>
-                        <th width="10%">Proveedor</th>
-                        <th width="10%">Método</th>
-                        <th width="10%">Estado</th>
-                        <th width="15%">Acciones</th>
+                        <th width="8%">#</th>
+                        <th width="18%">Concepto</th>
+                        <th width="12%">Categoría</th>
+                        <th width="12%">Monto</th>
+                        <th width="12%">Fecha</th>
+                        <th width="12%">Proveedor</th>
+                        <th width="12%">Estado</th>
+                        <th width="14%">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -290,15 +311,10 @@
                         <tr>
                             <td>{{ $gasto->id }}</td>
                             <td>{{ $gasto->concepto ?? $gasto->descripcion }}</td>
-                            <td>
-                                <span class="badge" style="background-color: #6c757d; color: white; padding: 6px 12px;">
-                                    {{ $gasto->categoria }}
-                                </span>
-                            </td>
-                            <td class="text-end fw-bold">L. {{ number_format($gasto->monto, 2) }}</td>
-                            <td>{{ \Carbon\Carbon::parse($gasto->fecha_gasto ?? $gasto->fecha)->format('d/m/Y') }}</td>
+                            <td>{{ $gasto->categoria ?? '-' }}</td>
+                            <td class="fw-bold" style="color: #ef4444;">L. {{ number_format($gasto->monto ?? 0, 2) }}</td>
+                            <td>{{ \Carbon\Carbon::parse($gasto->fecha_gasto ?? $gasto->created_at)->format('d/m/Y') }}</td>
                             <td>{{ $gasto->proveedor ?? '-' }}</td>
-                            <td>{{ $gasto->metodo_pago ?? '-' }}</td>
                             <td>
                                 @php
                                     $estado = $gasto->estado_aprobacion ?? $gasto->estado ?? 'pendiente';
@@ -307,50 +323,35 @@
                                         'pendiente' => 'badge-pendiente',
                                         default => 'badge-rechazado'
                                     };
-                                    $estadoTexto = match($estado) {
-                                        'aprobado' => 'Aprobado',
-                                        'pendiente' => 'Pendiente',
-                                        'rechazado' => 'Rechazado',
-                                        default => ucfirst($estado)
-                                    };
                                 @endphp
-                                <span class="{{ $badgeClass }}">{{ $estadoTexto }}</span>
+                                <span class="badge {{ $badgeClass }}">{{ ucfirst($estado) }}</span>
                             </td>
-                            <td class="text-center">
-                                <div class="btn-group" role="group">
-                                    <a href="{{ route('tesorero.gastos.show', $gasto->id) }}" 
-                                       class="btn btn-sm btn-view"
-                                       title="Ver detalles">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ route('tesorero.gastos.edit', $gasto->id) }}" 
-                                       class="btn btn-sm btn-edit"
-                                       title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('tesorero.gastos.destroy', $gasto->id) }}" 
-                                          method="POST" 
-                                          class="d-inline"
-                                          id="deleteForm{{ $gasto->id }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" 
-                                                class="btn btn-sm btn-delete btn-delete-gasto"
-                                                data-id="{{ $gasto->id }}"
-                                                data-descripcion="{{ $gasto->descripcion }}"
-                                                data-monto="{{ number_format($gasto->monto, 2) }}"
-                                                title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
+                            <td>
+                                <a href="{{ route('tesorero.gastos.show', $gasto->id) }}" class="btn-action btn-view" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ route('tesorero.gastos.edit', $gasto->id) }}" class="btn-action btn-edit" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn-action btn-delete btn-delete-gasto" 
+                                        data-id="{{ $gasto->id }}"
+                                        data-descripcion="{{ $gasto->descripcion }}"
+                                        title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <form id="deleteForm{{ $gasto->id }}" 
+                                      action="{{ route('tesorero.gastos.destroy', $gasto->id) }}" 
+                                      method="POST" style="display:none;">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center py-5">
-                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">No hay gastos registrados</p>
+                            <td colspan="8" class="text-center py-5">
+                                <i class="fas fa-inbox fa-3x" style="color: #CBD5E1;"></i>
+                                <p style="color: #94A3B8; font-size: 0.9rem; margin-top: 0.5rem;">No hay gastos registrados</p>
                             </td>
                         </tr>
                     @endforelse
@@ -360,29 +361,27 @@
 
         <!-- Paginación -->
         @if(isset($gastos) && $gastos->hasPages())
-            <div class="d-flex justify-content-center mt-4">
-                {{ $gastos->links() }}
-            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {{ $gastos->links() }}
+                </ul>
+            </nav>
         @endif
     </div>
 </div>
 
 @push('scripts')
-<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Mensajes de éxito/error con SweetAlert
+        // Mensajes
         @if(session('success'))
             Swal.fire({
                 icon: 'success',
                 title: '¡Éxito!',
                 text: '{{ session('success') }}',
                 timer: 3000,
-                timerProgressBar: true,
                 showConfirmButton: false,
-                position: 'center'
             });
         @endif
 
@@ -391,97 +390,25 @@
                 icon: 'error',
                 title: '¡Error!',
                 text: '{{ session('error') }}',
-                showConfirmButton: true,
-                confirmButtonColor: '#dc3545',
-                position: 'center'
+                confirmButtonColor: '#ef4444'
             });
         @endif
 
-        // Filtros de búsqueda
-        const searchInput = document.getElementById('searchInput');
-        const filterCategoria = document.getElementById('filterCategoria');
-        const filterEstado = document.getElementById('filterEstado');
-        const btnFilter = document.getElementById('btnFilter');
-        const table = document.getElementById('gastosTable');
-        const rows = table.querySelectorAll('tbody tr');
-
-        function filterTable() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            const categoriaValue = filterCategoria.value.toLowerCase();
-            const estadoValue = filterEstado.value.toLowerCase();
-
-            rows.forEach(row => {
-                // Saltar la fila de "no hay registros"
-                if (row.cells.length === 1) return;
-
-                const concepto = row.cells[1].textContent.toLowerCase().trim();
-                const categoria = row.cells[2].textContent.toLowerCase();
-                const estado = row.cells[7].textContent.toLowerCase();
-
-                // Búsqueda más precisa: coincide si el concepto empieza con el término o contiene palabras que empiezan con él
-                const matchSearch = searchTerm === '' || 
-                                   concepto.startsWith(searchTerm) || 
-                                   concepto.split(' ').some(word => word.startsWith(searchTerm));
-                const matchCategoria = categoriaValue === '' || categoria.includes(categoriaValue);
-                const matchEstado = estadoValue === '' || estado.includes(estadoValue);
-
-                if (matchSearch && matchCategoria && matchEstado) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-
-        // Filtrar al hacer clic en el botón
-        btnFilter.addEventListener('click', filterTable);
-
-        // Filtrar mientras escribe (en tiempo real)
-        searchInput.addEventListener('input', filterTable);
-
-        // Filtrar al presionar Enter en el campo de búsqueda
-        searchInput.addEventListener('keyup', function(e) {
-            if (e.key === 'Enter') {
-                filterTable();
-            }
-        });
-
-        // Filtrar automáticamente al cambiar los selectores
-        filterCategoria.addEventListener('change', filterTable);
-        filterEstado.addEventListener('change', filterTable);
-
-        // SweetAlert para eliminar gasto
-        document.querySelectorAll('.btn-delete-gasto').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const gastoId = this.getAttribute('data-id');
-                const descripcion = this.getAttribute('data-descripcion');
-                const monto = this.getAttribute('data-monto');
-
+        // Eliminar gasto
+        document.querySelectorAll('.btn-delete-gasto').forEach(btn => {
+            btn.addEventListener('click', function() {
                 Swal.fire({
-                    title: '¿Eliminar este gasto?',
-                    html: `
-                        <div class="text-start">
-                            <p><strong>Descripción:</strong> ${descripcion}</p>
-                            <p><strong>Monto:</strong> L. ${monto}</p>
-                            <p class="text-danger mt-3">Esta acción no se puede deshacer.</p>
-                        </div>
-                    `,
+                    title: '¿Eliminar gasto?',
+                    text: this.dataset.descripcion,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#dc2626',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: '<i class="fas fa-trash me-2"></i>Sí, eliminar',
-                    cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
-                    reverseButtons: true,
-                    customClass: {
-                        popup: 'swal-dark',
-                        title: 'swal-title',
-                        htmlContainer: 'swal-text'
-                    }
-                }).then((result) => {
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#94A3B8',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then(result => {
                     if (result.isConfirmed) {
-                        document.getElementById('deleteForm' + gastoId).submit();
+                        document.getElementById('deleteForm' + this.dataset.id).submit();
                     }
                 });
             });

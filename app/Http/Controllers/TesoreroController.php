@@ -858,7 +858,13 @@ class TesoreroController extends Controller
             'cheque' => 'Cheque',
             'otro' => 'Otro'
         ];
-        return view('modulos.tesorero.gastos.create', compact('metodos_pago'));
+        
+        // Generar número de factura automáticamente
+        $ultimoEgreso = Egreso::latest('id')->first();
+        $numero = $ultimoEgreso ? ($ultimoEgreso->id + 1) : 1;
+        $numeroFactura = 'FAC-' . date('Y') . '-' . str_pad($numero, 3, '0', STR_PAD_LEFT);
+        
+        return view('modulos.tesorero.gastos.create', compact('metodos_pago', 'numeroFactura'));
     }
 
     public function gastosStore(Request $request)
@@ -870,10 +876,11 @@ class TesoreroController extends Controller
             'fecha' => 'required|date',
             'proveedor' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
-            'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'comprobante_archivo' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'referencia' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'notas' => ['nullable', 'string', 'regex:/^(?!.*(.)\\1{2})/'],
             'estado' => 'required|in:pendiente,aprobado,rechazado,anulado,pagado',
+            'numero_factura' => ['nullable', 'string', 'max:100'],
         ], [
             'descripcion.regex' => 'La descripción no puede contener más de 2 caracteres repetidos consecutivos.',
             'categoria.regex' => 'La categoría no puede contener más de 2 caracteres repetidos consecutivos.',
@@ -883,10 +890,17 @@ class TesoreroController extends Controller
         ]);
 
         // Manejo del archivo comprobante si se sube
-        if ($request->hasFile('comprobante')) {
-            $file = $request->file('comprobante');
+        if ($request->hasFile('comprobante_archivo')) {
+            $file = $request->file('comprobante_archivo');
             $path = $file->store('comprobantes', 'public');
-            $validated['comprobante'] = $path;
+            $validated['comprobante_archivo'] = $path;
+        }
+
+        // Generar número de factura automáticamente si no se proporcionó
+        if (empty($request->numero_factura)) {
+            $ultimoEgreso = Egreso::latest('id')->first();
+            $numero = $ultimoEgreso ? ($ultimoEgreso->id + 1) : 1;
+            $validated['numero_factura'] = 'FAC-' . date('Y') . '-' . str_pad($numero, 3, '0', STR_PAD_LEFT);
         }
 
         $validated['usuario_registro_id'] = auth()->id();
@@ -926,10 +940,11 @@ class TesoreroController extends Controller
             'fecha' => 'required|date',
             'proveedor' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
-            'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'comprobante_archivo' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'referencia' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'notas' => ['nullable', 'string', 'regex:/^(?!.*(.)\\1{2})/'],
             'estado' => 'required|in:pendiente,aprobado,rechazado,anulado,pagado',
+            'numero_factura' => ['nullable', 'string', 'max:100'],
         ], [
             'descripcion.regex' => 'La descripción no puede contener más de 2 caracteres repetidos consecutivos.',
             'categoria.regex' => 'La categoría no puede contener más de 2 caracteres repetidos consecutivos.',
@@ -939,14 +954,14 @@ class TesoreroController extends Controller
         ]);
 
         // Si se sube un nuevo comprobante, eliminar el anterior y almacenar el nuevo
-        if ($request->hasFile('comprobante')) {
-            if (!empty($gasto->comprobante) && Storage::disk('public')->exists($gasto->comprobante)) {
-                Storage::disk('public')->delete($gasto->comprobante);
+        if ($request->hasFile('comprobante_archivo')) {
+            if (!empty($gasto->comprobante_archivo) && Storage::disk('public')->exists($gasto->comprobante_archivo)) {
+                Storage::disk('public')->delete($gasto->comprobante_archivo);
             }
 
-            $file = $request->file('comprobante');
+            $file = $request->file('comprobante_archivo');
             $path = $file->store('comprobantes', 'public');
-            $validated['comprobante'] = $path;
+            $validated['comprobante_archivo'] = $path;
         }
 
         $gasto->update($validated);

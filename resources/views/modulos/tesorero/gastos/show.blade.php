@@ -1,341 +1,452 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="container-fluid py-4" style="background-color: #2c3e50; min-height: 100vh;">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <!-- Header con botones -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="text-white">
-                    <i class="fas fa-file-invoice-dollar text-danger"></i> Detalle del Gasto #{{ $gasto->id }}
-                </h2>
-                <div class="btn-group">
-                    <a href="{{ route('tesorero.gastos.index') }}" class="btn" style="background-color: #7f8c8d; color: white; border: none;">
-                        <i class="fas fa-arrow-left"></i> Volver
-                    </a>
-                    <a href="{{ route('tesorero.gastos.edit', $gasto->id) }}" class="btn" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; border: none;">
-                        <i class="fas fa-edit"></i> Editar
-                    </a>
-                    <button type="button" class="btn" style="background-color: #3498db; color: white; border: none;" onclick="window.print()">
-                        <i class="fas fa-print"></i> Imprimir
-                    </button>
-                </div>
-            </div>
-
-            @if(session('success'))
-                <div class="alert alert-dismissible fade show" role="alert" style="background-color: #27ae60; border: none; color: white;">
-                    <i class="fas fa-check-circle"></i> {{ session('success') }}
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="alert alert-dismissible fade show" role="alert" style="background-color: #e74c3c; border: none; color: white;">
-                    <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            <div class="row">
-                <!-- Información Principal -->
-                <div class="col-lg-8 mb-4">
-                    <div class="card shadow" style="background-color: #34495e; border: none;">
-                        <div class="card-header py-3" style="background-color: #2c3e50; border-bottom: 2px solid #e74c3c;">
-                            <h5 class="mb-0 text-white">
-                                <i class="fas fa-info-circle me-2"></i> Información del Gasto
-                            </h5>
-                        </div>
-                        <div class="card-body" style="background-color: #34495e;">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="fw-bold text-light">Descripción:</label>
-                                    <p class="h5 text-white">{{ $gasto->descripcion ?? $gasto->concepto }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="fw-bold text-light">Estado:</label>
-                                    @php
-                                        $estado = $gasto->estado_aprobacion ?? $gasto->estado ?? 'pendiente';
-                                        $badgeClass = [
-                                            'pendiente' => 'warning',
-                                            'aprobado' => 'success',
-                                            'activo' => 'success',
-                                            'rechazado' => 'danger'
-                                        ][$estado] ?? 'secondary';
-                                    @endphp
-                                    <p>
-                                        <span class="badge bg-{{ $badgeClass }} badge-lg fs-6 px-3 py-2">
-                                            {{ ucfirst($estado) }}
-                                        </span>
-                                    </p>
-                                </div>
-                            </div>
-
-                            <hr style="border-color: #4a5f7f;">
-
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <label class="fw-bold text-light">Categoría:</label>
-                                    <p>
-                                        <span class="badge bg-secondary badge-lg fs-6 px-3 py-2">
-                                            {{ $gasto->categoria ?? $gasto->tipo ?? '-' }}
-                                        </span>
-                                    </p>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="fw-bold text-light">Fecha:</label>
-                                    <p class="text-white">
-                                        <i class="fas fa-calendar text-info"></i>
-                                        {{ \Carbon\Carbon::parse($gasto->fecha_gasto ?? $gasto->fecha)->format('d/m/Y') }}
-                                    </p>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="fw-bold text-light">Monto:</label>
-                                    <p class="h4 text-danger fw-bold">
-                                        L. {{ number_format($gasto->monto, 2) }}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <hr style="border-color: #4a5f7f;">
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="fw-bold text-light">Proveedor:</label>
-                                    <p class="text-white">{{ $gasto->proveedor ?? '-' }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="fw-bold text-light">Método de Pago:</label>
-                                    <p class="text-white">{{ $gasto->metodo_pago ?? '-' }}</p>
-                                </div>
-                            </div>
-
-                            @if(isset($gasto->numero_factura) && $gasto->numero_factura)
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label class="fw-bold text-light">Número de Factura:</label>
-                                        <p class="font-monospace text-white">{{ $gasto->numero_factura }}</p>
-                                    </div>
-                                    @if(isset($gasto->prioridad) && $gasto->prioridad)
-                                        <div class="col-md-6">
-                                            <label class="fw-bold text-light">Prioridad:</label>
-                                            <p>
-                                                @php
-                                                    $prioColor = [
-                                                        'Baja' => 'info',
-                                                        'Media' => 'warning',
-                                                        'Alta' => 'orange',
-                                                        'Urgente' => 'danger'
-                                                    ][$gasto->prioridad] ?? 'secondary';
-                                                @endphp
-                                                <span class="badge bg-{{ $prioColor }}">{{ $gasto->prioridad }}</span>
-                                            </p>
-                                        </div>
-                                    @endif
-                                </div>
-                            @endif
-
-                            @if(isset($gasto->notas) && $gasto->notas)
-                                <hr style="border-color: #4a5f7f;">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <label class="fw-bold text-light">Notas / Observaciones:</label>
-                                        <p class="text-white text-justify">{{ $gasto->notas }}</p>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Panel Lateral -->
-                <div class="col-lg-4 mb-4">
-                    <!-- Comprobante -->
-                    @if(isset($gasto->comprobante) && $gasto->comprobante || isset($gasto->comprobante_ruta) && $gasto->comprobante_ruta)
-                        <div class="card shadow mb-4" style="background-color: #34495e; border: none;">
-                            <div class="card-header py-3" style="background-color: #2c3e50; border-bottom: 2px solid #3498db;">
-                                <h6 class="mb-0 text-white">
-                                    <i class="fas fa-file-alt"></i> Comprobante
-                                </h6>
-                            </div>
-                            <div class="card-body text-center" style="background-color: #34495e;">
-                                @php
-                                    $comprobante = $gasto->comprobante ?? $gasto->comprobante_ruta;
-                                    $extension = pathinfo($comprobante, PATHINFO_EXTENSION);
-                                @endphp
-
-                                @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png']))
-                                    <img src="{{ asset('storage/' . $comprobante) }}" 
-                                         class="img-fluid mb-3" 
-                                         alt="Comprobante"
-                                         style="max-height: 300px; border-radius: 8px;">
-                                @else
-                                    <i class="fas fa-file-pdf fa-5x text-danger mb-3"></i>
-                                @endif
-
-                                <a href="{{ asset('storage/' . $comprobante) }}" 
-                                   target="_blank" 
-                                   class="btn w-100"
-                                   style="background-color: #3498db; color: white; border: none;">
-                                    <i class="fas fa-download"></i> Ver / Descargar
-                                </a>
-                            </div>
-                        </div>
-                    @endif
-
-                    <!-- Auditoría -->
-                    <div class="card shadow" style="background-color: #34495e; border: none;">
-                        <div class="card-header py-3" style="background-color: #2c3e50; border-bottom: 2px solid #95a5a6;">
-                            <h6 class="mb-0 text-white">
-                                <i class="fas fa-history"></i> Auditoría
-                            </h6>
-                        </div>
-                        <div class="card-body" style="background-color: #34495e;">
-                            <div class="mb-3">
-                                <label class="fw-bold text-light small">ID del Registro:</label>
-                                <p class="mb-0 text-white">#{{ $gasto->id }}</p>
-                            </div>
-
-                            @if(isset($gasto->created_at))
-                                <div class="mb-3">
-                                    <label class="fw-bold text-light small">Creado:</label>
-                                    <p class="mb-0 text-white">
-                                        <i class="fas fa-clock text-info"></i>
-                                        {{ \Carbon\Carbon::parse($gasto->created_at)->format('d/m/Y H:i') }}
-                                    </p>
-                                    <small class="text-light">
-                                        ({{ \Carbon\Carbon::parse($gasto->created_at)->diffForHumans() }})
-                                    </small>
-                                </div>
-                            @endif
-
-                            @if(isset($gasto->updated_at) && isset($gasto->created_at) && $gasto->updated_at != $gasto->created_at)
-                                <div class="mb-3">
-                                    <label class="fw-bold text-light small">Última Actualización:</label>
-                                    <p class="mb-0 text-white">
-                                        <i class="fas fa-clock text-warning"></i>
-                                        {{ \Carbon\Carbon::parse($gasto->updated_at)->format('d/m/Y H:i') }}
-                                    </p>
-                                    <small class="text-light">
-                                        ({{ \Carbon\Carbon::parse($gasto->updated_at)->diffForHumans() }})
-                                    </small>
-                                </div>
-                            @endif
-
-                            @if(isset($gasto->usuario_id))
-                                <div class="mb-0">
-                                    <label class="fw-bold text-light small">Usuario:</label>
-                                    <p class="mb-0 text-white">
-                                        <i class="fas fa-user text-info"></i>
-                                        Usuario #{{ $gasto->usuario_id }}
-                                    </p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Acciones -->
-            <div class="card shadow" style="background-color: #34495e; border: none;">
-                <div class="card-header py-3" style="background-color: #2c3e50; border-bottom: 2px solid #4a5f7f;">
-                    <h6 class="mb-0 fw-bold text-white">
-                        <i class="fas fa-cogs"></i> Acciones Disponibles
-                    </h6>
-                </div>
-                <div class="card-body" style="background-color: #34495e;">
-                    <div class="row">
-                        <div class="col-md-3 mb-2 mb-md-0">
-                            <a href="{{ route('tesorero.gastos.edit', $gasto->id) }}" class="btn w-100" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; border: none;">
-                                <i class="fas fa-edit"></i> Editar
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2 mb-md-0">
-                            <button type="button" class="btn w-100" style="background-color: #3498db; color: white; border: none;" onclick="window.print()">
-                                <i class="fas fa-print"></i> Imprimir
-                            </button>
-                        </div>
-                        <div class="col-md-3 mb-2 mb-md-0">
-                            <button type="button" class="btn w-100" style="background-color: #9b59b6; color: white; border: none;" onclick="exportToPDF()">
-                                <i class="fas fa-file-pdf"></i> Exportar PDF
-                            </button>
-                        </div>
-                        <div class="col-md-3">
-                            <form action="{{ route('tesorero.gastos.destroy', $gasto->id) }}" 
-                                  method="POST" 
-                                  id="delete-form-{{ $gasto->id }}">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" 
-                                        onclick="confirmarEliminacion('{{ $gasto->descripcion }}', '{{ number_format($gasto->monto, 2) }}')"
-                                        class="btn w-100"
-                                        style="background-color: #e74c3c; color: white; border: none;">
-                                    <i class="fas fa-trash"></i> Eliminar
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 @push('styles')
 <style>
+    .show-header {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        padding: 1.5rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 10px 40px rgba(239, 68, 68, 0.2);
+        color: white;
+    }
+
+    .show-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        border: 1px solid #E2E8F0;
+        overflow: hidden;
+    }
+
+    .info-card-header {
+        background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid #ef4444;
+        font-weight: 700;
+        font-size: 1rem;
+        color: #1E293B;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-card-header i {
+        color: #ef4444;
+    }
+
+    .info-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #F1F5F9;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748B;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        font-size: 0.95rem;
+        color: #1E293B;
+        font-weight: 500;
+    }
+
+    .info-value.amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ef4444;
+    }
+
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 100px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .badge-aprobado {
+        background: #DCFCE7;
+        color: #166534;
+    }
+
+    .badge-pendiente {
+        background: #FEF3C7;
+        color: #92400E;
+    }
+
+    .badge-rechazado {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .badge-prioridad-alta {
+        background: #FED7AA;
+        color: #9A3412;
+    }
+
+    .badge-prioridad-urgente {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .btn-action-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-modern {
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-decoration: none;
+    }
+
+    .btn-back {
+        background: #E2E8F0;
+        color: #64748B;
+    }
+
+    .btn-back:hover {
+        background: #CBD5E1;
+        color: #1E293B;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .btn-delete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-print {
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        color: white;
+    }
+
+    .btn-print:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
+    }
+
     @media print {
-        .btn-group, .card-header, nav, footer {
+        .btn-action-group, .show-header, nav, footer {
             display: none !important;
         }
-        .card {
+        .info-card {
             border: none !important;
             box-shadow: none !important;
         }
     }
-    
-    .badge-lg {
-        font-size: 1rem;
-        padding: 0.5rem 1rem;
-    }
 </style>
 @endpush
+
+@section('content')
+<div style="background: #F8FAFC; min-height: 100vh; padding: 1.5rem;">
+    <!-- Header -->
+    <div class="show-header">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <h1><i class="fas fa-file-invoice-dollar me-2"></i>Detalle del Gasto #{{ $gasto->id }}</h1>
+            <div class="btn-action-group">
+                <a href="{{ route('tesorero.gastos.index') }}" class="btn-modern btn-back">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+                <a href="{{ route('tesorero.gastos.edit', $gasto->id) }}" class="btn-modern btn-edit">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <button onclick="window.print()" class="btn-modern btn-print">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    <!-- Información del Gasto -->
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="fas fa-info-circle"></i> Información del Gasto
+        </div>
+        
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label">Descripción / Concepto</span>
+                <span class="info-value">{{ $gasto->descripcion ?? $gasto->concepto }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Estado</span>
+                <span class="info-value">
+                    @php
+                        $estado = $gasto->estado_aprobacion ?? $gasto->estado ?? 'pendiente';
+                        $badgeClass = match($estado) {
+                            'aprobado', 'activo' => 'badge-aprobado',
+                            'pendiente' => 'badge-pendiente',
+                            default => 'badge-rechazado'
+                        };
+                    @endphp
+                    <span class="badge {{ $badgeClass }}">{{ ucfirst($estado) }}</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label">Categoría</span>
+                <span class="info-value">{{ $gasto->categoria ?? $gasto->tipo ?? '-' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Fecha del Gasto</span>
+                <span class="info-value">{{ \Carbon\Carbon::parse($gasto->fecha_gasto ?? $gasto->fecha)->format('d/m/Y') }}</span>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label">Monto</span>
+                <span class="info-value amount">L. {{ number_format($gasto->monto, 2) }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Proveedor / Beneficiario</span>
+                <span class="info-value">{{ $gasto->proveedor ?? '-' }}</span>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label">Método de Pago</span>
+                <span class="info-value">{{ ucfirst(str_replace('_', ' ', $gasto->metodo_pago ?? '-')) }}</span>
+            </div>
+            @if(isset($gasto->numero_factura) && $gasto->numero_factura)
+            <div class="info-item">
+                <span class="info-label">Número de Factura</span>
+                <span class="info-value">{{ $gasto->numero_factura }}</span>
+            </div>
+            @endif
+        </div>
+
+        @if(isset($gasto->prioridad) && $gasto->prioridad)
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label">Prioridad</span>
+                <span class="info-value">
+                    @php
+                        $prioBadge = match($gasto->prioridad) {
+                            'Alta', 'alta' => 'badge-prioridad-alta',
+                            'Urgente', 'urgente' => 'badge-prioridad-urgente',
+                            default => 'badge-pendiente'
+                        };
+                    @endphp
+                    <span class="badge {{ $prioBadge }}">{{ $gasto->prioridad }}</span>
+                </span>
+            </div>
+        </div>
+        @endif
+
+        @if(isset($gasto->notas) && $gasto->notas)
+        <div class="info-row">
+            <div class="info-item" style="grid-column: 1 / -1;">
+                <span class="info-label">Notas / Observaciones</span>
+                <span class="info-value">{{ $gasto->notas }}</span>
+            </div>
+        </div>
+        @endif
+    </div>
+
+    <!-- Comprobante (si existe) -->
+    @if((isset($gasto->comprobante) && $gasto->comprobante) || (isset($gasto->comprobante_ruta) && $gasto->comprobante_ruta))
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="fas fa-file-alt"></i> Comprobante
+        </div>
+        <div style="text-align: center; padding: 1rem;">
+            @php
+                $comprobante = $gasto->comprobante ?? $gasto->comprobante_ruta;
+                $extension = pathinfo($comprobante, PATHINFO_EXTENSION);
+                $rutaComprobante = asset('storage/' . $comprobante);
+            @endphp
+
+            @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png']))
+                <img src="{{ $rutaComprobante }}" 
+                     class="img-fluid mb-3" 
+                     alt="Comprobante"
+                     style="max-height: 300px; border-radius: 8px;">
+            @else
+                <i class="fas fa-file-pdf fa-5x mb-3" style="color: #ef4444;"></i>
+            @endif
+
+            <a href="{{ $rutaComprobante }}" 
+               target="_blank" 
+               class="btn-modern btn-print"
+               style="display: inline-flex; margin-top: 1rem;">
+                <i class="fas fa-download"></i> Ver / Descargar
+            </a>
+        </div>
+    </div>
+    @endif
+
+    <!-- Auditoría -->
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="fas fa-history"></i> Auditoría
+        </div>
+        
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label">ID del Registro</span>
+                <span class="info-value">#{{ $gasto->id }}</span>
+            </div>
+            @if(isset($gasto->created_at))
+            <div class="info-item">
+                <span class="info-label">Creado</span>
+                <span class="info-value">
+                    <i class="fas fa-calendar me-1" style="color: #ef4444;"></i>
+                    {{ \Carbon\Carbon::parse($gasto->created_at)->format('d/m/Y H:i') }}
+                    <small style="color: #64748B; font-size: 0.75rem; display: block;">({{ \Carbon\Carbon::parse($gasto->created_at)->diffForHumans() }})</small>
+                </span>
+            </div>
+            @endif
+        </div>
+
+        @if(isset($gasto->updated_at) && $gasto->updated_at != $gasto->created_at)
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label">Última Actualización</span>
+                <span class="info-value">
+                    <i class="fas fa-clock me-1" style="color: #f59e0b;"></i>
+                    {{ \Carbon\Carbon::parse($gasto->updated_at)->format('d/m/Y H:i') }}
+                    <small style="color: #64748B; font-size: 0.75rem; display: block;">({{ \Carbon\Carbon::parse($gasto->updated_at)->diffForHumans() }})</small>
+                </span>
+            </div>
+        </div>
+        @endif
+    </div>
+
+    <!-- Acciones Disponibles -->
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="fas fa-cogs"></i> Acciones Disponibles
+        </div>
+        
+        <div class="btn-action-group" style="padding: 1rem;">
+            <a href="{{ route('tesorero.gastos.edit', $gasto->id) }}" class="btn-modern btn-edit">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+            <button onclick="window.print()" class="btn-modern btn-print">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+            <button type="button" class="btn-modern btn-delete btn-delete-gasto"
+                    data-descripcion="{{ $gasto->descripcion ?? $gasto->concepto }}"
+                    data-monto="{{ number_format($gasto->monto, 2) }}">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Form oculto para eliminación -->
+<form action="{{ route('tesorero.gastos.destroy', $gasto->id) }}" 
+      method="POST"
+      id="deleteFormShow"
+      style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
 
 @push('scripts')
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    function confirmarEliminacion(descripcion, monto) {
-        Swal.fire({
-            title: '¿Eliminar este gasto?',
-            html: `
-                <div class="text-start">
-                    <p><strong>Descripción:</strong> ${descripcion}</p>
-                    <p><strong>Monto:</strong> L. ${monto}</p>
-                    <p class="text-danger mt-3">Esta acción no se puede deshacer.</p>
-                </div>
-            `,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: '<i class="fas fa-trash me-2"></i>Sí, eliminar',
-            cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
-            reverseButtons: true,
-            customClass: {
-                popup: 'swal-dark',
-                title: 'swal-title',
-                htmlContainer: 'swal-text'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-{{ $gasto->id }}').submit();
-            }
-        });
-    }
+    // SweetAlert para eliminar gasto
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnDelete = document.querySelector('.btn-delete-gasto');
+        if (btnDelete) {
+            btnDelete.addEventListener('click', function(e) {
+                e.preventDefault();
+                const descripcion = this.getAttribute('data-descripcion');
+                const monto = this.getAttribute('data-monto');
 
-    function exportToPDF() {
-        alert('Funcionalidad de exportación PDF próximamente disponible');
-    }
+                Swal.fire({
+                    title: '¿Eliminar este gasto?',
+                    html: `
+                        <div class="text-start">
+                            <p><strong>Descripción:</strong> ${descripcion}</p>
+                            <p><strong>Monto:</strong> L. ${monto}</p>
+                            <p class="text-danger mt-3">Esta acción no se puede deshacer.</p>
+                        </div>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '<i class="fas fa-trash me-2"></i>Sí, eliminar',
+                    cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('deleteFormShow').submit();
+                    }
+                });
+            });
+        }
+    });
 </script>
 @endpush
 @endsection
