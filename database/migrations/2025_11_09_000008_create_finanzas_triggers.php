@@ -38,8 +38,17 @@ return new class extends Migration
             DB::unprepared($triggerSQL);
             \Log::info("SQL Triggers Migration: Se registró exitosamente el trigger trg_actualizar_nombre_usuario.");
         } catch (\Exception $e) {
-            \Log::warning("SQL Triggers Migration: Error al crear trigger: " . $e->getMessage());
-            throw new \Exception("No se pudo registrar el trigger. Error: " . $e->getMessage());
+            $msg = $e->getMessage();
+            \Log::warning("SQL Triggers Migration: Error al crear trigger: " . $msg);
+
+            // Si el error es por falta de privilegios con binary logging activo (MySQL 1419),
+            // no hacemos throw para evitar que la migración falle en producción.
+            if (strpos($msg, '1419') !== false || stripos($msg, 'log_bin_trust_function_creators') !== false || stripos($msg, 'SUPER privilege') !== false) {
+                \Log::warning("SQL Triggers Migration: Se omitió la creación del trigger trg_actualizar_nombre_usuario debido a permisos/ log_bin (1419). Para crear triggers en este servidor habilita log_bin_trust_function_creators=1 o utiliza un usuario con SUPER.");
+                return;
+            }
+
+            throw new \Exception("No se pudo registrar el trigger. Error: " . $msg);
         }
     }
 

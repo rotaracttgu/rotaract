@@ -26,25 +26,25 @@
         <div class="max-w-7xl mx-auto">
             <!-- Estadísticas -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstadoFormal('')">
-                    <p class="text-sm text-gray-600">Total</p>
-                    <p class="text-2xl font-bold text-purple-600">{{ $estadisticas['total'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para ver todas</p>
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstadoFormal('')">
+                    <p class="text-sm text-purple-100">Total</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['total'] }}</p>
+                    <p class="text-xs text-purple-100 mt-1">Click para ver todas</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstadoFormal('Enviada')">
-                    <p class="text-sm text-gray-600">Enviadas</p>
-                    <p class="text-2xl font-bold text-green-600">{{ $estadisticas['enviadas'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para filtrar</p>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstadoFormal('Enviada')">
+                    <p class="text-sm text-green-100">Enviadas</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['enviadas'] }}</p>
+                    <p class="text-xs text-green-100 mt-1">Click para filtrar</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstadoFormal('Borrador')">
-                    <p class="text-sm text-gray-600">Borradores</p>
-                    <p class="text-2xl font-bold text-yellow-600">{{ $estadisticas['borradores'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para filtrar</p>
+                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstadoFormal('Borrador')">
+                    <p class="text-sm text-yellow-100">Borradores</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['borradores'] }}</p>
+                    <p class="text-xs text-yellow-100 mt-1">Click para filtrar</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstadoFormal('Recibida')">
-                    <p class="text-sm text-gray-600">Recibidas</p>
-                    <p class="text-2xl font-bold text-blue-600">{{ $estadisticas['recibidas'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para filtrar</p>
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstadoFormal('Recibida')">
+                    <p class="text-sm text-blue-100">Recibidas</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['recibidas'] }}</p>
+                    <p class="text-xs text-blue-100 mt-1">Click para filtrar</p>
                 </div>
             </div>
 
@@ -101,15 +101,15 @@
                     <!-- Tabla de cartas formales -->
                     <div class="overflow-x-auto">
                         <table id="tabla-cartas-formal" class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-gradient-to-r from-purple-600 to-purple-800">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destinatario</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asunto</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Respuesta</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Fecha</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Destinatario</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Tipo</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Asunto</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Estado</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Respuesta</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -241,21 +241,21 @@
                                 <h4 class="font-medium text-gray-900">2025</h4>
                                 <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">32 cartas</span>
                             </div>
-                            <button class="text-sm text-purple-600 hover:text-purple-900">Ver archivo →</button>
+                            <button onclick="filtrarPorAnio(2025)" class="text-sm text-purple-600 hover:text-purple-900">Ver archivo →</button>
                         </div>
                         <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                             <div class="flex items-center justify-between mb-2">
                                 <h4 class="font-medium text-gray-900">2024</h4>
                                 <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">156 cartas</span>
                             </div>
-                            <button class="text-sm text-purple-600 hover:text-purple-900">Ver archivo →</button>
+                            <button onclick="filtrarPorAnio(2024)" class="text-sm text-purple-600 hover:text-purple-900">Ver archivo →</button>
                         </div>
                         <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                             <div class="flex items-center justify-between mb-2">
                                 <h4 class="font-medium text-gray-900">2023</h4>
                                 <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">142 cartas</span>
                             </div>
-                            <button class="text-sm text-purple-600 hover:text-purple-900">Ver archivo →</button>
+                            <button onclick="filtrarPorAnio(2023)" class="text-sm text-purple-600 hover:text-purple-900">Ver archivo →</button>
                         </div>
                     </div>
                 </div>
@@ -278,15 +278,15 @@
                 </div>
             </div>
             
-            <form id="formCartaFormal" action="{{ route('presidente.cartas.formales.store') }}" method="POST" class="p-6">
+            <form id="formCartaFormal" action="{{ route('presidente.cartas.formales.store') }}" method="POST" class="p-6" onsubmit="return validarFormulario('formCartaFormal')">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Número de Carta -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Carta</label>
-                        <input type="text" name="numero_carta" required
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Carta <span class="text-xs text-gray-500">(Opcional - se genera automáticamente)</span></label>
+                        <input type="text" name="numero_carta"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                               placeholder="Ej: CF-2025-001">
+                               placeholder="Dejar vacío para generación automática">
                     </div>
 
                     <!-- Tipo -->
@@ -306,17 +306,19 @@
                     <!-- Destinatario -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Destinatario <span class="text-red-500">*</span></label>
-                        <input type="text" name="destinatario" required
+                        <input type="text" name="destinatario" id="destinatario" required oninput="validarCaracteresRepetidos(this)"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                                placeholder="Nombre del destinatario o institución">
+                        <span class="text-xs text-red-500 hidden" id="error_destinatario">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
 
                     <!-- Asunto -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Asunto <span class="text-red-500">*</span></label>
-                        <input type="text" name="asunto" required
+                        <input type="text" name="asunto" id="asunto" required oninput="validarCaracteresRepetidos(this)"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                                placeholder="Asunto de la carta">
+                        <span class="text-xs text-red-500 hidden" id="error_asunto">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
 
                     <!-- Estado -->
@@ -340,17 +342,19 @@
                     <!-- Contenido -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Contenido <span class="text-red-500">*</span></label>
-                        <textarea name="contenido" rows="6" required
+                        <textarea name="contenido" id="contenido" rows="6" required oninput="validarCaracteresRepetidos(this)"
                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                                   placeholder="Cuerpo de la carta formal"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_contenido">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
 
                     <!-- Observaciones -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-                        <textarea name="observaciones" rows="2"
+                        <textarea name="observaciones" id="observaciones" rows="2" oninput="validarCaracteresRepetidos(this)"
                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                                   placeholder="Observaciones adicionales"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_observaciones">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
                 </div>
 
@@ -400,7 +404,7 @@
     <div id="modalEditarCartaFormal" class="fixed inset-0 bg-black bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
         <div class="relative top-20 mx-auto p-0 border-0 w-11/12 md:w-3/4 lg:w-1/2 shadow-2xl rounded-xl bg-white">
             <!-- Header -->
-            <div class="bg-green-600 px-6 py-4 rounded-t-xl">
+            <div class="bg-purple-600 px-6 py-4 rounded-t-xl">
                 <div class="flex items-center justify-between">
                     <h3 class="text-xl font-bold text-white">Editar Carta Formal</h3>
                     <button onclick="cerrarModalEditarFormal()" class="text-white hover:text-gray-200">
@@ -411,16 +415,16 @@
                 </div>
             </div>
             
-            <form id="formEditarCartaFormal" method="POST" class="p-6">
+            <form id="formEditarCartaFormal" action="" method="POST" class="p-6" onsubmit="return validarFormulario('formEditarCartaFormal')">
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_formal_id" name="carta_id">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Carta</label>
-                        <input type="text" id="edit_formal_numero_carta" name="numero_carta" required
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Carta <span class="text-xs text-gray-500">(No modificable)</span></label>
+                        <input type="text" id="edit_formal_numero_carta" name="numero_carta" readonly
+                               class="w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:border-purple-500 focus:ring-purple-500 cursor-not-allowed">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Carta <span class="text-red-500">*</span></label>
@@ -435,13 +439,15 @@
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Destinatario <span class="text-red-500">*</span></label>
-                        <input type="text" id="edit_formal_destinatario" name="destinatario" required
+                        <input type="text" id="edit_formal_destinatario" name="destinatario" required oninput="validarCaracteresRepetidos(this)"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                        <span class="text-xs text-red-500 hidden" id="error_edit_formal_destinatario">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Asunto <span class="text-red-500">*</span></label>
-                        <input type="text" id="edit_formal_asunto" name="asunto" required
+                        <input type="text" id="edit_formal_asunto" name="asunto" required oninput="validarCaracteresRepetidos(this)"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                        <span class="text-xs text-red-500 hidden" id="error_edit_formal_asunto">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
@@ -459,13 +465,15 @@
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Contenido <span class="text-red-500">*</span></label>
-                        <textarea id="edit_formal_contenido" name="contenido" required rows="6"
+                        <textarea id="edit_formal_contenido" name="contenido" required rows="6" oninput="validarCaracteresRepetidos(this)"
                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_edit_formal_contenido">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-                        <textarea id="edit_formal_observaciones" name="observaciones" rows="2"
+                        <textarea id="edit_formal_observaciones" name="observaciones" rows="2" oninput="validarCaracteresRepetidos(this)"
                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_edit_formal_observaciones">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
                 </div>
 
@@ -475,7 +483,7 @@
                         Cancelar
                     </button>
                     <button type="submit"
-                            class="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-md hover:shadow-lg">
+                            class="px-6 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium shadow-md hover:shadow-lg">
                         Actualizar Carta
                     </button>
                 </div>
@@ -484,6 +492,52 @@
     </div>
 
     <script>
+        // Detectar ruta base según el perfil
+        const baseRoute = 'presidente';
+        
+        // Validación de caracteres repetidos
+        function validarCaracteresRepetidos(input) {
+            const valor = input.value;
+            const patron = /(.)\1{2,}/; // Detecta 3 o más caracteres iguales consecutivos
+            const errorId = 'error_' + input.id;
+            const errorSpan = document.getElementById(errorId);
+            
+            if (patron.test(valor)) {
+                input.classList.add('border-red-500');
+                input.classList.remove('border-gray-300');
+                if (errorSpan) {
+                    errorSpan.classList.remove('hidden');
+                }
+                return false;
+            } else {
+                input.classList.remove('border-red-500');
+                input.classList.add('border-gray-300');
+                if (errorSpan) {
+                    errorSpan.classList.add('hidden');
+                }
+                return true;
+            }
+        }
+
+        // Validar formulario antes de enviar
+        function validarFormulario(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input[oninput*="validarCaracteresRepetidos"], textarea[oninput*="validarCaracteresRepetidos"]');
+            let valido = true;
+            
+            inputs.forEach(input => {
+                if (!validarCaracteresRepetidos(input)) {
+                    valido = false;
+                }
+            });
+            
+            if (!valido) {
+                alert('Por favor, corrija los errores antes de continuar. No se permiten más de 2 caracteres repetidos consecutivos.');
+                return false;
+            }
+            return true;
+        }
+        
         // Modal Nueva Carta
         function abrirModalFormal() {
             document.getElementById('modalNuevaCartaFormal').classList.remove('hidden');
@@ -494,6 +548,12 @@
             document.getElementById('modalNuevaCartaFormal').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('formCartaFormal').reset();
+            // Limpiar mensajes de error
+            document.querySelectorAll('[id^="error_"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('input, textarea').forEach(el => {
+                el.classList.remove('border-red-500');
+                el.classList.add('border-gray-300');
+            });
         }
 
         // Modal Ver Detalles con loading
@@ -512,7 +572,7 @@
             `;
             
             try {
-                const response = await fetch(`/vicepresidente/cartas/formales/${id}`);
+                const response = await fetch(`/${baseRoute}/cartas/formales/${id}`);
                 const carta = await response.json();
                 
                 const tipoBadges = {
@@ -633,59 +693,32 @@
             const modal = document.getElementById('modalEditarCartaFormal');
             const form = document.getElementById('formEditarCartaFormal');
             
-            // Mostrar modal con loading
+            // Mostrar modal
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
-            // Mostrar loader temporal en el formulario
-            const formContainer = form.querySelector('.p-6');
-            const originalContent = formContainer.innerHTML;
-            formContainer.innerHTML = `
-                <div class="flex flex-col items-center justify-center py-12">
-                    <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-green-600 mb-3"></div>
-                    <p class="text-gray-600 font-medium">Cargando datos...</p>
-                </div>
-            `;
-            
             try {
-                const response = await fetch(`/vicepresidente/cartas/formales/${id}`);
+                const response = await fetch(`/${baseRoute}/cartas/formales/${id}`);
                 const carta = await response.json();
                 
-                // Restaurar contenido original
-                setTimeout(() => {
-                    formContainer.innerHTML = originalContent;
-                    
-                    // Llenar formulario con animación
-                    document.getElementById('edit_formal_id').value = carta.id;
-                    document.getElementById('edit_formal_numero_carta').value = carta.numero_carta;
-                    document.getElementById('edit_formal_tipo').value = carta.tipo;
-                    document.getElementById('edit_formal_destinatario').value = carta.destinatario;
-                    document.getElementById('edit_formal_asunto').value = carta.asunto;
-                    document.getElementById('edit_formal_contenido').value = carta.contenido || '';
-                    document.getElementById('edit_formal_estado').value = carta.estado;
-                    document.getElementById('edit_formal_fecha_envio').value = carta.fecha_envio || '';
-                    document.getElementById('edit_formal_observaciones').value = carta.observaciones || '';
-                    
-                    // Configurar action del formulario
-                    form.action = `/vicepresidente/cartas/formales/${id}`;
-                    
-                    // Añadir clase de animación
-                    formContainer.classList.add('animate-fadeIn');
-                }, 300);
+                // Llenar TODOS los campos del formulario directamente
+                document.getElementById('edit_formal_id').value = carta.id || '';
+                document.getElementById('edit_formal_numero_carta').value = carta.numero_carta || '';
+                document.getElementById('edit_formal_tipo').value = carta.tipo || '';
+                document.getElementById('edit_formal_destinatario').value = carta.destinatario || '';
+                document.getElementById('edit_formal_asunto').value = carta.asunto || '';
+                document.getElementById('edit_formal_contenido').value = carta.contenido || '';
+                document.getElementById('edit_formal_estado').value = carta.estado || 'Borrador';
+                document.getElementById('edit_formal_fecha_envio').value = carta.fecha_envio || '';
+                document.getElementById('edit_formal_observaciones').value = carta.observaciones || '';
+                
+                // Configurar action del formulario
+                form.action = `/${baseRoute}/cartas/formales/${id}`;
                 
             } catch (error) {
                 console.error('Error:', error);
-                formContainer.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-12 animate-shake">
-                        <svg class="w-16 h-16 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <p class="text-red-600 font-medium">Error al cargar los datos</p>
-                        <button onclick="cerrarModalEditarFormal()" class="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                            Cerrar
-                        </button>
-                    </div>
-                `;
+                alert('Error al cargar los datos de la carta');
+                cerrarModalEditarFormal();
             }
         }
 
@@ -693,6 +726,12 @@
             document.getElementById('modalEditarCartaFormal').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('formEditarCartaFormal').reset();
+            // Limpiar mensajes de error
+            document.querySelectorAll('[id^="error_"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('input, textarea').forEach(el => {
+                el.classList.remove('border-red-500');
+                el.classList.add('border-gray-300');
+            });
         }
 
         // Eliminar carta
@@ -700,7 +739,7 @@
             if (confirm('¿Estás seguro de que deseas eliminar esta carta formal? Esta acción no se puede deshacer.')) {
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = `/vicepresidente/cartas/formales/${id}`;
+                form.action = `/${baseRoute}/cartas/formales/${id}`;
                 
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 const csrfInput = document.createElement('input');
@@ -730,6 +769,27 @@
         function filtrarPorEstadoFormal(estado) {
             document.getElementById('filtro-estado-formal').value = estado;
             aplicarFiltrosFormal();
+        }
+
+        function filtrarPorAnio(anio) {
+            const buscador = document.getElementById('buscador-formal');
+            const filtroFechaDesde = document.getElementById('filtro-fecha-desde-formal');
+            const filtroFechaHasta = document.getElementById('filtro-fecha-hasta-formal');
+            
+            // Establecer rango de fechas del año seleccionado
+            filtroFechaDesde.value = `${anio}-01-01`;
+            filtroFechaHasta.value = `${anio}-12-31`;
+            
+            // Limpiar otros filtros
+            buscador.value = '';
+            document.getElementById('filtro-tipo-formal').value = '';
+            document.getElementById('filtro-estado-formal').value = '';
+            
+            // Aplicar filtros
+            aplicarFiltrosFormal();
+            
+            // Scroll suave a la tabla
+            document.querySelector('#tabla-cartas-formal').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function aplicarFiltrosFormal() {

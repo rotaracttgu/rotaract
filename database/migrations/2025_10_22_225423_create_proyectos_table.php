@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('Estatus', 20)->nullable();
             $table->string('EstadoProyecto', 20)->nullable();
             $table->decimal('Presupuesto', 14)->nullable();
-            $table->string('TipoProyecto', 20)->nullable();
+            $table->string('TipoProyecto', 50)->nullable();
             $table->integer('ResponsableID')->nullable()->index('responsableid');
         });
     }

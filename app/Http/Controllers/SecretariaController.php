@@ -187,6 +187,16 @@ class SecretariaController extends Controller
     public function getConsulta($id)
     {
         $consulta = Consulta::with('usuario')->findOrFail($id);
+        
+        // Agregar URL del comprobante si existe
+        if ($consulta->comprobante_ruta) {
+            $consulta->comprobante_url = asset('storage/' . $consulta->comprobante_ruta);
+            
+            // Determinar tipo de archivo
+            $extension = pathinfo($consulta->comprobante_ruta, PATHINFO_EXTENSION);
+            $consulta->comprobante_tipo = strtolower($extension) === 'pdf' ? 'pdf' : 'imagen';
+        }
+        
         return response()->json($consulta);
     }
 
@@ -220,12 +230,47 @@ class SecretariaController extends Controller
     public function eliminarConsulta($id)
     {
         $consulta = Consulta::findOrFail($id);
+        
+        // Eliminar comprobante si existe
+        if ($consulta->comprobante_ruta) {
+            Storage::disk('public')->delete($consulta->comprobante_ruta);
+        }
+        
         $consulta->delete();
 
         return response()->json([
             'success' => true,
             'message' => 'Consulta eliminada exitosamente'
         ]);
+    }
+
+    /**
+     * Descargar comprobante de pago de una consulta
+     */
+    public function descargarComprobante($id)
+    {
+        $consulta = Consulta::findOrFail($id);
+        
+        if (!$consulta->comprobante_ruta) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Esta consulta no tiene comprobante adjunto'
+            ], 404);
+        }
+        
+        $rutaCompleta = storage_path('app/public/' . $consulta->comprobante_ruta);
+        
+        if (!file_exists($rutaCompleta)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El archivo del comprobante no existe'
+            ], 404);
+        }
+        
+        $nombreOriginal = 'Comprobante_' . $consulta->ConsultaID . '_' . $consulta->usuario->name;
+        $extension = pathinfo($consulta->comprobante_ruta, PATHINFO_EXTENSION);
+        
+        return response()->download($rutaCompleta, $nombreOriginal . '.' . $extension);
     }
 
     // ============================================================================
@@ -1672,4 +1717,3 @@ class SecretariaController extends Controller
             ->first();
     }
 }
-

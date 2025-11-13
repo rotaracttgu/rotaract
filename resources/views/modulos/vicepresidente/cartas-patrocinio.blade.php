@@ -18,25 +18,25 @@
         <div class="max-w-7xl mx-auto">
             <!-- Estadísticas -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstado('')">
-                    <p class="text-sm text-gray-600">Total</p>
-                    <p class="text-2xl font-bold text-blue-600">{{ $estadisticas['total'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para ver todas</p>
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstado('')">
+                    <p class="text-sm text-blue-100">Total</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['total'] }}</p>
+                    <p class="text-xs text-blue-100 mt-1">Click para ver todas</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstado('Aprobada')">
-                    <p class="text-sm text-gray-600">Aprobadas</p>
-                    <p class="text-2xl font-bold text-green-600">{{ $estadisticas['aprobadas'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para filtrar</p>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstado('Aprobada')">
+                    <p class="text-sm text-green-100">Aprobadas</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['aprobadas'] }}</p>
+                    <p class="text-xs text-green-100 mt-1">Click para filtrar</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstado('Pendiente')">
-                    <p class="text-sm text-gray-600">Pendientes</p>
-                    <p class="text-2xl font-bold text-yellow-600">{{ $estadisticas['pendientes'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para filtrar</p>
+                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstado('Pendiente')">
+                    <p class="text-sm text-yellow-100">Pendientes</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['pendientes'] }}</p>
+                    <p class="text-xs text-yellow-100 mt-1">Click para filtrar</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstado('Rechazada')">
-                    <p class="text-sm text-gray-600">Rechazadas</p>
-                    <p class="text-2xl font-bold text-red-600">{{ $estadisticas['rechazadas'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para filtrar</p>
+                <div class="bg-gradient-to-br from-red-500 to-red-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstado('Rechazada')">
+                    <p class="text-sm text-red-100">Rechazadas</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['rechazadas'] }}</p>
+                    <p class="text-xs text-red-100 mt-1">Click para filtrar</p>
                 </div>
             </div>
 
@@ -98,15 +98,15 @@
                     <!-- Tabla de cartas -->
                     <div class="overflow-x-auto">
                         <table id="tabla-cartas" class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-gradient-to-r from-blue-600 to-blue-800">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Envío</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destinatario</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proyecto</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto Solicitado</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última Actualización</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Fecha Envío</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Destinatario</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Proyecto</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Monto Solicitado</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Estado</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Última Actualización</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -228,12 +228,12 @@
                 </button>
             </div>
             
-            <form id="formCartaPatrocinio" action="{{ route('vicepresidente.cartas.patrocinio.store') }}" method="POST" class="p-6">
+            <form id="formCartaPatrocinio" action="{{ route('vicepresidente.cartas.patrocinio.store') }}" method="POST" class="p-6" onsubmit="return validarFormulario('formCartaPatrocinio')">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Carta</label>
-                        <input type="text" name="numero_carta" required
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Carta <span class="text-gray-500 text-xs">(Opcional - se genera automáticamente si se deja vacío)</span></label>
+                        <input type="text" name="numero_carta"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                placeholder="Ej: CP-2025-001">
                     </div>
@@ -253,9 +253,11 @@
                     <!-- Destinatario -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Destinatario <span class="text-red-500">*</span></label>
-                        <input type="text" name="destinatario" required
+                        <input type="text" name="destinatario" id="destinatario" required
+                               oninput="validarCaracteresRepetidos(this)"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                placeholder="Nombre de la empresa o institución">
+                        <span class="text-xs text-red-500 hidden" id="error_destinatario">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
 
                     <!-- Monto Solicitado -->
@@ -295,17 +297,21 @@
                     <!-- Descripción -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                        <textarea name="descripcion" rows="3"
+                        <textarea name="descripcion" id="descripcion" rows="3"
+                                  oninput="validarCaracteresRepetidos(this)"
                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                   placeholder="Descripción del patrocinio solicitado"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_descripcion">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
 
                     <!-- Observaciones -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-                        <textarea name="observaciones" rows="2"
+                        <textarea name="observaciones" id="observaciones" rows="2"
+                                  oninput="validarCaracteresRepetidos(this)"
                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                   placeholder="Observaciones adicionales"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_observaciones">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
                 </div>
 
@@ -373,16 +379,16 @@
                 </button>
             </div>
             
-            <form id="formEditarCarta" method="POST" class="p-6">
+            <form id="formEditarCarta" action="" method="POST" class="p-6" onsubmit="return validarFormulario('formEditarCarta')">
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_carta_id" name="carta_id">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Carta</label>
-                        <input type="text" id="edit_numero_carta" name="numero_carta" required
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Carta <span class="text-gray-500 text-xs">(Generado automáticamente)</span></label>
+                        <input type="text" id="edit_numero_carta" name="numero_carta" readonly
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-100 cursor-not-allowed">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Proyecto <span class="text-red-500">*</span></label>
@@ -397,7 +403,9 @@
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Destinatario <span class="text-red-500">*</span></label>
                         <input type="text" id="edit_destinatario" name="destinatario" required
+                               oninput="validarCaracteresRepetidos(this)"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <span class="text-xs text-red-500 hidden" id="error_edit_destinatario">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Monto Solicitado (L.) <span class="text-red-500">*</span></label>
@@ -427,12 +435,16 @@
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
                         <textarea id="edit_descripcion" name="descripcion" rows="3"
+                                  oninput="validarCaracteresRepetidos(this)"
                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_edit_descripcion">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
                         <textarea id="edit_observaciones" name="observaciones" rows="2"
+                                  oninput="validarCaracteresRepetidos(this)"
                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_edit_observaciones">No se permiten más de 2 caracteres repetidos consecutivos</span>
                     </div>
                 </div>
 
@@ -452,6 +464,53 @@
 
     <!-- JavaScript -->
     <script>
+        const baseRoute = 'vicepresidente';
+
+        // Función de validación de caracteres repetidos
+        function validarCaracteresRepetidos(input) {
+            const valor = input.value;
+            const regex = /(.)\1{2,}/;
+            const errorSpan = document.getElementById('error_' + input.id);
+            
+            if (regex.test(valor)) {
+                input.classList.add('border-red-500');
+                input.classList.remove('border-gray-300');
+                if (errorSpan) {
+                    errorSpan.classList.remove('hidden');
+                }
+                return false;
+            } else {
+                input.classList.remove('border-red-500');
+                input.classList.add('border-gray-300');
+                if (errorSpan) {
+                    errorSpan.classList.add('hidden');
+                }
+                return true;
+            }
+        }
+
+        // Función de validación de formulario completo
+        function validarFormulario(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input[type="text"], textarea');
+            let valid = true;
+            
+            inputs.forEach(input => {
+                if (input.value && !validarCaracteresRepetidos(input)) {
+                    valid = false;
+                }
+            });
+            
+            if (!valid) {
+                alert('Por favor corrige los errores antes de enviar el formulario');
+            }
+            
+            return valid;
+        }
+
+        // Definir ruta base según el módulo
+        const baseRoute = 'vicepresidente';
+
         // Modal Nueva Carta
         function abrirModalPatrocinio() {
             document.getElementById('modalNuevaCartaPatrocinio').classList.remove('hidden');
@@ -462,6 +521,12 @@
             document.getElementById('modalNuevaCartaPatrocinio').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('formCartaPatrocinio').reset();
+            // Limpiar mensajes de error
+            document.querySelectorAll('[id^="error_"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('input, textarea').forEach(el => {
+                el.classList.remove('border-red-500');
+                el.classList.add('border-gray-300');
+            });
         }
 
         // Modal Ver Detalles con loading y animaciones
@@ -581,65 +646,37 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Modal Editar con loading
         async function editarCarta(id) {
             const modal = document.getElementById('modalEditarCarta');
             const form = document.getElementById('formEditarCarta');
             
-            // Mostrar modal con loading
+            // Mostrar modal
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-            
-            // Mostrar loader temporal en el formulario
-            const formContainer = form.querySelector('.p-6');
-            const originalContent = formContainer.innerHTML;
-            formContainer.innerHTML = `
-                <div class="flex flex-col items-center justify-center py-12">
-                    <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-green-600 mb-3"></div>
-                    <p class="text-gray-600 font-medium">Cargando datos...</p>
-                </div>
-            `;
             
             try {
                 const response = await fetch(`/vicepresidente/cartas/patrocinio/${id}`);
                 const carta = await response.json();
                 
-                // Restaurar contenido original
-                setTimeout(() => {
-                    formContainer.innerHTML = originalContent;
-                    
-                    // Llenar formulario con animación
-                    document.getElementById('edit_carta_id').value = carta.id;
-                    document.getElementById('edit_numero_carta').value = carta.numero_carta;
-                    document.getElementById('edit_destinatario').value = carta.destinatario;
-                    document.getElementById('edit_monto_solicitado').value = carta.monto_solicitado;
-                    document.getElementById('edit_estado').value = carta.estado;
-                    document.getElementById('edit_proyecto_id').value = carta.proyecto_id || '';
-                    document.getElementById('edit_fecha_solicitud').value = carta.fecha_solicitud;
-                    document.getElementById('edit_fecha_respuesta').value = carta.fecha_respuesta || '';
-                    document.getElementById('edit_descripcion').value = carta.descripcion || '';
-                    document.getElementById('edit_observaciones').value = carta.observaciones || '';
-                    
-                    // Configurar action del formulario
-                    form.action = `/vicepresidente/cartas/patrocinio/${id}`;
-                    
-                    // Añadir clase de animación
-                    formContainer.classList.add('animate-fadeIn');
-                }, 300);
+                // Llenar TODOS los campos del formulario directamente
+                document.getElementById('edit_carta_id').value = carta.id || '';
+                document.getElementById('edit_numero_carta').value = carta.numero_carta || '';
+                document.getElementById('edit_destinatario').value = carta.destinatario || '';
+                document.getElementById('edit_monto_solicitado').value = carta.monto_solicitado || '';
+                document.getElementById('edit_estado').value = carta.estado || 'Pendiente';
+                document.getElementById('edit_proyecto_id').value = carta.proyecto_id || '';
+                document.getElementById('edit_fecha_solicitud').value = carta.fecha_solicitud || '';
+                document.getElementById('edit_fecha_respuesta').value = carta.fecha_respuesta || '';
+                document.getElementById('edit_descripcion').value = carta.descripcion || '';
+                document.getElementById('edit_observaciones').value = carta.observaciones || '';
+                
+                // Configurar action del formulario
+                form.action = `/${baseRoute}/cartas/patrocinio/${id}`;
                 
             } catch (error) {
                 console.error('Error:', error);
-                formContainer.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-12 animate-shake">
-                        <svg class="w-16 h-16 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <p class="text-red-600 font-medium">Error al cargar los datos</p>
-                        <button onclick="cerrarModalEditar()" class="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                            Cerrar
-                        </button>
-                    </div>
-                `;
+                alert('Error al cargar los datos de la carta');
+                cerrarModalEditar();
             }
         }
 
@@ -647,6 +684,12 @@
             document.getElementById('modalEditarCarta').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('formEditarCarta').reset();
+            // Limpiar mensajes de error
+            document.querySelectorAll('[id^="error_"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('input, textarea').forEach(el => {
+                el.classList.remove('border-red-500');
+                el.classList.add('border-gray-300');
+            });
         }
 
         // Eliminar

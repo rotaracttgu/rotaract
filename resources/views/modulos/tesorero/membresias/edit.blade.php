@@ -255,6 +255,17 @@
             </div>
             <div class="row">
                 <div class="col-md-4 mb-3">
+                    <label class="form-label required-field">Periodo de Pago</label>
+                    <select class="form-select" id="tipo_pago" name="tipo_pago" required>
+                        <option value="mensual" {{ $membresia->tipo_pago == 'mensual' ? 'selected' : '' }}>Mensual</option>
+                        <option value="trimestral" {{ $membresia->tipo_pago == 'trimestral' ? 'selected' : '' }}>Trimestral</option>
+                        <option value="semestral" {{ $membresia->tipo_pago == 'semestral' ? 'selected' : '' }}>Semestral</option>
+                        <option value="anual" {{ $membresia->tipo_pago == 'anual' ? 'selected' : '' }}>Anual</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
                     <label class="form-label required-field">Fecha Pago</label>
                     <input type="date" class="form-control" name="fecha_pago" value="{{ $membresia->fecha_pago }}" required>
                 </div>
@@ -282,11 +293,37 @@
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Nº Recibo</label>
-                    <input type="text" class="form-control" name="numero_recibo" value="{{ $membresia->numero_recibo }}">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="fas fa-receipt"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control" 
+                               name="numero_recibo" 
+                               value="{{ $membresia->numero_recibo ?? $membresia->numero_comprobante }}" 
+                               readonly
+                               style="background-color: #f8f9fa;">
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-lock me-1"></i>Generado automáticamente - No editable
+                    </small>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Nº Referencia</label>
-                    <input type="text" class="form-control" name="numero_referencia" value="{{ $membresia->numero_referencia }}">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="fas fa-hashtag"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control" 
+                               name="numero_referencia" 
+                               value="{{ $membresia->numero_referencia }}" 
+                               readonly
+                               style="background-color: #f8f9fa;">
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-lock me-1"></i>Generado automáticamente - No editable
+                    </small>
                 </div>
             </div>
         </div>
@@ -324,6 +361,44 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// Calcular periodo_fin automáticamente cuando cambie tipo_pago o periodo_inicio
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoPago = document.getElementById('tipo_pago');
+    const periodoInicio = document.querySelector('[name="periodo_inicio"]');
+    const periodoFin = document.querySelector('[name="periodo_fin"]');
+
+    function calcularPeriodoFin() {
+        if (!tipoPago || !periodoInicio || !periodoFin) return;
+        if (tipoPago.value && periodoInicio.value) {
+            const inicio = new Date(periodoInicio.value);
+            let fin = new Date(inicio);
+            
+            switch(tipoPago.value) {
+                case 'mensual':
+                    fin.setMonth(fin.getMonth() + 1);
+                    break;
+                case 'trimestral':
+                    fin.setMonth(fin.getMonth() + 3);
+                    break;
+                case 'semestral':
+                    fin.setMonth(fin.getMonth() + 6);
+                    break;
+                case 'anual':
+                    fin.setFullYear(fin.getFullYear() + 1);
+                    break;
+            }
+            
+            fin.setDate(fin.getDate() - 1);
+            periodoFin.value = fin.toISOString().split('T')[0];
+        }
+    }
+
+    if (tipoPago && periodoInicio) {
+        tipoPago.addEventListener('change', calcularPeriodoFin);
+        periodoInicio.addEventListener('change', calcularPeriodoFin);
+    }
+});
+
 document.getElementById('btnGuardar').addEventListener('click', function(e) {
     e.preventDefault();
     

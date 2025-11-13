@@ -389,7 +389,7 @@ function verActa(id) {
                         <i class="fas fa-eye"></i>
                         Ver PDF
                     </a>
-                    <a href="{{ route('secretaria.actas.descargar', '') }}/${data.id}" 
+                    <a href="/secretaria/actas/${data.id}/descargar" 
                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                         <i class="fas fa-download"></i>
                         Descargar PDF
@@ -401,7 +401,7 @@ function verActa(id) {
                         <i class="fas fa-file-pdf text-red-500"></i>
                         Documento
                     </h5>
-                    <a href="{{ route('secretaria.actas.descargar', '') }}/${data.id}" 
+                    <a href="/secretaria/actas/${data.id}/descargar" 
                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                         <i class="fas fa-download"></i>
                         Generar y Descargar PDF

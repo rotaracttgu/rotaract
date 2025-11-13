@@ -19,8 +19,9 @@ class Egreso extends Model
         'monto',
         'fecha',
         'proveedor',
+        'comision',
         'metodo_pago',
-        'comprobante',
+        'comprobante_archivo',
         'referencia',
         'notas',
         'usuario_registro_id',
@@ -29,6 +30,7 @@ class Egreso extends Model
         'tipo',
         'cuenta_origen',
         'cuenta_destino',
+        'numero_factura',
     ];
 
     protected $casts = [

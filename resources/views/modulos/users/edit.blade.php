@@ -95,7 +95,7 @@
 
                 <!-- Cuerpo del formulario -->
                 <div class="px-8 py-10">
-                    <form method="POST" action="{{ route(($moduloActual ?? 'admin') . '.usuarios.actualizar', $usuario) }}" class="space-y-8">
+                    <form method="POST" action="{{ route(($moduloActual ?? 'admin') . '.usuarios.actualizar', $usuario) }}" class="space-y-8" id="formEditarUsuario" onsubmit="return validarFormulario('formEditarUsuario')">
                         @csrf
                         @method('PUT')
 
@@ -116,9 +116,11 @@
                                     </svg>
                                 </div>
                                 <input id="nombre" name="name" type="text" required 
+                                    oninput="validarCaracteresRepetidos(this)"
                                     class="block w-full pl-12 pr-4 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('name') border-red-400 bg-red-50 @enderror" 
                                     placeholder="Ingrese el nombre completo" 
                                     value="{{ old('name', $usuario->name) }}">
+                                <span class="text-xs text-red-500 hidden mt-1" id="error_nombre">No se permiten más de 2 caracteres repetidos consecutivos</span>
                             </div>
                             @error('name')
                                 <div class="mt-2 flex items-center text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
@@ -178,9 +180,11 @@
                                     </svg>
                                 </div>
                                 <input id="rotary_id" name="rotary_id" type="text"
+                                    oninput="validarCaracteresRepetidos(this)"
                                     class="block w-full pl-12 pr-4 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('rotary_id') border-red-400 bg-red-50 @enderror" 
                                     placeholder="Ej: R123456" 
                                     value="{{ old('rotary_id', $usuario->rotary_id) }}">
+                                <span class="text-xs text-red-500 hidden mt-1" id="error_rotary_id">No se permiten más de 2 caracteres repetidos consecutivos</span>
                             </div>
                             @error('rotary_id')
                                 <div class="mt-2 flex items-center text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
@@ -464,4 +468,48 @@
             background-image: none;
         }
     </style>
+
+    <script>
+        // Función de validación de caracteres repetidos
+        function validarCaracteresRepetidos(input) {
+            const valor = input.value;
+            const regex = /(.)\1{2,}/;
+            const errorSpan = document.getElementById('error_' + input.id);
+            
+            if (regex.test(valor)) {
+                input.classList.add('border-red-500');
+                input.classList.remove('border-gray-300');
+                if (errorSpan) {
+                    errorSpan.classList.remove('hidden');
+                }
+                return false;
+            } else {
+                input.classList.remove('border-red-500');
+                input.classList.add('border-gray-300');
+                if (errorSpan) {
+                    errorSpan.classList.add('hidden');
+                }
+                return true;
+            }
+        }
+
+        // Función de validación de formulario completo
+        function validarFormulario(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input[type="text"]');
+            let valid = true;
+            
+            inputs.forEach(input => {
+                if (input.value && !validarCaracteresRepetidos(input)) {
+                    valid = false;
+                }
+            });
+            
+            if (!valid) {
+                alert('Por favor corrige los errores antes de enviar el formulario');
+            }
+            
+            return valid;
+        }
+    </script>
 @endsection

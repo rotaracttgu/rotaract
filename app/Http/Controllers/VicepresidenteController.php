@@ -12,10 +12,15 @@ use App\Models\ParticipacionProyecto;
 use App\Models\Notificacion;
 use App\Models\User;
 use App\Services\NotificacionService;
+use App\Http\Requests\CartaFormalRequest;
+use App\Http\Requests\CartaPatrocinioRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProyectosExport;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\IOFactory;
 
 class VicepresidenteController extends Controller
 {
@@ -39,8 +44,10 @@ class VicepresidenteController extends Controller
             ->limit(5)
             ->get();
 
-        // Cartas pendientes
-        $cartasPendientes = CartaPatrocinio::where('estado', 'Pendiente')->count();
+        // Cartas pendientes (suma de cartas de patrocinio y cartas formales pendientes)
+        $cartasPatrocinioPendientes = CartaPatrocinio::where('estado', 'Pendiente')->count();
+        $cartasFormalesPendientes = CartaFormal::where('estado', 'Pendiente')->count();
+        $cartasPendientes = $cartasPatrocinioPendientes + $cartasFormalesPendientes;
 
         // Reuniones hoy
         $reunionesHoy = Reunion::whereDate('fecha_hora', today())->count();
@@ -200,8 +207,25 @@ class VicepresidenteController extends Controller
     {
         try {
             $validated = $request->validate([
-                'titulo' => 'required|string|max:100',
-                'descripcion' => 'nullable|string',
+                'titulo' => [
+                    'required',
+                    'string',
+                    'max:100',
+                    function ($attribute, $value, $fail) {
+                        if (preg_match('/(.)\\1{2,}/', $value)) {
+                            $fail('El título no puede contener más de 2 caracteres repetidos consecutivos.');
+                        }
+                    },
+                ],
+                'descripcion' => [
+                    'nullable',
+                    'string',
+                    function ($attribute, $value, $fail) {
+                        if ($value && preg_match('/(.)\\1{2,}/', $value)) {
+                            $fail('La descripción no puede contener más de 2 caracteres repetidos consecutivos.');
+                        }
+                    },
+                ],
                 'tipo_evento' => 'required|in:reunion-virtual,reunion-presencial,inicio-proyecto,finalizar-proyecto',
                 'estado' => 'required|in:programado,en-curso,finalizado',
                 'fecha_inicio' => 'required|date',
@@ -280,8 +304,25 @@ class VicepresidenteController extends Controller
     {
         try {
             $validated = $request->validate([
-                'titulo' => 'required|string|max:100',
-                'descripcion' => 'nullable|string',
+                'titulo' => [
+                    'required',
+                    'string',
+                    'max:100',
+                    function ($attribute, $value, $fail) {
+                        if (preg_match('/(.)\\1{2,}/', $value)) {
+                            $fail('El título no puede contener más de 2 caracteres repetidos consecutivos.');
+                        }
+                    },
+                ],
+                'descripcion' => [
+                    'nullable',
+                    'string',
+                    function ($attribute, $value, $fail) {
+                        if ($value && preg_match('/(.)\\1{2,}/', $value)) {
+                            $fail('La descripción no puede contener más de 2 caracteres repetidos consecutivos.');
+                        }
+                    },
+                ],
                 'tipo_evento' => 'required|in:reunion-virtual,reunion-presencial,inicio-proyecto,finalizar-proyecto',
                 'estado' => 'required|in:programado,en-curso,finalizado',
                 'fecha_inicio' => 'required|date',
@@ -915,7 +956,10 @@ class VicepresidenteController extends Controller
             'cancelados' => 0,
         ];
 
-        return view('modulos.vicepresidente.estado-proyectos', compact('proyectos', 'estadisticas'));
+        // Obtener lista de miembros para el select de responsables
+        $miembros = \App\Models\Miembro::orderBy('Nombre')->get();
+
+        return view('modulos.vicepresidente.estado-proyectos', compact('proyectos', 'estadisticas', 'miembros'));
     }
 
     /**
@@ -998,6 +1042,86 @@ class VicepresidenteController extends Controller
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
+    // ============================================================================
+    // CRUD DE PROYECTOS (Crear, Actualizar, Eliminar)
+    // ============================================================================
+
+    /**
+     * Almacena un nuevo proyecto
+     */
+    public function storeProyecto(Request $request)
+    {
+        $validated = $request->validate([
+            'Nombre' => 'required|string|max:255',
+            'Descripcion' => 'nullable|string',
+            'FechaInicio' => 'nullable|date',
+            'FechaFin' => 'nullable|date|after_or_equal:FechaInicio',
+            'Presupuesto' => 'nullable|numeric|min:0',
+            'TipoProyecto' => 'nullable|string|max:50',
+            'ResponsableID' => 'nullable|exists:miembros,MiembroID',
+        ]);
+
+        $validated['Estatus'] = 'Activo';
+        $validated['EstadoProyecto'] = $validated['FechaInicio'] ? 'En Ejecución' : 'Planificación';
+
+        Proyecto::create($validated);
+
+        return redirect()->route('vicepresidente.estado.proyectos')
+                        ->with('success', 'Proyecto creado exitosamente.');
+    }
+
+    /**
+     * Actualiza un proyecto existente
+     */
+    public function updateProyecto(Request $request, $id)
+    {
+        $proyecto = Proyecto::findOrFail($id);
+
+        $validated = $request->validate([
+            'Nombre' => 'required|string|max:255',
+            'Descripcion' => 'nullable|string',
+            'FechaInicio' => 'nullable|date',
+            'FechaFin' => 'nullable|date|after_or_equal:FechaInicio',
+            'Presupuesto' => 'nullable|numeric|min:0',
+            'TipoProyecto' => 'nullable|string|max:50',
+            'ResponsableID' => 'nullable|exists:miembros,MiembroID',
+            'Estatus' => 'nullable|in:Activo,Inactivo,Cancelado',
+        ]);
+
+        // Actualizar estado del proyecto según las fechas
+        if (isset($validated['FechaFin']) && $validated['FechaFin']) {
+            $validated['EstadoProyecto'] = 'Finalizado';
+        } elseif (isset($validated['FechaInicio']) && $validated['FechaInicio']) {
+            $validated['EstadoProyecto'] = 'En Ejecución';
+        }
+
+        $proyecto->update($validated);
+
+        return redirect()->route('vicepresidente.estado.proyectos')
+                        ->with('success', 'Proyecto actualizado exitosamente.');
+    }
+
+    /**
+     * Elimina un proyecto
+     */
+    public function destroyProyecto($id)
+    {
+        $proyecto = Proyecto::findOrFail($id);
+        
+        // Verificar si tiene participaciones (tabla original), participaciones de proyectos o cartas de patrocinio
+        if ($proyecto->participacionesOriginales()->count() > 0 || 
+            $proyecto->participaciones()->count() > 0 || 
+            $proyecto->cartasPatrocinio()->count() > 0) {
+            return redirect()->route('vicepresidente.estado.proyectos')
+                            ->with('error', 'No se puede eliminar el proyecto porque tiene participaciones o cartas de patrocinio asociadas.');
+        }
+
+        $proyecto->delete();
+
+        return redirect()->route('vicepresidente.estado.proyectos')
+                        ->with('success', 'Proyecto eliminado exitosamente.');
+    }
+
     /**
      * Obtener detalles completos de un proyecto
      */
@@ -1006,6 +1130,7 @@ class VicepresidenteController extends Controller
         $proyecto = Proyecto::with([
             'responsable',
             'participaciones.usuario',
+            'participacionesOriginales.miembro',
             'cartasPatrocinio'
         ])->findOrFail($id);
 
@@ -1015,6 +1140,10 @@ class VicepresidenteController extends Controller
         $proyecto->monto_patrocinio = $proyecto->cartasPatrocinio()
                                                ->where('estado', 'Aprobada')
                                                ->sum('monto_solicitado');
+        
+        // Agregar contadores de vínculos
+        $proyecto->total_participaciones_originales = $proyecto->participacionesOriginales->count();
+        $proyecto->total_cartas_patrocinio = $proyecto->cartasPatrocinio->count();
 
         return response()->json($proyecto);
     }
@@ -1033,18 +1162,14 @@ class VicepresidenteController extends Controller
     /**
      * Almacena una nueva carta formal.
      */
-    public function storeCartaFormal(Request $request)
+    public function storeCartaFormal(CartaFormalRequest $request)
     {
-        $validated = $request->validate([
-            'numero_carta' => 'required|string|max:50|unique:carta_formals,numero_carta',
-            'destinatario' => 'required|string|max:255',
-            'asunto' => 'required|string|max:255',
-            'contenido' => 'required|string',
-            'tipo' => 'required|in:Invitacion,Agradecimiento,Solicitud,Notificacion,Otro',
-            'estado' => 'nullable|in:Borrador,Enviada,Recibida',
-            'fecha_envio' => 'nullable|date',
-            'observaciones' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
+
+        // Generar número de carta automáticamente si no se proporciona
+        if (empty($validated['numero_carta'])) {
+            $validated['numero_carta'] = $this->generarNumeroCartaFormal();
+        }
 
         $validated['usuario_id'] = auth()->id();
         $validated['estado'] = $validated['estado'] ?? 'Borrador';
@@ -1052,31 +1177,26 @@ class VicepresidenteController extends Controller
         CartaFormal::create($validated);
 
         return redirect()->route('vicepresidente.cartas.formales')
-                        ->with('success', 'Carta formal creada exitosamente.');
+                        ->with('success', 'Carta formal creada exitosamente con número: ' . $validated['numero_carta']);
     }
 
     /**
      * Actualiza una carta formal existente.
      */
-    public function updateCartaFormal(Request $request, $id)
+    public function updateCartaFormal(CartaFormalRequest $request, $id)
     {
         $carta = CartaFormal::findOrFail($id);
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'numero_carta' => 'required|string|max:50|unique:carta_formals,numero_carta,' . $id,
-            'destinatario' => 'required|string|max:255',
-            'asunto' => 'required|string|max:255',
-            'contenido' => 'required|string',
-            'tipo' => 'required|in:Invitacion,Agradecimiento,Solicitud,Notificacion,Otro',
-            'estado' => 'nullable|in:Borrador,Enviada,Recibida',
-            'fecha_envio' => 'nullable|date',
-            'observaciones' => 'nullable|string',
-        ]);
+        // Si no se proporciona número de carta, mantener el existente o generar uno nuevo
+        if (empty($validated['numero_carta'])) {
+            $validated['numero_carta'] = $carta->numero_carta ?? $this->generarNumeroCartaFormal();
+        }
 
         $carta->update($validated);
 
         return redirect()->route('vicepresidente.cartas.formales')
-                        ->with('success', 'Carta formal actualizada exitosamente.');
+                        ->with('success', '✓ Carta formal actualizada exitosamente.');
     }
 
     /**
@@ -1085,10 +1205,11 @@ class VicepresidenteController extends Controller
     public function destroyCartaFormal($id)
     {
         $carta = CartaFormal::findOrFail($id);
+        $numeroCartaEliminada = $carta->numero_carta;
         $carta->delete();
 
         return redirect()->route('vicepresidente.cartas.formales')
-                        ->with('success', 'Carta formal eliminada exitosamente.');
+                        ->with('success', '✓ Carta formal ' . $numeroCartaEliminada . ' eliminada exitosamente.');
     }
 
     // *** 8. CRUD CARTAS DE PATROCINIO ***
@@ -1105,19 +1226,14 @@ class VicepresidenteController extends Controller
     /**
      * Almacena una nueva carta de patrocinio.
      */
-    public function storeCartaPatrocinio(Request $request)
+    public function storeCartaPatrocinio(CartaPatrocinioRequest $request)
     {
-        $validated = $request->validate([
-            'numero_carta' => 'required|string|max:50|unique:carta_patrocinios,numero_carta',
-            'destinatario' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'monto_solicitado' => 'required|numeric|min:0',
-            'estado' => 'nullable|in:Pendiente,Aprobada,Rechazada,En Revision',
-            'fecha_solicitud' => 'nullable|date',
-            'fecha_respuesta' => 'nullable|date',
-            'proyecto_id' => 'required|exists:proyectos,ProyectoID',
-            'observaciones' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
+
+        // Generar número de carta automáticamente si no se proporciona
+        if (empty($validated['numero_carta'])) {
+            $validated['numero_carta'] = $this->generarNumeroCartaPatrocinio();
+        }
 
         $validated['usuario_id'] = auth()->id();
         $validated['estado'] = $validated['estado'] ?? 'Pendiente';
@@ -1125,32 +1241,34 @@ class VicepresidenteController extends Controller
         CartaPatrocinio::create($validated);
 
         return redirect()->route('vicepresidente.cartas.patrocinio')
-                        ->with('success', 'Carta de patrocinio creada exitosamente.');
+                        ->with('success', 'Carta de patrocinio creada exitosamente con número: ' . $validated['numero_carta']);
     }
 
     /**
      * Actualiza una carta de patrocinio existente.
      */
-    public function updateCartaPatrocinio(Request $request, $id)
+    public function updateCartaPatrocinio(CartaPatrocinioRequest $request, $id)
     {
         $carta = CartaPatrocinio::findOrFail($id);
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'numero_carta' => 'required|string|max:50|unique:carta_patrocinios,numero_carta,' . $id,
-            'destinatario' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'monto_solicitado' => 'required|numeric|min:0',
-            'estado' => 'nullable|in:Pendiente,Aprobada,Rechazada,En Revision',
-            'fecha_solicitud' => 'nullable|date',
-            'fecha_respuesta' => 'nullable|date',
-            'proyecto_id' => 'required|exists:proyectos,ProyectoID',
-            'observaciones' => 'nullable|string',
-        ]);
+        // Si no se proporciona número de carta, mantener el existente o generar uno nuevo
+        if (empty($validated['numero_carta'])) {
+            $validated['numero_carta'] = $carta->numero_carta ?? $this->generarNumeroCartaPatrocinio();
+        }
+
+        // Manejar fechas vacías: si están vacías, mantener las existentes
+        if (empty($validated['fecha_solicitud'])) {
+            $validated['fecha_solicitud'] = $carta->fecha_solicitud;
+        }
+        if (empty($validated['fecha_respuesta'])) {
+            unset($validated['fecha_respuesta']); // Permitir NULL para fecha_respuesta
+        }
 
         $carta->update($validated);
 
         return redirect()->route('vicepresidente.cartas.patrocinio')
-                        ->with('success', 'Carta de patrocinio actualizada exitosamente.');
+                        ->with('success', '✓ Carta de patrocinio actualizada exitosamente.');
     }
 
     /**
@@ -1159,10 +1277,11 @@ class VicepresidenteController extends Controller
     public function destroyCartaPatrocinio($id)
     {
         $carta = CartaPatrocinio::findOrFail($id);
+        $numeroCartaEliminada = $carta->numero_carta;
         $carta->delete();
 
         return redirect()->route('vicepresidente.cartas.patrocinio')
-                        ->with('success', 'Carta de patrocinio eliminada exitosamente.');
+                        ->with('success', '✓ Carta de patrocinio ' . $numeroCartaEliminada . ' eliminada exitosamente.');
     }
 
     // *** 9. EXPORTACIÓN DE CARTAS ***
@@ -1355,5 +1474,146 @@ class VicepresidenteController extends Controller
             )
             ->where('c.CalendarioID', $calendarioId)
             ->first();
+    }
+
+    // ============================================================================
+    // MÉTODOS AUXILIARES PARA NUMERACIÓN AUTOMÁTICA
+    // ============================================================================
+
+    /**
+     * Genera un número automático para carta formal
+     */
+    private function generarNumeroCartaFormal(): string
+    {
+        $year = now()->year;
+        $ultimaCarta = CartaFormal::whereYear('created_at', $year)
+                                  ->orderBy('id', 'desc')
+                                  ->first();
+        
+        $numero = $ultimaCarta ? (int) substr($ultimaCarta->numero_carta, -4) + 1 : 1;
+        
+        return 'CF-' . $year . '-' . str_pad($numero, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Genera un número automático para carta de patrocinio
+     */
+    private function generarNumeroCartaPatrocinio(): string
+    {
+        $year = now()->year;
+        $ultimaCarta = CartaPatrocinio::whereYear('created_at', $year)
+                                      ->orderBy('id', 'desc')
+                                      ->first();
+        
+        $numero = $ultimaCarta ? (int) substr($ultimaCarta->numero_carta, -4) + 1 : 1;
+        
+        return 'CP-' . $year . '-' . str_pad($numero, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Exportar carta formal a Word
+     */
+    public function exportarCartaFormalWord($id)
+    {
+        $carta = CartaFormal::with('usuario')->findOrFail($id);
+        
+        $phpWord = new PhpWord();
+        $section = $phpWord->addSection();
+        
+        // Título
+        $section->addText('CARTA FORMAL', ['bold' => true, 'size' => 16]);
+        $section->addTextBreak();
+        
+        // Información de la carta
+        $section->addText('Número de Carta: ' . $carta->numero_carta, ['bold' => true]);
+        $section->addText('Tipo: ' . $carta->tipo);
+        $section->addText('Destinatario: ' . $carta->destinatario, ['bold' => true]);
+        $section->addText('Fecha: ' . ($carta->fecha_envio ? $carta->fecha_envio->format('d/m/Y') : 'N/A'));
+        $section->addTextBreak();
+        
+        // Asunto
+        $section->addText('Asunto: ' . $carta->asunto, ['bold' => true, 'size' => 12]);
+        $section->addTextBreak();
+        
+        // Contenido
+        $section->addText('Contenido:', ['bold' => true]);
+        $section->addText($carta->contenido);
+        $section->addTextBreak(2);
+        
+        // Observaciones
+        if ($carta->observaciones) {
+            $section->addText('Observaciones:', ['bold' => true]);
+            $section->addText($carta->observaciones);
+        }
+        
+        $filename = 'carta-formal-' . $carta->numero_carta . '-' . now()->format('Y-m-d') . '.docx';
+        
+        $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
+        
+        // Enviar al navegador
+        header('Content-Description: File Transfer');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        header('Content-Transfer-Encoding: binary');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Expires: 0');
+        
+        $objWriter->save('php://output');
+        exit;
+    }
+
+    /**
+     * Exportar carta de patrocinio a Word
+     */
+    public function exportarCartaPatrocinioWord($id)
+    {
+        $carta = CartaPatrocinio::with(['proyecto', 'usuario'])->findOrFail($id);
+        
+        $phpWord = new PhpWord();
+        $section = $phpWord->addSection();
+        
+        // Título
+        $section->addText('CARTA DE PATROCINIO', ['bold' => true, 'size' => 16]);
+        $section->addTextBreak();
+        
+        // Información de la carta
+        $section->addText('Número de Carta: ' . $carta->numero_carta, ['bold' => true]);
+        $section->addText('Destinatario: ' . $carta->destinatario, ['bold' => true]);
+        $section->addText('Proyecto: ' . ($carta->proyecto ? $carta->proyecto->Nombre : 'N/A'));
+        $section->addText('Fecha Solicitud: ' . ($carta->fecha_solicitud ? $carta->fecha_solicitud->format('d/m/Y') : 'N/A'));
+        $section->addText('Monto Solicitado: Q. ' . number_format($carta->monto_solicitado, 2), ['bold' => true]);
+        $section->addTextBreak();
+        
+        // Descripción
+        if ($carta->descripcion) {
+            $section->addText('Descripción:', ['bold' => true]);
+            $section->addText($carta->descripcion);
+            $section->addTextBreak();
+        }
+        
+        // Estado
+        $section->addText('Estado: ' . $carta->estado, ['bold' => true]);
+        
+        // Observaciones
+        if ($carta->observaciones) {
+            $section->addTextBreak();
+            $section->addText('Observaciones:', ['bold' => true]);
+            $section->addText($carta->observaciones);
+        }
+        
+        $filename = 'carta-patrocinio-' . $carta->numero_carta . '-' . now()->format('Y-m-d') . '.docx';
+        
+        $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
+        
+        // Enviar al navegador
+        header('Content-Description: File Transfer');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        header('Content-Transfer-Encoding: binary');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Expires: 0');
+        
+        $objWriter->save('php://output');
+        exit;
     }
 }

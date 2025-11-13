@@ -179,6 +179,64 @@
         </div>
     </div>
 
+    <!-- Comprobante de Pago (si existe) -->
+    @if(isset($consulta->comprobante_ruta) && $consulta->comprobante_ruta)
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-file-invoice text-green-500 mr-2"></i>
+                    Comprobante de Pago
+                </h3>
+            </div>
+            <div class="p-6">
+                @php
+                    $extension = pathinfo($consulta->comprobante_ruta, PATHINFO_EXTENSION);
+                    $isPdf = strtolower($extension) === 'pdf';
+                    $comprobanteUrl = asset('storage/' . $consulta->comprobante_ruta);
+                @endphp
+
+                @if($isPdf)
+                    <!-- Si es PDF -->
+                    <div class="flex items-center justify-center p-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                        <div class="text-center">
+                            <i class="fas fa-file-pdf text-red-500 text-6xl mb-4"></i>
+                            <p class="text-gray-700 font-semibold mb-4">Comprobante en formato PDF</p>
+                            <a href="{{ $comprobanteUrl }}" 
+                               target="_blank"
+                               class="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md hover:shadow-lg">
+                                <i class="fas fa-eye mr-2"></i>
+                                Ver Comprobante PDF
+                            </a>
+                        </div>
+                    </div>
+                @else
+                    <!-- Si es imagen -->
+                    <div class="text-center">
+                        <a href="{{ $comprobanteUrl }}" 
+                           target="_blank"
+                           class="inline-block group">
+                            <img src="{{ $comprobanteUrl }}" 
+                                 alt="Comprobante de pago"
+                                 class="max-w-full max-h-96 mx-auto rounded-lg shadow-lg border-2 border-gray-200 group-hover:shadow-xl transition-shadow cursor-pointer">
+                            <p class="text-sm text-gray-600 mt-4 flex items-center justify-center">
+                                <i class="fas fa-search-plus mr-2"></i>
+                                Haz clic en la imagen para verla en tamaño completo
+                            </p>
+                        </a>
+                    </div>
+                @endif
+
+                <!-- Información adicional -->
+                <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-sm text-blue-800 flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span>Este comprobante fue adjuntado con la consulta de pago de membresía.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Respuesta Oficial (si existe) -->
     @if($consulta->Respuesta)
         <div class="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl shadow-sm border-2 border-green-300">
