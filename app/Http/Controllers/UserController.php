@@ -93,7 +93,6 @@ class UserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'email_verified' => ['nullable', 'boolean'],
             'two_factor_verified' => ['nullable', 'boolean'], // Nuevo campo para el checkbox
             'role' => ['required', 'string', 'exists:roles,name'],
@@ -104,10 +103,13 @@ class UserController extends Controller
         ]);
 
         try {
+            // Generar contraseña automática aleatoria
+            $passwordAleatorio = \Illuminate\Support\Str::random(12) . rand(100, 999);
+            
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'password' => Hash::make($passwordAleatorio),
                 'email_verified_at' => $request->email_verified ? now() : null,
                 'first_login' => true,
                 'two_factor_enabled' => true, // Mantener 2FA habilitado por defecto
@@ -145,8 +147,9 @@ class UserController extends Controller
             ]);
 
             return redirect()->route($this->getListaRoute())
-                ->with('success', 'Usuario creado exitosamente. Deberá completar su perfil en el primer inicio de sesión.')
-                ->with('usuario_creado', $user->name);
+                ->with('success', "Usuario creado exitosamente. Contraseña temporal: {$passwordAleatorio}. El usuario deberá cambiarla en el primer inicio de sesión.")
+                ->with('usuario_creado', $user->name)
+                ->with('password_temporal', $passwordAleatorio);
 
         } catch (\Exception $e) {
             BitacoraSistema::registrar([

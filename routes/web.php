@@ -195,6 +195,9 @@ Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddle
     Route::post('/cartas/formales', [PresidenteController::class, 'storeCartaFormal'])->name('cartas.formales.store');
     Route::put('/cartas/formales/{id}', [PresidenteController::class, 'updateCartaFormal'])->name('cartas.formales.update');
     Route::delete('/cartas/formales/{id}', [PresidenteController::class, 'destroyCartaFormal'])->name('cartas.formales.destroy');
+    Route::get('/cartas/formales/{id}/pdf', [PresidenteController::class, 'exportarCartaFormalPDF'])->name('cartas.formales.pdf');
+    Route::get('/cartas/formales/{id}/word', [PresidenteController::class, 'exportarCartaFormalWord'])->name('cartas.formales.word');
+    Route::get('/cartas/formales/export/excel', [PresidenteController::class, 'exportarCartasFormalesExcel'])->name('cartas.formales.excel');
     
     // Cartas Patrocinio
     Route::get('/cartas/patrocinio', [PresidenteController::class, 'cartasPatrocinio'])->name('cartas.patrocinio');
@@ -203,13 +206,15 @@ Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddle
     Route::put('/cartas/patrocinio/{id}', [PresidenteController::class, 'updateCartaPatrocinio'])->name('cartas.patrocinio.update');
     Route::delete('/cartas/patrocinio/{id}', [PresidenteController::class, 'destroyCartaPatrocinio'])->name('cartas.patrocinio.destroy');
     Route::get('/cartas/patrocinio/{id}/pdf', [PresidenteController::class, 'exportarCartaPatrocinioPDF'])->name('cartas.patrocinio.pdf');
-    Route::get('/cartas/formales/{id}/pdf', [PresidenteController::class, 'exportarCartaFormalPDF'])->name('cartas.formales.pdf');
-    Route::get('/cartas/formales/export/excel', [PresidenteController::class, 'exportarCartasFormalesExcel'])->name('cartas.formales.excel');
+    Route::get('/cartas/patrocinio/{id}/word', [PresidenteController::class, 'exportarCartaPatrocinioWord'])->name('cartas.patrocinio.word');
     Route::get('/cartas/patrocinio/export/excel', [PresidenteController::class, 'exportarCartasPatrocinioExcel'])->name('cartas.patrocinio.excel');
     
-    // Estado de Proyectos
+    // Estado de Proyectos (CRUD Completo)
     Route::get('/estado/proyectos', [PresidenteController::class, 'estadoProyectos'])->name('estado.proyectos');
     Route::get('/proyectos/{id}/detalles', [PresidenteController::class, 'detallesProyecto'])->name('proyectos.detalles');
+    Route::post('/proyectos', [PresidenteController::class, 'storeProyecto'])->name('proyectos.store');
+    Route::put('/proyectos/{id}', [PresidenteController::class, 'updateProyecto'])->name('proyectos.update');
+    Route::delete('/proyectos/{id}', [PresidenteController::class, 'destroyProyecto'])->name('proyectos.destroy');
     Route::get('/proyectos/exportar', [PresidenteController::class, 'exportarProyectos'])->name('proyectos.exportar');
     
     Route::get('/reportes/dashboard', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
@@ -276,6 +281,9 @@ Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMi
     Route::post('/cartas/formales', [VicepresidenteController::class, 'storeCartaFormal'])->name('cartas.formales.store');
     Route::put('/cartas/formales/{id}', [VicepresidenteController::class, 'updateCartaFormal'])->name('cartas.formales.update');
     Route::delete('/cartas/formales/{id}', [VicepresidenteController::class, 'destroyCartaFormal'])->name('cartas.formales.destroy');
+    Route::get('/cartas/formales/{id}/pdf', [VicepresidenteController::class, 'exportarCartaFormalPDF'])->name('cartas.formales.pdf');
+    Route::get('/cartas/formales/{id}/word', [VicepresidenteController::class, 'exportarCartaFormalWord'])->name('cartas.formales.word');
+    Route::get('/cartas/formales/export/excel', [VicepresidenteController::class, 'exportarCartasFormalesExcel'])->name('cartas.formales.excel');
     
     // Cartas Patrocinio
     Route::get('/cartas/patrocinio', [VicepresidenteController::class, 'cartasPatrocinio'])->name('cartas.patrocinio');
@@ -284,13 +292,15 @@ Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMi
     Route::put('/cartas/patrocinio/{id}', [VicepresidenteController::class, 'updateCartaPatrocinio'])->name('cartas.patrocinio.update');
     Route::delete('/cartas/patrocinio/{id}', [VicepresidenteController::class, 'destroyCartaPatrocinio'])->name('cartas.patrocinio.destroy');
     Route::get('/cartas/patrocinio/{id}/pdf', [VicepresidenteController::class, 'exportarCartaPatrocinioPDF'])->name('cartas.patrocinio.pdf');
-    Route::get('/cartas/formales/{id}/pdf', [VicepresidenteController::class, 'exportarCartaFormalPDF'])->name('cartas.formales.pdf');
-    Route::get('/cartas/formales/export/excel', [VicepresidenteController::class, 'exportarCartasFormalesExcel'])->name('cartas.formales.excel');
+    Route::get('/cartas/patrocinio/{id}/word', [VicepresidenteController::class, 'exportarCartaPatrocinioWord'])->name('cartas.patrocinio.word');
     Route::get('/cartas/patrocinio/export/excel', [VicepresidenteController::class, 'exportarCartasPatrocinioExcel'])->name('cartas.patrocinio.excel');
     
-    // Estado de Proyectos
+    // Estado de Proyectos (CRUD Completo)
     Route::get('/estado/proyectos', [VicepresidenteController::class, 'estadoProyectos'])->name('estado.proyectos');
     Route::get('/proyectos/{id}/detalles', [VicepresidenteController::class, 'detallesProyecto'])->name('proyectos.detalles');
+    Route::post('/proyectos', [VicepresidenteController::class, 'storeProyecto'])->name('proyectos.store');
+    Route::put('/proyectos/{id}', [VicepresidenteController::class, 'updateProyecto'])->name('proyectos.update');
+    Route::delete('/proyectos/{id}', [VicepresidenteController::class, 'destroyProyecto'])->name('proyectos.destroy');
     Route::get('/proyectos/exportar', [VicepresidenteController::class, 'exportarProyectos'])->name('proyectos.exportar');
     
     Route::get('/reportes/dashboard', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');

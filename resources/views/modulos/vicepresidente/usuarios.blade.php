@@ -117,9 +117,6 @@
                                         <div class="text-sm font-medium text-gray-900">
                                             {{ $usuario->name }} {{ $usuario->apellidos }}
                                         </div>
-                                        <div class="text-sm text-gray-500">
-                                            @{{ $usuario->username }}
-                                        </div>
                                     </div>
                                 </div>
                             </td>

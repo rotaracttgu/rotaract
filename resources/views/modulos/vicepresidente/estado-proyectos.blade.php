@@ -7,9 +7,12 @@
             <p class="text-gray-600 mt-1">Vista general del estado de todos los proyectos</p>
         </div>
         <div class="flex gap-3">
-            <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full flex items-center">
-                🔒 Solo Lectura
-            </span>
+            <button onclick="abrirModalNuevoProyecto()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Nuevo Proyecto
+            </button>
             <a href="{{ route('vicepresidente.dashboard') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -23,30 +26,30 @@
         <div class="max-w-7xl mx-auto">
             <!-- Estadísticas generales -->
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstadoProyecto('')">
-                    <p class="text-sm text-gray-600">Total Proyectos</p>
-                    <p class="text-2xl font-bold text-indigo-600">{{ $estadisticas['total'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para ver todos</p>
+                <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstadoProyecto('')">
+                    <p class="text-sm text-indigo-100">Total Proyectos</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['total'] }}</p>
+                    <p class="text-xs text-indigo-100 mt-1">Click para ver todos</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstadoProyecto('Planificacion')">
-                    <p class="text-sm text-gray-600">En Planificación</p>
-                    <p class="text-2xl font-bold text-yellow-600">{{ $estadisticas['enPlanificacion'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para filtrar</p>
+                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstadoProyecto('Planificacion')">
+                    <p class="text-sm text-yellow-100">En Planificación</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['enPlanificacion'] }}</p>
+                    <p class="text-xs text-yellow-100 mt-1">Click para filtrar</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstadoProyecto('EnEjecucion')">
-                    <p class="text-sm text-gray-600">En Ejecución</p>
-                    <p class="text-2xl font-bold text-blue-600">{{ $estadisticas['enEjecucion'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para filtrar</p>
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstadoProyecto('EnEjecucion')">
+                    <p class="text-sm text-blue-100">En Ejecución</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['enEjecucion'] }}</p>
+                    <p class="text-xs text-blue-100 mt-1">Click para filtrar</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstadoProyecto('Finalizado')">
-                    <p class="text-sm text-gray-600">Finalizados</p>
-                    <p class="text-2xl font-bold text-green-600">{{ $estadisticas['finalizados'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para filtrar</p>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstadoProyecto('Finalizado')">
+                    <p class="text-sm text-green-100">Finalizados</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['finalizados'] }}</p>
+                    <p class="text-xs text-green-100 mt-1">Click para filtrar</p>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow" onclick="filtrarPorEstadoProyecto('Cancelado')">
-                    <p class="text-sm text-gray-600">Cancelados</p>
-                    <p class="text-2xl font-bold text-red-600">{{ $estadisticas['cancelados'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click para filtrar</p>
+                <div class="bg-gradient-to-br from-red-500 to-red-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstadoProyecto('Cancelado')">
+                    <p class="text-sm text-red-100">Cancelados</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['cancelados'] }}</p>
+                    <p class="text-xs text-red-100 mt-1">Click para filtrar</p>
                 </div>
             </div>
 
@@ -163,6 +166,18 @@
                                     <div class="flex-1">
                                         <h4 class="font-semibold text-gray-800 mb-1">{{ $proyecto->Nombre }}</h4>
                                         <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $estadoClass }}">{{ $estado }}</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button onclick="editarProyecto({{ $proyecto->ProyectoID }})" class="text-blue-600 hover:text-blue-800 p-1" title="Editar">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                        </button>
+                                        <button onclick="eliminarProyecto({{ $proyecto->ProyectoID }})" class="text-red-600 hover:text-red-800 p-1" title="Eliminar">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
                                     </div>
                                 </div>
                                 <p class="text-sm text-gray-600 mb-4">{{ Str::limit($proyecto->Descripcion ?? 'Sin descripción', 80) }}</p>
@@ -325,6 +340,37 @@
     </div>
 
     <script>
+        // Definir ruta base según el módulo
+        const baseRoute = 'vicepresidente';
+        
+        // Función de validación de caracteres repetidos
+        function validarCaracteresRepetidos(input) {
+            const value = input.value;
+            const regex = /(.)\1{2,}/;
+            const errorSpan = input.nextElementSibling;
+            
+            if (regex.test(value)) {
+                input.classList.add('border-red-500');
+                input.classList.remove('border-gray-300');
+                if (errorSpan && errorSpan.classList.contains('error-message')) {
+                    errorSpan.classList.remove('hidden');
+                } else {
+                    const span = document.createElement('span');
+                    span.className = 'error-message text-red-500 text-sm mt-1';
+                    span.textContent = 'No se permiten más de 2 caracteres repetidos consecutivos';
+                    input.parentNode.insertBefore(span, input.nextSibling);
+                }
+                return false;
+            } else {
+                input.classList.remove('border-red-500');
+                input.classList.add('border-gray-300');
+                if (errorSpan && errorSpan.classList.contains('error-message')) {
+                    errorSpan.classList.add('hidden');
+                }
+                return true;
+            }
+        }
+        
         function toggleView() {
             const viewMode = document.getElementById('viewMode').value;
             const gridView = document.getElementById('gridView');
@@ -341,7 +387,7 @@
 
         // Función para ver detalles completos del proyecto
         function verDetalleProyecto(proyectoId) {
-            fetch(`{{ url('vicepresidente/proyectos') }}/${proyectoId}/detalles`)
+            fetch(`/${baseRoute}/proyectos/${proyectoId}/detalles`)
                 .then(response => response.json())
                 .then(data => {
                     mostrarModalDetalles(data);
@@ -461,6 +507,40 @@
                                 <div class="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl text-center shadow-sm">
                                     <p class="text-sm text-gray-600 mb-1">Horas Totales</p>
                                     <p class="text-2xl font-bold text-green-600">${proyecto.horas_totales || 0}</p>
+                                </div>
+                            </div>
+
+                            <!-- Vínculos del Proyecto -->
+                            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
+                                <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                    </svg>
+                                    Vínculos del Proyecto
+                                </h3>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-700">Participaciones (tabla original):</span>
+                                        <span class="font-bold ${proyecto.total_participaciones_originales > 0 ? 'text-red-600' : 'text-green-600'}">
+                                            ${proyecto.total_participaciones_originales || 0}
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-700">Participaciones de proyectos:</span>
+                                        <span class="font-bold ${proyecto.total_participantes > 0 ? 'text-red-600' : 'text-green-600'}">
+                                            ${proyecto.total_participantes || 0}
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-700">Cartas de patrocinio:</span>
+                                        <span class="font-bold ${proyecto.total_cartas_patrocinio > 0 ? 'text-red-600' : 'text-green-600'}">
+                                            ${proyecto.total_cartas_patrocinio || 0}
+                                        </span>
+                                    </div>
+                                    ${(proyecto.total_participaciones_originales > 0 || proyecto.total_participantes > 0 || proyecto.total_cartas_patrocinio > 0) ? 
+                                        '<p class="text-sm text-red-600 mt-2 font-medium">⚠️ No se puede eliminar este proyecto porque tiene vínculos activos</p>' : 
+                                        '<p class="text-sm text-green-600 mt-2 font-medium">✓ Este proyecto puede ser eliminado</p>'
+                                    }
                                 </div>
                             </div>
 
@@ -594,5 +674,278 @@
             // Mostrar mensajes si no hay resultados (puedes agregar mensajes visuales si lo deseas)
             console.log(`Proyectos visibles - Grid: ${visiblesGrid}, Table: ${visiblesTable}`);
         }
+
+        // CRUD Functions
+        function abrirModalNuevoProyecto() {
+            document.getElementById('modalNuevoProyecto').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarModalNuevoProyecto() {
+            document.getElementById('modalNuevoProyecto').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('formNuevoProyecto').reset();
+        }
+
+        async function editarProyecto(id) {
+            try {
+                const response = await fetch(`/vicepresidente/proyectos/${id}/detalles`);
+                const proyecto = await response.json();
+                
+                // Mostrar el modal primero
+                document.getElementById('modalEditarProyecto').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                
+                // Esperar un momento para asegurar que el modal esté completamente visible
+                setTimeout(() => {
+                    // Llenar TODOS los campos del formulario manteniendo valores previos
+                    document.getElementById('edit_proyecto_id').value = proyecto.ProyectoID || '';
+                    document.getElementById('edit_nombre').value = proyecto.Nombre || '';
+                    document.getElementById('edit_descripcion').value = proyecto.Descripcion || '';
+                    document.getElementById('edit_area').value = proyecto.Area || '';
+                    document.getElementById('edit_presupuesto').value = proyecto.Presupuesto || '';
+                    
+                    // Formatear fechas correctamente (solo YYYY-MM-DD)
+                    if (proyecto.FechaInicio) {
+                        const fechaInicio = proyecto.FechaInicio.split(' ')[0];
+                        document.getElementById('edit_fecha_inicio').value = fechaInicio;
+                    } else {
+                        document.getElementById('edit_fecha_inicio').value = '';
+                    }
+                    
+                    if (proyecto.FechaFin) {
+                        const fechaFin = proyecto.FechaFin.split(' ')[0];
+                        document.getElementById('edit_fecha_fin').value = fechaFin;
+                    } else {
+                        document.getElementById('edit_fecha_fin').value = '';
+                    }
+                    
+                    document.getElementById('edit_responsable_id').value = proyecto.ResponsableID || '';
+                    
+                    const formAction = `/${baseRoute}/proyectos/${id}`;
+                    document.getElementById('formEditarProyecto').action = formAction;
+                }, 100);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los datos del proyecto');
+            }
+        }
+
+        function cerrarModalEditarProyecto() {
+            document.getElementById('modalEditarProyecto').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('formEditarProyecto').reset();
+        }
+
+        async function eliminarProyecto(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/${baseRoute}/proyectos/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Proyecto eliminado exitosamente');
+                    location.reload();
+                } else {
+                    alert(data.error || 'Error al eliminar el proyecto');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar el proyecto');
+            }
+        }
     </script>
+
+    <!-- Modal Nuevo Proyecto -->
+    <div id="modalNuevoProyecto" class="fixed inset-0 bg-black bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-0 border-0 w-11/12 md:w-3/4 lg:w-1/2 shadow-2xl rounded-xl bg-white overflow-hidden">
+            <div class="bg-blue-600 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">Nuevo Proyecto</h3>
+                <button onclick="cerrarModalNuevoProyecto()" class="text-white hover:text-gray-200 transition-colors">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="formNuevoProyecto" action="{{ route('vicepresidente.proyectos.store') }}" method="POST" class="p-6">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Proyecto <span class="text-red-500">*</span></label>
+                        <input type="text" name="nombre" required
+                               oninput="validarCaracteresRepetidos(this)"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                               placeholder="Nombre del proyecto">
+                        <span class="error-message text-red-500 text-sm mt-1 hidden">No se permiten más de 2 caracteres repetidos consecutivos</span>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea name="descripcion" rows="3"
+                                  oninput="validarCaracteresRepetidos(this)"
+                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                  placeholder="Descripción del proyecto"></textarea>
+                        <span class="error-message text-red-500 text-sm mt-1 hidden">No se permiten más de 2 caracteres repetidos consecutivos</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Área <span class="text-red-500">*</span></label>
+                        <select name="area" required
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Seleccionar área</option>
+                            <option value="Educacion">Educación</option>
+                            <option value="Salud">Salud</option>
+                            <option value="MedioAmbiente">Medio Ambiente</option>
+                            <option value="DesarrolloComunitario">Desarrollo Comunitario</option>
+                            <option value="ServicioInternacional">Servicio Internacional</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Presupuesto (L.)</label>
+                        <input type="number" name="presupuesto" step="0.01" min="0"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                               placeholder="0.00">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Inicio</label>
+                        <input type="date" name="fecha_inicio"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Fin</label>
+                        <input type="date" name="fecha_fin"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Responsable</label>
+                        <select name="ResponsableID"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Sin asignar</option>
+                            @foreach($miembros as $miembro)
+                                <option value="{{ $miembro->MiembroID }}">{{ $miembro->Nombre }} {{ $miembro->Apellido }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-gray-200 flex justify-end gap-3">
+                    <button type="button" onclick="cerrarModalNuevoProyecto()"
+                            class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all font-medium shadow-sm hover:shadow">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-md hover:shadow-lg">
+                        Crear Proyecto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Editar Proyecto -->
+    <div id="modalEditarProyecto" class="fixed inset-0 bg-black bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-0 border-0 w-11/12 md:w-3/4 lg:w-1/2 shadow-2xl rounded-xl bg-white overflow-hidden">
+            <div class="bg-green-600 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">Editar Proyecto</h3>
+                <button onclick="cerrarModalEditarProyecto()" class="text-white hover:text-gray-200 transition-colors">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="formEditarProyecto" method="POST" class="p-6">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_proyecto_id" name="proyecto_id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Proyecto <span class="text-red-500">*</span></label>
+                        <input type="text" id="edit_nombre" name="nombre" required
+                               oninput="validarCaracteresRepetidos(this)"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <span class="error-message text-red-500 text-sm mt-1 hidden">No se permiten más de 2 caracteres repetidos consecutivos</span>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea id="edit_descripcion" name="descripcion" rows="3"
+                                  oninput="validarCaracteresRepetidos(this)"
+                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                        <span class="error-message text-red-500 text-sm mt-1 hidden">No se permiten más de 2 caracteres repetidos consecutivos</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Área <span class="text-red-500">*</span></label>
+                        <select id="edit_area" name="area" required
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Seleccionar área</option>
+                            <option value="Educacion">Educación</option>
+                            <option value="Salud">Salud</option>
+                            <option value="MedioAmbiente">Medio Ambiente</option>
+                            <option value="DesarrolloComunitario">Desarrollo Comunitario</option>
+                            <option value="ServicioInternacional">Servicio Internacional</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Presupuesto (L.)</label>
+                        <input type="number" id="edit_presupuesto" name="presupuesto" step="0.01" min="0"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Inicio</label>
+                        <input type="date" id="edit_fecha_inicio" name="fecha_inicio"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Fin</label>
+                        <input type="date" id="edit_fecha_fin" name="fecha_fin"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Responsable</label>
+                        <select id="edit_responsable_id" name="ResponsableID"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Sin asignar</option>
+                            @foreach($miembros as $miembro)
+                                <option value="{{ $miembro->MiembroID }}">{{ $miembro->Nombre }} {{ $miembro->Apellido }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-gray-200 flex justify-end gap-3">
+                    <button type="button" onclick="cerrarModalEditarProyecto()"
+                            class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all font-medium shadow-sm hover:shadow">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-md hover:shadow-lg">
+                        Actualizar Proyecto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection

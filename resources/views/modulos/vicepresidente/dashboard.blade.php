@@ -188,7 +188,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
                         </div>
-                        <span class="font-bold">Enviar Carta</span>
+                        <span class="font-bold">Carta de Patrocinio</span>
                     </a>
 
                     <a href="{{ route('vicepresidente.cartas.formales') }}" class="flex items-center p-4 bg-gradient-to-r from-green-50 to-green-100 text-green-700 rounded-xl hover:from-green-100 hover:to-green-200 transition-all duration-300 shadow-sm hover:shadow-md group">
@@ -414,6 +414,7 @@
                                     <div class="form-group-custom">
                                         <label class="form-label-custom">Título del Evento<span class="required">*</span></label>
                                         <input type="text" id="titulo" class="form-input-custom" placeholder="Nombre del evento" required>
+                                        <small id="titulo-validation-message" style="color: #ef4444; font-size: 12px; margin-top: 4px; display: none;">No se permiten más de 3 caracteres repetidos consecutivamente</small>
                                     </div>
                                     <div class="form-group-custom">
                                         <label class="form-label-custom">Tipo de Evento<span class="required">*</span></label>
@@ -471,6 +472,25 @@
                         confirmButtonColor: '#ea580c',
                         cancelButtonColor: '#6b7280',
                         didOpen: () => {
+                            // Inicializar validación del título
+                            const tituloInput = document.getElementById('titulo');
+                            const validationMessage = document.getElementById('titulo-validation-message');
+                            
+                            tituloInput.addEventListener('input', function() {
+                                const value = this.value;
+                                const patron = /(.)\1{2,}/i;
+                                
+                                if (patron.test(value)) {
+                                    this.classList.add('is-invalid');
+                                    this.style.borderColor = '#ef4444';
+                                    validationMessage.style.display = 'block';
+                                } else {
+                                    this.classList.remove('is-invalid');
+                                    this.style.borderColor = '#e5e7eb';
+                                    validationMessage.style.display = 'none';
+                                }
+                            });
+                            
                             // Agregar función para actualizar campos de detalle
                             window.actualizarCamposDetalle = function() {
                                 const tipo = document.getElementById('tipo_evento').value;
@@ -512,6 +532,13 @@
 
                             if (!titulo || !tipo_evento || !organizador_id || !estado || !fecha_inicio || !fecha_fin) {
                                 Swal.showValidationMessage('Por favor complete todos los campos requeridos (*)');
+                                return false;
+                            }
+                            
+                            // Validar caracteres repetidos consecutivamente
+                            const patron = /(.)\1{2,}/i;
+                            if (patron.test(titulo)) {
+                                Swal.showValidationMessage('El título no puede tener más de 2 caracteres repetidos consecutivamente');
                                 return false;
                             }
                             

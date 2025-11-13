@@ -67,7 +67,7 @@
 
                 <!-- Cuerpo del formulario -->
                 <div class="px-8 py-10">
-                    <form method="POST" action="{{ route(($moduloActual ?? 'admin') . '.usuarios.guardar') }}" class="space-y-8">
+                    <form method="POST" action="{{ route(($moduloActual ?? 'admin') . '.usuarios.guardar') }}" class="space-y-8" id="formCrearUsuario" onsubmit="return validarFormulario('formCrearUsuario')">
                         @csrf
 
                         <!-- Nombre -->
@@ -87,9 +87,11 @@
                                     </svg>
                                 </div>
                                 <input id="nombre" name="name" type="text" required 
+                                    oninput="validarCaracteresRepetidos(this)"
                                     class="block w-full pl-12 pr-4 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('name') border-red-400 bg-red-50 @enderror" 
                                     placeholder="Ej: Juan Carlos Pérez López" 
                                     value="{{ old('name') }}">
+                                <span class="text-xs text-red-500 hidden mt-1" id="error_nombre">No se permiten más de 2 caracteres repetidos consecutivos</span>
                             </div>
                             @error('name')
                                 <div class="mt-2 flex items-center text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
@@ -149,9 +151,11 @@
                                     </svg>
                                 </div>
                                 <input id="rotary_id" name="rotary_id" type="text"
+                                    oninput="validarCaracteresRepetidos(this)"
                                     class="block w-full pl-12 pr-4 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('rotary_id') border-red-400 bg-red-50 @enderror" 
                                     placeholder="Ej: R123456" 
                                     value="{{ old('rotary_id') }}">
+                                <span class="text-xs text-red-500 hidden mt-1" id="error_rotary_id">No se permiten más de 2 caracteres repetidos consecutivos</span>
                             </div>
                             @error('rotary_id')
                                 <div class="mt-2 flex items-center text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
@@ -196,11 +200,20 @@
                         <!-- Contraseña -->
                         <div class="group">
                             <label for="contrasena" class="block text-sm font-bold text-gray-700 mb-3">
-                                <span class="flex items-center">
-                                    <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
-                                    Contraseña <span class="text-red-500 ml-1">*</span>
+                                <span class="flex items-center justify-between">
+                                    <span class="flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                        Contraseña <span class="text-red-500 ml-1">*</span>
+                                    </span>
+                                    <button type="button" onclick="generarContrasenaAleatoria()" 
+                                        class="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        Generar Automática
+                                    </button>
                                 </span>
                             </label>
                             <div class="relative">
@@ -210,14 +223,24 @@
                                     </svg>
                                 </div>
                                 <input id="contrasena" name="password" type="password" required 
-                                    class="block w-full pl-12 pr-4 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('password') border-red-400 bg-red-50 @enderror" 
+                                    class="block w-full pl-12 pr-12 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('password') border-red-400 bg-red-50 @enderror" 
                                     placeholder="Mínimo 8 caracteres">
+                                <button type="button" onclick="togglePasswordVisibility('contrasena')" 
+                                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-purple-600 transition-colors">
+                                    <svg id="icon-show-contrasena" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    <svg id="icon-hide-contrasena" class="h-6 w-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                    </svg>
+                                </button>
                             </div>
                             <p class="mt-2 text-xs text-gray-500 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                La contraseña debe tener al menos 8 caracteres
+                                La contraseña debe tener al menos 8 caracteres. Puedes generarla automáticamente.
                             </p>
                             @error('password')
                                 <div class="mt-2 flex items-center text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">
@@ -246,8 +269,18 @@
                                     </svg>
                                 </div>
                                 <input id="confirmar_contrasena" name="password_confirmation" type="password" required 
-                                    class="block w-full pl-12 pr-4 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" 
+                                    class="block w-full pl-12 pr-12 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200" 
                                     placeholder="Repite la contraseña">
+                                <button type="button" onclick="togglePasswordVisibility('confirmar_contrasena')" 
+                                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-purple-600 transition-colors">
+                                    <svg id="icon-show-confirmar_contrasena" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    <svg id="icon-hide-confirmar_contrasena" class="h-6 w-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
 
@@ -401,4 +434,135 @@
             background-image: none;
         }
     </style>
+
+    <script>
+        // Función para generar contraseña aleatoria segura
+        function generarContrasenaAleatoria() {
+            const mayusculas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const minusculas = 'abcdefghijklmnopqrstuvwxyz';
+            const numeros = '0123456789';
+            const simbolos = '!@#$%&*';
+            const todos = mayusculas + minusculas + numeros + simbolos;
+            
+            let contrasena = '';
+            
+            // Asegurar al menos un carácter de cada tipo
+            contrasena += mayusculas[Math.floor(Math.random() * mayusculas.length)];
+            contrasena += minusculas[Math.floor(Math.random() * minusculas.length)];
+            contrasena += numeros[Math.floor(Math.random() * numeros.length)];
+            contrasena += simbolos[Math.floor(Math.random() * simbolos.length)];
+            
+            // Completar hasta 12 caracteres con caracteres aleatorios
+            for (let i = 4; i < 12; i++) {
+                contrasena += todos[Math.floor(Math.random() * todos.length)];
+            }
+            
+            // Mezclar la contraseña
+            contrasena = contrasena.split('').sort(() => Math.random() - 0.5).join('');
+            
+            // Asignar la contraseña a ambos campos
+            document.getElementById('contrasena').value = contrasena;
+            document.getElementById('confirmar_contrasena').value = contrasena;
+            
+            // Mostrar la contraseña automáticamente
+            document.getElementById('contrasena').type = 'text';
+            document.getElementById('icon-show-contrasena').classList.add('hidden');
+            document.getElementById('icon-hide-contrasena').classList.remove('hidden');
+            
+            document.getElementById('confirmar_contrasena').type = 'text';
+            document.getElementById('icon-show-confirmar_contrasena').classList.add('hidden');
+            document.getElementById('icon-hide-confirmar_contrasena').classList.remove('hidden');
+            
+            // Animación de éxito
+            const passwordInput = document.getElementById('contrasena');
+            passwordInput.classList.add('border-green-500', 'bg-green-50');
+            setTimeout(() => {
+                passwordInput.classList.remove('border-green-500', 'bg-green-50');
+            }, 1000);
+            
+            // Mostrar notificación
+            mostrarNotificacion('✓ Contraseña generada correctamente. Asegúrate de copiarla para proporcionarla al usuario.');
+        }
+        
+        // Función para toggle de visibilidad de contraseña
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const iconShow = document.getElementById('icon-show-' + inputId);
+            const iconHide = document.getElementById('icon-hide-' + inputId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                iconShow.classList.add('hidden');
+                iconHide.classList.remove('hidden');
+            } else {
+                input.type = 'password';
+                iconShow.classList.remove('hidden');
+                iconHide.classList.add('hidden');
+            }
+        }
+        
+        // Función para mostrar notificación temporal
+        function mostrarNotificacion(mensaje) {
+            // Crear elemento de notificación
+            const notificacion = document.createElement('div');
+            notificacion.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-2xl z-50 animate-fade-in flex items-center gap-3';
+            notificacion.innerHTML = `
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="font-medium">${mensaje}</span>
+            `;
+            document.body.appendChild(notificacion);
+            
+            // Eliminar después de 5 segundos
+            setTimeout(() => {
+                notificacion.style.opacity = '0';
+                notificacion.style.transform = 'translateX(400px)';
+                notificacion.style.transition = 'all 0.5s ease-out';
+                setTimeout(() => notificacion.remove(), 500);
+            }, 5000);
+        }
+        
+        // Función de validación de caracteres repetidos
+        function validarCaracteresRepetidos(input) {
+            const valor = input.value;
+            const regex = /(.)\1{2,}/;
+            const errorSpan = document.getElementById('error_' + input.id);
+            
+            if (regex.test(valor)) {
+                input.classList.add('border-red-500');
+                input.classList.remove('border-gray-300');
+                if (errorSpan) {
+                    errorSpan.classList.remove('hidden');
+                }
+                return false;
+            } else {
+                input.classList.remove('border-red-500');
+                input.classList.add('border-gray-300');
+                if (errorSpan) {
+                    errorSpan.classList.add('hidden');
+                }
+                return true;
+            }
+        }
+
+        // Función de validación de formulario completo
+        function validarFormulario(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input[type="text"]');
+            let valid = true;
+            
+            inputs.forEach(input => {
+                if (input.value && !validarCaracteresRepetidos(input)) {
+                    valid = false;
+                }
+            });
+            
+            if (!valid) {
+                alert('Por favor corrige los errores antes de enviar el formulario');
+            }
+            
+            return valid;
+        }
+    </script>
 @endsection
