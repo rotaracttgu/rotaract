@@ -2,6 +2,15 @@
 
 @section('title', 'Panel de Secretaría')
 
+@if(request()->has('embed'))
+@push('styles')
+<style>
+    /* Ocultar solo navbar superior cuando está en iframe */
+    body > div > nav, body > nav, [x-data*="open"] { display: none !important; }
+</style>
+@endpush
+@endif
+
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
     <div class="max-w-7xl mx-auto">

@@ -11,7 +11,9 @@
 </head>
 <body class="font-sans antialiased bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
     <div class="min-h-screen">
+        @if(!request()->has('embed'))
         @include('layouts.navigation')
+        @endif
 
         <div class="flex">
             <!-- Overlay para cerrar el menú en móvil -->

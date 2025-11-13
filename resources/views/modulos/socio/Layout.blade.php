@@ -11,21 +11,28 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    @if(request()->has('embed'))
+    <style>
+        /* Ocultar solo header superior cuando está en iframe, mantener sidebar */
+        header { display: none !important; }
+        main { padding-top: 0 !important; }
+    </style>
+    @endif
+
     @stack('styles')
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <div class="min-h-screen flex flex-col">
-
+        @if(!request()->has('embed'))
         <!-- Header Superior -->
         <header class="bg-white shadow-sm border-b border-gray-200 z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
 
-                    <!-- Logo + Nombre del Club -->
-                        <!-- Logo del Club (mostrar sólo el logo, quitar título textual) -->
-                        <div class="flex items-center space-x-4">
-                            <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract" class="h-10">
-                        </div>
+                    <!-- Logo del Club -->
+                    <div class="flex items-center space-x-4">
+                        <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract" class="h-10">
+                    </div>
 
                     <!-- Right Side -->
                     <div class="flex items-center space-x-6">
@@ -71,6 +78,7 @@
                 </div>
             </div>
         </header>
+        @endif
 
         <!-- Contenido Principal con Sidebar -->
         <div class="flex flex-1 overflow-hidden">

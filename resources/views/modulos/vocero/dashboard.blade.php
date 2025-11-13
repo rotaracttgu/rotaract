@@ -1,4 +1,11 @@
 <x-app-layout>
+    @if(request()->has('embed'))
+    <style>
+        /* Ocultar solo navbar cuando está en iframe, mantener sidebar */
+        nav[x-data]:not(.sidebar-vocero), header:not(.sidebar-vocero) { display: none !important; }
+        main { padding-top: 0 !important; }
+    </style>
+    @endif
     {{-- La barra superior de Laravel/Breeze ya se incluye automáticamente aquí --}}
 
     {{-- ***************************************************************** --}}
