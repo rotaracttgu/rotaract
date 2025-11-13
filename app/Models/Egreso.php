@@ -19,6 +19,7 @@ class Egreso extends Model
         'monto',
         'fecha',
         'proveedor',
+        'comision',
         'metodo_pago',
         'comprobante',
         'referencia',

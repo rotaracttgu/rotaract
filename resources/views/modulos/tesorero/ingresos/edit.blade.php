@@ -294,15 +294,27 @@
 
                             <!-- Número de Referencia -->
                             <div class="col-md-12 mb-3">
-                                <label for="numero_referencia" class="form-label">Número de Referencia</label>
-                                <input type="text" 
-                                       class="form-control @error('numero_referencia') is-invalid @enderror" 
-                                       id="numero_referencia" 
-                                       name="numero_referencia" 
-                                       value="{{ old('numero_referencia', $ingreso->comprobante ?? '') }}">
-                                @error('numero_referencia')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <label for="numero_referencia" class="form-label">
+                                    <i class="fas fa-hashtag me-1"></i> Número de Referencia
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-secondary text-white">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                    <input type="text" 
+                                           class="form-control @error('numero_referencia') is-invalid @enderror" 
+                                           id="numero_referencia" 
+                                           name="numero_referencia" 
+                                           value="{{ old('numero_referencia', $ingreso->comprobante ?? '') }}"
+                                           readonly
+                                           style="background-color: #e9ecef;">
+                                    @error('numero_referencia')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>Este campo es generado automáticamente y no se puede editar
+                                </small>
                             </div>
 
                             <!-- Estado -->

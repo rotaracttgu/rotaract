@@ -726,22 +726,36 @@ class TesoreroController extends Controller
 
     public function ingresosCreate()
     {
-        return view('modulos.tesorero.ingresos.create');
+        $metodos_pago = [
+            'efectivo' => 'Efectivo',
+            'transferencia' => 'Transferencia Bancaria',
+            'tarjeta_credito' => 'Tarjeta de Crédito',
+            'tarjeta_debito' => 'Tarjeta de Débito',
+            'cheque' => 'Cheque',
+            'otro' => 'Otro'
+        ];
+        return view('modulos.tesorero.ingresos.create', compact('metodos_pago'));
     }
 
     public function ingresosStore(Request $request)
     {
         $validated = $request->validate([
-            'descripcion' => 'required|string|max:255',
-            'categoria' => 'required|string|max:100',
+            'descripcion' => ['required', 'string', 'max:255', 'regex:/^(?!.*(.)\\1{2})/'],
+            'categoria' => ['required', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'monto' => 'required|numeric|min:0',
             'fecha' => 'required|date',
-            'fuente' => 'nullable|string|max:100',
+            'fuente' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
             'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'referencia' => 'nullable|string|max:100',
-            'notas' => 'nullable|string',
+            'referencia' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
+            'notas' => ['nullable', 'string', 'regex:/^(?!.*(.)\\1{2})/'],
             'estado' => 'required|in:pendiente,confirmado,anulado',
+        ], [
+            'descripcion.regex' => 'La descripción no puede contener más de 2 caracteres repetidos consecutivos.',
+            'categoria.regex' => 'La categoría no puede contener más de 2 caracteres repetidos consecutivos.',
+            'fuente.regex' => 'La fuente no puede contener más de 2 caracteres repetidos consecutivos.',
+            'referencia.regex' => 'La referencia no puede contener más de 2 caracteres repetidos consecutivos.',
+            'notas.regex' => 'Las notas no pueden contener más de 2 caracteres repetidos consecutivos.',
         ]);
 
         // Manejo del archivo comprobante (si se sube)
@@ -766,7 +780,15 @@ class TesoreroController extends Controller
     public function ingresosEdit($id)
     {
         $ingreso = Ingreso::findOrFail($id);
-        return view('modulos.tesorero.ingresos.edit', compact('ingreso'));
+        $metodos_pago = [
+            'efectivo' => 'Efectivo',
+            'transferencia' => 'Transferencia Bancaria',
+            'tarjeta_credito' => 'Tarjeta de Crédito',
+            'tarjeta_debito' => 'Tarjeta de Débito',
+            'cheque' => 'Cheque',
+            'otro' => 'Otro'
+        ];
+        return view('modulos.tesorero.ingresos.edit', compact('ingreso', 'metodos_pago'));
     }
 
     public function ingresosUpdate(Request $request, $id)
@@ -774,16 +796,22 @@ class TesoreroController extends Controller
         $ingreso = Ingreso::findOrFail($id);
         
         $validated = $request->validate([
-            'descripcion' => 'required|string|max:255',
-            'categoria' => 'required|string|max:100',
+            'descripcion' => ['required', 'string', 'max:255', 'regex:/^(?!.*(.)\\1{2})/'],
+            'categoria' => ['required', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'monto' => 'required|numeric|min:0',
             'fecha' => 'required|date',
-            'fuente' => 'nullable|string|max:100',
+            'fuente' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
             'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'referencia' => 'nullable|string|max:100',
-            'notas' => 'nullable|string',
+            'referencia' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
+            'notas' => ['nullable', 'string', 'regex:/^(?!.*(.)\\1{2})/'],
             'estado' => 'required|in:pendiente,confirmado,anulado',
+        ], [
+            'descripcion.regex' => 'La descripción no puede contener más de 2 caracteres repetidos consecutivos.',
+            'categoria.regex' => 'La categoría no puede contener más de 2 caracteres repetidos consecutivos.',
+            'fuente.regex' => 'La fuente no puede contener más de 2 caracteres repetidos consecutivos.',
+            'referencia.regex' => 'La referencia no puede contener más de 2 caracteres repetidos consecutivos.',
+            'notas.regex' => 'Las notas no pueden contener más de 2 caracteres repetidos consecutivos.',
         ]);
 
         
@@ -822,22 +850,36 @@ class TesoreroController extends Controller
 
     public function gastosCreate()
     {
-        return view('modulos.tesorero.gastos.create');
+        $metodos_pago = [
+            'efectivo' => 'Efectivo',
+            'transferencia' => 'Transferencia Bancaria',
+            'tarjeta_credito' => 'Tarjeta de Crédito',
+            'tarjeta_debito' => 'Tarjeta de Débito',
+            'cheque' => 'Cheque',
+            'otro' => 'Otro'
+        ];
+        return view('modulos.tesorero.gastos.create', compact('metodos_pago'));
     }
 
     public function gastosStore(Request $request)
     {
         $validated = $request->validate([
-            'descripcion' => 'required|string|max:255',
-            'categoria' => 'required|string|max:100',
+            'descripcion' => ['required', 'string', 'max:255', 'regex:/^(?!.*(.)\\1{2})/'],
+            'categoria' => ['required', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'monto' => 'required|numeric|min:0',
             'fecha' => 'required|date',
-            'proveedor' => 'nullable|string|max:100',
+            'proveedor' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
             'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'referencia' => 'nullable|string|max:100',
-            'notas' => 'nullable|string',
+            'referencia' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
+            'notas' => ['nullable', 'string', 'regex:/^(?!.*(.)\\1{2})/'],
             'estado' => 'required|in:pendiente,aprobado,rechazado,anulado,pagado',
+        ], [
+            'descripcion.regex' => 'La descripción no puede contener más de 2 caracteres repetidos consecutivos.',
+            'categoria.regex' => 'La categoría no puede contener más de 2 caracteres repetidos consecutivos.',
+            'proveedor.regex' => 'El proveedor no puede contener más de 2 caracteres repetidos consecutivos.',
+            'referencia.regex' => 'La referencia no puede contener más de 2 caracteres repetidos consecutivos.',
+            'notas.regex' => 'Las notas no pueden contener más de 2 caracteres repetidos consecutivos.',
         ]);
 
         // Manejo del archivo comprobante si se sube
@@ -862,7 +904,15 @@ class TesoreroController extends Controller
     public function gastosEdit($id)
     {
         $gasto = Egreso::findOrFail($id);
-        return view('modulos.tesorero.gastos.edit', compact('gasto'));
+        $metodos_pago = [
+            'efectivo' => 'Efectivo',
+            'transferencia' => 'Transferencia Bancaria',
+            'tarjeta_credito' => 'Tarjeta de Crédito',
+            'tarjeta_debito' => 'Tarjeta de Débito',
+            'cheque' => 'Cheque',
+            'otro' => 'Otro'
+        ];
+        return view('modulos.tesorero.gastos.edit', compact('gasto', 'metodos_pago'));
     }
 
     public function gastosUpdate(Request $request, $id)
@@ -870,16 +920,22 @@ class TesoreroController extends Controller
         $gasto = Egreso::findOrFail($id);
         
         $validated = $request->validate([
-            'descripcion' => 'required|string|max:255',
-            'categoria' => 'required|string|max:100',
+            'descripcion' => ['required', 'string', 'max:255', 'regex:/^(?!.*(.)\\1{2})/'],
+            'categoria' => ['required', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'monto' => 'required|numeric|min:0',
             'fecha' => 'required|date',
-            'proveedor' => 'nullable|string|max:100',
+            'proveedor' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
             'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
             'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'referencia' => 'nullable|string|max:100',
-            'notas' => 'nullable|string',
+            'referencia' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
+            'notas' => ['nullable', 'string', 'regex:/^(?!.*(.)\\1{2})/'],
             'estado' => 'required|in:pendiente,aprobado,rechazado,anulado,pagado',
+        ], [
+            'descripcion.regex' => 'La descripción no puede contener más de 2 caracteres repetidos consecutivos.',
+            'categoria.regex' => 'La categoría no puede contener más de 2 caracteres repetidos consecutivos.',
+            'proveedor.regex' => 'El proveedor no puede contener más de 2 caracteres repetidos consecutivos.',
+            'referencia.regex' => 'La referencia no puede contener más de 2 caracteres repetidos consecutivos.',
+            'notas.regex' => 'Las notas no pueden contener más de 2 caracteres repetidos consecutivos.',
         ]);
 
         // Si se sube un nuevo comprobante, eliminar el anterior y almacenar el nuevo
@@ -1241,6 +1297,13 @@ class TesoreroController extends Controller
         }
 
         $membresias = $query->paginate(15);
+        
+        // Agregar nombre_miembro y email a cada membresía para la vista
+        $membresias->getCollection()->transform(function($membresia) {
+            $membresia->nombre_miembro = $membresia->usuario->name ?? 'Sin usuario';
+            $membresia->email = $membresia->usuario->email ?? 'N/A';
+            return $membresia;
+        });
 
         // Totales para los widgets
         // Considerar como "pagadas" solo el estado explícito 'pagado'
@@ -1293,7 +1356,8 @@ class TesoreroController extends Controller
 
     public function membresiasCreate()
     {
-        $miembros = Miembro::get();
+        // Solo mostrar miembros con user_id válido
+        $miembros = Miembro::whereNotNull('user_id')->get();
         $tipos_membresia = [
             'activo' => 'Activo',
             'honorario' => 'Honorario',
@@ -1306,37 +1370,35 @@ class TesoreroController extends Controller
             'cancelado' => 'Cancelado'
         ];
         $metodos_pago = [
-            'transferencia' => 'Transferencia Bancaria'
+            'efectivo' => 'Efectivo',
+            'transferencia' => 'Transferencia Bancaria',
+            'tarjeta_credito' => 'Tarjeta de Crédito',
+            'tarjeta_debito' => 'Tarjeta de Débito',
+            'cheque' => 'Cheque',
+            'otro' => 'Otro'
         ];
         return view('modulos.tesorero.membresias.create', compact('miembros', 'tipos_membresia', 'estados', 'metodos_pago'));
     }
 
     public function membresiasStore(Request $request)
     {
-        // Use 'sometimes' so partial updates (e.g. only changing 'estado') don't fail validation
         $validated = $request->validate([
-            'usuario_id' => 'sometimes|required|exists:users,id',
-            'tipo_membresia' => 'sometimes|required|in:activo,honorario,aspirante,alumni',
-            'tipo_pago' => 'sometimes|required|in:mensual,trimestral,semestral,anual',
-            'monto' => 'sometimes|required|numeric|min:0',
-            'fecha_pago' => 'sometimes|required|date',
-            'metodo_pago' => 'sometimes|required|in:transferencia',
-            'periodo_inicio' => 'sometimes|required|date',
-            // make periodo_fin optional here and validate relationally below when both provided
-            'periodo_fin' => 'sometimes|required|date',
+            'usuario_id' => 'required|exists:users,id',
+            'tipo_membresia' => 'required|in:activo,honorario,aspirante,alumni',
+            'tipo_pago' => 'required|in:mensual,trimestral,semestral,anual',
+            'monto' => 'required|numeric|min:0',
+            'fecha_pago' => 'required|date',
+            'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
+            'periodo_inicio' => 'required|date',
+            'periodo_fin' => 'required|date|after:periodo_inicio',
             'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'notas' => 'nullable|string',
-            'estado' => 'sometimes|required|in:pendiente,pagado,cancelado',
+            'numero_recibo' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
+            'notas' => ['nullable', 'string', 'regex:/^(?!.*(.)\\1{2})/'],
+            'estado' => 'required|in:pendiente,pagado,cancelado',
+        ], [
+            'numero_recibo.regex' => 'El número de recibo no puede contener más de 2 caracteres repetidos consecutivos.',
+            'notas.regex' => 'Las notas no pueden contener más de 2 caracteres repetidos consecutivos.',
         ]);
-
-        // If both periodo_inicio and periodo_fin were provided, ensure periodo_fin is after periodo_inicio
-        if (isset($validated['periodo_inicio']) && isset($validated['periodo_fin'])) {
-            $inicio = \Carbon\Carbon::parse($validated['periodo_inicio']);
-            $fin = \Carbon\Carbon::parse($validated['periodo_fin']);
-            if ($fin->lte($inicio)) {
-                return redirect()->back()->withInput()->withErrors(['periodo_fin' => 'El periodo fin debe ser posterior al periodo inicio.']);
-            }
-        }
 
         // Manejo de comprobante (archivo)
         if ($request->hasFile('comprobante')) {
@@ -1364,7 +1426,8 @@ class TesoreroController extends Controller
     public function membresiasEdit($id)
     {
         $membresia = PagoMembresia::findOrFail($id);
-        $miembros = Miembro::get();
+        // Solo mostrar miembros con user_id válido
+        $miembros = Miembro::whereNotNull('user_id')->get();
         $tipos_membresia = [
             'activo' => 'Activo',
             'honorario' => 'Honorario',
@@ -1377,7 +1440,12 @@ class TesoreroController extends Controller
             'cancelado' => 'Cancelado'
         ];
         $metodos_pago = [
-            'transferencia' => 'Transferencia Bancaria'
+            'efectivo' => 'Efectivo',
+            'transferencia' => 'Transferencia Bancaria',
+            'tarjeta_credito' => 'Tarjeta de Crédito',
+            'tarjeta_debito' => 'Tarjeta de Débito',
+            'cheque' => 'Cheque',
+            'otro' => 'Otro'
         ];
         return view('modulos.tesorero.membresias.edit', compact('membresia', 'miembros', 'tipos_membresia', 'estados', 'metodos_pago'));
     }
@@ -1389,15 +1457,19 @@ class TesoreroController extends Controller
         $validated = $request->validate([
             'usuario_id' => 'required|exists:users,id',
             'tipo_membresia' => 'required|in:activo,honorario,aspirante,alumni',
-            'tipo_pago' => 'required|in:mensual',
+            'tipo_pago' => 'required|in:mensual,trimestral,semestral,anual',
             'monto' => 'required|numeric|min:0',
             'fecha_pago' => 'required|date',
-            'metodo_pago' => 'required|in:transferencia',
+            'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
             'periodo_inicio' => 'required|date',
             'periodo_fin' => 'required|date|after:periodo_inicio',
             'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'notas' => 'nullable|string',
+            'numero_recibo' => ['nullable', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
+            'notas' => ['nullable', 'string', 'regex:/^(?!.*(.)\\1{2})/'],
             'estado' => 'required|in:pendiente,pagado,cancelado',
+        ], [
+            'numero_recibo.regex' => 'El número de recibo no puede contener más de 2 caracteres repetidos consecutivos.',
+            'notas.regex' => 'Las notas no pueden contener más de 2 caracteres repetidos consecutivos.',
         ]);
 
         // Si se sube nuevo comprobante, eliminar anterior y guardar el nuevo

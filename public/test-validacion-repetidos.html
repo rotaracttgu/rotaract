@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Validación - Caracteres Repetidos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .test-input.valid {
+            border-color: #28a745;
+            background-color: #f0fff4;
+        }
+        .test-input.invalid {
+            border-color: #dc3545;
+            background-color: #fff5f5;
+        }
+        .result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .result.valid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .result.invalid {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        h2 {
+            color: #a855f7;
+        }
+        .examples {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #a855f7;
+            margin: 15px 0;
+        }
+        .examples h3 {
+            margin-top: 0;
+            color: #6c757d;
+        }
+        .example-item {
+            margin: 5px 0;
+        }
+        .valid-icon {
+            color: #28a745;
+        }
+        .invalid-icon {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Prueba de Validación - Caracteres Repetidos</h1>
+    <p style="text-align: center; color: #6c757d;">
+        La validación NO permite más de 2 caracteres iguales consecutivos
+    </p>
+
+    <div class="test-card">
+        <h2>Prueba en Tiempo Real</h2>
+        <label for="testInput">Escribe algo aquí:</label>
+        <input type="text" id="testInput" class="test-input" placeholder="Ejemplo: Pago mensual">
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="examples">
+        <h3>📋 Ejemplos de Validación</h3>
+        
+        <div class="example-item">
+            <span class="valid-icon">✅</span> <strong>Válido:</strong> "Pago mensual"
+        </div>
+        <div class="example-item">
+            <span class="valid-icon">✅</span> <strong>Válido:</strong> "Referencia 123"
+        </div>
+        <div class="example-item">
+            <span class="valid-icon">✅</span> <strong>Válido:</strong> "Ingreso del evento 2024"
+        </div>
+        <div class="example-item">
+            <span class="valid-icon">✅</span> <strong>Válido:</strong> "Descripción con acentos áéíóú"
+        </div>
+        
+        <hr style="margin: 15px 0;">
+        
+        <div class="example-item">
+            <span class="invalid-icon">❌</span> <strong>Inválido:</strong> "Pagooo mensual" (3 'o' seguidas)
+        </div>
+        <div class="example-item">
+            <span class="invalid-icon">❌</span> "Referencia 1233333" (5 '3' seguidas)
+        </div>
+        <div class="example-item">
+            <span class="invalid-icon">❌</span> <strong>Inválido:</strong> "Ingressso" (3 's' seguidas)
+        </div>
+        <div class="example-item">
+            <span class="invalid-icon">❌</span> <strong>Inválido:</strong> "Notasss importantes" (3 's' seguidas)
+        </div>
+    </div>
+
+    <div class="test-card">
+        <h2>Regex Utilizada</h2>
+        <code style="background: #f8f9fa; padding: 10px; display: block; border-radius: 4px;">
+            /^(?!.*(.)\\1{2})/
+        </code>
+        <p style="margin-top: 10px; color: #6c757d;">
+            Esta expresión regular valida que NO haya 3 o más caracteres iguales consecutivos.
+        </p>
+    </div>
+
+    <script>
+        const input = document.getElementById('testInput');
+        const result = document.getElementById('result');
+        
+        // Regex idéntica a la del backend Laravel
+        const pattern = /^(?!.*(.)\1{2})/;
+        
+        input.addEventListener('input', function() {
+            const value = this.value;
+            
+            if (value === '') {
+                result.style.display = 'none';
+                input.classList.remove('valid', 'invalid');
+                return;
+            }
+            
+            const isValid = pattern.test(value);
+            
+            result.style.display = 'block';
+            
+            if (isValid) {
+                result.className = 'result valid';
+                result.innerHTML = '✅ Texto válido - No contiene más de 2 caracteres repetidos';
+                input.classList.remove('invalid');
+                input.classList.add('valid');
+            } else {
+                result.className = 'result invalid';
+                result.innerHTML = '❌ Texto inválido - Contiene más de 2 caracteres repetidos consecutivos';
+                input.classList.remove('valid');
+                input.classList.add('invalid');
+            }
+        });
+        
+        // Ejemplos de prueba automática
+        const testCases = [
+            { text: 'Pago mensual', expected: true },
+            { text: 'Pagooo mensual', expected: false },
+            { text: 'Referencia 123', expected: true },
+            { text: 'Referencia 1233333', expected: false },
+            { text: 'Descripción normal', expected: true },
+            { text: 'Descripcióóón', expected: false }
+        ];
+        
+        console.log('=== Pruebas de Validación ===');
+        testCases.forEach(test => {
+            const result = pattern.test(test.text);
+            const status = result === test.expected ? '✅' : '❌';
+            console.log(`${status} "${test.text}" - Esperado: ${test.expected}, Resultado: ${result}`);
+        });
+    </script>
+</body>
+</html>

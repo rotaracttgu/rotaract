@@ -68,8 +68,9 @@
                                                value="{{ old('descripcion') }}" 
                                                placeholder="Ej: Pago de membresía enero 2025"
                                                required>
+                                        <small class="text-muted">No se permiten más de 2 caracteres repetidos consecutivos.</small>
                                         @error('descripcion')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -90,8 +91,9 @@
                                                 </option>
                                             @endforeach
                                         </select>
+                                        <small class="text-muted">No se permiten más de 2 caracteres repetidos consecutivos.</small>
                                         @error('fuente')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -164,8 +166,9 @@
                                                 </option>
                                             @endforeach
                                         </select>
+                                        <small class="text-muted">No se permiten más de 2 caracteres repetidos consecutivos.</small>
                                         @error('categoria')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -178,9 +181,9 @@
                                                 id="metodo_pago" 
                                                 name="metodo_pago">
                                             <option value="">-- Seleccione --</option>
-                                            @foreach($metodos_pago ?? ['Efectivo', 'Transferencia Bancaria'] as $metodo)
-                                                <option value="{{ $metodo }}" {{ old('metodo_pago') == $metodo ? 'selected' : '' }}>
-                                                    {{ $metodo }}
+                                            @foreach($metodos_pago ?? [] as $valor => $etiqueta)
+                                                <option value="{{ $valor }}" {{ old('metodo_pago') == $valor ? 'selected' : '' }}>
+                                                    {{ $etiqueta }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -236,8 +239,9 @@
                                                   name="notas" 
                                                   rows="4"
                                                   placeholder="Agregue información adicional sobre este ingreso...">{{ old('notas') }}</textarea>
+                                        <small class="text-muted">No se permiten más de 2 caracteres repetidos consecutivos.</small>
                                         @error('notas')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>

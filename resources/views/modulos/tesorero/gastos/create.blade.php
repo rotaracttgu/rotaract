@@ -43,6 +43,23 @@
                         </div>
                     @endif
 
+                    @if($errors->any())
+                        <div class="alert alert-dismissible fade show border-0 shadow-sm" role="alert" style="background-color: #e74c3c; color: white;">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-exclamation-circle fa-2x me-3 mt-1"></i>
+                                <div class="flex-grow-1">
+                                    <h6 class="alert-heading mb-2">Por favor corrija los siguientes errores:</h6>
+                                    <ul class="mb-0 ps-3">
+                                        @foreach($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
                     <form action="{{ route('tesorero.gastos.store') }}" method="POST" enctype="multipart/form-data" id="formGasto">
                         @csrf
 
@@ -68,8 +85,9 @@
                                                value="{{ old('descripcion') }}" 
                                                placeholder="Ej: Pago de servicios públicos"
                                                required>
+                                        <small class="text-muted">No se permiten más de 2 caracteres repetidos consecutivos.</small>
                                         @error('descripcion')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -91,8 +109,9 @@
                                                 </option>
                                             @endforeach
                                         </select>
+                                        <small class="text-muted">No se permiten más de 2 caracteres repetidos consecutivos.</small>
                                         @error('categoria')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -197,8 +216,9 @@
                                                name="proveedor" 
                                                value="{{ old('proveedor') }}"
                                                placeholder="Ej: Empresa ABC">
+                                        <small class="text-muted">No se permiten más de 2 caracteres repetidos consecutivos.</small>
                                         @error('proveedor')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
 
@@ -211,9 +231,9 @@
                                                 id="metodo_pago" 
                                                 name="metodo_pago">
                                             <option value="">-- Seleccione --</option>
-                                            @foreach($metodos_pago ?? ['Efectivo', 'Transferencia Bancaria', 'Tarjeta de Crédito', 'Tarjeta de Débito', 'Cheque', 'Pago en Línea'] as $metodo)
-                                                <option value="{{ $metodo }}" {{ old('metodo_pago') == $metodo ? 'selected' : '' }}>
-                                                    {{ $metodo }}
+                                            @foreach($metodos_pago ?? [] as $valor => $etiqueta)
+                                                <option value="{{ $valor }}" {{ old('metodo_pago') == $valor ? 'selected' : '' }}>
+                                                    {{ $etiqueta }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -292,8 +312,9 @@
                                                   name="notas" 
                                                   rows="4"
                                                   placeholder="Agregue información adicional sobre este gasto...">{{ old('notas') }}</textarea>
+                                        <small class="text-muted">No se permiten más de 2 caracteres repetidos consecutivos.</small>
                                         @error('notas')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>

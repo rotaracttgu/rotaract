@@ -412,6 +412,25 @@
                 </div>
             </div>
 
+            <div class="row mt-3">
+                <div class="col-md-4 mb-3">
+                    <label for="tipo_pago" class="form-label required-field">Periodo de Pago</label>
+                    <select class="form-select @error('tipo_pago') is-invalid @enderror" 
+                            id="tipo_pago" 
+                            name="tipo_pago" 
+                            required>
+                        <option value="">Seleccione...</option>
+                        <option value="mensual" {{ old('tipo_pago', 'mensual') == 'mensual' ? 'selected' : '' }}>Mensual</option>
+                        <option value="trimestral" {{ old('tipo_pago') == 'trimestral' ? 'selected' : '' }}>Trimestral</option>
+                        <option value="semestral" {{ old('tipo_pago') == 'semestral' ? 'selected' : '' }}>Semestral</option>
+                        <option value="anual" {{ old('tipo_pago') == 'anual' ? 'selected' : '' }}>Anual</option>
+                    </select>
+                    @error('tipo_pago')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
             <div class="row">
                 <div class="col-12">
                     <div class="periodo-display" id="periodoDisplay" style="display: none;">
@@ -456,14 +475,14 @@
                                id="numero_recibo" 
                                name="numero_recibo" 
                                value="{{ old('numero_recibo', 'REC-' . date('Y') . '-' . strtoupper(substr(uniqid(), -6))) }}"
-                               readonly
-                               style="background-color: #f8f9fa;">
+                               placeholder="REC-2025-XXXXXX"
+                               maxlength="100">
                     </div>
                     <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>Generado automáticamente
+                        <i class="fas fa-info-circle me-1"></i>Ejemplo: REC-2025-A1B2C3
                     </small>
                     @error('numero_recibo')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
 
@@ -504,10 +523,10 @@
                               rows="3"
                               maxlength="500"
                               placeholder="Información adicional...">{{ old('notas') }}</textarea>
+                    <small class="text-muted">Máximo 500 caracteres. No se permiten más de 2 caracteres repetidos consecutivos.</small>
                     @error('notas')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
-                    <small class="text-muted">Máximo 500 caracteres</small>
                 </div>
 
                 <div class="col-md-12 mb-3">
@@ -561,19 +580,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const formElement = document.getElementById('formMembresia');
     let isSubmitting = false;
     
-    // Calcular período automáticamente según tipo de membresía
-    const tipoSelect = document.getElementById('tipo_membresia');
+    // Calcular período automáticamente según tipo de pago
+    const tipoPagoSelect = document.getElementById('tipo_pago');
     const periodoInicio = document.getElementById('periodo_inicio');
     const periodoFin = document.getElementById('periodo_fin');
     const periodoDisplay = document.getElementById('periodoDisplay');
     const periodoDuracion = document.getElementById('periodoDuracion');
     
     function calcularPeriodoFin() {
-        if (tipoSelect.value && periodoInicio.value) {
+        if (tipoPagoSelect.value && periodoInicio.value) {
             const inicio = new Date(periodoInicio.value);
             let fin = new Date(inicio);
             
-            switch(tipoSelect.value) {
+            switch(tipoPagoSelect.value) {
                 case 'mensual':
                     fin.setMonth(fin.getMonth() + 1);
                     break;
@@ -606,7 +625,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    tipoSelect.addEventListener('change', calcularPeriodoFin);
+    tipoPagoSelect.addEventListener('change', calcularPeriodoFin);
     periodoInicio.addEventListener('change', calcularPeriodoFin);
     periodoFin.addEventListener('change', mostrarDuracionPeriodo);
     
@@ -655,7 +674,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const miembroSelect = document.getElementById('usuario_id');
         const miembroNombre = miembroSelect.options[miembroSelect.selectedIndex].text;
         const monto = document.getElementById('monto').value;
-        const tipoMembresia = tipoSelect.options[tipoSelect.selectedIndex].text;
+        const tipoMembresiaSelect = document.getElementById('tipo_membresia');
+        const tipoMembresia = tipoMembresiaSelect.options[tipoMembresiaSelect.selectedIndex].text;
         
         // Confirmar antes de guardar
         Swal.fire({
