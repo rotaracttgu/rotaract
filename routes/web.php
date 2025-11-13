@@ -470,6 +470,11 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
     Route::post('/eliminar-pago-historial', [TesoreroController::class, 'eliminarPagoHistorial'])->name('api.eliminar-pago');
     Route::post('/limpiar-historial', [TesoreroController::class, 'limpiarHistorial'])->name('api.limpiar-historial');
     Route::post('/guardar-recordatorio', [TesoreroController::class, 'guardarRecordatorio'])->name('api.guardar-recordatorio');
+    
+    // ============================================================================
+    // AJAX autocomplete para membresías
+    // ============================================================================
+    Route::get('/membresias/suggestions', [TesoreroController::class, 'membresiasSuggestions'])->name('membresias.suggestions');
 });
 
 // ============================================================================

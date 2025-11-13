@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Services\NotificacionService;
 use App\Models\Ingreso;
 use App\Models\Egreso;
@@ -737,11 +738,18 @@ class TesoreroController extends Controller
             'fecha' => 'required|date',
             'fuente' => 'nullable|string|max:100',
             'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
-            'comprobante' => 'nullable|string|max:255',
+            'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'referencia' => 'nullable|string|max:100',
             'notas' => 'nullable|string',
             'estado' => 'required|in:pendiente,confirmado,anulado',
         ]);
+
+        // Manejo del archivo comprobante (si se sube)
+        if ($request->hasFile('comprobante')) {
+            $file = $request->file('comprobante');
+            $path = $file->store('comprobantes', 'public');
+            $validated['comprobante'] = $path;
+        }
 
         $validated['usuario_registro_id'] = auth()->id();
         Ingreso::create($validated);
@@ -772,11 +780,24 @@ class TesoreroController extends Controller
             'fecha' => 'required|date',
             'fuente' => 'nullable|string|max:100',
             'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
-            'comprobante' => 'nullable|string|max:255',
+            'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'referencia' => 'nullable|string|max:100',
             'notas' => 'nullable|string',
             'estado' => 'required|in:pendiente,confirmado,anulado',
         ]);
+
+        
+        // Si se sube un nuevo comprobante, eliminar el anterior y almacenar el nuevo
+        if ($request->hasFile('comprobante')) {
+            // Eliminar fichero anterior si existe
+            if (!empty($ingreso->comprobante) && Storage::disk('public')->exists($ingreso->comprobante)) {
+                Storage::disk('public')->delete($ingreso->comprobante);
+            }
+
+            $file = $request->file('comprobante');
+            $path = $file->store('comprobantes', 'public');
+            $validated['comprobante'] = $path;
+        }
 
         $ingreso->update($validated);
         return redirect()->route('tesorero.ingresos.index')->with('success', 'Ingreso actualizado correctamente.');
@@ -813,11 +834,18 @@ class TesoreroController extends Controller
             'fecha' => 'required|date',
             'proveedor' => 'nullable|string|max:100',
             'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
-            'comprobante' => 'nullable|string|max:255',
+            'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'referencia' => 'nullable|string|max:100',
             'notas' => 'nullable|string',
             'estado' => 'required|in:pendiente,aprobado,rechazado,anulado,pagado',
         ]);
+
+        // Manejo del archivo comprobante si se sube
+        if ($request->hasFile('comprobante')) {
+            $file = $request->file('comprobante');
+            $path = $file->store('comprobantes', 'public');
+            $validated['comprobante'] = $path;
+        }
 
         $validated['usuario_registro_id'] = auth()->id();
         Egreso::create($validated);
@@ -848,11 +876,22 @@ class TesoreroController extends Controller
             'fecha' => 'required|date',
             'proveedor' => 'nullable|string|max:100',
             'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
-            'comprobante' => 'nullable|string|max:255',
+            'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'referencia' => 'nullable|string|max:100',
             'notas' => 'nullable|string',
             'estado' => 'required|in:pendiente,aprobado,rechazado,anulado,pagado',
         ]);
+
+        // Si se sube un nuevo comprobante, eliminar el anterior y almacenar el nuevo
+        if ($request->hasFile('comprobante')) {
+            if (!empty($gasto->comprobante) && Storage::disk('public')->exists($gasto->comprobante)) {
+                Storage::disk('public')->delete($gasto->comprobante);
+            }
+
+            $file = $request->file('comprobante');
+            $path = $file->store('comprobantes', 'public');
+            $validated['comprobante'] = $path;
+        }
 
         $gasto->update($validated);
         return redirect()->route('tesorero.gastos.index')->with('success', 'Gasto actualizado correctamente.');
@@ -979,30 +1018,63 @@ class TesoreroController extends Controller
 
     public function transferenciasIndex()
     {
-        $transferencias = Egreso::where('tipo', 'transferencia')->orderBy('fecha', 'desc')->paginate(15);
-        return view('modulos.tesorero.transferencias.index', compact('transferencias'));
+        $query = Egreso::where('tipo', 'transferencia')->orderBy('fecha', 'desc');
+
+        // Filtros de búsqueda simples
+        if ($buscar = request('buscar')) {
+            $query->where(function($q) use ($buscar) {
+                $q->where('descripcion', 'like', "%{$buscar}%")
+                  ->orWhere('cuenta_origen', 'like', "%{$buscar}%")
+                  ->orWhere('cuenta_destino', 'like', "%{$buscar}%")
+                  ->orWhere('referencia', 'like', "%{$buscar}%")
+                  ->orWhere('numero_referencia', 'like', "%{$buscar}%");
+            });
+        }
+
+        if ($fechaDesde = request('fecha_desde')) {
+            $query->whereDate('fecha', '>=', $fechaDesde);
+        }
+        if ($fechaHasta = request('fecha_hasta')) {
+            $query->whereDate('fecha', '<=', $fechaHasta);
+        }
+
+        $transferencias = $query->paginate(15)->withQueryString();
+
+        // Totales y métricas
+        $transferenciasDelMes = Egreso::where('tipo', 'transferencia')
+            ->whereMonth('fecha', now()->month)
+            ->whereYear('fecha', now()->year)
+            ->count();
+
+        // Calcular monto total y total comisiones (usar columnas reales cuando existan)
+        $totalMonto = Egreso::where('tipo', 'transferencia')->sum('monto');
+
+        $allTransferencias = Egreso::where('tipo', 'transferencia')->get();
+        $totalComisiones = $allTransferencias->sum(function($t) {
+            return floatval($t->comision ?? $t->comision_bancaria ?? 0);
+        });
+        return view('modulos.tesorero.transferencias.index', compact('transferencias', 'transferenciasDelMes', 'totalComisiones', 'totalMonto'));
     }
 
    public function transferenciasCreate()
-{
-    // Definir tipos de transferencia
-    $tipos_transferencia = [
-        'interna' => 'Transferencia Interna',
-        'externa' => 'Transferencia Externa',
-        'bancaria' => 'Transferencia Bancaria',
-        'internacional' => 'Transferencia Internacional'
-    ];
-    
-    // Definir cuentas disponibles
-    $cuentas = [
-        'cuenta_principal' => 'Cuenta Principal',
-        'cuenta_ahorros' => 'Cuenta de Ahorros',
-        'cuenta_corriente' => 'Cuenta Corriente',
-        'caja_chica' => 'Caja Chica'
-    ];
-    
-    return view('modulos.tesorero.transferencias.create', compact('tipos_transferencia', 'cuentas'));
-}
+    {
+        // Tipos de transferencia (puede ajustarse según reglas del negocio)
+        $tipos_transferencia = [
+            'interna' => 'Interna (entre cuentas propias)',
+            'interbancaria' => 'Interbancaria',
+            'externa' => 'Externa (a terceros)'
+        ];
+
+        // Cuentas disponibles (ejemplo estático; reemplazar por consulta a tabla de cuentas si existe)
+        $cuentas = [
+            'Caja General',
+            'Cuenta Bancaria Principal - Banco X',
+            'Cuenta Bancaria Secundaria - Banco Y',
+            'Fondo de Reserva'
+        ];
+
+        return view('modulos.tesorero.transferencias.create', compact('tipos_transferencia', 'cuentas'));
+    }
 
     public function transferenciasStore(Request $request)
     {
@@ -1013,14 +1085,36 @@ class TesoreroController extends Controller
             'cuenta_origen' => 'required|string',
             'cuenta_destino' => 'required|string',
             'referencia' => 'nullable|string|max:100',
+            'numero_referencia' => 'nullable|string|max:100',
+            'comision' => 'nullable|numeric|min:0',
             'notas' => 'nullable|string',
+            'metodo_pago' => 'nullable|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
+            'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         $validated['usuario_registro_id'] = auth()->id();
         $validated['tipo'] = 'transferencia';
-        $validated['metodo_pago'] = 'transferencia';
+        // if metodo_pago provided use it, otherwise default to 'transferencia'
+        $validated['metodo_pago'] = $request->input('metodo_pago', 'transferencia');
         $validated['categoria'] = 'Transferencia';
         $validated['estado'] = 'pagado';
+
+        // Mapear numero_referencia (campo del formulario) a la columna 'referencia' usada en el modelo
+        if ($request->filled('numero_referencia') && empty($validated['referencia'])) {
+            $validated['referencia'] = $request->input('numero_referencia');
+        }
+
+        // Asegurar que la comisión se guarde si fue enviada
+        if ($request->filled('comision')) {
+            $validated['comision'] = $request->input('comision');
+        }
+
+        // Manejo del comprobante (archivo)
+        if ($request->hasFile('comprobante')) {
+            $file = $request->file('comprobante');
+            $path = $file->store('comprobantes', 'public');
+            $validated['comprobante'] = $path;
+        }
 
         Egreso::create($validated);
 
@@ -1036,7 +1130,21 @@ class TesoreroController extends Controller
     public function transferenciasEdit($id)
     {
         $transferencia = Egreso::findOrFail($id);
-        return view('modulos.tesorero.transferencias.edit', compact('transferencia'));
+        // Tipos de transferencia y cuentas (coincidentes con create)
+        $tipos_transferencia = [
+            'interna' => 'Interna (entre cuentas propias)',
+            'interbancaria' => 'Interbancaria',
+            'externa' => 'Externa (a terceros)'
+        ];
+
+        $cuentas = [
+            'Caja General',
+            'Cuenta Bancaria Principal - Banco X',
+            'Cuenta Bancaria Secundaria - Banco Y',
+            'Fondo de Reserva'
+        ];
+
+        return view('modulos.tesorero.transferencias.edit', compact('transferencia', 'tipos_transferencia', 'cuentas'));
     }
 
     public function transferenciasUpdate(Request $request, $id)
@@ -1050,10 +1158,48 @@ class TesoreroController extends Controller
             'cuenta_origen' => 'required|string',
             'cuenta_destino' => 'required|string',
             'referencia' => 'nullable|string|max:100',
+            'numero_referencia' => 'nullable|string|max:100',
+            'comision' => 'nullable|numeric|min:0',
             'notas' => 'nullable|string',
+            'metodo_pago' => 'nullable|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque,otro',
+            'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
+        // Si se sube un nuevo comprobante, eliminar anterior y guardar nuevo
+        if ($request->hasFile('comprobante')) {
+            if (!empty($transferencia->comprobante) && Storage::disk('public')->exists($transferencia->comprobante)) {
+                Storage::disk('public')->delete($transferencia->comprobante);
+            }
+            $file = $request->file('comprobante');
+            $path = $file->store('comprobantes', 'public');
+            $validated['comprobante'] = $path;
+        }
+
+        // If metodo_pago not present, preserve existing
+        if (!$request->has('metodo_pago')) {
+            $validated['metodo_pago'] = $transferencia->metodo_pago ?? 'transferencia';
+        }
+
+        // Mapear numero_referencia a 'referencia' si aplica
+        if ($request->filled('numero_referencia') && empty($validated['referencia'])) {
+            $validated['referencia'] = $request->input('numero_referencia');
+        }
+
+        // Guardar comisión si fue enviada
+        if ($request->filled('comision')) {
+            $validated['comision'] = $request->input('comision');
+        }
+
         $transferencia->update($validated);
+
+        // Si la petición es AJAX (fetch desde la vista), devolver JSON para que el frontend lo procese
+        if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Transferencia actualizada correctamente.'
+            ]);
+        }
+
         return redirect()->route('tesorero.transferencias.index')->with('success', 'Transferencia actualizada correctamente.');
     }
 
@@ -1070,8 +1216,79 @@ class TesoreroController extends Controller
 
     public function membresiasIndex()
     {
-        $membresias = PagoMembresia::with('usuario')->orderBy('fecha_pago', 'desc')->paginate(15);
-        return view('modulos.tesorero.membresias.index', compact('membresias'));
+        $query = PagoMembresia::with('usuario')->orderBy('fecha_pago', 'desc');
+
+        // Búsqueda simple por nombre o correo en la tabla users (relación 'usuario')
+        if ($buscar = request('buscar')) {
+            $query->where(function($q) use ($buscar) {
+                // Buscar en la relación usuario (name, email)
+                $q->whereHas('usuario', function($u) use ($buscar) {
+                    $u->where('name', 'like', "%{$buscar}%")
+                      ->orWhere('email', 'like', "%{$buscar}%");
+                });
+
+                // También permitir búsqueda por número de comprobante en la propia tabla
+                $q->orWhere('numero_comprobante', 'like', "%{$buscar}%");
+            });
+        }
+
+        if ($estado = request('estado')) {
+            $query->where('estado', $estado);
+        }
+
+        if ($tipo = request('tipo')) {
+            $query->where('tipo_pago', $tipo)->orWhere('tipo_membresia', $tipo);
+        }
+
+        $membresias = $query->paginate(15);
+
+        // Totales para los widgets
+        // Considerar como "pagadas" solo el estado explícito 'pagado'
+        $estadosPagados = ['pagado'];
+        $totalPagadas = PagoMembresia::whereIn('estado', $estadosPagados)->count();
+        $totalPendientes = PagoMembresia::where('estado', 'pendiente')->count();
+        $totalRecaudado = PagoMembresia::whereIn('estado', $estadosPagados)->sum('monto');
+
+        return view('modulos.tesorero.membresias.index', compact('membresias', 'totalPagadas', 'totalPendientes', 'totalRecaudado'));
+    }
+
+    /**
+     * Sugerencias para autocompletar búsqueda de membresías por nombre o correo (AJAX)
+     */
+    public function membresiasSuggestions(Request $request)
+    {
+        $q = $request->get('q', '');
+
+        if (trim($q) === '') {
+            return response()->json(['success' => true, 'suggestions' => []]);
+        }
+
+        $items = PagoMembresia::with('usuario')
+            ->where(function($query) use ($q) {
+                // Buscar en la relación usuario (name, email)
+                $query->whereHas('usuario', function($u) use ($q) {
+                    $u->where('name', 'like', "%{$q}%")
+                      ->orWhere('email', 'like', "%{$q}%");
+                });
+
+                // También por número de comprobante
+                $query->orWhere('numero_comprobante', 'like', "%{$q}%");
+            })
+            ->orderBy('fecha_pago', 'desc')
+            ->limit(10)
+            ->get();
+
+        $suggestions = $items->map(function($m) {
+            $usuario = $m->usuario;
+            $name = $usuario->name ?? $m->nombre_miembro ?? null;
+            $email = $usuario->email ?? $m->email ?? null;
+            if ($name && $email) {
+                return trim("{$name} <{$email}>");
+            }
+            return $name ?? $email ?? null;
+        })->filter()->unique()->values()->all();
+
+        return response()->json(['success' => true, 'suggestions' => $suggestions]);
     }
 
     public function membresiasCreate()
@@ -1085,36 +1302,53 @@ class TesoreroController extends Controller
         ];
         $estados = [
             'pendiente' => 'Pendiente',
-            'activa' => 'Activa',
-            'vencida' => 'Vencida',
-            'cancelada' => 'Cancelada',
-            'completada' => 'Completada'
+            'pagado' => 'Pagado',
+            'cancelado' => 'Cancelado'
         ];
         $metodos_pago = [
-            'efectivo' => 'Efectivo',
-            'transferencia' => 'Transferencia Bancaria',
-            'tarjeta_credito' => 'Tarjeta de Crédito',
-            'tarjeta_debito' => 'Tarjeta de Débito',
-            'cheque' => 'Cheque'
+            'transferencia' => 'Transferencia Bancaria'
         ];
         return view('modulos.tesorero.membresias.create', compact('miembros', 'tipos_membresia', 'estados', 'metodos_pago'));
     }
 
     public function membresiasStore(Request $request)
     {
+        // Use 'sometimes' so partial updates (e.g. only changing 'estado') don't fail validation
         $validated = $request->validate([
-            'usuario_id' => 'required|exists:users,id',
-            'tipo_membresia' => 'required|in:activo,honorario,aspirante,alumni',
-            'tipo_pago' => 'required|in:mensual,trimestral,semestral,anual',
-            'monto' => 'required|numeric|min:0',
-            'fecha_pago' => 'required|date',
-            'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque',
-            'periodo_inicio' => 'required|date',
-            'periodo_fin' => 'required|date|after:periodo_inicio',
-            'comprobante' => 'nullable|string|max:255',
+            'usuario_id' => 'sometimes|required|exists:users,id',
+            'tipo_membresia' => 'sometimes|required|in:activo,honorario,aspirante,alumni',
+            'tipo_pago' => 'sometimes|required|in:mensual,trimestral,semestral,anual',
+            'monto' => 'sometimes|required|numeric|min:0',
+            'fecha_pago' => 'sometimes|required|date',
+            'metodo_pago' => 'sometimes|required|in:transferencia',
+            'periodo_inicio' => 'sometimes|required|date',
+            // make periodo_fin optional here and validate relationally below when both provided
+            'periodo_fin' => 'sometimes|required|date',
+            'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'notas' => 'nullable|string',
-            'estado' => 'required|in:activa,vencida,cancelada,completada',
+            'estado' => 'sometimes|required|in:pendiente,pagado,cancelado',
         ]);
+
+        // If both periodo_inicio and periodo_fin were provided, ensure periodo_fin is after periodo_inicio
+        if (isset($validated['periodo_inicio']) && isset($validated['periodo_fin'])) {
+            $inicio = \Carbon\Carbon::parse($validated['periodo_inicio']);
+            $fin = \Carbon\Carbon::parse($validated['periodo_fin']);
+            if ($fin->lte($inicio)) {
+                return redirect()->back()->withInput()->withErrors(['periodo_fin' => 'El periodo fin debe ser posterior al periodo inicio.']);
+            }
+        }
+
+        // Manejo de comprobante (archivo)
+        if ($request->hasFile('comprobante')) {
+            $file = $request->file('comprobante');
+            $path = $file->store('comprobantes', 'public');
+            $validated['comprobante'] = $path;
+        }
+
+        // Normalizar número de recibo: formulario puede enviar 'numero_recibo' pero el modelo usa 'numero_comprobante'
+        if ($request->filled('numero_recibo') && empty($validated['numero_comprobante'])) {
+            $validated['numero_comprobante'] = $request->input('numero_recibo');
+        }
 
         PagoMembresia::create($validated);
 
@@ -1139,17 +1373,11 @@ class TesoreroController extends Controller
         ];
         $estados = [
             'pendiente' => 'Pendiente',
-            'activa' => 'Activa',
-            'vencida' => 'Vencida',
-            'cancelada' => 'Cancelada',
-            'completada' => 'Completada'
+            'pagado' => 'Pagado',
+            'cancelado' => 'Cancelado'
         ];
         $metodos_pago = [
-            'efectivo' => 'Efectivo',
-            'transferencia' => 'Transferencia Bancaria',
-            'tarjeta_credito' => 'Tarjeta de Crédito',
-            'tarjeta_debito' => 'Tarjeta de Débito',
-            'cheque' => 'Cheque'
+            'transferencia' => 'Transferencia Bancaria'
         ];
         return view('modulos.tesorero.membresias.edit', compact('membresia', 'miembros', 'tipos_membresia', 'estados', 'metodos_pago'));
     }
@@ -1161,16 +1389,31 @@ class TesoreroController extends Controller
         $validated = $request->validate([
             'usuario_id' => 'required|exists:users,id',
             'tipo_membresia' => 'required|in:activo,honorario,aspirante,alumni',
-            'tipo_pago' => 'required|in:mensual,trimestral,semestral,anual',
+            'tipo_pago' => 'required|in:mensual',
             'monto' => 'required|numeric|min:0',
             'fecha_pago' => 'required|date',
-            'metodo_pago' => 'required|in:efectivo,transferencia,tarjeta_credito,tarjeta_debito,cheque',
+            'metodo_pago' => 'required|in:transferencia',
             'periodo_inicio' => 'required|date',
             'periodo_fin' => 'required|date|after:periodo_inicio',
-            'comprobante' => 'nullable|string|max:255',
+            'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'notas' => 'nullable|string',
-            'estado' => 'required|in:activa,vencida,cancelada,completada',
+            'estado' => 'required|in:pendiente,pagado,cancelado',
         ]);
+
+        // Si se sube nuevo comprobante, eliminar anterior y guardar el nuevo
+        if ($request->hasFile('comprobante')) {
+            if (!empty($membresia->comprobante) && Storage::disk('public')->exists($membresia->comprobante)) {
+                Storage::disk('public')->delete($membresia->comprobante);
+            }
+            $file = $request->file('comprobante');
+            $path = $file->store('comprobantes', 'public');
+            $validated['comprobante'] = $path;
+        }
+
+        // Mapear numero_recibo del formulario a numero_comprobante en la base
+        if ($request->filled('numero_recibo') && empty($validated['numero_comprobante'])) {
+            $validated['numero_comprobante'] = $request->input('numero_recibo');
+        }
 
         $membresia->update($validated);
 
