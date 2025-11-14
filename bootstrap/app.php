@@ -21,7 +21,6 @@ return Application::configure(basePath: dirname(__DIR__))
         // Registrar middleware personalizado
         $middleware->alias([
             'ensure.role' => \App\Http\Middleware\EnsureUserHasRole::class,
-            'check.first.login' => \App\Http\Middleware\CheckFirstLogin::class, // ⭐ NUEVO
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

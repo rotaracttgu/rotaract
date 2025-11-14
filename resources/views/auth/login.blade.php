@@ -15,7 +15,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #001f3f; /* Dark Blue*/
+            background: #d41367; /* Cranberry */
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -32,38 +32,26 @@
             gap: 20px;
         }
 
-        .login-container {
-            background: #ffffff; /* White */
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            max-width: 500px;
+        .logo-container {
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
             width: 100%;
-            padding: 25px 35px;
-            animation: fadeInUp 0.8s ease-out;
-            position: relative;
-            z-index: 1;
+            padding: 15px;
         }
 
-        /* Borde multicolor con gradiente que respeta border-radius */
-        .login-container::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            padding: 4px; /* Grosor del borde */
-            background: linear-gradient(135deg, #d41367, #901f93, #00adbb, #ffc72c, #009739, #d41367);
-            -webkit-mask: 
-                linear-gradient(#fff 0 0) content-box, 
-                linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            z-index: -1;
+        .logo-container img {
+            max-width: 280px;
+            width: 100%;
+            height: auto;
+            filter: brightness(10) contrast(1);
+            display: block;
+            margin: 0 auto;
         }
 
-        @keyframes fadeInUp {
+        @keyframes fadeInDown {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(-20px);
             }
             to {
                 opacity: 1;
@@ -71,36 +59,21 @@
             }
         }
 
-        .logo-container {
-            text-align: center;
-            animation: fadeInDown 0.8s ease-out;
+        .login-container {
+            background: #ffffff; /* White */
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
             width: 100%;
-            padding: 0;
-            margin-bottom: 20px;
+            padding: 30px 40px;
+            animation: fadeInUp 0.8s ease-out;
+            border: 3px solid #901f93; /* Violet border */
         }
 
-        .logo-container img {
-            max-width: 280px;
-            width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-            transition: all 0.3s ease;
-            filter: 
-                brightness(0) 
-                saturate(100%) 
-                invert(24%) 
-                sepia(98%) 
-                saturate(3500%) 
-                hue-rotate(330deg) 
-                brightness(90%) 
-                contrast(92%);
-        }
-
-        @keyframes fadeInDown {
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -267,62 +240,6 @@
             color: #009739;
         }
 
-        /* ⭐ NUEVO: Estilos para opciones de recuperación */
-        .password-recovery-section {
-            clear: both;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px solid #d0cfcd; /* Silver */
-        }
-
-        .password-recovery-title {
-            text-align: center;
-            color: #901f93;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .recovery-options {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .recovery-option {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 10px 16px;
-            background: linear-gradient(135deg, #00adbb 0%, #009739 100%);
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 3px 10px rgba(0, 173, 187, 0.3);
-        }
-
-        .recovery-option:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 173, 187, 0.4);
-        }
-
-        .recovery-option.email {
-            background: linear-gradient(135deg, #00adbb 0%, #0094a8 100%);
-        }
-
-        .recovery-option.questions {
-            background: linear-gradient(135deg, #901f93 0%, #d41367 100%);
-        }
-
-        .recovery-icon {
-            width: 16px;
-            height: 16px;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .login-wrapper {
@@ -330,10 +247,6 @@
             }
 
             .logo-container img {
-                max-width: 280px;
-            }
-
-            .logo-container::before {
                 max-width: 280px;
             }
 
@@ -348,14 +261,10 @@
             }
 
             .logo-container {
-                padding: 15px 0 20px 0;
+                padding: 15px;
             }
 
             .logo-container img {
-                max-width: 240px;
-            }
-
-            .logo-container::before {
                 max-width: 240px;
             }
 
@@ -374,26 +283,18 @@
                 max-width: 100%;
                 float: none;
             }
-
-            .recovery-options {
-                flex-direction: column;
-            }
-
-            .recovery-option {
-                width: 100%;
-                justify-content: center;
-            }
         }
     </style>
 </head>
 <body>
     <div class="login-wrapper">
-        <div class="login-container">
-            <!-- Logo del Club -->
-            <div class="logo-container">
-                <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract Club Tegucigalpa Sur">
-            </div>
+        <!-- Logo del Club -->
+        <div class="logo-container">
+            <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract Club Tegucigalpa Sur" 
+                 onerror="this.onerror=null; this.src='{{ asset('build/images/LogoRotaract.png') }}'">
+        </div>
 
+        <div class="login-container">
             <!-- Mensajes de error -->
             @if ($errors->any())
                 <div class="alert alert-error">
@@ -407,13 +308,6 @@
             @if (session('status'))
                 <div class="alert alert-success">
                     {{ session('status') }}
-                </div>
-            @endif
-
-            <!-- Mensaje de éxito (si existe) -->
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
                 </div>
             @endif
 
@@ -462,31 +356,18 @@
                         <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
                         <span>Remember me</span>
                     </label>
+
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}" class="forgot-password">
+                            Forgot your password?
+                        </a>
+                    @endif
                 </div>
 
                 <!-- Botón de Login -->
                 <button type="submit" class="btn-login">
                     LOG IN
                 </button>
-
-                <!-- ⭐ NUEVO: Sección de Recuperación de Contraseña -->
-                <div class="password-recovery-section">
-                    <p class="password-recovery-title">¿Olvidaste tu contraseña?</p>
-                    <div class="recovery-options">
-                        <a href="{{ route('password.request') }}" class="recovery-option email">
-                            <svg class="recovery-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            Por Email
-                        </a>
-                        <a href="{{ route('password.security.identify') }}" class="recovery-option questions">
-                            <svg class="recovery-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Preguntas de Seguridad
-                        </a>
-                    </div>
-                </div>
 
                 <!-- Link de Registro (opcional) -->
                 @if (Route::has('register'))

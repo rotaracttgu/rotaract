@@ -3,38 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\BitacoraSistema;
+use App\Models\BitacoraSistema; // ⭐ NUEVO
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
 class UserController extends Controller
 {
-    /**
-     * Determina el módulo actual basado en la ruta
-     */
-    private function getModuloActual()
-    {
-        $routeName = request()->route()->getName();
-        
-        if (str_starts_with($routeName, 'presidente.')) {
-            return 'presidente';
-        } elseif (str_starts_with($routeName, 'vicepresidente.')) {
-            return 'vicepresidente';
-        } else {
-            return 'admin';
-        }
-    }
-
-    /**
-     * Obtiene la ruta de listado según el módulo
-     */
-    private function getListaRoute()
-    {
-        $modulo = $this->getModuloActual();
-        return $modulo . '.usuarios.lista';
-    }
-
     /**
      * Display a listing of the resource.
      */
@@ -51,26 +26,12 @@ class UserController extends Controller
             // Contar total de usuarios
             $totalUsuarios = User::count();
             
-            // Pasar el módulo actual a la vista
-            $moduloActual = $this->getModuloActual();
-            
-            // Determinar la vista según el módulo
-            $vista = $moduloActual === 'admin' 
-                ? 'modulos.users.index' 
-                : "modulos.{$moduloActual}.usuarios";
-            
-            return view($vista, compact('usuarios', 'totalUsuarios', 'moduloActual'));
+            return view('users.index', compact('usuarios', 'totalUsuarios'));
             
         } catch (\Exception $e) {
-            $moduloActual = $this->getModuloActual();
-            $vista = $moduloActual === 'admin' 
-                ? 'modulos.users.index' 
-                : "modulos.{$moduloActual}.usuarios";
-                
-            return view($vista, [
+            return view('users.index', [
                 'usuarios' => collect([]),
                 'totalUsuarios' => 0,
-                'moduloActual' => $moduloActual,
                 'error' => $e->getMessage()
             ]);
         }
@@ -81,8 +42,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $moduloActual = $this->getModuloActual();
-        return view('modulos.users.create', compact('moduloActual'));
+        return view('users.create');
     }
 
     /**
@@ -93,37 +53,31 @@ class UserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'email_verified' => ['nullable', 'boolean'],
-            'two_factor_verified' => ['nullable', 'boolean'], // Nuevo campo para el checkbox
             'role' => ['required', 'string', 'exists:roles,name'],
-            'rotary_id' => ['nullable', 'string', 'max:50'],
-            'fecha_juramentacion' => ['nullable', 'date'],
-            'fecha_cumpleaños' => ['nullable', 'date'],
-            'activo' => ['nullable', 'boolean'],
         ]);
 
         try {
-            // Generar contraseña automática aleatoria
-            $passwordAleatorio = \Illuminate\Support\Str::random(12) . rand(100, 999);
-            
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($passwordAleatorio),
+                'password' => Hash::make($request->password),
                 'email_verified_at' => $request->email_verified ? now() : null,
-                'first_login' => true,
-                'two_factor_enabled' => true, // Mantener 2FA habilitado por defecto
-                'two_factor_verified_at' => $request->two_factor_verified ? now() : null, // Setear si checkbox está marcado
-                'rotary_id' => $request->rotary_id,
-                'fecha_juramentacion' => $request->fecha_juramentacion,
-                'fecha_cumpleaños' => $request->fecha_cumpleaños,
-                'activo' => $request->has('activo') ? (bool)$request->activo : true,
             ]);
 
+            // ===== HABILITAR 2FA AUTOMÁTICAMENTE =====
+            $user->two_factor_enabled = true;
+            $user->save();
+            // =========================================
+
+            // ===== ASIGNAR ROL AL USUARIO =====
             if ($request->role) {
                 $user->assignRole($request->role);
             }
+            // ==================================
 
+            // ⭐ REGISTRAR EN BITÁCORA
             BitacoraSistema::registrar([
                 'accion' => 'create',
                 'modulo' => 'usuarios',
@@ -137,21 +91,15 @@ class UserController extends Controller
                     'role' => $request->role,
                     'two_factor_enabled' => true,
                     'email_verified' => $request->email_verified ? true : false,
-                    'first_login' => true,
-                    'two_factor_verified' => $request->two_factor_verified ? true : false, // Nuevo
-                    'rotary_id' => $request->rotary_id,
-                    'fecha_juramentacion' => $request->fecha_juramentacion,
-                    'fecha_cumpleaños' => $request->fecha_cumpleaños,
-                    'activo' => $user->activo,
                 ],
             ]);
 
-            return redirect()->route($this->getListaRoute())
-                ->with('success', "Usuario creado exitosamente. Contraseña temporal: {$passwordAleatorio}. El usuario deberá cambiarla en el primer inicio de sesión.")
-                ->with('usuario_creado', $user->name)
-                ->with('password_temporal', $passwordAleatorio);
+            return redirect()->route('admin.usuarios.lista')
+                ->with('success', 'Usuario creado exitosamente con autenticación de dos factores habilitada.')
+                ->with('usuario_creado', $user->name);
 
         } catch (\Exception $e) {
+            // ⭐ REGISTRAR ERROR EN BITÁCORA
             BitacoraSistema::registrar([
                 'accion' => 'create',
                 'modulo' => 'usuarios',
@@ -188,8 +136,7 @@ class UserController extends Controller
             'estado' => 'exitoso',
         ]);
         
-        $moduloActual = $this->getModuloActual();
-        return view('modulos.users.ver', compact('usuario', 'moduloActual'));
+        return view('users.ver', compact('usuario'));
     }
 
     /**
@@ -199,8 +146,7 @@ class UserController extends Controller
     {
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
-        $moduloActual = $this->getModuloActual();
-        return view('modulos.users.edit', compact('usuario', 'moduloActual'));
+        return view('users.edit', compact('usuario'));
     }
 
     /**
@@ -217,23 +163,13 @@ class UserController extends Controller
             'email' => $usuario->email,
             'role' => $usuario->getRolPrincipal(),
             'email_verified' => $usuario->email_verified_at ? true : false,
-            'two_factor_verified' => $usuario->two_factor_verified_at ? true : false, // Nuevo
-            'rotary_id' => $usuario->rotary_id,
-            'fecha_juramentacion' => $usuario->fecha_juramentacion,
-            'fecha_cumpleaños' => $usuario->fecha_cumpleaños,
-            'activo' => $usuario->activo ?? true,
         ];
         
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $usuario->id],
             'email_verified' => ['nullable', 'boolean'],
-            'two_factor_verified' => ['nullable', 'boolean'], // Nuevo campo para el checkbox
             'role' => ['nullable', 'string', 'exists:roles,name'],
-            'rotary_id' => ['nullable', 'string', 'max:50'],
-            'fecha_juramentacion' => ['nullable', 'date'],
-            'fecha_cumpleaños' => ['nullable', 'date'],
-            'activo' => ['nullable', 'boolean'],
         ];
 
         // Solo validar contraseña si se proporciona
@@ -247,10 +183,6 @@ class UserController extends Controller
             $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
-                'rotary_id' => $request->rotary_id,
-                'fecha_juramentacion' => $request->fecha_juramentacion,
-                'fecha_cumpleaños' => $request->fecha_cumpleaños,
-                'activo' => $request->has('activo') ? (bool)$request->activo : false,
             ];
 
             // Actualizar contraseña solo si se proporciona
@@ -263,13 +195,6 @@ class UserController extends Controller
                 $userData['email_verified_at'] = now();
             } elseif (!$request->email_verified && $usuario->email_verified_at) {
                 $userData['email_verified_at'] = null;
-            }
-
-            // Manejar verificación 2FA
-            if ($request->two_factor_verified && !$usuario->two_factor_verified_at) {
-                $userData['two_factor_verified_at'] = now();
-            } elseif (!$request->two_factor_verified && $usuario->two_factor_verified_at) {
-                $userData['two_factor_verified_at'] = null;
             }
 
             $usuario->update($userData);
@@ -288,11 +213,6 @@ class UserController extends Controller
                 'email' => $usuario->email,
                 'role' => $request->role ?? $usuario->getRolPrincipal(),
                 'email_verified' => $request->email_verified ? true : false,
-                'two_factor_verified' => $request->two_factor_verified ? true : false, // Nuevo
-                'rotary_id' => $request->rotary_id,
-                'fecha_juramentacion' => $request->fecha_juramentacion,
-                'fecha_cumpleaños' => $request->fecha_cumpleaños,
-                'activo' => $request->has('activo') ? (bool)$request->activo : false,
             ];
 
             if ($request->filled('password')) {
@@ -311,7 +231,7 @@ class UserController extends Controller
                 'datos_nuevos' => $datosNuevos,
             ]);
             
-            return redirect()->route($this->getListaRoute())
+            return redirect()->route('admin.usuarios.lista')
                 ->with('success', 'Usuario actualizado exitosamente.')
                 ->with('usuario_actualizado', $usuario->name);
 
@@ -362,7 +282,7 @@ class UserController extends Controller
 
             $usuario->delete();
 
-            return redirect()->route($this->getListaRoute())
+            return redirect()->route('admin.usuarios.lista')
                 ->with('success', 'Usuario eliminado exitosamente.')
                 ->with('usuario_eliminado', $userName);
 

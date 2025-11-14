@@ -31,8 +31,8 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        // Si el usuario tiene 2FA habilitado pero no está verificado, redirigir a 2FA
-        if ($user->two_factor_enabled && !$user->two_factor_verified_at) {
+        // Si el usuario tiene 2FA habilitado
+        if ($user->two_factor_enabled) {
             // Generar código de 6 dígitos
             $code = rand(100000, 999999);
 
@@ -48,7 +48,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('2fa.verify')->with('success', 'Se ha enviado un código de verificación a tu correo electrónico.');
         }
 
-        // Si no tiene 2FA o ya está verificado, redirigir normalmente al dashboard
+        // Si no tiene 2FA, redirigir normalmente al dashboard
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

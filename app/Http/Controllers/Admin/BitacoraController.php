@@ -62,7 +62,7 @@ class BitacoraController extends Controller
             ->orderBy('modulo')
             ->pluck('modulo');
 
-        return view('modulos.users.bitacora.index', compact(
+        return view('users.bitacora.index', compact(
             'registros',
             'stats',
             'usuarios',
@@ -74,7 +74,7 @@ class BitacoraController extends Controller
     {
         $registro = BitacoraSistema::with('user')->findOrFail($id);
         
-        return view('modulos.users.bitacora.show', compact('registro'));
+        return view('users.bitacora.show', compact('registro'));
     }
 
     private function getEstadisticas()

@@ -15,110 +15,34 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #0a2540 0%, #1e3a5f 50%, #2d5a7b 100%);
+            background: #1a2332;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Efectos decorativos de fondo */
-        body::before {
-            content: '';
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(232, 77, 152, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            top: -200px;
-            right: -200px;
-            animation: float 20s ease-in-out infinite;
-        }
-
-        body::after {
-            content: '';
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(45, 212, 191, 0.12) 0%, transparent 70%);
-            border-radius: 50%;
-            bottom: -150px;
-            left: -150px;
-            animation: float 25s ease-in-out infinite reverse;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translate(0, 0) scale(1);
-            }
-            50% {
-                transform: translate(30px, 30px) scale(1.1);
-            }
         }
 
         .reset-wrapper {
             width: 100%;
-            max-width: 520px;
+            max-width: 700px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 40px;
-            position: relative;
-            z-index: 1;
+            gap: 80px;
+            padding: 40px 0;
         }
 
         .logo-container {
             text-align: center;
             animation: fadeInDown 0.8s ease-out;
-            background: linear-gradient(135deg, #e84d98 0%, #7b68ee 50%, #2dd4bf 100%);
-            padding: 35px 45px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(232, 77, 152, 0.3);
-            position: relative;
-            overflow: hidden;
         }
 
-        .logo-container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transform: rotate(45deg);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% {
-                transform: translateX(-100%) translateY(-100%) rotate(45deg);
-            }
-            100% {
-                transform: translateX(100%) translateY(100%) rotate(45deg);
-            }
-        }
-
-        .logo-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .logo-container h1 {
-            color: white;
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .logo-container p {
-            color: rgba(255, 255, 255, 0.95);
-            font-size: 16px;
-            font-weight: 500;
+        .logo-container img {
+            max-width: 380px;
+            width: 100%;
+            height: auto;
+            filter: brightness(1.1);
         }
 
         @keyframes fadeInDown {
@@ -133,14 +57,13 @@
         }
 
         .reset-container {
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 20px;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
-            max-width: 520px;
+            background: #2a3544;
+            border-radius: 8px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            max-width: 700px;
             width: 100%;
-            padding: 40px 45px;
+            padding: 45px 50px 40px;
             animation: fadeInUp 0.8s ease-out;
-            backdrop-filter: blur(10px);
         }
 
         @keyframes fadeInUp {
@@ -156,21 +79,18 @@
 
         .page-title {
             text-align: center;
-            background: linear-gradient(135deg, #e84d98, #7b68ee);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 26px;
-            font-weight: 700;
+            color: #e8edf2;
+            font-size: 22px;
+            font-weight: 600;
             margin-bottom: 12px;
         }
 
         .page-description {
             text-align: center;
-            color: #64748b;
+            color: #8995a3;
             font-size: 14px;
             margin-bottom: 30px;
-            line-height: 1.7;
+            line-height: 1.5;
         }
 
         .form-group {
@@ -179,74 +99,71 @@
 
         .form-group label {
             display: block;
-            color: #475569;
-            font-weight: 600;
-            margin-bottom: 10px;
+            color: #a8b4c0;
+            font-weight: 400;
+            margin-bottom: 8px;
             font-size: 14px;
         }
 
         .form-group input[type="email"],
         .form-group input[type="password"] {
             width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: #f8fafc;
-            color: #1e293b;
+            padding: 13px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background: #e8edf2;
+            color: #1a2332;
         }
 
         .form-group input[type="email"]:focus,
         .form-group input[type="password"]:focus {
             outline: none;
-            border-color: #e84d98;
             background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(232, 77, 152, 0.1);
+            box-shadow: 0 0 0 3px rgba(232, 237, 242, 0.1);
         }
 
         .form-group input::placeholder {
-            color: #94a3b8;
+            color: #8995a3;
         }
 
         .form-group input.error {
-            border-color: #ef4444;
-            background: #fef2f2;
+            border: 2px solid #e74c3c;
         }
 
         .error-message {
-            color: #ef4444;
-            font-size: 13px;
-            margin-top: 8px;
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 6px;
             display: block;
-            font-weight: 500;
         }
 
         .form-actions {
             display: flex;
-            justify-content: center;
-            margin-top: 30px;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 28px;
         }
 
         .btn-reset {
-            padding: 14px 40px;
-            background: linear-gradient(135deg, #e84d98 0%, #7b68ee 100%);
-            color: white;
+            padding: 12px 28px;
+            background: #e8edf2;
+            color: #2a3544;
             border: none;
-            border-radius: 12px;
-            font-size: 15px;
+            border-radius: 5px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(232, 77, 152, 0.3);
-            width: 100%;
         }
 
         .btn-reset:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(232, 77, 152, 0.4);
+            background: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(232, 237, 242, 0.2);
         }
 
         .btn-reset:active {
@@ -256,67 +173,48 @@
         .back-to-login {
             text-align: center;
             margin-top: 25px;
-            padding-top: 25px;
-            border-top: 2px solid #f1f5f9;
+            padding-top: 20px;
+            border-top: 1px solid rgba(168, 180, 192, 0.15);
         }
 
         .back-to-login a {
-            color: #7b68ee;
+            color: #8995a3;
             text-decoration: none;
             font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            transition: color 0.2s ease;
         }
 
         .back-to-login a:hover {
-            color: #e84d98;
-            transform: translateX(-3px);
+            color: #b8c1cc;
         }
 
         .alert {
-            padding: 14px 18px;
-            border-radius: 12px;
-            margin-bottom: 24px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .alert strong {
-            display: block;
-            margin-bottom: 8px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
         }
 
         .alert-error {
-            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-            border: 2px solid #fecaca;
-            color: #dc2626;
+            background-color: rgba(231, 76, 60, 0.12);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: #ff6b6b;
         }
 
         .alert-success {
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            border: 2px solid #bbf7d0;
-            color: #16a34a;
+            background-color: rgba(46, 204, 113, 0.12);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            color: #51cf66;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
             .reset-wrapper {
-                gap: 35px;
+                gap: 60px;
             }
 
-            .logo-container {
-                padding: 30px 40px;
-            }
-
-            .logo-container h1 {
-                font-size: 28px;
-            }
-
-            .logo-container p {
-                font-size: 14px;
+            .logo-container img {
+                max-width: 300px;
             }
 
             .reset-container {
@@ -324,47 +222,38 @@
             }
 
             .page-title {
-                font-size: 24px;
+                font-size: 20px;
+            }
+
+            .form-actions {
+                justify-content: stretch;
+            }
+
+            .btn-reset {
+                width: 100%;
             }
         }
 
         @media (max-width: 480px) {
             .reset-wrapper {
-                gap: 30px;
+                gap: 50px;
             }
 
-            .logo-container {
-                padding: 25px 30px;
-                border-radius: 16px;
-            }
-
-            .logo-container h1 {
-                font-size: 24px;
-            }
-
-            .logo-container p {
-                font-size: 13px;
+            .logo-container img {
+                max-width: 260px;
             }
 
             .reset-container {
                 padding: 30px 24px;
-                border-radius: 16px;
-            }
-
-            .page-title {
-                font-size: 22px;
             }
         }
     </style>
 </head>
 <body>
     <div class="reset-wrapper">
-        <!-- Logo del Club con diseño moderno -->
+        <!-- Logo del Club -->
         <div class="logo-container">
-            <div class="logo-content">
-                <h1>Rotaract</h1>
-                <p>Club Tegucigalpa Sur</p>
-            </div>
+            <img src="{{ asset('build/images/LogoRotaract.png') }}" alt="Rotaract Club Tegucigalpa Sur">
         </div>
 
         <div class="reset-container">
@@ -377,7 +266,7 @@
             <!-- Mensajes de error -->
             @if ($errors->any())
                 <div class="alert alert-error">
-                    <strong>Por favor corrige los siguientes errores:</strong>
+                    <strong>Por favor corrige los siguientes errores:</strong><br>
                     @foreach ($errors->all() as $error)
                         • {{ $error }}<br>
                     @endforeach
@@ -400,7 +289,7 @@
 
                 <!-- Email -->
                 <div class="form-group">
-                    <label for="email">Correo Electrónico</label>
+                    <label for="email">Email</label>
                     <input 
                         type="email" 
                         id="email" 
@@ -410,7 +299,6 @@
                         autofocus
                         autocomplete="username"
                         class="@error('email') error @enderror"
-                        placeholder="tu@email.com"
                     >
                     @error('email')
                         <span class="error-message">{{ $message }}</span>
@@ -427,7 +315,6 @@
                         required
                         autocomplete="new-password"
                         class="@error('password') error @enderror"
-                        placeholder="Mínimo 8 caracteres"
                     >
                     @error('password')
                         <span class="error-message">{{ $message }}</span>
@@ -444,7 +331,6 @@
                         required
                         autocomplete="new-password"
                         class="@error('password_confirmation') error @enderror"
-                        placeholder="Confirma tu contraseña"
                     >
                     @error('password_confirmation')
                         <span class="error-message">{{ $message }}</span>

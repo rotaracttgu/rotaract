@@ -29,7 +29,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
+            gap: 80px;
             padding: 40px 0;
         }
 
@@ -39,18 +39,10 @@
         }
 
         .logo-container img {
-            max-width: 280px;
+            max-width: 380px;
             width: 100%;
             height: auto;
-            filter: 
-                brightness(0) 
-                saturate(100%) 
-                invert(24%) 
-                sepia(98%) 
-                saturate(3500%) 
-                hue-rotate(330deg) 
-                brightness(90%) 
-                contrast(92%);
+            filter: brightness(1.1);
         }
 
         @keyframes fadeInDown {
@@ -257,7 +249,7 @@
     <div class="register-wrapper">
         <!-- Logo del Club -->
         <div class="logo-container">
-            <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract Club Tegucigalpa Sur">
+            <img src="{{ asset('build/images/LogoRotaract.png') }}" alt="Rotaract Club Tegucigalpa Sur">
         </div>
 
         <div class="register-container">

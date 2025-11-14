@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Macero - Gestión de Eventos</title>
+    <title>Vocero - Gestión de Eventos</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -12,9 +12,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- 🆕 jsPDF para generar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         :root {
@@ -24,41 +21,29 @@
             --warning-color: #f59e0b;
             --danger-color: #ef4444;
             --info-color: #06b6d4;
-            --sidebar-bg: #1e293b;
-            --sidebar-text: #e2e8f0;
+            --sidebar-bg: #2c3e50;
+            --sidebar-text: #ecf0f1;
             --light-bg: #f1f5f9;
             --dark-color: #1e293b;
             --border-color: #e2e8f0;
             --card-bg: #ffffff;
         }
 
-        * {
-            box-sizing: border-box;
-        }
-
-        html, body {
+        body {
+            background: var(--light-bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 0;
-            overflow-x: hidden !important;
-            width: 100%;
-            max-width: 100vw;
-        }
-
-        body {
-            background: #d0cfcd;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .container-fluid {
             padding: 0;
-            max-width: 100%;
-            overflow-x: hidden;
         }
 
         .sidebar {
             background: var(--sidebar-bg);
             min-height: 100vh;
-            width: 200px;
+            width: 250px;
             position: fixed;
             left: 0;
             top: 0;
@@ -78,12 +63,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 1.5rem;
-        }
-
-        .sidebar-brand h4 i {
-            color: var(--primary-color);
-            font-size: 1.75rem;
         }
 
         .sidebar-nav {
@@ -92,7 +71,7 @@
 
         .sidebar .nav-link {
             color: var(--sidebar-text);
-            padding: 12px 16px;
+            padding: 15px 20px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -101,13 +80,11 @@
             background: none;
             text-decoration: none;
             font-weight: 500;
-            border-radius: 8px;
-            margin: 4px 16px;
         }
 
         .sidebar .nav-link:hover {
-            background: rgba(59, 130, 246, 0.1);
-            color: #60a5fa;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
         }
 
         .sidebar .nav-link.active {
@@ -116,13 +93,10 @@
         }
 
         .main-content {
-            margin-left: 200px;
+            margin-left: 250px;
             min-height: 100vh;
-            background: #d0cfcd;
+            background: var(--light-bg);
             padding: 0;
-            width: calc(100% - 200px);
-            max-width: calc(100% - 200px);
-            overflow-x: hidden;
         }
 
         .content-area {
@@ -131,7 +105,6 @@
 
         .page-header {
             margin-bottom: 30px;
-            text-align: center;
         }
 
         .page-header h1 {
@@ -139,24 +112,18 @@
             font-weight: 700;
             color: var(--dark-color);
             margin: 0 0 8px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
 
         .page-subtitle {
             color: var(--secondary-color);
             margin: 0 0 25px 0;
             font-size: 1rem;
-            text-align: center;
         }
 
         .header-actions {
             display: flex;
             gap: 12px;
             margin-top: 20px;
-            justify-content: center;
         }
 
         .stats-row {
@@ -268,448 +235,449 @@
             margin: 0;
         }
 
-        .table-responsive {
-            overflow-x: auto;
-            max-width: 100%;
-            -webkit-overflow-scrolling: touch;
+        .filter-indicator {
+            font-size: 14px;
+            color: var(--secondary-color);
+            font-style: italic;
         }
 
-        .events-table {
-            width: 100%;
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-primary {
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline-warning {
+            background: white;
+            color: var(--warning-color);
+            border: 1px solid var(--warning-color);
+        }
+
+        .btn-outline-warning:hover {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-outline-danger {
+            background: white;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            background: white;
+            color: var(--secondary-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--light-bg);
+            color: var(--dark-color);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .form-control, .form-select {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--dark-color);
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .table-responsive {
+            background: white;
+        }
+
+        .table {
             margin-bottom: 0;
         }
 
-        .events-table thead th {
+        .table th {
             background: var(--light-bg);
+            border: none;
             color: var(--dark-color);
             font-weight: 600;
-            padding: 15px 20px;
-            border: none;
+            padding: 15px;
             font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
-        .events-table tbody td {
-            padding: 18px 20px;
+        .table td {
+            padding: 15px;
+            border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
-            border-bottom: 1px solid var(--border-color);
         }
 
-        .events-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .events-table tbody tr:hover {
-            background-color: rgba(37, 99, 235, 0.02);
+        .table tbody tr:hover {
+            background: #fafbfc;
         }
 
         .event-title {
             font-weight: 600;
             color: var(--dark-color);
-            margin-bottom: 4px;
+            margin: 0 0 4px 0;
         }
 
-        .event-description {
-            font-size: 0.875rem;
+        .event-date {
+            font-weight: 500;
+            color: var(--dark-color);
+            margin: 0 0 2px 0;
+        }
+
+        .event-time {
+            font-size: 13px;
             color: var(--secondary-color);
             margin: 0;
         }
 
-        .badge {
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: 500;
-            font-size: 12px;
+        .status-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-        }
-
-        .badge-status-programado { background: #dbeafe; color: #1e40af; }
-        .badge-status-en_curso { background: #fef3c7; color: #92400e; }
-        .badge-status-en-curso { background: #fef3c7; color: #92400e; }
-        .badge-status-encurso { background: #fef3c7; color: #92400e; }
-        .badge-status-finalizado { background: #d1fae5; color: #065f46; }
-        .badge-status-cancelado { background: #fee2e2; color: #991b1b; }
-
-        .badge-category-reunion-virtual { background: #dbeafe; color: #1e40af; }
-        .badge-category-reunion-presencial { background: #d1fae5; color: #065f46; }
-        .badge-category-inicio-proyecto { background: #fef3c7; color: #92400e; }
-        .badge-category-finalizar-proyecto { background: #fee2e2; color: #991b1b; }
-        .badge-category-otros { background: #ede9fe; color: #6b21a8; }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-sm {
-            padding: 8px 12px;
-            font-size: 13px;
-            border-radius: 6px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 500;
         }
 
-        .btn-primary {
-            background: var(--primary-color);
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-
-        .btn-info {
-            background: var(--info-color);
-            border: none;
-            color: white;
-        }
-
-        .btn-info:hover {
-            background: #0891b2;
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--danger-color);
-            border: none;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .btn-outline-secondary {
-            border: 2px solid var(--primary-color);
+        .status-programado {
+            background: rgba(37, 99, 235, 0.1);
             color: var(--primary-color);
-            background: white;
-            font-weight: 600;
         }
 
-        .btn-outline-secondary:hover {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
+        .status-en_curso {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
         }
 
-        .btn-export-pdf {
-            background: #10b981;
-            border: none;
-            color: white;
-            font-weight: 600;
+        .status-finalizado {
+            background: rgba(100, 116, 139, 0.1);
+            color: var(--secondary-color);
         }
 
-        .btn-export-pdf:hover {
-            background: #059669;
-            color: white;
+        .status-cancelado {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid;
+        }
+
+        .category-reunion-virtual {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+            border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        .category-reunion-presencial {
+            background: rgba(175, 82, 222, 0.1);
+            color: #af52de;
+            border-color: rgba(175, 82, 222, 0.2);
+        }
+
+        .category-inicio-proyecto {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .category-finalizar-proyecto {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .category-cumpleanos {
+            background: rgba(255, 45, 146, 0.1);
+            color: #ff2d92;
+            border-color: rgba(255, 45, 146, 0.2);
+        }
+
+        .alert-info-custom {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            color: var(--primary-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
         }
 
         .empty-state {
             text-align: center;
             padding: 60px 20px;
+            color: var(--secondary-color);
         }
 
-        .empty-state-icon {
+        .empty-state i {
             font-size: 4rem;
-            color: var(--secondary-color);
-            opacity: 0.3;
-            margin-bottom: 20px;
-        }
-
-        .empty-state h3 {
-            color: var(--dark-color);
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .empty-state p {
-            color: var(--secondary-color);
-            margin-bottom: 20px;
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-
-        .loading-overlay.active {
-            display: flex;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--border-color);
-            border-top-color: var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .filter-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
+            margin-bottom: 1rem;
+            opacity: 0.5;
         }
 
         @media (max-width: 768px) {
             .sidebar {
-                width: 100%;
-                position: relative;
+                transform: translateX(-100%);
             }
+
             .main-content {
                 margin-left: 0;
-                width: 100%;
-                max-width: 100%;
             }
-            .stat-number {
-                font-size: 2rem;
+
+            .content-area {
+                padding: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="spinner"></div>
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h4><i class="fas fa-calendar-alt text-primary"></i> Vocero</h4>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a class="nav-link {{ request()->routeIs('vocero.index') ? 'active' : '' }}" href="{{ route('vocero.index') }}">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a class="nav-link {{ request()->routeIs('vocero.calendario') ? 'active' : '' }}" href="{{ route('vocero.calendario') }}">
+                <i class="fas fa-calendar"></i> Calendario
+            </a>
+            <a class="nav-link {{ request()->routeIs('vocero.eventos') ? 'active' : '' }}" href="{{ route('vocero.eventos') }}">
+                <i class="fas fa-calendar-plus"></i> Gestión de Eventos
+            </a>
+            <a class="nav-link {{ request()->routeIs('vocero.asistencias') ? 'active' : '' }}" href="{{ route('vocero.asistencias') }}">
+                <i class="fas fa-users"></i> Asistencias
+            </a>
+            <a class="nav-link {{ request()->routeIs('vocero.reportes') ? 'active' : '' }}" href="{{ route('vocero.reportes') }}">
+                <i class="fas fa-chart-bar"></i> Reportes
+            </a>
+        </nav>
     </div>
 
-    <div class="container-fluid">
-        <div class="row">
-            <div class="sidebar">
-                <div class="sidebar-brand">
-                    <h4><i class="fas fa-calendar-alt"></i> Macero</h4>
+    <div class="main-content">
+        <div class="content-area">
+            <div class="page-header">
+                <h1>Gestión de Eventos</h1>
+                <p class="page-subtitle">Vista consolidada de todos los eventos creados en el sistema</p>
+                
+                <div class="alert-info-custom">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Información:</strong> Los eventos se sincronizan automáticamente desde el calendario. 
+                    Para crear nuevos eventos, utiliza el <a href="{{ route('vocero.calendario') }}" class="text-decoration-none"><strong>Calendario</strong></a>.
                 </div>
-                <nav class="sidebar-nav">
-                    <a class="nav-link {{ request()->routeIs('vocero.dashboard') ? 'active' : '' }}" href="{{ route('vocero.dashboard') }}">
-                        <i class="fas fa-chart-line"></i>
-                        Resumen General
+
+                <div class="header-actions">
+                    <a href="{{ route('vocero.calendario') }}" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus me-2"></i>Ir al Calendario
                     </a>
-                    <a class="nav-link {{ request()->routeIs('vocero.calendario') ? 'active' : '' }}" href="{{ route('vocero.calendario') }}">
-                        <i class="fas fa-calendar"></i>
-                        Calendario
-                    </a>
-                    <a class="nav-link {{ request()->routeIs('vocero.eventos') ? 'active' : '' }}" href="{{ route('vocero.eventos') }}">
-                        <i class="fas fa-calendar-plus"></i>
-                        Gestión de Eventos
-                    </a>
-                    <a class="nav-link {{ request()->routeIs('vocero.asistencias') ? 'active' : '' }}" href="{{ route('vocero.asistencias') }}">
-                        <i class="fas fa-users"></i>
-                        Asistencias
-                    </a>
-                    <a class="nav-link {{ request()->routeIs('vocero.reportes') ? 'active' : '' }}" href="{{ route('vocero.reportes') }}">
-                        <i class="fas fa-chart-bar"></i>
-                        Reportes
-                    </a>
-                </nav>
+                    <button class="btn btn-outline-primary" onclick="exportEvents()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
             </div>
 
-            <div class="main-content">
-                <div class="content-area">
-                    <div class="page-header">
-                        <h1><i class="fas fa-calendar-check"></i>Gestión de Eventos</h1>
-                        <p class="page-subtitle">Administra y visualiza todos tus eventos programados</p>
-                        
-                        <div class="header-actions">
-                            <a href="{{ route('vocero.calendario') }}" class="btn btn-primary">
-                                <i class="fas fa-plus me-2"></i>Crear Nuevo Evento
-                            </a>
-                            <button class="btn btn-outline-secondary" onclick="refreshEvents()">
-                                <i class="fas fa-sync-alt me-2"></i>Actualizar
-                            </button>
-                            <button class="btn btn-export-pdf" onclick="exportEvents()">
-                                <i class="fas fa-download me-2"></i>Exportar PDF
-                            </button>
+            <div class="row stats-row">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card" data-filter="month" onclick="filterByCategory('month')">
+                        <div class="stat-header">
+                            <h3 class="stat-title">Este Mes</h3>
+                            <div class="stat-icon" style="background: var(--primary-color);">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
                         </div>
+                        <h2 class="stat-number" id="month-events">0</h2>
+                        <p class="stat-change">Eventos del mes actual</p>
                     </div>
-
-                    <div class="stats-row">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <div class="stat-card" data-filter="all" onclick="filterByCard('all')">
-                                    <div class="stat-header">
-                                        <h6 class="stat-title">Total de Eventos</h6>
-                                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                            <i class="fas fa-calendar-alt"></i>
-                                        </div>
-                                    </div>
-                                    <div class="stat-number" id="total-events">0</div>
-                                    <p class="stat-change"><i class="fas fa-info-circle me-1"></i>Todos los eventos</p>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <div class="stat-card" data-filter="month" onclick="filterByCard('month')">
-                                    <div class="stat-header">
-                                        <h6 class="stat-title">Este Mes</h6>
-                                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                                            <i class="fas fa-calendar-week"></i>
-                                        </div>
-                                    </div>
-                                    <div class="stat-number" id="month-events">0</div>
-                                    <p class="stat-change"><i class="fas fa-chart-line me-1"></i>Eventos mensuales</p>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <div class="stat-card" data-filter="upcoming" onclick="filterByCard('upcoming')">
-                                    <div class="stat-header">
-                                        <h6 class="stat-title">Próximos</h6>
-                                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                                            <i class="fas fa-clock"></i>
-                                        </div>
-                                    </div>
-                                    <div class="stat-number" id="upcoming-events">0</div>
-                                    <p class="stat-change"><i class="fas fa-arrow-up me-1"></i>Por realizar</p>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <div class="stat-card" data-filter="completed" onclick="filterByCard('completed')">
-                                    <div class="stat-header">
-                                        <h6 class="stat-title">Completados</h6>
-                                        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                                            <i class="fas fa-check-circle"></i>
-                                        </div>
-                                    </div>
-                                    <div class="stat-number" id="completed-events">0</div>
-                                    <p class="stat-change"><i class="fas fa-check me-1"></i>Finalizados</p>
-                                </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card" data-filter="upcoming" onclick="filterByCategory('upcoming')">
+                        <div class="stat-header">
+                            <h3 class="stat-title">Próximos</h3>
+                            <div class="stat-icon" style="background: var(--warning-color);">
+                                <i class="fas fa-clock"></i>
                             </div>
                         </div>
+                        <h2 class="stat-number" id="upcoming-events">0</h2>
+                        <p class="stat-change">Por realizar este mes</p>
                     </div>
-
-                    <div class="filter-section">
-                        <h5 class="filter-title">
-                            <i class="fas fa-filter"></i>
-                            Filtros de Búsqueda
-                            <span class="filter-indicator" id="filter-indicator" style="display: none;">
-                                <i class="fas fa-check"></i>
-                                <span id="filter-count">0</span> filtros activos
-                            </span>
-                        </h5>
-                        
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Buscar por título</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                    <input type="text" class="form-control" id="search-input" placeholder="Buscar eventos...">
-                                </div>
-                            </div>
-
-                            <div class="col-md-2">
-                                <label class="form-label">Estado</label>
-                                <select class="form-select" id="status-filter">
-                                    <option value="">Todos</option>
-                                    <option value="programado">Programado</option>
-                                    <option value="en_curso">En Curso</option>
-                                    <option value="finalizado">Finalizado</option>
-                                    <option value="cancelado">Cancelado</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-2">
-                                <label class="form-label">Categoría</label>
-                                <select class="form-select" id="category-filter">
-                                    <option value="">Todas</option>
-                                    <option value="reunion-virtual">Reunión Virtual</option>
-                                    <option value="reunion-presencial">Reunión Presencial</option>
-                                    <option value="inicio-proyecto">Inicio Proyecto</option>
-                                    <option value="finalizar-proyecto">Fin Proyecto</option>
-                                    <option value="otros">Otros</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-2">
-                                <label class="form-label">Desde</label>
-                                <input type="date" class="form-control" id="date-from">
-                            </div>
-
-                            <div class="col-md-2">
-                                <label class="form-label">Hasta</label>
-                                <input type="date" class="form-control" id="date-to">
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card" data-filter="today" onclick="filterByCategory('today')">
+                        <div class="stat-header">
+                            <h3 class="stat-title">Hoy</h3>
+                            <div class="stat-icon" style="background: var(--success-color);">
+                                <i class="fas fa-play-circle"></i>
                             </div>
                         </div>
-
-                        <div class="mt-3">
-                            <button class="btn btn-primary btn-sm" onclick="applyFilters()">
-                                <i class="fas fa-check me-1"></i>Aplicar Filtros
-                            </button>
-                            <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()">
-                                <i class="fas fa-times me-1"></i>Limpiar Filtros
-                            </button>
-                        </div>
+                        <h2 class="stat-number" id="today-events">0</h2>
+                        <p class="stat-change">Eventos de hoy</p>
                     </div>
-
-                    <div class="table-section">
-                        <div class="table-header">
-                            <h5 class="table-title">
-                                <i class="fas fa-list me-2"></i>
-                                Lista de Eventos
-                                <small class="text-muted ms-2" id="pagination-info">Cargando...</small>
-                            </h5>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table events-table">
-                                <thead>
-                                    <tr>
-                                        <th>Evento</th>
-                                        <th>Fecha y Hora</th>
-                                        <th>Ubicación</th>
-                                        <th>Categoría</th>
-                                        <th>Estado</th>
-                                        <th>Organizador</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="events-table-body">
-                                    <tr>
-                                        <td colspan="7" class="text-center py-5">
-                                            <div class="spinner-border text-primary" role="status">
-                                                <span class="visually-hidden">Cargando...</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div id="empty-state" class="empty-state" style="display: none;">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-calendar-times"></i>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card" data-filter="completed" onclick="filterByCategory('completed')">
+                        <div class="stat-header">
+                            <h3 class="stat-title">Completados</h3>
+                            <div class="stat-icon" style="background: var(--secondary-color);">
+                                <i class="fas fa-check-circle"></i>
                             </div>
-                            <h3>No hay eventos</h3>
-                            <p>No se encontraron eventos con los filtros seleccionados</p>
-                            <button class="btn btn-primary" onclick="clearFilters()">
-                                <i class="fas fa-redo me-2"></i>Limpiar Filtros
-                            </button>
                         </div>
+                        <h2 class="stat-number" id="completed-events">0</h2>
+                        <p class="stat-change">Ya realizados este mes</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">
+                    <i class="fas fa-filter"></i> Filtros y Búsqueda
+                </h3>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Buscar eventos</label>
+                        <input type="text" class="form-control" id="search-input" placeholder="Título, descripción, organizador...">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" id="status-filter">
+                            <option value="">Todos</option>
+                            <option value="programado">Programado</option>
+                            <option value="en_curso">En Curso</option>
+                            <option value="finalizado">Finalizado</option>
+                            <option value="cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">Categoría</label>
+                        <select class="form-select" id="category-filter">
+                            <option value="">Todas</option>
+                            <option value="reunion-virtual">Reunión Virtual</option>
+                            <option value="reunion-presencial">Reunión Presencial</option>
+                            <option value="inicio-proyecto">Inicio de Proyecto</option>
+                            <option value="finalizar-proyecto">Finalizar Proyecto</option>
+                            <option value="cumpleanos">Cumpleaños</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">Fecha desde</label>
+                        <input type="date" class="form-control" id="date-from">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">Fecha hasta</label>
+                        <input type="date" class="form-control" id="date-to">
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-end">
+                    <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="refreshEvents()">
+                        <i class="fas fa-sync"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <div class="table-header">
+                    <h3 class="table-title">Lista de Eventos</h3>
+                    <span class="filter-indicator" id="filter-indicator"></span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover" id="events-table">
+                        <thead>
+                            <tr>
+                                <th>Evento</th>
+                                <th>Fecha y Hora</th>
+                                <th>Ubicación</th>
+                                <th>Categoría</th>
+                                <th>Estado</th>
+                                <th>Organizador</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer">
+                    <div class="text-muted">
+                        <span id="pagination-info">Cargando eventos...</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
 
@@ -717,255 +685,344 @@
         let eventsData = [];
         let filteredEvents = [];
         let currentFilter = 'all';
+        let calendarMonth = null;
+        let calendarYear = null;
 
         $(document).ready(function() {
+            syncWithCalendar();
+            setupEventHandlers();
             loadEvents();
-            initializeEventListeners();
+            
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'calendar_current_month' || e.key === 'calendar_current_year') {
+                    syncWithCalendar();
+                    if (eventsData.length > 0) {
+                        updateStats(eventsData);
+                        if (currentFilter === 'month') {
+                            filterByCategory('month');
+                        }
+                    }
+                }
+            });
+            
+            window.addEventListener('eventosUpdated', function() {
+                console.log('🔄 Eventos actualizados, recargando...');
+                loadEvents();
+            });
         });
 
-        function initializeEventListeners() {
-            const debouncedFilter = debounce(applyFilters, 300);
+        function syncWithCalendar() {
+            const storedMonth = localStorage.getItem('calendar_current_month');
+            const storedYear = localStorage.getItem('calendar_current_year');
             
-            $('#search-input').on('input', debouncedFilter);
-            $('#status-filter, #category-filter, #date-from, #date-to').on('change', applyFilters);
+            if (storedMonth !== null && storedYear !== null) {
+                calendarMonth = parseInt(storedMonth);
+                calendarYear = parseInt(storedYear);
+            } else {
+                const now = new Date();
+                calendarMonth = now.getMonth();
+                calendarYear = now.getFullYear();
+            }
+        }
+
+        function setupEventHandlers() {
+            $('#search-input, #status-filter, #category-filter, #date-from, #date-to').on('input change', debounce(applyFilters, 500));
         }
 
         function loadEvents() {
             showLoading();
             
-            $.ajax({
-                url: '/api/calendario/eventos',
-                method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(eventos) {
-                    eventsData = eventos;
-                    filteredEvents = [...eventsData];
-                    updateStats(eventsData);
-                    displayEvents(filteredEvents);
-                    hideLoading();
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error al cargar eventos:', error);
-                    showToast('Error al cargar eventos', 'error');
-                    hideLoading();
-                }
-            });
+            setTimeout(function() {
+                const eventos = localStorage.getItem('eventos');
+                eventsData = eventos ? JSON.parse(eventos) : [];
+                
+                console.log('=== EVENTOS CARGADOS DESDE LOCALSTORAGE ===');
+                console.log('Total eventos:', eventsData.length);
+                console.log('==========================================');
+                
+                filteredEvents = [...eventsData];
+                displayEvents(filteredEvents);
+                updateStats(eventsData);
+                updateFilterIndicator();
+                hideLoading();
+            }, 300);
         }
 
         function updateStats(events) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const thisMonth = today.getMonth();
-            const thisYear = today.getFullYear();
-
-            const monthEvents = events.filter(e => {
-                const eventDate = new Date(e.start || e.fecha_inicio);
-                return eventDate.getMonth() === thisMonth && eventDate.getFullYear() === thisYear;
+            const now = new Date();
+            const currentMonth = calendarMonth !== null ? calendarMonth : now.getMonth();
+            const currentYear = calendarYear !== null ? calendarYear : now.getFullYear();
+            const today = now.toDateString();
+            
+            const monthEvents = events.filter(event => {
+                const eventDate = new Date(event.fecha_inicio || event.start);
+                return eventDate.getMonth() === currentMonth && eventDate.getFullYear() === currentYear;
             });
-
-            const upcomingEvents = events.filter(e => {
-                const eventDate = new Date(e.start || e.fecha_inicio);
-                return eventDate >= today && (e.extendedProps?.estado !== 'finalizado');
+            
+            const upcomingEvents = events.filter(event => {
+                const eventDate = new Date(event.fecha_inicio || event.start);
+                return eventDate.getMonth() === currentMonth && 
+                       eventDate.getFullYear() === currentYear && 
+                       eventDate > now;
             });
-
-            const completedEvents = events.filter(e => 
-                e.extendedProps?.estado === 'finalizado'
-            );
-
-            $('#total-events').text(events.length);
+            
+            const todayEvents = events.filter(event => {
+                const eventDate = new Date(event.fecha_inicio || event.start);
+                return eventDate.toDateString() === today;
+            });
+            
+            const completedEvents = events.filter(event => {
+                const eventDate = new Date(event.fecha_inicio || event.start);
+                return eventDate.getMonth() === currentMonth && 
+                       eventDate.getFullYear() === currentYear && 
+                       eventDate < now;
+            });
+            
             $('#month-events').text(monthEvents.length);
             $('#upcoming-events').text(upcomingEvents.length);
+            $('#today-events').text(todayEvents.length);
             $('#completed-events').text(completedEvents.length);
         }
 
-        function filterByCard(filterType) {
+        function filterByCategory(category) {
             $('.stat-card').removeClass('active');
-            $(`.stat-card[data-filter="${filterType}"]`).addClass('active');
+            $(`.stat-card[data-filter="${category}"]`).addClass('active');
             
-            currentFilter = filterType;
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            switch(filterType) {
-                case 'all':
-                    filteredEvents = [...eventsData];
-                    break;
-                
+            currentFilter = category;
+            const now = new Date();
+            const currentMonth = calendarMonth !== null ? calendarMonth : now.getMonth();
+            const currentYear = calendarYear !== null ? calendarYear : now.getFullYear();
+            const today = now.toDateString();
+            
+            let filtered = [...eventsData];
+            
+            switch(category) {
                 case 'month':
-                    const thisMonth = today.getMonth();
-                    const thisYear = today.getFullYear();
-                    filteredEvents = eventsData.filter(e => {
-                        const eventDate = new Date(e.start || e.fecha_inicio);
-                        return eventDate.getMonth() === thisMonth && eventDate.getFullYear() === thisYear;
+                    filtered = eventsData.filter(event => {
+                        const eventDate = new Date(event.fecha_inicio || event.start);
+                        return eventDate.getMonth() === currentMonth && eventDate.getFullYear() === currentYear;
                     });
                     break;
-                
+                    
                 case 'upcoming':
-                    filteredEvents = eventsData.filter(e => {
-                        const eventDate = new Date(e.start || e.fecha_inicio);
-                        return eventDate >= today && (e.extendedProps?.estado !== 'finalizado');
+                    filtered = eventsData.filter(event => {
+                        const eventDate = new Date(event.fecha_inicio || event.start);
+                        return eventDate.getMonth() === currentMonth && 
+                               eventDate.getFullYear() === currentYear && 
+                               eventDate > now;
                     });
                     break;
-                
+                    
                 case 'today':
-                    filteredEvents = eventsData.filter(e => {
-                        const eventDate = new Date(e.start || e.fecha_inicio);
-                        return eventDate.toDateString() === today.toDateString();
+                    filtered = eventsData.filter(event => {
+                        const eventDate = new Date(event.fecha_inicio || event.start);
+                        return eventDate.toDateString() === today;
                     });
                     break;
-                
+                    
                 case 'completed':
-                    filteredEvents = eventsData.filter(e => 
-                        e.extendedProps?.estado === 'finalizado'
-                    );
+                    filtered = eventsData.filter(event => {
+                        const eventDate = new Date(event.fecha_inicio || event.start);
+                        return eventDate.getMonth() === currentMonth && 
+                               eventDate.getFullYear() === currentYear && 
+                               eventDate < now;
+                    });
+                    break;
+                    
+                default:
+                    filtered = [...eventsData];
+                    $('.stat-card').removeClass('active');
                     break;
             }
-
-            displayEvents(filteredEvents);
-        }
-
-        function applyFilters() {
-            const searchTerm = $('#search-input').val().toLowerCase();
-            const statusFilter = $('#status-filter').val();
-            const categoryFilter = $('#category-filter').val();
-            const dateFrom = $('#date-from').val();
-            const dateTo = $('#date-to').val();
-
-            filteredEvents = eventsData.filter(event => {
-                const title = (event.title || event.titulo || '').toLowerCase();
-                const matchesSearch = !searchTerm || title.includes(searchTerm);
-                
-                const matchesStatus = !statusFilter || event.extendedProps?.estado === statusFilter;
-                const matchesCategory = !categoryFilter || event.extendedProps?.tipo_evento === categoryFilter;
-                
-                let matchesDate = true;
-                if (dateFrom || dateTo) {
-                    const eventDate = new Date(event.start || event.fecha_inicio);
-                    if (dateFrom) {
-                        matchesDate = matchesDate && eventDate >= new Date(dateFrom);
-                    }
-                    if (dateTo) {
-                        matchesDate = matchesDate && eventDate <= new Date(dateTo);
-                    }
-                }
-
-                return matchesSearch && matchesStatus && matchesCategory && matchesDate;
-            });
-
+            
+            filteredEvents = filtered;
             displayEvents(filteredEvents);
             updateFilterIndicator();
         }
 
-        function updateFilterIndicator() {
-            let activeFilters = 0;
+        function applyFilters() {
+            const search = $('#search-input').val().toLowerCase();
+            const status = $('#status-filter').val();
+            const category = $('#category-filter').val();
+            const dateFrom = $('#date-from').val();
+            const dateTo = $('#date-to').val();
             
-            if ($('#search-input').val()) activeFilters++;
-            if ($('#status-filter').val()) activeFilters++;
-            if ($('#category-filter').val()) activeFilters++;
-            if ($('#date-from').val()) activeFilters++;
-            if ($('#date-to').val()) activeFilters++;
-
-            if (activeFilters > 0) {
-                $('#filter-count').text(activeFilters);
-                $('#filter-indicator').show();
-            } else {
-                $('#filter-indicator').hide();
+            let filtered = [...filteredEvents];
+            
+            if (search) {
+                filtered = filtered.filter(event => {
+                    const titulo = (event.titulo || event.title || '').toLowerCase();
+                    const organizador = (event.extendedProps?.organizador || '').toLowerCase();
+                    const ubicacion = (event.extendedProps?.detalles?.lugar || event.extendedProps?.detalles?.enlace || '').toLowerCase();
+                    
+                    return titulo.includes(search) || 
+                           organizador.includes(search) ||
+                           ubicacion.includes(search);
+                });
             }
+            
+            if (status) {
+                filtered = filtered.filter(event => {
+                    const eventStatus = event.extendedProps?.estado || event.extendedProps?.status || 'programado';
+                    return eventStatus === status;
+                });
+            }
+            
+            if (category) {
+                filtered = filtered.filter(event => {
+                    const eventCategory = event.extendedProps?.tipo_evento || event.extendedProps?.category;
+                    return eventCategory === category;
+                });
+            }
+            
+            if (dateFrom) {
+                filtered = filtered.filter(event => {
+                    const eventDate = event.start || event.fecha_inicio;
+                    return eventDate >= dateFrom;
+                });
+            }
+            
+            if (dateTo) {
+                filtered = filtered.filter(event => {
+                    const eventDate = event.start || event.fecha_inicio;
+                    return eventDate <= dateTo + 'T23:59:59';
+                });
+            }
+            
+            displayEvents(filtered);
+        }
+
+        function updateFilterIndicator() {
+            const indicator = $('#filter-indicator');
+            let text = '';
+            
+            switch(currentFilter) {
+                case 'month':
+                    text = 'Mostrando: Eventos del mes actual';
+                    break;
+                case 'upcoming':
+                    text = 'Mostrando: Próximos eventos';
+                    break;
+                case 'today':
+                    text = 'Mostrando: Eventos de hoy';
+                    break;
+                case 'completed':
+                    text = 'Mostrando: Eventos completados del mes';
+                    break;
+                default:
+                    text = 'Mostrando: Todos los eventos';
+                    break;
+            }
+            
+            indicator.text(text);
         }
 
         function displayEvents(events) {
-            const tbody = $('#events-table-body');
+            const tbody = $('#events-table tbody');
             tbody.empty();
-
+            
             if (events.length === 0) {
-                tbody.html(`
+                let emptyMessage = 'No se encontraron eventos';
+                let emptyDescription = 'Los eventos creados desde el calendario aparecerán aquí automáticamente';
+                
+                switch(currentFilter) {
+                    case 'month':
+                        emptyMessage = 'No hay eventos este mes';
+                        emptyDescription = 'Los eventos del mes actual aparecerán aquí';
+                        break;
+                    case 'upcoming':
+                        emptyMessage = 'No hay próximos eventos';
+                        emptyDescription = 'Los eventos futuros aparecerán aquí';
+                        break;
+                    case 'today':
+                        emptyMessage = 'No hay eventos hoy';
+                        emptyDescription = 'Los eventos programados para hoy aparecerán aquí';
+                        break;
+                    case 'completed':
+                        emptyMessage = 'No hay eventos completados este mes';
+                        emptyDescription = 'Los eventos ya realizados del mes aparecerán aquí';
+                        break;
+                }
+                
+                tbody.append(`
                     <tr>
-                        <td colspan="7" class="text-center py-5">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">
-                                    <i class="fas fa-calendar-times"></i>
-                                </div>
-                                <h3>No hay eventos</h3>
-                                <p>No se encontraron eventos con los criterios seleccionados</p>
-                            </div>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <h3>${emptyMessage}</h3>
+                            <p>${emptyDescription}</p>
+                            <a href="{{ route('vocero.calendario') }}" class="btn btn-primary mt-3">
+                                <i class="fas fa-calendar-plus me-2"></i>Ir al Calendario
+                            </a>
                         </td>
                     </tr>
                 `);
                 updatePaginationInfo(0);
                 return;
             }
-
+            
             events.forEach(event => {
-                const titulo = event.title || event.titulo || 'Sin título';
-                const fechaInicio = new Date(event.start || event.fecha_inicio);
-                const fechaFin = event.end || event.fecha_fin ? new Date(event.end || event.fecha_fin) : null;
+                const startDate = new Date(event.fecha_inicio || event.start);
+                const endDate = new Date(event.fecha_fin || event.end);
                 
-                const tipoEvento = event.extendedProps?.tipo_evento || '';
-                const estado = event.extendedProps?.estado || 'programado';
-                const organizador = event.extendedProps?.organizador || 'Sin organizador';
+                const titulo = event.titulo || event.title || 'Sin título';
+                const organizador = event.extendedProps?.organizador || event.extendedProps?.organizer || 'No especificado';
+                const tipoEvento = event.extendedProps?.tipo_evento || event.extendedProps?.category || 'sin-categoria';
+                const estado = event.extendedProps?.estado || event.extendedProps?.status || 'programado';
                 
-                let ubicacion = '';
-                if (event.extendedProps?.detalles) {
-                    const detalles = event.extendedProps.detalles;
-                    
-                    if (detalles.lugar) {
-                        ubicacion = `<i class="fas fa-map-marker-alt me-1 text-muted"></i> ${detalles.lugar}`;
-                    } else if (detalles.enlace) {
-                        ubicacion = `<a href="${detalles.enlace}" target="_blank" class="text-primary"><i class="fas fa-video me-1"></i> Virtual</a>`;
+                let ubicacion = 'No especificada';
+                const detalles = event.extendedProps?.detalles;
+                if (detalles) {
+                    if (detalles.enlace) {
+                        ubicacion = 'Reunión Virtual';
+                    } else if (detalles.lugar) {
+                        ubicacion = detalles.lugar;
                     } else if (detalles.ubicacion_proyecto) {
-                        ubicacion = `<i class="fas fa-project-diagram me-1 text-muted"></i> ${detalles.ubicacion_proyecto}`;
-                    } else if (detalles.ubicacion_otros) {
-                        ubicacion = `<i class="fas fa-info-circle me-1 text-muted"></i> ${detalles.ubicacion_otros}`;
+                        ubicacion = detalles.ubicacion_proyecto;
                     }
                 }
-
-                if (!ubicacion) {
-                    ubicacion = '<span class="text-muted"><i class="fas fa-question-circle me-1"></i> Sin ubicación</span>';
-                }
-
-                const fechaFormateada = fechaInicio.toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                });
                 
-                const horaFormateada = fechaInicio.toLocaleTimeString('es-ES', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                const row = `
+                tbody.append(`
                     <tr>
                         <td>
-                            <div class="event-title">${titulo}</div>
+                            <div>
+                                <h6 class="event-title">${titulo}</h6>
+                            </div>
                         </td>
                         <td>
-                            <div><i class="fas fa-calendar me-2 text-muted"></i>${fechaFormateada}</div>
-                            <div class="text-muted small"><i class="fas fa-clock me-2"></i>${horaFormateada}</div>
+                            <div>
+                                <p class="event-date">${startDate.toLocaleDateString('es-ES')}</p>
+                                <p class="event-time">${startDate.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})} - ${endDate.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</p>
+                            </div>
                         </td>
                         <td>${ubicacion}</td>
-                        <td><span class="badge badge-category-${getCategoryClass(tipoEvento)}">${getCategoryName(tipoEvento)}</span></td>
-                        <td><span class="badge badge-status-${getStatusClass(estado)}">${getStatusName(estado)}</span></td>
+                        <td>
+                            <span class="category-badge category-${getCategoryClass(tipoEvento)}">
+                                ${getCategoryName(tipoEvento)}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-${estado}">
+                                ${getStatusName(estado)}
+                            </span>
+                        </td>
                         <td>${organizador}</td>
                         <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-info btn-sm" onclick="viewEvent(${event.id})" title="Ver detalles">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary btn-sm" onclick="viewEvent('${event.id}')" title="Ver detalles">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteEvent(${event.id})" title="Eliminar">
+                                <a href="{{ route('vocero.calendario') }}" class="btn btn-outline-warning btn-sm" title="Editar en calendario">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm" onclick="deleteEvent('${event.id}')" title="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
-                `;
-                
-                tbody.append(row);
+                `);
             });
-
+            
             updatePaginationInfo(events.length);
         }
 
@@ -976,47 +1033,38 @@
                 return;
             }
 
-            const titulo = event.title || event.titulo || 'Sin título';
-            const fechaInicio = new Date(event.start || event.fecha_inicio);
-            const fechaFin = event.end || event.fecha_fin ? new Date(event.end || event.fecha_fin) : null;
+            const startDate = new Date(event.fecha_inicio || event.start);
+            const endDate = new Date(event.fecha_fin || event.end);
             
-            const tipoEvento = event.extendedProps?.tipo_evento || '';
+            const titulo = event.titulo || event.title || 'Sin título';
+            const organizador = event.extendedProps?.organizador || 'No especificado';
+            const tipoEvento = event.extendedProps?.tipo_evento || 'sin-categoria';
             const estado = event.extendedProps?.estado || 'programado';
-            const organizador = event.extendedProps?.organizador || 'Sin organizador';
             
-            let ubicacion = 'Sin ubicación';
+            let ubicacion = 'No especificada';
             let detallesAdicionales = '';
             
-            if (event.extendedProps?.detalles) {
-                const detalles = event.extendedProps.detalles;
-                
-                if (detalles.lugar) {
-                    ubicacion = detalles.lugar;
-                } else if (detalles.enlace) {
+            const detalles = event.extendedProps?.detalles;
+            if (detalles) {
+                if (detalles.enlace) {
                     ubicacion = 'Reunión Virtual';
-                    detallesAdicionales = `<p style="margin: 0;"><strong>Enlace:</strong> <a href="${detalles.enlace}" target="_blank">${detalles.enlace}</a></p>`;
+                    detallesAdicionales += `<p style="margin: 0;"><strong>Enlace:</strong> <a href="${detalles.enlace}" target="_blank">${detalles.enlace}</a></p>`;
+                } else if (detalles.lugar) {
+                    ubicacion = detalles.lugar;
+                    detallesAdicionales += `<p style="margin: 0;"><strong>Lugar específico:</strong> ${detalles.lugar}</p>`;
                 } else if (detalles.ubicacion_proyecto) {
                     ubicacion = detalles.ubicacion_proyecto;
-                } else if (detalles.ubicacion_otros) {
-                    ubicacion = detalles.ubicacion_otros;
+                    detallesAdicionales += `<p style="margin: 0;"><strong>Ubicación del proyecto:</strong> ${detalles.ubicacion_proyecto}</p>`;
                 }
             }
-
-            const fechaFormateada = fechaInicio.toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
+            
             Swal.fire({
-                title: titulo,
+                title: `<strong>${titulo}</strong>`,
                 html: `
-                    <div style="text-align: left;">
-                        <div style="background: #f1f5f9; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
-                            <p style="margin: 0;"><strong>Fecha:</strong> ${fechaFormateada}</p>
+                    <div style="text-align: left; margin: 20px 0; font-size: 14px; line-height: 1.6;">
+                        <div style="display: grid; gap: 12px;">
+                            <p style="margin: 0;"><strong>Fecha inicio:</strong> ${startDate.toLocaleDateString('es-ES')} a las ${startDate.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</p>
+                            <p style="margin: 0;"><strong>Fecha fin:</strong> ${endDate.toLocaleDateString('es-ES')} a las ${endDate.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</p>
                             <p style="margin: 0;"><strong>Ubicación:</strong> ${ubicacion}</p>
                             <p style="margin: 0;"><strong>Tipo:</strong> ${getCategoryName(tipoEvento)}</p>
                             <p style="margin: 0;"><strong>Estado:</strong> ${getStatusName(estado)}</p>
@@ -1067,31 +1115,17 @@
                 if (result.isConfirmed) {
                     showLoading();
                     
-                    $.ajax({
-                        url: `/api/calendario/eventos/${id}`,
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                eventsData = eventsData.filter(e => e.id != id);
-                                filteredEvents = filteredEvents.filter(e => e.id != id);
-                                displayEvents(filteredEvents);
-                                updateStats(eventsData);
-                                showToast('Evento eliminado correctamente', 'success');
-                            } else {
-                                showToast(response.mensaje || 'Error al eliminar el evento', 'error');
-                            }
-                            hideLoading();
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Error al eliminar evento:', error);
-                            const mensaje = xhr.responseJSON?.mensaje || 'Error al eliminar el evento';
-                            showToast(mensaje, 'error');
-                            hideLoading();
-                        }
-                    });
+                    let eventos = JSON.parse(localStorage.getItem('eventos') || '[]');
+                    eventos = eventos.filter(e => e.id != id);
+                    localStorage.setItem('eventos', JSON.stringify(eventos));
+                    window.dispatchEvent(new Event('eventosUpdated'));
+                    
+                    eventsData = eventsData.filter(e => e.id != id);
+                    filteredEvents = filteredEvents.filter(e => e.id != id);
+                    displayEvents(filteredEvents);
+                    updateStats(eventsData);
+                    showToast('Evento eliminado correctamente', 'success');
+                    hideLoading();
                 }
             });
         }
@@ -1117,8 +1151,7 @@
             loadEvents();
         }
 
-        // 🆕 FUNCIÓN MEJORADA: Exportar a PDF
-        async function exportEvents() {
+        function exportEvents() {
             const eventsToExport = filteredEvents.length > 0 ? filteredEvents : eventsData;
             
             if (eventsToExport.length === 0) {
@@ -1126,223 +1159,65 @@
                 return;
             }
 
-            showToast('📄 Generando PDF de eventos...', 'info');
+            Swal.fire({
+                title: 'Exportar Eventos',
+                text: 'Selecciona el formato de exportación',
+                icon: 'question',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'CSV',
+                denyButtonText: 'Excel',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    exportToCSV(eventsToExport);
+                } else if (result.isDenied) {
+                    showToast('Función de Excel próximamente...', 'info');
+                }
+            });
+        }
+
+        function exportToCSV(events) {
+            const headers = ['Título', 'Fecha Inicio', 'Fecha Fin', 'Ubicación', 'Categoría', 'Estado', 'Organizador'];
+            const rows = events.map(event => [
+                event.titulo || event.title || '',
+                event.fecha_inicio || event.start || '',
+                event.fecha_fin || event.end || '',
+                event.extendedProps?.detalles?.lugar || event.extendedProps?.detalles?.enlace || '',
+                getCategoryName(event.extendedProps?.tipo_evento || ''),
+                getStatusName(event.extendedProps?.estado || ''),
+                event.extendedProps?.organizador || ''
+            ]);
+
+            const csvContent = [headers, ...rows]
+                .map(row => row.map(field => `"${field}"`).join(','))
+                .join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
             
-            try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('l', 'mm', 'a4'); // Orientación horizontal
-                
-                let yPos = 20;
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
-                const margin = 15;
-                const usableWidth = pageWidth - (margin * 2);
-                
-                // ENCABEZADO
-                doc.setFillColor(37, 99, 235);
-                doc.rect(0, 0, pageWidth, 50, 'F');
-                
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(24);
-                doc.setFont(undefined, 'bold');
-                doc.text('Lista de Eventos', pageWidth / 2, 25, { align: 'center' });
-                
-                let filtroTexto = '';
-                switch(currentFilter) {
-                    case 'month': filtroTexto = 'Eventos del Mes Actual'; break;
-                    case 'upcoming': filtroTexto = 'Eventos Próximos'; break;
-                    case 'completed': filtroTexto = 'Eventos Completados'; break;
-                    default: filtroTexto = 'Todos los Eventos';
-                }
-                
-                doc.setFontSize(12);
-                doc.setFont(undefined, 'normal');
-                doc.text(filtroTexto, pageWidth / 2, 38, { align: 'center' });
-                
-                yPos = 60;
-                doc.setTextColor(0, 0, 0);
-                
-                // INFO GENERAL
-                doc.setFontSize(10);
-                doc.setTextColor(100, 116, 139);
-                const fechaActual = new Date().toLocaleDateString('es-ES', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                doc.text(`Generado: ${fechaActual}`, margin, yPos);
-                yPos += 8;
-                
-                doc.text(`Total de eventos: ${eventsToExport.length}`, margin, yPos);
-                yPos += 12;
-                
-                doc.setTextColor(0, 0, 0);
-                
-                // ENCABEZADOS DE TABLA
-                const colWidths = {
-                    titulo: 55,
-                    fecha: 35,
-                    ubicacion: 45,
-                    tipo: 35,
-                    estado: 25,
-                    organizador: 45
-                };
-                
-                doc.setFillColor(241, 245, 249);
-                doc.rect(margin, yPos, usableWidth, 10, 'F');
-                
-                doc.setFontSize(9);
-                doc.setFont(undefined, 'bold');
-                doc.setTextColor(71, 85, 105);
-                
-                let xPos = margin + 2;
-                doc.text('Título', xPos, yPos + 7);
-                xPos += colWidths.titulo;
-                doc.text('Fecha', xPos, yPos + 7);
-                xPos += colWidths.fecha;
-                doc.text('Ubicación', xPos, yPos + 7);
-                xPos += colWidths.ubicacion;
-                doc.text('Tipo', xPos, yPos + 7);
-                xPos += colWidths.tipo;
-                doc.text('Estado', xPos, yPos + 7);
-                xPos += colWidths.estado;
-                doc.text('Organizador', xPos, yPos + 7);
-                
-                yPos += 12;
-                
-                doc.setDrawColor(226, 232, 240);
-                doc.line(margin, yPos, pageWidth - margin, yPos);
-                yPos += 2;
-                
-                doc.setFont(undefined, 'normal');
-                doc.setFontSize(8);
-                doc.setTextColor(0, 0, 0);
-                
-                let rowCount = 0;
-                let alternateRow = false;
-                
-                // FILAS DE DATOS
-                eventsToExport.forEach(event => {
-                    if (yPos > pageHeight - 30) {
-                        doc.addPage();
-                        yPos = 20;
-                        
-                        // Repetir encabezados en nueva página
-                        doc.setFillColor(241, 245, 249);
-                        doc.rect(margin, yPos, usableWidth, 10, 'F');
-                        
-                        doc.setFontSize(9);
-                        doc.setFont(undefined, 'bold');
-                        doc.setTextColor(71, 85, 105);
-                        
-                        xPos = margin + 2;
-                        doc.text('Título', xPos, yPos + 7);
-                        xPos += colWidths.titulo;
-                        doc.text('Fecha', xPos, yPos + 7);
-                        xPos += colWidths.fecha;
-                        doc.text('Ubicación', xPos, yPos + 7);
-                        xPos += colWidths.ubicacion;
-                        doc.text('Tipo', xPos, yPos + 7);
-                        xPos += colWidths.tipo;
-                        doc.text('Estado', xPos, yPos + 7);
-                        xPos += colWidths.estado;
-                        doc.text('Organizador', xPos, yPos + 7);
-                        
-                        yPos += 12;
-                        doc.setDrawColor(226, 232, 240);
-                        doc.line(margin, yPos, pageWidth - margin, yPos);
-                        yPos += 2;
-                        
-                        doc.setFont(undefined, 'normal');
-                        doc.setFontSize(8);
-                        doc.setTextColor(0, 0, 0);
-                    }
-                    
-                    if (alternateRow) {
-                        doc.setFillColor(248, 250, 252);
-                        doc.rect(margin, yPos, usableWidth, 8, 'F');
-                    }
-                    alternateRow = !alternateRow;
-                    
-                    const titulo = (event.title || event.titulo || 'Sin título').substring(0, 35);
-                    const fechaInicio = new Date(event.start || event.fecha_inicio);
-                    const fechaStr = fechaInicio.toLocaleDateString('es-ES', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                    
-                    let ubicacion = 'Sin ubicación';
-                    if (event.extendedProps?.detalles) {
-                        const det = event.extendedProps.detalles;
-                        ubicacion = det.lugar || det.ubicacion_proyecto || det.ubicacion_otros || (det.enlace ? 'Virtual' : 'Sin ubicación');
-                    }
-                    ubicacion = ubicacion.substring(0, 30);
-                    
-                    const tipo = getCategoryName(event.extendedProps?.tipo_evento || '').substring(0, 20);
-                    const estado = getStatusName(event.extendedProps?.estado || '').substring(0, 15);
-                    const organizador = (event.extendedProps?.organizador || 'Sin organizador').substring(0, 30);
-                    
-                    xPos = margin + 2;
-                    doc.setFont(undefined, 'bold');
-                    doc.text(titulo, xPos, yPos + 6);
-                    
-                    doc.setFont(undefined, 'normal');
-                    xPos += colWidths.titulo;
-                    doc.text(fechaStr, xPos, yPos + 6);
-                    
-                    xPos += colWidths.fecha;
-                    doc.text(ubicacion, xPos, yPos + 6);
-                    
-                    xPos += colWidths.ubicacion;
-                    doc.text(tipo, xPos, yPos + 6);
-                    
-                    xPos += colWidths.tipo;
-                    doc.text(estado, xPos, yPos + 6);
-                    
-                    xPos += colWidths.estado;
-                    doc.text(organizador, xPos, yPos + 6);
-                    
-                    yPos += 10;
-                    rowCount++;
-                });
-                
-                // PIE DE PÁGINA
-                const pageCount = doc.internal.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                    doc.setPage(i);
-                    
-                    doc.setDrawColor(226, 232, 240);
-                    doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
-                    
-                    doc.setFontSize(8);
-                    doc.setTextColor(150, 150, 150);
-                    doc.text(
-                        `Página ${i} de ${pageCount}`,
-                        margin,
-                        pageHeight - 10
-                    );
-                    doc.text(
-                        'Sistema Macero',
-                        pageWidth - margin,
-                        pageHeight - 10,
-                        { align: 'right' }
-                    );
-                }
-                
-                const nombreArchivo = `Eventos_${filtroTexto.replace(/\s/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-                doc.save(nombreArchivo);
-                
-                showToast(`✅ PDF generado (${rowCount} eventos)`, 'success');
-                
-            } catch (error) {
-                console.error('Error generando PDF:', error);
-                showToast('❌ Error al generar el PDF', 'error');
+            let filename = 'eventos';
+            switch(currentFilter) {
+                case 'month':
+                    filename += '_mes_actual';
+                    break;
+                case 'upcoming':
+                    filename += '_proximos';
+                    break;
+                case 'today':
+                    filename += '_hoy';
+                    break;
+                case 'completed':
+                    filename += '_completados';
+                    break;
             }
+            filename += `_${new Date().toISOString().split('T')[0]}.csv`;
+            
+            link.download = filename;
+            link.click();
+            
+            showToast('Archivo CSV descargado correctamente', 'success');
         }
 
         function updatePaginationInfo(total) {
@@ -1362,7 +1237,7 @@
                 'reunion-presencial': 'reunion-presencial',
                 'inicio-proyecto': 'inicio-proyecto',
                 'finalizar-proyecto': 'finalizar-proyecto',
-                'otros': 'otros'
+                'cumpleanos': 'cumpleanos'
             };
             return mapping[category] || 'sin-categoria';
         }
@@ -1373,37 +1248,27 @@
                 'reunion-presencial': 'Reunión Presencial',
                 'inicio-proyecto': 'Inicio de Proyecto',
                 'finalizar-proyecto': 'Fin de Proyecto',
-                'otros': 'Otros'
+                'cumpleanos': 'Cumpleaños'
             };
             return mapping[category] || 'Sin categoría';
         }
 
         function getStatusName(status) {
-            const normalizedStatus = String(status).toLowerCase().trim();
-            
             const mapping = {
                 'programado': 'Programado',
                 'en_curso': 'En Curso',
-                'en-curso': 'En Curso',
-                'en curso': 'En Curso',
-                'encurso': 'En Curso',
                 'finalizado': 'Finalizado',
                 'cancelado': 'Cancelado'
             };
-            return mapping[normalizedStatus] || 'Sin estado';
-        }
-
-        function getStatusClass(status) {
-            const normalizedStatus = String(status).toLowerCase().trim();
-            return normalizedStatus.replace(/[\s-]+/g, '_');
+            return mapping[status] || 'Sin estado';
         }
 
         function showLoading() {
-            $('#loading-overlay').addClass('active');
+            $('body').addClass('loading');
         }
 
         function hideLoading() {
-            $('#loading-overlay').removeClass('active');
+            $('body').removeClass('loading');
         }
 
         function showToast(message, type = 'info') {
