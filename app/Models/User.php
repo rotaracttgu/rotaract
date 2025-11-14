@@ -17,8 +17,12 @@ class User extends Authenticatable
         'apellidos',
         'username',
         'email',
+        'rotary_id',
         'dni',
         'telefono',
+        'fecha_juramentacion',
+        'fecha_cumpleaños',
+        'activo',
         'password',
         'first_login',
         'pregunta_seguridad_1',
@@ -55,6 +59,9 @@ class User extends Authenticatable
             'two_factor_verified_at' => 'datetime',
             'locked_until' => 'datetime',
             'is_locked' => 'boolean',
+            'activo' => 'boolean',
+            'fecha_juramentacion' => 'date',
+            'fecha_cumpleaños' => 'date',
         ];
     }
 
@@ -138,7 +145,7 @@ class User extends Authenticatable
         } elseif ($this->isTesorero()) {
             return route('tesorero.dashboard');
         } elseif ($this->isSecretario()) {
-            return route('secretario.dashboard');
+            return route('secretaria.dashboard');
         } elseif ($this->isVocero()) {
             return route('vocero.dashboard');
         } elseif ($this->isAspirante()) {

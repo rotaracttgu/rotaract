@@ -2,51 +2,35 @@
 
 namespace App\Providers;
 
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
-use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Notificacion;
 
-class EventServiceProvider extends ServiceProvider
+class AppServiceProvider extends ServiceProvider
 {
     /**
-     * The event to listener mappings for the application.
-     *
-     * @var array<class-string, array<int, class-string>>
+     * Register any application services.
      */
-    protected $listen = [
-        // Eventos de Autenticación para Bitácora
-        \Illuminate\Auth\Events\Login::class => [
-            [\App\Listeners\LogAuthenticationEvents::class, 'handleLogin'],
-        ],
-        \Illuminate\Auth\Events\Failed::class => [
-            [\App\Listeners\LogAuthenticationEvents::class, 'handleFailed'],
-        ],
-        \Illuminate\Auth\Events\Logout::class => [
-            [\App\Listeners\LogAuthenticationEvents::class, 'handleLogout'],
-        ],
-        \Illuminate\Auth\Events\Registered::class => [
-            SendEmailVerificationNotification::class,
-            [\App\Listeners\LogAuthenticationEvents::class, 'handleRegistered'],
-        ],
-        \Illuminate\Auth\Events\PasswordReset::class => [
-            [\App\Listeners\LogAuthenticationEvents::class, 'handlePasswordReset'],
-        ],
-    ];
-
-    /**
-     * Register any events for your application.
-     */
-    public function boot(): void
+    public function register(): void
     {
         //
     }
 
     /**
-     * Determine if events and listeners should be automatically discovered.
+     * Bootstrap any application services.
      */
-    public function shouldDiscoverEvents(): bool
+    public function boot(): void
     {
-        return false;
+        // Compartir contador de notificaciones en todas las vistas
+        View::composer('*', function ($view) {
+            if (Auth::check()) {
+                // Contar notificaciones no leídas del usuario actual
+                $notificacionesNoLeidas = Notificacion::where('usuario_id', Auth::id())
+                    ->where('leida', false)
+                    ->count();
+                $view->with('notificacionesNoLeidas', $notificacionesNoLeidas);
+            }
+        });
     }
 }

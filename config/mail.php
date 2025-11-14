@@ -14,7 +14,8 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    // ✅ Cambiado a 'resend' como predeterminado (antes: 'log')
+    'default' => env('MAIL_MAILER', 'resend'),
 
     /*
     |--------------------------------------------------------------------------
@@ -62,7 +63,19 @@ return [
         ],
 
         'resend' => [
+            // ⬇️ Ajuste clave: usar el driver nativo de Laravel para Resend
+            // en lugar de 'symfony' + DSN.
             'transport' => 'resend',
+
+            // Respaldo de clave aquí (Laravel también puede leerla desde config/services.php)
+            'key' => env('RESEND_API_KEY'),
+
+            // Mantengo tus líneas y comentario para no borrar nada innecesario:
+            // Use Symfony transport with DSN from MAIL_DSN environment variable.
+            // In .env set: MAIL_MAILER=resend and MAIL_DSN=resend+api://YOUR_API_KEY@default
+            // 'transport' => 'symfony',
+            // Django style: URL/DSN is read from MAIL_DSN in .env
+            'url' => env('MAIL_DSN'),
         ],
 
         'sendmail' => [
@@ -82,7 +95,8 @@ return [
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
-                'smtp',
+                // ✅ Pongo resend primero para que sea el primario en failover
+                'resend',
                 'log',
             ],
             'retry_after' => 60,
