@@ -1,492 +1,801 @@
-@extends('layouts.app')
-
-@section('title', 'Cartas de Patrocinio - Vicepresidente')
+@extends('modulos.vicepresidente.layout')
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h2 class="mb-0">Cartas de Patrocinio</h2>
-            <p class="text-muted">Gestión de cartas de patrocinio enviadas</p>
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Cartas de Patrocinio</h1>
+            <p class="text-gray-600 mt-1">Gestión de cartas de patrocinio enviadas</p>
         </div>
-        <div class="col-md-4 text-end">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaCarta">
-                <i class="fas fa-plus me-2"></i>Nueva Carta
-            </button>
-        </div>
+        <a href="{{ route('vicepresidente.dashboard') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Volver al Dashboard
+        </a>
     </div>
 
-    <!-- Filtros -->
-    <div class="card shadow mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select" id="filtroEstado">
-                        <option value="">Todos los estados</option>
-                        <option value="enviada">Enviada</option>
-                        <option value="respondida">Respondida</option>
-                        <option value="pendiente">Pendiente</option>
-                    </select>
+    <div class="py-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Estadísticas -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstado('')">
+                    <p class="text-sm text-blue-100">Total</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['total'] }}</p>
+                    <p class="text-xs text-blue-100 mt-1">Click para ver todas</p>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Fecha Desde</label>
-                    <input type="date" class="form-control" id="filtroFechaDesde">
+                <div class="bg-gradient-to-br from-green-500 to-green-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstado('Aprobada')">
+                    <p class="text-sm text-green-100">Aprobadas</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['aprobadas'] }}</p>
+                    <p class="text-xs text-green-100 mt-1">Click para filtrar</p>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Fecha Hasta</label>
-                    <input type="date" class="form-control" id="filtroFechaHasta">
+                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstado('Pendiente')">
+                    <p class="text-sm text-yellow-100">Pendientes</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['pendientes'] }}</p>
+                    <p class="text-xs text-yellow-100 mt-1">Click para filtrar</p>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Destinatario</label>
-                    <input type="text" class="form-control" id="filtroDestinatario" placeholder="Buscar...">
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-12">
-                    <button class="btn btn-primary" onclick="aplicarFiltros()">
-                        <i class="fas fa-filter me-2"></i>Aplicar Filtros
-                    </button>
-                    <button class="btn btn-secondary" onclick="limpiarFiltros()">
-                        <i class="fas fa-times me-2"></i>Limpiar
-                    </button>
+                <div class="bg-gradient-to-br from-red-500 to-red-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstado('Rechazada')">
+                    <p class="text-sm text-red-100">Rechazadas</p>
+                    <p class="text-3xl font-bold text-white">{{ $estadisticas['rechazadas'] }}</p>
+                    <p class="text-xs text-red-100 mt-1">Click para filtrar</p>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Tabla de Cartas -->
-    <div class="card shadow">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Lista de Cartas de Patrocinio</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover" id="tablaCarta">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Destinatario</th>
-                            <th>Empresa/Organización</th>
-                            <th>Fecha Envío</th>
-                            <th>Monto Solicitado</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbodyCartas">
-                        <tr data-id="1">
-                            <td>CP-001</td>
-                            <td>Lic. Roberto Gómez</td>
-                            <td>Banco Nacional</td>
-                            <td>15/09/2025</td>
-                            <td>L. 50,000.00</td>
-                            <td><span class="badge bg-success">Respondida</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info" onclick="verDetalle(1)">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-warning" onclick="editarCarta(1)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="eliminarCarta(1)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr data-id="2">
-                            <td>CP-002</td>
-                            <td>Ing. María Fernández</td>
-                            <td>Constructora del Sur</td>
-                            <td>20/09/2025</td>
-                            <td>L. 75,000.00</td>
-                            <td><span class="badge bg-warning text-dark">Enviada</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info" onclick="verDetalle(2)">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-warning" onclick="editarCarta(2)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="eliminarCarta(2)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr data-id="3">
-                            <td>CP-003</td>
-                            <td>Dr. Carlos Méndez</td>
-                            <td>Hospital San Rafael</td>
-                            <td>25/09/2025</td>
-                            <td>L. 35,000.00</td>
-                            <td><span class="badge bg-danger">Pendiente</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info" onclick="verDetalle(3)">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-warning" onclick="editarCarta(3)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="eliminarCarta(3)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr data-id="4">
-                            <td>CP-004</td>
-                            <td>Licda. Ana Martínez</td>
-                            <td>Supermercados La Esperanza</td>
-                            <td>28/09/2025</td>
-                            <td>L. 100,000.00</td>
-                            <td><span class="badge bg-success">Respondida</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info" onclick="verDetalle(4)">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-warning" onclick="editarCarta(4)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="eliminarCarta(4)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr data-id="5">
-                            <td>CP-005</td>
-                            <td>Lic. Pedro Ramírez</td>
-                            <td>Industrias Textiles SA</td>
-                            <td>01/10/2025</td>
-                            <td>L. 60,000.00</td>
-                            <td><span class="badge bg-warning text-dark">Enviada</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info" onclick="verDetalle(5)">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-warning" onclick="editarCarta(5)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="eliminarCarta(5)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+            <!-- Panel principal -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Gestión de Cartas de Patrocinio</h3>
+                        <button onclick="abrirModalPatrocinio()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Nueva Carta de Patrocinio
+                        </button>
+                    </div>
 
-<!-- Modal Nueva/Editar Carta -->
-<div class="modal fade" id="modalNuevaCarta" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Nueva Carta de Patrocinio</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formCarta">
-                    <input type="hidden" id="cartaId">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Destinatario *</label>
-                            <input type="text" class="form-control" id="destinatario" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Empresa/Organización *</label>
-                            <input type="text" class="form-control" id="empresa" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Fecha de Envío *</label>
-                            <input type="date" class="form-control" id="fechaEnvio" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Monto Solicitado *</label>
-                            <input type="number" class="form-control" id="monto" step="0.01" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Estado *</label>
-                            <select class="form-select" id="estado" required>
-                                <option value="pendiente">Pendiente</option>
-                                <option value="enviada">Enviada</option>
-                                <option value="respondida">Respondida</option>
+                    <!-- Filtros avanzados -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                            <select id="filtro-estado" onchange="aplicarFiltros()" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">Todos los estados</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="En Revision">En Revisión</option>
+                                <option value="Aprobada">Aprobada</option>
+                                <option value="Rechazada">Rechazada</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Email Contacto</label>
-                            <input type="email" class="form-control" id="email">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Proyecto</label>
+                            <select id="filtro-proyecto" onchange="aplicarFiltros()" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">Todos los proyectos</option>
+                                @foreach($proyectos as $proyecto)
+                                    <option value="{{ $proyecto->ProyectoID }}">{{ $proyecto->Nombre }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label">Descripción del Proyecto</label>
-                            <textarea class="form-control" id="descripcion" rows="3"></textarea>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha desde</label>
+                            <input type="date" id="filtro-fecha-desde" onchange="aplicarFiltros()" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         </div>
-                        <div class="col-12">
-                            <label class="form-label">Notas</label>
-                            <textarea class="form-control" id="notas" rows="2"></textarea>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha hasta</label>
+                            <input type="date" id="filtro-fecha-hasta" onchange="aplicarFiltros()" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         </div>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarCarta()">Guardar</button>
+
+                    <!-- Barra de búsqueda -->
+                    <div class="mb-6">
+                        <div class="relative">
+                            <input type="text" id="buscador" oninput="aplicarFiltros()" placeholder="Buscar por destinatario, número de carta o descripción..." 
+                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-10">
+                            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de cartas -->
+                    <div class="overflow-x-auto">
+                        <table id="tabla-cartas" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gradient-to-r from-blue-600 to-blue-800">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Fecha Envío</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Destinatario</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Proyecto</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Monto Solicitado</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Estado</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Última Actualización</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse($cartas as $carta)
+                                    <tr class="hover:bg-gray-50" 
+                                        data-proyecto-id="{{ $carta->proyecto_id }}"
+                                        data-fecha="{{ $carta->fecha_solicitud }}">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ $carta->fecha_solicitud ? \Carbon\Carbon::parse($carta->fecha_solicitud)->format('d/m/Y') : 'N/A' }}
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">
+                                            <div>
+                                                <p class="font-medium">{{ $carta->destinatario }}</p>
+                                                @if($carta->numero_carta)
+                                                    <p class="text-xs text-gray-500">Carta #{{ $carta->numero_carta }}</p>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">
+                                            {{ $carta->proyecto ? $carta->proyecto->Nombre : 'Sin proyecto' }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            L. {{ number_format($carta->monto_solicitado, 2) }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @php
+                                                $estadoClasses = [
+                                                    'Pendiente' => 'bg-yellow-100 text-yellow-800',
+                                                    'Aprobada' => 'bg-green-100 text-green-800',
+                                                    'Rechazada' => 'bg-red-100 text-red-800',
+                                                    'En Revision' => 'bg-blue-100 text-blue-800',
+                                                ];
+                                                $clase = $estadoClasses[$carta->estado] ?? 'bg-gray-100 text-gray-800';
+                                            @endphp
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $clase }}">
+                                                {{ $carta->estado }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $carta->updated_at->format('d/m/Y') }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="flex gap-2">
+                                                <button class="text-blue-600 hover:text-blue-900" title="Ver detalles" onclick="verDetalleCarta({{ $carta->id }})">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
+                                                </button>
+                                                <button class="text-yellow-600 hover:text-yellow-900" title="Editar" onclick="editarCarta({{ $carta->id }})">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                    </svg>
+                                                </button>
+                                                <button class="text-red-600 hover:text-red-900" title="Eliminar" onclick="eliminarCarta({{ $carta->id }})">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
+                                                <button class="text-green-600 hover:text-green-900" title="Descargar PDF" onclick="descargarPDF({{ $carta->id }})">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            <p class="mt-2 text-sm font-medium">No hay cartas de patrocinio registradas</p>
+                                            <p class="text-xs text-gray-400 mt-1">Haz clic en "Nueva Carta de Patrocinio" para comenzar</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                                <!-- Mensaje cuando no hay resultados del filtro -->
+                                <tr id="mensaje-sin-resultados" style="display: none;">
+                                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                        <p class="mt-2 text-sm font-medium">No se encontraron resultados</p>
+                                        <p class="text-xs text-gray-400 mt-1">Intenta con otros criterios de búsqueda</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Información de resultados -->
+                    @if($cartas->count() > 0)
+                    <div class="mt-6 flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            Mostrando <span class="font-medium">{{ $cartas->count() }}</span> carta(s) de patrocinio
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            Monto total aprobado: <span class="font-bold text-green-600">L. {{ number_format($estadisticas['montoTotal'], 2) }}</span>
+                        </div>
+                    </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal Ver Detalle -->
-<div class="modal fade" id="modalDetalle" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Detalle de Carta de Patrocinio</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <!-- Modal Nueva Carta de Patrocinio -->
+    <div id="modalNuevaCartaPatrocinio" class="fixed inset-0 bg-black bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-0 border-0 w-11/12 md:w-3/4 lg:w-1/2 shadow-2xl rounded-xl bg-white overflow-hidden">
+            <!-- Header -->
+            <div class="bg-blue-600 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">Nueva Carta de Patrocinio</h3>
+                <button onclick="cerrarModalPatrocinio()" class="text-white hover:text-gray-200 transition-colors p-1 rounded-lg hover:bg-white hover:bg-opacity-10">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
-            <div class="modal-body" id="detalleContenido">
-                <!-- Se llenará dinámicamente -->
+            
+            <form id="formCartaPatrocinio" action="{{ route('vicepresidente.cartas.patrocinio.store') }}" method="POST" class="p-6" onsubmit="return validarFormulario('formCartaPatrocinio')">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Carta <span class="text-gray-500 text-xs">(Opcional - se genera automáticamente si se deja vacío)</span></label>
+                        <input type="text" name="numero_carta"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                               placeholder="Ej: CP-2025-001">
+                    </div>
+
+                    <!-- Proyecto -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Proyecto <span class="text-red-500">*</span></label>
+                        <select name="proyecto_id" required
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Seleccionar proyecto</option>
+                            @foreach($proyectos as $proyecto)
+                                <option value="{{ $proyecto->ProyectoID }}">{{ $proyecto->Nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Destinatario -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Destinatario <span class="text-red-500">*</span></label>
+                        <input type="text" name="destinatario" id="destinatario" required
+                               oninput="validarCaracteresRepetidos(this)"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                               placeholder="Nombre de la empresa o institución">
+                        <span class="text-xs text-red-500 hidden" id="error_destinatario">No se permiten más de 2 caracteres repetidos consecutivos</span>
+                    </div>
+
+                    <!-- Monto Solicitado -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Monto Solicitado (L.) <span class="text-red-500">*</span></label>
+                        <input type="number" name="monto_solicitado" required step="0.01" min="0"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                               placeholder="0.00">
+                    </div>
+
+                    <!-- Estado -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                        <select name="estado"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Revision">En Revisión</option>
+                            <option value="Aprobada">Aprobada</option>
+                            <option value="Rechazada">Rechazada</option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha Solicitud -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Solicitud</label>
+                        <input type="date" name="fecha_solicitud" value="{{ date('Y-m-d') }}"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <!-- Fecha Respuesta -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Respuesta</label>
+                        <input type="date" name="fecha_respuesta"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea name="descripcion" id="descripcion" rows="3"
+                                  oninput="validarCaracteresRepetidos(this)"
+                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                  placeholder="Descripción del patrocinio solicitado"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_descripcion">No se permiten más de 2 caracteres repetidos consecutivos</span>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                        <textarea name="observaciones" id="observaciones" rows="2"
+                                  oninput="validarCaracteresRepetidos(this)"
+                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                  placeholder="Observaciones adicionales"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_observaciones">No se permiten más de 2 caracteres repetidos consecutivos</span>
+                    </div>
+                </div>
+
+                <!-- Botones con diseño mejorado -->
+                <div class="mt-6 pt-4 border-t border-gray-200 flex justify-end gap-3">
+                    <button type="button" onclick="cerrarModalPatrocinio()"
+                            class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all font-medium shadow-sm hover:shadow">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-md hover:shadow-lg">
+                        Guardar Carta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Ver Detalles -->
+    <div id="modalVerDetalle" class="fixed inset-0 bg-black bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-0 border-0 w-11/12 md:w-3/4 lg:w-1/2 shadow-2xl rounded-xl bg-white overflow-hidden">
+            <!-- Header -->
+            <div class="bg-purple-600 px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="bg-white bg-opacity-20 p-2 rounded-lg mr-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Detalles de la Carta</h3>
+                </div>
+                <button onclick="cerrarModalDetalle()" class="text-white hover:text-gray-200 transition-colors p-1 rounded-lg hover:bg-white hover:bg-opacity-10">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            
+            <div id="detalleContenido" class="p-6">
+                <!-- Loader mientras carga -->
+                <div class="flex justify-center items-center py-12">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                <button onclick="cerrarModalDetalle()" class="px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all font-medium shadow-sm hover:shadow">
+                    Cerrar
+                </button>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-// Datos mock en memoria
-let cartasData = [
-    {
-        id: 1,
-        codigo: 'CP-001',
-        destinatario: 'Lic. Roberto Gómez',
-        empresa: 'Banco Nacional',
-        fechaEnvio: '2025-09-15',
-        monto: 50000,
-        estado: 'respondida',
-        email: 'rgomez@banconacional.hn',
-        descripcion: 'Proyecto de educación comunitaria',
-        notas: 'Respuesta positiva recibida el 20/09/2025'
-    },
-    {
-        id: 2,
-        codigo: 'CP-002',
-        destinatario: 'Ing. María Fernández',
-        empresa: 'Constructora del Sur',
-        fechaEnvio: '2025-09-20',
-        monto: 75000,
-        estado: 'enviada',
-        email: 'mfernandez@constructorasur.com',
-        descripcion: 'Construcción de centro comunitario',
-        notas: 'Pendiente de respuesta'
-    },
-    {
-        id: 3,
-        codigo: 'CP-003',
-        destinatario: 'Dr. Carlos Méndez',
-        empresa: 'Hospital San Rafael',
-        fechaEnvio: '2025-09-25',
-        monto: 35000,
-        estado: 'pendiente',
-        email: 'cmendez@sanrafael.hn',
-        descripcion: 'Campaña de salud preventiva',
-        notas: 'Carta por enviar'
-    },
-    {
-        id: 4,
-        codigo: 'CP-004',
-        destinatario: 'Licda. Ana Martínez',
-        empresa: 'Supermercados La Esperanza',
-        fechaEnvio: '2025-09-28',
-        monto: 100000,
-        estado: 'respondida',
-        email: 'amartinez@laesperanza.hn',
-        descripcion: 'Programa de alimentación escolar',
-        notas: 'Aprobado monto completo'
-    },
-    {
-        id: 5,
-        codigo: 'CP-005',
-        destinatario: 'Lic. Pedro Ramírez',
-        empresa: 'Industrias Textiles SA',
-        fechaEnvio: '2025-10-01',
-        monto: 60000,
-        estado: 'enviada',
-        email: 'pramirez@textiles.com',
-        descripcion: 'Taller de capacitación técnica',
-        notas: 'Seguimiento programado para 10/10/2025'
-    }
-];
+    <!-- Modal Editar -->
+    <div id="modalEditarCarta" class="fixed inset-0 bg-black bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-0 border-0 w-11/12 md:w-3/4 lg:w-1/2 shadow-2xl rounded-xl bg-white overflow-hidden">
+            <!-- Header -->
+            <div class="bg-green-600 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">Editar Carta de Patrocinio</h3>
+                <button onclick="cerrarModalEditar()" class="text-white hover:text-gray-200 transition-colors">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="formEditarCarta" action="" method="POST" class="p-6" onsubmit="return validarFormulario('formEditarCarta')">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_carta_id" name="carta_id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Número de Carta <span class="text-gray-500 text-xs">(Generado automáticamente)</span></label>
+                        <input type="text" id="edit_numero_carta" name="numero_carta" readonly
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-100 cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Proyecto <span class="text-red-500">*</span></label>
+                        <select id="edit_proyecto_id" name="proyecto_id" required
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Seleccionar proyecto</option>
+                            @foreach($proyectos as $proyecto)
+                                <option value="{{ $proyecto->ProyectoID }}">{{ $proyecto->Nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Destinatario <span class="text-red-500">*</span></label>
+                        <input type="text" id="edit_destinatario" name="destinatario" required
+                               oninput="validarCaracteresRepetidos(this)"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <span class="text-xs text-red-500 hidden" id="error_edit_destinatario">No se permiten más de 2 caracteres repetidos consecutivos</span>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Monto Solicitado (L.) <span class="text-red-500">*</span></label>
+                        <input type="number" id="edit_monto_solicitado" name="monto_solicitado" required step="0.01" min="0"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                        <select id="edit_estado" name="estado"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Revision">En Revisión</option>
+                            <option value="Aprobada">Aprobada</option>
+                            <option value="Rechazada">Rechazada</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Solicitud</label>
+                        <input type="date" id="edit_fecha_solicitud" name="fecha_solicitud"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Respuesta</label>
+                        <input type="date" id="edit_fecha_respuesta" name="fecha_respuesta"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea id="edit_descripcion" name="descripcion" rows="3"
+                                  oninput="validarCaracteresRepetidos(this)"
+                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_edit_descripcion">No se permiten más de 2 caracteres repetidos consecutivos</span>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                        <textarea id="edit_observaciones" name="observaciones" rows="2"
+                                  oninput="validarCaracteresRepetidos(this)"
+                                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                        <span class="text-xs text-red-500 hidden" id="error_edit_observaciones">No se permiten más de 2 caracteres repetidos consecutivos</span>
+                    </div>
+                </div>
 
-let proximoId = 6;
-
-function verDetalle(id) {
-    const carta = cartasData.find(c => c.id === id);
-    if (!carta) return;
-
-    const estadoBadge = {
-        'enviada': '<span class="badge bg-warning text-dark">Enviada</span>',
-        'respondida': '<span class="badge bg-success">Respondida</span>',
-        'pendiente': '<span class="badge bg-danger">Pendiente</span>'
-    };
-
-    document.getElementById('detalleContenido').innerHTML = `
-        <div class="row g-3">
-            <div class="col-md-6">
-                <strong>Código:</strong><br>${carta.codigo}
-            </div>
-            <div class="col-md-6">
-                <strong>Estado:</strong><br>${estadoBadge[carta.estado]}
-            </div>
-            <div class="col-md-6">
-                <strong>Destinatario:</strong><br>${carta.destinatario}
-            </div>
-            <div class="col-md-6">
-                <strong>Empresa:</strong><br>${carta.empresa}
-            </div>
-            <div class="col-md-6">
-                <strong>Fecha de Envío:</strong><br>${formatearFecha(carta.fechaEnvio)}
-            </div>
-            <div class="col-md-6">
-                <strong>Monto Solicitado:</strong><br>L. ${carta.monto.toLocaleString('es-HN', {minimumFractionDigits: 2})}
-            </div>
-            <div class="col-md-12">
-                <strong>Email:</strong><br>${carta.email || 'No proporcionado'}
-            </div>
-            <div class="col-md-12">
-                <strong>Descripción del Proyecto:</strong><br>${carta.descripcion || 'Sin descripción'}
-            </div>
-            <div class="col-md-12">
-                <strong>Notas:</strong><br>${carta.notas || 'Sin notas'}
-            </div>
+                <div class="mt-6 pt-4 border-t border-gray-200 flex justify-end gap-3">
+                    <button type="button" onclick="cerrarModalEditar()"
+                            class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all font-medium shadow-sm hover:shadow">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-md hover:shadow-lg">
+                        Actualizar Carta
+                    </button>
+                </div>
+            </form>
         </div>
-    `;
+    </div>
 
-    new bootstrap.Modal(document.getElementById('modalDetalle')).show();
-}
+    <!-- JavaScript -->
+    <script>
+        const baseRoute = 'vicepresidente';
 
-function editarCarta(id) {
-    const carta = cartasData.find(c => c.id === id);
-    if (!carta) return;
-
-    document.getElementById('cartaId').value = carta.id;
-    document.getElementById('destinatario').value = carta.destinatario;
-    document.getElementById('empresa').value = carta.empresa;
-    document.getElementById('fechaEnvio').value = carta.fechaEnvio;
-    document.getElementById('monto').value = carta.monto;
-    document.getElementById('estado').value = carta.estado;
-    document.getElementById('email').value = carta.email || '';
-    document.getElementById('descripcion').value = carta.descripcion || '';
-    document.getElementById('notas').value = carta.notas || '';
-
-    document.querySelector('#modalNuevaCarta .modal-title').textContent = 'Editar Carta de Patrocinio';
-    new bootstrap.Modal(document.getElementById('modalNuevaCarta')).show();
-}
-
-function guardarCarta() {
-    const id = document.getElementById('cartaId').value;
-    const datos = {
-        destinatario: document.getElementById('destinatario').value,
-        empresa: document.getElementById('empresa').value,
-        fechaEnvio: document.getElementById('fechaEnvio').value,
-        monto: parseFloat(document.getElementById('monto').value),
-        estado: document.getElementById('estado').value,
-        email: document.getElementById('email').value,
-        descripcion: document.getElementById('descripcion').value,
-        notas: document.getElementById('notas').value
-    };
-
-    if (id) {
-        // Editar
-        const index = cartasData.findIndex(c => c.id === parseInt(id));
-        if (index !== -1) {
-            cartasData[index] = { ...cartasData[index], ...datos };
-            alert('Carta actualizada exitosamente');
+        // Función de validación de caracteres repetidos
+        function validarCaracteresRepetidos(input) {
+            const valor = input.value;
+            const regex = /(.)\1{2,}/;
+            const errorSpan = document.getElementById('error_' + input.id);
+            
+            if (regex.test(valor)) {
+                input.classList.add('border-red-500');
+                input.classList.remove('border-gray-300');
+                if (errorSpan) {
+                    errorSpan.classList.remove('hidden');
+                }
+                return false;
+            } else {
+                input.classList.remove('border-red-500');
+                input.classList.add('border-gray-300');
+                if (errorSpan) {
+                    errorSpan.classList.add('hidden');
+                }
+                return true;
+            }
         }
-    } else {
-        // Crear nueva
-        const nuevaCarta = {
-            id: proximoId++,
-            codigo: `CP-${String(proximoId - 1).padStart(3, '0')}`,
-            ...datos
-        };
-        cartasData.push(nuevaCarta);
-        alert('Carta creada exitosamente');
-    }
 
-    bootstrap.Modal.getInstance(document.getElementById('modalNuevaCarta')).hide();
-    document.getElementById('formCarta').reset();
-    document.getElementById('cartaId').value = '';
-    document.querySelector('#modalNuevaCarta .modal-title').textContent = 'Nueva Carta de Patrocinio';
-    
-    renderizarTabla();
-}
+        // Función de validación de formulario completo
+        function validarFormulario(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input[type="text"], textarea');
+            let valid = true;
+            
+            inputs.forEach(input => {
+                if (input.value && !validarCaracteresRepetidos(input)) {
+                    valid = false;
+                }
+            });
+            
+            if (!valid) {
+                alert('Por favor corrige los errores antes de enviar el formulario');
+            }
+            
+            return valid;
+        }
 
-function eliminarCarta(id) {
-    if (confirm('¿Está seguro de eliminar esta carta?')) {
-        cartasData = cartasData.filter(c => c.id !== id);
-        renderizarTabla();
-        alert('Carta eliminada exitosamente');
-    }
-}
+        // Definir ruta base según el módulo
+        const baseRoute = 'vicepresidente';
 
-function formatearFecha(fecha) {
-    const [year, month, day] = fecha.split('-');
-    return `${day}/${month}/${year}`;
-}
+        // Modal Nueva Carta
+        function abrirModalPatrocinio() {
+            document.getElementById('modalNuevaCartaPatrocinio').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
 
-function renderizarTabla() {
-    const tbody = document.getElementById('tbodyCartas');
-    tbody.innerHTML = '';
+        function cerrarModalPatrocinio() {
+            document.getElementById('modalNuevaCartaPatrocinio').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('formCartaPatrocinio').reset();
+            // Limpiar mensajes de error
+            document.querySelectorAll('[id^="error_"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('input, textarea').forEach(el => {
+                el.classList.remove('border-red-500');
+                el.classList.add('border-gray-300');
+            });
+        }
 
-    cartasData.forEach(carta => {
-        const estadoBadge = {
-            'enviada': '<span class="badge bg-warning text-dark">Enviada</span>',
-            'respondida': '<span class="badge bg-success">Respondida</span>',
-            'pendiente': '<span class="badge bg-danger">Pendiente</span>'
-        };
+        // Modal Ver Detalles con loading y animaciones
+        async function verDetalleCarta(id) {
+            const modal = document.getElementById('modalVerDetalle');
+            const contenedor = document.getElementById('detalleContenido');
+            
+            // Mostrar modal con loader
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            contenedor.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12">
+                    <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mb-4"></div>
+                    <p class="text-gray-600 font-medium">Cargando detalles...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`/vicepresidente/cartas/patrocinio/${id}`);
+                const carta = await response.json();
+                
+                // Animación de fade in para el contenido
+                setTimeout(() => {
+                    contenedor.innerHTML = `
+                        <div class="animate-fadeIn">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Número de Carta -->
+                                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg">
+                                    <p class="text-xs font-medium text-gray-500 uppercase mb-1">Número de Carta</p>
+                                    <p class="text-lg font-bold text-gray-900">${carta.numero_carta}</p>
+                                </div>
+                                
+                                <!-- Estado -->
+                                <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg">
+                                    <p class="text-xs font-medium text-gray-500 uppercase mb-1">Estado</p>
+                                    <span class="inline-flex px-3 py-1 rounded-full text-sm font-semibold shadow-sm
+                                        ${carta.estado === 'Aprobada' ? 'bg-green-500 text-white' : 
+                                          carta.estado === 'Pendiente' ? 'bg-yellow-500 text-white' : 
+                                          carta.estado === 'Rechazada' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'}">
+                                        ${carta.estado}
+                                    </span>
+                                </div>
+                                
+                                <!-- Destinatario -->
+                                <div class="md:col-span-2 bg-white border-2 border-gray-200 p-4 rounded-lg">
+                                    <p class="text-xs font-medium text-gray-500 uppercase mb-1">Destinatario</p>
+                                    <p class="text-base font-semibold text-gray-900">${carta.destinatario}</p>
+                                </div>
+                                
+                                <!-- Proyecto -->
+                                <div class="md:col-span-2 bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+                                    <p class="text-xs font-medium text-purple-700 uppercase mb-1">Proyecto Asociado</p>
+                                    <p class="text-base font-semibold text-gray-900">${carta.proyecto ? carta.proyecto.Nombre : '<span class="text-gray-400">Sin proyecto asignado</span>'}</p>
+                                </div>
+                                
+                                <!-- Monto -->
+                                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-lg">
+                                    <p class="text-xs font-medium text-gray-500 uppercase mb-1">Monto Solicitado</p>
+                                    <p class="text-2xl font-bold text-green-600">L. ${parseFloat(carta.monto_solicitado).toLocaleString('es-HN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                                </div>
+                                
+                                <!-- Fechas -->
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 uppercase">Fecha Solicitud</p>
+                                        <p class="text-base text-gray-900">${carta.fecha_solicitud || '<span class="text-gray-400">N/A</span>'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 uppercase">Fecha Respuesta</p>
+                                        <p class="text-base text-gray-900">${carta.fecha_respuesta || '<span class="text-gray-400">Pendiente</span>'}</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Creado por -->
+                                <div class="md:col-span-2 bg-indigo-50 p-4 rounded-lg flex items-center">
+                                    <svg class="w-10 h-10 text-indigo-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500 uppercase">Creado por</p>
+                                        <p class="text-base font-semibold text-gray-900">${carta.usuario ? carta.usuario.name : 'N/A'}</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Descripción -->
+                                <div class="md:col-span-2 bg-white border-2 border-gray-200 p-4 rounded-lg">
+                                    <p class="text-xs font-medium text-gray-500 uppercase mb-2">Descripción</p>
+                                    <p class="text-sm text-gray-700 leading-relaxed">${carta.descripcion || '<span class="text-gray-400">Sin descripción</span>'}</p>
+                                </div>
+                                
+                                ${carta.observaciones ? `
+                                <div class="md:col-span-2 bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                                    <p class="text-xs font-medium text-yellow-700 uppercase mb-2">Observaciones</p>
+                                    <p class="text-sm text-gray-700">${carta.observaciones}</p>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }, 300);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                contenedor.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 animate-shake">
+                        <svg class="w-16 h-16 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-red-600 font-medium">Error al cargar los detalles</p>
+                        <p class="text-gray-500 text-sm mt-2">Por favor, intenta nuevamente</p>
+                    </div>
+                `;
+            }
+        }
 
-        tbody.innerHTML += `
-            <tr data-id="${carta.id}">
-                <td>${carta.codigo}</td>
-                <td>${carta.destinatario}</td>
-                <td>${carta.empresa}</td>
-                <td>${formatearFecha(carta.fechaEnvio)}</td>
-                <td>L. ${carta.monto.toLocaleString('es-HN', {minimumFractionDigits: 2})}</td>
-                <td>${estadoBadge[carta.estado]}</td>
-                <td>
-                    <button class="btn btn-sm btn-info" onclick="verDetalle(${carta.id})">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-warning" onclick="editarCarta(${carta.id})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarCarta(${carta.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-}
+        function cerrarModalDetalle() {
+            document.getElementById('modalVerDetalle').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
 
-function aplicarFiltros() {
-    alert('Filtros aplicados (funcionalidad simulada)');
-}
+        async function editarCarta(id) {
+            const modal = document.getElementById('modalEditarCarta');
+            const form = document.getElementById('formEditarCarta');
+            
+            // Mostrar modal
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            try {
+                const response = await fetch(`/vicepresidente/cartas/patrocinio/${id}`);
+                const carta = await response.json();
+                
+                // Llenar TODOS los campos del formulario directamente
+                document.getElementById('edit_carta_id').value = carta.id || '';
+                document.getElementById('edit_numero_carta').value = carta.numero_carta || '';
+                document.getElementById('edit_destinatario').value = carta.destinatario || '';
+                document.getElementById('edit_monto_solicitado').value = carta.monto_solicitado || '';
+                document.getElementById('edit_estado').value = carta.estado || 'Pendiente';
+                document.getElementById('edit_proyecto_id').value = carta.proyecto_id || '';
+                document.getElementById('edit_fecha_solicitud').value = carta.fecha_solicitud || '';
+                document.getElementById('edit_fecha_respuesta').value = carta.fecha_respuesta || '';
+                document.getElementById('edit_descripcion').value = carta.descripcion || '';
+                document.getElementById('edit_observaciones').value = carta.observaciones || '';
+                
+                // Configurar action del formulario
+                form.action = `/${baseRoute}/cartas/patrocinio/${id}`;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los datos de la carta');
+                cerrarModalEditar();
+            }
+        }
 
-function limpiarFiltros() {
-    document.getElementById('filtroEstado').value = '';
-    document.getElementById('filtroFechaDesde').value = '';
-    document.getElementById('filtroFechaHasta').value = '';
-    document.getElementById('filtroDestinatario').value = '';
-}
+        function cerrarModalEditar() {
+            document.getElementById('modalEditarCarta').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('formEditarCarta').reset();
+            // Limpiar mensajes de error
+            document.querySelectorAll('[id^="error_"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('input, textarea').forEach(el => {
+                el.classList.remove('border-red-500');
+                el.classList.add('border-gray-300');
+            });
+        }
 
-// Limpiar modal al cerrar
-document.getElementById('modalNuevaCarta').addEventListener('hidden.bs.modal', function () {
-    document.getElementById('formCarta').reset();
-    document.getElementById('cartaId').value = '';
-    document.querySelector('#modalNuevaCarta .modal-title').textContent = 'Nueva Carta de Patrocinio';
-});
-</script>
+        // Eliminar
+        // Eliminar con modal de confirmación personalizado
+        function eliminarCarta(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta carta de patrocinio? Esta acción no se puede deshacer.')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/vicepresidente/cartas/patrocinio/${id}`;
+                
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = csrfToken;
+                
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                
+                form.appendChild(csrfInput);
+                form.appendChild(methodInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function descargarPDF(id) {
+            // TODO: Implementar en Fase 4
+            console.log('Descargar PDF carta:', id);
+            alert('Función de descarga PDF próximamente disponible');
+        }
+
+        // Filtros y búsqueda
+        function filtrarPorEstado(estado) {
+            document.getElementById('filtro-estado').value = estado;
+            aplicarFiltros();
+        }
+
+        function aplicarFiltros() {
+            const buscador = document.getElementById('buscador').value.toLowerCase();
+            const filtroEstado = document.getElementById('filtro-estado').value;
+            const filtroProyecto = document.getElementById('filtro-proyecto').value;
+            const filtroFechaDesde = document.getElementById('filtro-fecha-desde').value;
+            const filtroFechaHasta = document.getElementById('filtro-fecha-hasta').value;
+            
+            const filas = document.querySelectorAll('#tabla-cartas tbody tr');
+            let visibles = 0;
+            
+            filas.forEach(fila => {
+                if (fila.querySelector('td[colspan]')) return; // Skip empty state row
+                
+                const textoFila = fila.textContent.toLowerCase();
+                const estado = fila.querySelector('td:nth-child(5)')?.textContent.trim();
+                const proyectoId = fila.getAttribute('data-proyecto-id');
+                const fecha = fila.getAttribute('data-fecha');
+                
+                let mostrar = true;
+                
+                // Filtro de búsqueda
+                if (buscador && !textoFila.includes(buscador)) {
+                    mostrar = false;
+                }
+                
+                // Filtro de estado
+                if (filtroEstado && estado !== filtroEstado) {
+                    mostrar = false;
+                }
+                
+                // Filtro de proyecto
+                if (filtroProyecto && proyectoId !== filtroProyecto) {
+                    mostrar = false;
+                }
+                
+                // Filtro de fecha desde
+                if (filtroFechaDesde && fecha < filtroFechaDesde) {
+                    mostrar = false;
+                }
+                
+                // Filtro de fecha hasta
+                if (filtroFechaHasta && fecha > filtroFechaHasta) {
+                    mostrar = false;
+                }
+                
+                fila.style.display = mostrar ? '' : 'none';
+                if (mostrar) visibles++;
+            });
+            
+            // Mostrar mensaje si no hay resultados
+            const mensajeVacio = document.getElementById('mensaje-sin-resultados');
+            if (mensajeVacio) {
+                mensajeVacio.style.display = visibles === 0 ? '' : 'none';
+            }
+        }
+
+        // Indicadores de carga en formularios
+        // Cerrar modales al hacer clic fuera
+        document.getElementById('modalNuevaCartaPatrocinio')?.addEventListener('click', function(e) {
+            if (e.target === this) cerrarModalPatrocinio();
+        });
+        document.getElementById('modalVerDetalle')?.addEventListener('click', function(e) {
+            if (e.target === this) cerrarModalDetalle();
+        });
+        document.getElementById('modalEditarCarta')?.addEventListener('click', function(e) {
+            if (e.target === this) cerrarModalEditar();
+        });
+    </script>
 @endsection

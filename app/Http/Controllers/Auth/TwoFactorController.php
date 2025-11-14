@@ -43,17 +43,9 @@ class TwoFactorController extends Controller
         if ($user->two_factor_code == $inputCode && 
             $user->two_factor_expires_at && 
             $user->two_factor_expires_at->isFuture()) {
-            
-            // ===== SESIÓN PERSISTENTE - YA NO PEDIR 2FA DE NUEVO =====
-            session(['2fa_verified' => true]);
-            session(['2fa_verified_user_' . $user->id => true]); // Persistente por usuario
-            // ==========================================================
-            
-            // ===== MARCAR EMAIL COMO VERIFICADO AUTOMÁTICAMENTE =====
-            if (!$user->email_verified_at) {
-                $user->email_verified_at = now();
-            }
-            // ========================================================
+        
+            // Marcar como verificado permanentemente
+            $user->two_factor_verified_at = now();
             
             // Limpiar código usado
             $user->two_factor_code = null;
