@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\DB;
  * Dashboard con sistema de pestañas para Super Admin
  * Muestra estadísticas generales y acceso a todos los módulos
  */
-public function indexTabs()
+public function indexTabs();
 {
     try {
         // ====================================================================
@@ -128,7 +128,7 @@ public function indexTabs()
             'error' => 'Error al cargar las estadísticas: ' . $e->getMessage()
         ]);
     }
-}
+};
 
 // ============================================================================
 // FIN DEL MÉTODO
