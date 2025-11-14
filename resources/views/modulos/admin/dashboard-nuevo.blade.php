@@ -18,17 +18,6 @@
                         <p class="text-white/90 text-lg font-medium mt-1">Bienvenido al panel de control del Super Admin</p>
                     </div>
                 </div>
-                <div class="bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-3">
-                    <div class="flex items-center space-x-3">
-                        <div class="text-right">
-                            <p class="text-white text-sm font-medium">{{ Auth::user()->nombre_completo }}</p>
-                            <p class="text-white/80 text-xs">Super Administrador</p>
-                        </div>
-                        <div class="h-12 w-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-lg font-bold shadow-lg">
-                            {{ strtoupper(substr(Auth::user()->nombre_completo ?? 'SA', 0, 2)) }}
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Fecha y Hora -->
@@ -129,7 +118,7 @@
                         Módulo de Presidente
                     </h2>
                 </div>
-                <iframe src="{{ route('presidente.dashboard') }}" 
+                <iframe src="{{ route('presidente.dashboard', ['embed' => 'true']) }}" 
                         class="w-full border-0" 
                         style="height: calc(100vh - 300px); min-height: 600px;"
                         sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
@@ -145,7 +134,7 @@
                         Módulo de Vicepresidente
                     </h2>
                 </div>
-                <iframe src="{{ route('vicepresidente.dashboard') }}" 
+                <iframe src="{{ route('vicepresidente.dashboard', ['embed' => 'true']) }}" 
                         class="w-full border-0" 
                         style="height: calc(100vh - 300px); min-height: 600px;"
                         sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
@@ -161,7 +150,7 @@
                         Módulo de Tesorero
                     </h2>
                 </div>
-                <iframe src="{{ route('tesorero.dashboard') }}" 
+                <iframe src="{{ route('tesorero.dashboard', ['embed' => 'true']) }}" 
                         class="w-full border-0" 
                         style="height: calc(100vh - 300px); min-height: 600px;"
                         sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
@@ -177,7 +166,7 @@
                         Módulo de Secretaría
                     </h2>
                 </div>
-                <iframe src="{{ route('secretaria.dashboard') }}" 
+                <iframe src="{{ route('secretaria.dashboard', ['embed' => 'true']) }}" 
                         class="w-full border-0" 
                         style="height: calc(100vh - 300px); min-height: 600px;"
                         sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
@@ -193,7 +182,7 @@
                         Módulo de Macero
                     </h2>
                 </div>
-                <iframe src="{{ route('vocero.dashboard') }}" 
+                <iframe src="{{ route('vocero.dashboard', ['embed' => 'true']) }}" 
                         class="w-full border-0" 
                         style="height: calc(100vh - 300px); min-height: 600px;"
                         sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
@@ -209,7 +198,7 @@
                         Módulo de Socio
                     </h2>
                 </div>
-                <iframe src="{{ route('socio.dashboard') }}" 
+                <iframe src="{{ route('socio.dashboard', ['embed' => 'true']) }}" 
                         class="w-full border-0" 
                         style="height: calc(100vh - 300px); min-height: 600px;"
                         sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>

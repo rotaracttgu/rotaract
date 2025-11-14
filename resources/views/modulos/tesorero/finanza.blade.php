@@ -8,6 +8,15 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    @if(request()->has('embed'))
+    <style>
+        /* Ocultar solo navbar superior cuando está en iframe */
+        .navbar-top, nav.navbar { display: none !important; }
+        .main-content { margin-top: 0 !important; padding-top: 0 !important; }
+    </style>
+    @endif
+    
     <style>
         :root {
             --primary-color: #5b6fd8;
