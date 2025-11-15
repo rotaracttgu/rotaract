@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.app-admin')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950" x-data="{ activeTab: 'overview' }">
+<div class="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950">
     
     <!-- Header con Gradiente -->
     <div class="bg-gradient-to-r from-red-500 via-pink-600 to-purple-600 p-8 shadow-2xl">
@@ -38,202 +38,17 @@
         </div>
     </div>
 
-    <!-- Sistema de Pestañas -->
-    <div class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-lg">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex space-x-1 overflow-x-auto px-4 py-2">
-                <!-- Tab Resumen -->
-                <button @click="activeTab = 'overview'" 
-                        :class="activeTab === 'overview' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'"
-                        class="flex items-center space-x-2 px-6 py-3 rounded-xl transition-all duration-200 font-bold whitespace-nowrap">
-                    <span class="text-xl">📊</span>
-                    <span>Resumen</span>
-                </button>
-
-                <!-- Tab Presidente -->
-                <button @click="activeTab = 'presidente'" 
-                        :class="activeTab === 'presidente' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'"
-                        class="flex items-center space-x-2 px-6 py-3 rounded-xl transition-all duration-200 font-bold whitespace-nowrap">
-                    <span class="text-xl">👔</span>
-                    <span>Presidente</span>
-                </button>
-
-                <!-- Tab Vicepresidente -->
-                <button @click="activeTab = 'vicepresidente'" 
-                        :class="activeTab === 'vicepresidente' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'"
-                        class="flex items-center space-x-2 px-6 py-3 rounded-xl transition-all duration-200 font-bold whitespace-nowrap">
-                    <span class="text-xl">🎩</span>
-                    <span>Vicepresidente</span>
-                </button>
-
-                <!-- Tab Tesorero -->
-                <button @click="activeTab = 'tesorero'" 
-                        :class="activeTab === 'tesorero' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'"
-                        class="flex items-center space-x-2 px-6 py-3 rounded-xl transition-all duration-200 font-bold whitespace-nowrap">
-                    <span class="text-xl">💰</span>
-                    <span>Tesorero</span>
-                </button>
-
-                <!-- Tab Secretaria -->
-                <button @click="activeTab = 'secretaria'" 
-                        :class="activeTab === 'secretaria' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'"
-                        class="flex items-center space-x-2 px-6 py-3 rounded-xl transition-all duration-200 font-bold whitespace-nowrap">
-                    <span class="text-xl">📝</span>
-                    <span>Secretaría</span>
-                </button>
-
-                <!-- Tab Macero -->
-                <button @click="activeTab = 'macero'" 
-                        :class="activeTab === 'macero' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'"
-                        class="flex items-center space-x-2 px-6 py-3 rounded-xl transition-all duration-200 font-bold whitespace-nowrap">
-                    <span class="text-xl">📅</span>
-                    <span>Macero</span>
-                </button>
-
-                <!-- Tab Socio -->
-                <button @click="activeTab = 'socio'" 
-                        :class="activeTab === 'socio' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'"
-                        class="flex items-center space-x-2 px-6 py-3 rounded-xl transition-all duration-200 font-bold whitespace-nowrap">
-                    <span class="text-xl">🎓</span>
-                    <span>Socio</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contenido de las Pestañas -->
+    <!-- Contenido Principal -->
     <div class="max-w-7xl mx-auto px-4 py-8">
-
-        <!-- TAB: RESUMEN (Dashboard actual) -->
-        <div x-show="activeTab === 'overview'" x-transition class="space-y-6">
-            @include('modulos.admin.partials.overview')
-        </div>
-
-        <!-- TAB: PRESIDENTE -->
-        <div x-show="activeTab === 'presidente'" x-transition>
-            <div class="bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-4">
-                    <h2 class="text-2xl font-bold text-white flex items-center">
-                        <span class="text-3xl mr-3">👔</span>
-                        Módulo de Presidente
-                    </h2>
-                </div>
-                <iframe src="{{ route('presidente.dashboard', ['embed' => 'true']) }}" 
-                        class="w-full border-0" 
-                        style="height: calc(100vh - 300px); min-height: 600px;"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
+        <div class="space-y-6">
+            
+            <!-- ⭐ Contenedor para carga AJAX (Roles, Permisos, etc.) -->
+            <div id="config-content" class="min-h-screen">
+                <!-- Por defecto muestra el overview, AJAX cargará aquí Roles/Permisos -->
+                @include('modulos.admin.partials.overview')
             </div>
-        </div>
 
-        <!-- TAB: VICEPRESIDENTE -->
-        <div x-show="activeTab === 'vicepresidente'" x-transition>
-            <div class="bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4">
-                    <h2 class="text-2xl font-bold text-white flex items-center">
-                        <span class="text-3xl mr-3">🎩</span>
-                        Módulo de Vicepresidente
-                    </h2>
-                </div>
-                <iframe src="{{ route('vicepresidente.dashboard', ['embed' => 'true']) }}" 
-                        class="w-full border-0" 
-                        style="height: calc(100vh - 300px); min-height: 600px;"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
-            </div>
         </div>
-
-        <!-- TAB: TESORERO -->
-        <div x-show="activeTab === 'tesorero'" x-transition>
-            <div class="bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-4">
-                    <h2 class="text-2xl font-bold text-white flex items-center">
-                        <span class="text-3xl mr-3">💰</span>
-                        Módulo de Tesorero
-                    </h2>
-                </div>
-                <iframe src="{{ route('tesorero.dashboard', ['embed' => 'true']) }}" 
-                        class="w-full border-0" 
-                        style="height: calc(100vh - 300px); min-height: 600px;"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
-            </div>
-        </div>
-
-        <!-- TAB: SECRETARIA -->
-        <div x-show="activeTab === 'secretaria'" x-transition>
-            <div class="bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-pink-600 to-rose-600 p-4">
-                    <h2 class="text-2xl font-bold text-white flex items-center">
-                        <span class="text-3xl mr-3">📝</span>
-                        Módulo de Secretaría
-                    </h2>
-                </div>
-                <iframe src="{{ route('secretaria.dashboard', ['embed' => 'true']) }}" 
-                        class="w-full border-0" 
-                        style="height: calc(100vh - 300px); min-height: 600px;"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
-            </div>
-        </div>
-
-        <!-- TAB: MACERO -->
-        <div x-show="activeTab === 'macero'" x-transition>
-            <div class="bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-orange-600 to-red-600 p-4">
-                    <h2 class="text-2xl font-bold text-white flex items-center">
-                        <span class="text-3xl mr-3">📅</span>
-                        Módulo de Macero
-                    </h2>
-                </div>
-                <iframe src="{{ route('vocero.dashboard', ['embed' => 'true']) }}" 
-                        class="w-full border-0" 
-                        style="height: calc(100vh - 300px); min-height: 600px;"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
-            </div>
-        </div>
-
-        <!-- TAB: SOCIO -->
-        <div x-show="activeTab === 'socio'" x-transition>
-            <div class="bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-cyan-600 to-blue-600 p-4">
-                    <h2 class="text-2xl font-bold text-white flex items-center">
-                        <span class="text-3xl mr-3">🎓</span>
-                        Módulo de Socio
-                    </h2>
-                </div>
-                <iframe src="{{ route('socio.dashboard', ['embed' => 'true']) }}" 
-                        class="w-full border-0" 
-                        style="height: calc(100vh - 300px); min-height: 600px;"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"></iframe>
-            </div>
-        </div>
-
     </div>
 </div>
-
-<style>
-    /* Animaciones suaves */
-    [x-cloak] { display: none !important; }
-    
-    /* Scroll suave en pestañas */
-    .overflow-x-auto::-webkit-scrollbar {
-        height: 6px;
-    }
-    
-    .overflow-x-auto::-webkit-scrollbar-track {
-        background: rgba(31, 41, 55, 0.5);
-        border-radius: 10px;
-    }
-    
-    .overflow-x-auto::-webkit-scrollbar-thumb {
-        background: rgba(139, 92, 246, 0.5);
-        border-radius: 10px;
-    }
-    
-    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-        background: rgba(139, 92, 246, 0.8);
-    }
-
-    /* Estilos para iframes */
-    iframe {
-        background: white;
-    }
-</style>
 @endsection

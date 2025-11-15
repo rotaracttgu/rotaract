@@ -11,17 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Registrar middleware de Spatie
+        // TODOS LOS ALIAS EN UN SOLO LLAMADO
         $middleware->alias([
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-        ]);
+            // Spatie Permission
+            'role'              => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission'        => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission'=> \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
 
-        // Registrar middleware personalizado
-        $middleware->alias([
-            'ensure.role' => \App\Http\Middleware\EnsureUserHasRole::class,
-            'check.first.login' => \App\Http\Middleware\CheckFirstLogin::class, // ⭐ NUEVO
+            // Tus middlewares personalizados
+            'ensure.role'       => \App\Http\Middleware\EnsureUserHasRole::class,
+            'check.first.login' => \App\Http\Middleware\CheckFirstLogin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

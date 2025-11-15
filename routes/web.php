@@ -1,4 +1,5 @@
 <?php
+
 //use App\Services\ResendService;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -19,6 +20,10 @@ use App\Http\Controllers\BackupController;  // NUEVO: Importación para rutas de
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Mail;
+
+// ⭐ IMPORTAR CONTROLADORES DE CONFIGURACIÓN
+use App\Http\Controllers\Admin\Configuracion\RoleController;
+use App\Http\Controllers\Admin\Configuracion\PermissionController;
 
 // Página de inicio (pública)
 Route::get('/', function () {
@@ -172,8 +177,29 @@ Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware:
         Route::post('/ejecutar', [BackupController::class, 'ejecutarBackup'])->name('ejecutar');
         Route::post('/configuracion', [BackupController::class, 'guardarConfiguracion'])->name('configuracion');
         Route::get('/descargar/{id}', [BackupController::class, 'descargar'])->name('descargar');
-         Route::post('/restaurar/{id}', [BackupController::class, 'restaurar'])->name('restaurar');
+        Route::post('/restaurar/{id}', [BackupController::class, 'restaurar'])->name('restaurar');
         Route::delete('/eliminar/{id}', [BackupController::class, 'eliminar'])->name('eliminar');
+    });
+
+    // ============================================================================
+    // ⭐ RUTAS DE CONFIGURACIÓN - ROLES Y PERMISOS (NUEVO)
+    // ============================================================================
+    Route::prefix('configuracion')->name('configuracion.')->group(function () {
+        
+        // RUTAS AJAX: Cargan el index completo
+        Route::get('roles/ajax', [RoleController::class, 'ajaxIndex'])
+            ->name('roles.ajax');
+
+        Route::get('permisos/ajax', [PermissionController::class, 'ajaxIndex'])
+            ->name('permisos.ajax');
+
+        // RECURSOS SIN index (para create, edit, show, etc.)
+        Route::resource('roles', RoleController::class)->except(['index']);
+        Route::resource('permisos', PermissionController::class)->except(['index']);
+
+        // Asignar permisos a roles
+        Route::post('roles/{role}/permisos', [RoleController::class, 'asignarPermisos'])
+            ->name('roles.asignar-permisos');
     });
 });
 
@@ -246,7 +272,7 @@ Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddle
 });
 
 // ============================================================================
-// 🆕 RUTAS API DEL CALENDARIO (PRESIDENTE) - Sistema Integrado
+// RUTAS API DEL CALENDARIO (PRESIDENTE) - Sistema Integrado
 // ============================================================================
 Route::prefix('api/presidente/calendario')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Presidente|Super Admin'])->group(function () {
     Route::get('/eventos', [PresidenteController::class, 'obtenerEventos']);
@@ -261,8 +287,6 @@ Route::prefix('api/presidente/calendario')->middleware(['auth', 'check.first.log
     Route::delete('/asistencias/{id}', [PresidenteController::class, 'eliminarAsistencia']);
 });
 
-// ============================================================================
-// ============================================================================
 // ============================================================================
 // RUTAS DEL MÓDULO VICEPRESIDENTE
 // ============================================================================
@@ -319,7 +343,7 @@ Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMi
 });
 
 // ============================================================================
-// 🆕 RUTAS API DEL CALENDARIO (VICEPRESIDENTE) - Sistema Integrado
+// RUTAS API DEL CALENDARIO (VICEPRESIDENTE) - Sistema Integrado
 // ============================================================================
 Route::prefix('api/vicepresidente/calendario')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Vicepresidente|Presidente|Super Admin'])->group(function () {
     Route::get('/eventos', [VicepresidenteController::class, 'obtenerEventos']);
@@ -342,18 +366,14 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
     Route::get('/dashboard', [TesoreroController::class, 'index'])->name('dashboard');
     Route::get('/calendario', [TesoreroController::class, 'calendario'])->name('calendario');
     
-    // ============================================================================
     // NOTIFICACIONES
-    // ============================================================================
     Route::prefix('notificaciones')->name('notificaciones.')->group(function () {
         Route::get('/', [TesoreroController::class, 'notificaciones'])->name('index');
         Route::post('/{id}/leer', [TesoreroController::class, 'marcarNotificacionLeida'])->name('leer');
         Route::post('/todas/leer', [TesoreroController::class, 'marcarTodasNotificacionesLeidas'])->name('todas-leer');
     });
     
-    // ============================================================================
     // CRUD INGRESOS
-    // ============================================================================
     Route::prefix('ingresos')->name('ingresos.')->group(function () {
         Route::get('/', [TesoreroController::class, 'ingresosIndex'])->name('index');
         Route::get('/crear', [TesoreroController::class, 'ingresosCreate'])->name('create');
@@ -364,9 +384,7 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
         Route::delete('/{id}', [TesoreroController::class, 'ingresosDestroy'])->name('destroy');
     });
     
-    // ============================================================================
     // CRUD GASTOS
-    // ============================================================================
     Route::prefix('gastos')->name('gastos.')->group(function () {
         Route::get('/', [TesoreroController::class, 'gastosIndex'])->name('index');
         Route::get('/crear', [TesoreroController::class, 'gastosCreate'])->name('create');
@@ -382,9 +400,7 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
         Route::get('/{id}/detalles', [TesoreroController::class, 'verDetallesGasto'])->name('detalles');
     });
     
-    // ============================================================================
     // CRUD TRANSFERENCIAS
-    // ============================================================================
     Route::prefix('transferencias')->name('transferencias.')->group(function () {
         Route::get('/', [TesoreroController::class, 'transferenciasIndex'])->name('index');
         Route::get('/crear', [TesoreroController::class, 'transferenciasCreate'])->name('create');
@@ -395,9 +411,7 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
         Route::delete('/{id}', [TesoreroController::class, 'transferenciasDestroy'])->name('destroy');
     });
     
-    // ============================================================================
     // CRUD MEMBRESÍAS
-    // ============================================================================
     Route::prefix('membresias')->name('membresias.')->group(function () {
         Route::get('/', [TesoreroController::class, 'membresiasIndex'])->name('index');
         Route::get('/crear', [TesoreroController::class, 'membresiasCreate'])->name('create');
@@ -415,9 +429,7 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
         Route::delete('/{id}', [TesoreroController::class, 'membresiasDestroy'])->name('destroy');
     });
     
-    // ============================================================================
     // CRUD PRESUPUESTOS
-    // ============================================================================
     Route::prefix('presupuestos')->name('presupuestos.')->group(function () {
         Route::get('/', [TesoreroController::class, 'presupuestosIndex'])->name('index');
         Route::get('/crear', [TesoreroController::class, 'presupuestosCreate'])->name('create');
@@ -434,17 +446,13 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
         });
     });
     
-    // ============================================================================
     // MOVIMIENTOS Y TRANSACCIONES
-    // ============================================================================
     Route::prefix('movimientos')->name('movimientos.')->group(function () {
         Route::get('/', [TesoreroController::class, 'movimientos'])->name('index');
         Route::get('/{id}', [TesoreroController::class, 'verDetalle'])->name('detalle');
     });
     
-    // ============================================================================
     // REPORTES Y ESTADÍSTICAS
-    // ============================================================================
     Route::prefix('reportes')->name('reportes.')->group(function () {
         Route::get('/', [TesoreroController::class, 'reportes'])->name('index');
         Route::match(['get', 'post'], '/generar', [TesoreroController::class, 'generarReporte'])->name('generar');
@@ -453,15 +461,11 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
         Route::post('/exportar/{tipo?}', [TesoreroController::class, 'exportar'])->name('exportar');
     });
     
-    // ============================================================================
     // ESTADÍSTICAS PERSONALES
-    // ============================================================================
     Route::get('/mis-transacciones', [TesoreroController::class, 'misTransacciones'])->name('mis-transacciones');
     Route::get('/mis-estadisticas', [TesoreroController::class, 'misEstadisticas'])->name('mis-estadisticas');
     
-    // ============================================================================
     // APIs para funcionalidades del dashboard
-    // ============================================================================
     Route::get('/mis-notificaciones', [TesoreroController::class, 'obtenerMisNotificaciones'])->name('api.mis-notificaciones');
     Route::post('/marcar-notificacion-leida/{id}', [TesoreroController::class, 'marcarNotificacionLeida'])->name('api.marcar-leida');
     Route::post('/marcar-todas-leidas', [TesoreroController::class, 'marcarTodasNotificacionesLeidas'])->name('api.marcar-todas-leidas');
@@ -471,9 +475,7 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
     Route::post('/limpiar-historial', [TesoreroController::class, 'limpiarHistorial'])->name('api.limpiar-historial');
     Route::post('/guardar-recordatorio', [TesoreroController::class, 'guardarRecordatorio'])->name('api.guardar-recordatorio');
     
-    // ============================================================================
     // AJAX autocomplete para membresías
-    // ============================================================================
     Route::get('/membresias/suggestions', [TesoreroController::class, 'membresiasSuggestions'])->name('membresias.suggestions');
 });
 
@@ -530,7 +532,7 @@ Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.fir
     Route::get('/notificaciones/verificar', [SecretariaController::class, 'verificarActualizaciones'])->name('notificaciones.verificar');
     Route::post('/notificaciones/marcar-todas-leidas', [SecretariaController::class, 'marcarTodasNotificacionesLeidas'])->name('notificaciones.marcar-todas-leidas');
     
-    // 🆕 Asistencias
+    // Asistencias
     Route::get('/asistencias', [SecretariaController::class, 'gestionAsistencias'])->name('asistencias');
     Route::get('/eventos/{id}/asistencias', [SecretariaController::class, 'obtenerAsistenciasEvento']);
     Route::post('/asistencias', [SecretariaController::class, 'registrarAsistencia']);
@@ -539,7 +541,7 @@ Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.fir
 });
 
 // ============================================================================
-// 🆕 RUTAS API DEL CALENDARIO (SECRETARIA)
+// RUTAS API DEL CALENDARIO (SECRETARIA)
 // ============================================================================
 Route::prefix('api/secretaria/calendario')->middleware(['auth', 'check.first.login'])->group(function () {
     Route::get('/eventos', [SecretariaController::class, 'obtenerEventos']);
@@ -585,9 +587,7 @@ Route::prefix('api/calendario')->middleware(['auth', 'check.first.login'])->grou
     Route::post('/asistencias', [VoceroController::class, 'registrarAsistencia']);
     Route::put('/asistencias/{id}', [VoceroController::class, 'actualizarAsistencia']);
     Route::delete('/asistencias/{id}', [VoceroController::class, 'eliminarAsistencia']);
-    // ============================================================================
     // RUTAS DE REPORTES Y ESTADÍSTICAS
-    // ============================================================================
     Route::get('/reportes/estadisticas-generales', [VoceroController::class, 'obtenerEstadisticasGenerales']);
     Route::get('/reportes/detallado', [VoceroController::class, 'obtenerReporteDetallado']);
     Route::get('/reportes/evento/{id}', [VoceroController::class, 'obtenerReporteEvento']);

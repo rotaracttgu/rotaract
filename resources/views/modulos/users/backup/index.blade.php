@@ -1,7 +1,11 @@
-@extends('layouts.app')
+@extends('layouts.app-admin')
 
 @section('content')
 <div class="container-fluid">
+    
+    {{-- ⭐ Contenedor para carga AJAX --}}
+    <div id="config-content">
+    
     {{-- ⭐ NUEVO: Contenedor para alertas dinámicas --}}
     <div id="alertContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;"></div>
 
@@ -202,6 +206,7 @@
         </div>
     </div>
 </div>
+{{-- Fin contenedor AJAX --}}
 @endsection
 
 @section('scripts')

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app-admin')
 
 @section('header')
     <div class="flex justify-between items-center p-6 bg-gradient-to-br from-gray-900 to-indigo-950 text-white shadow-2xl">
@@ -28,6 +28,9 @@
 @endsection
 
 @section('content')
+    {{-- ⭐ Contenedor para carga AJAX --}}
+    <div id="config-content">
+    
     <div class="py-8 bg-gradient-to-br from-gray-900 to-indigo-950 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -315,4 +318,5 @@
         <input type="hidden" name="fecha_desde" value="{{ request('fecha_desde') }}">
         <input type="hidden" name="fecha_hasta" value="{{ request('fecha_hasta') }}">
     </form>
+    {{-- Fin contenedor AJAX --}}
 @endsection

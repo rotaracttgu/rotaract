@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app-admin')
 
 @section('header')
     <div class="flex justify-between items-center p-6 bg-gradient-to-br from-gray-900 to-indigo-950 text-white shadow-2xl">
@@ -22,6 +22,9 @@
 @endsection
 
 @section('content')
+    {{-- ⭐ Contenedor para carga AJAX --}}
+    <div id="config-content">
+    
     <div class="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -383,4 +386,5 @@
 
         </div>
     </div>
+    {{-- Fin contenedor AJAX --}}
 @endsection
