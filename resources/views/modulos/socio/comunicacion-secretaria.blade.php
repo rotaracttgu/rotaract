@@ -3,202 +3,244 @@
 @section('page-title', 'Comunicación con Secretaría')
 
 @section('content')
-    <!-- Header -->
-    <div class="mb-6 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-6 border border-green-200">
-        <div class="flex items-center justify-between">
+    <!-- Header con gradiente mejorado -->
+    <div class="mb-6 bg-gradient-to-r from-green-500 via-teal-500 to-cyan-500 rounded-xl p-6 shadow-lg text-white">
+        <div class="flex items-center justify-between flex-wrap gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800 flex items-center">
-                    <i class="fas fa-envelope text-green-600 mr-3"></i>
+                <h1 class="text-2xl font-bold flex items-center">
+                    <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
                     Comunicación con Secretaría
                 </h1>
-                <p class="text-gray-600 mt-2">Envía consultas y recibe respuestas de la Secretaría del club</p>
+                <p class="text-green-100 mt-2">Envía consultas y recibe respuestas de la Secretaría del club</p>
             </div>
             <a href="{{ route('socio.secretaria.crear') }}" 
-               class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md hover:shadow-lg">
-                <i class="fas fa-plus mr-2"></i>
+               class="px-6 py-3 bg-white text-green-600 rounded-lg hover:bg-green-50 transition-colors shadow-md hover:shadow-lg font-bold">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
                 Nueva Consulta
             </a>
         </div>
     </div>
 
-    <!-- Estadísticas -->
+    <!-- Estadísticas con diseño mejorado -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
-            <div class="flex items-center justify-between">
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition-shadow duration-300">
+            <div class="flex items-start justify-between">
                 <div>
-                    <p class="text-sm text-gray-500 uppercase tracking-wide mb-1">Total Consultas</p>
-                    <h3 class="text-3xl font-bold text-gray-900">{{ count($consultas ?? []) }}</h3>
+                    <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">TOTAL CONSULTAS</p>
+                    <h3 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">{{ count($consultas ?? []) }}</h3>
                 </div>
-                <i class="fas fa-comments text-blue-600 text-3xl"></i>
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-md">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                    </svg>
+                </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-orange-500">
-            <div class="flex items-center justify-between">
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500 hover:shadow-xl transition-shadow duration-300">
+            <div class="flex items-start justify-between">
                 <div>
-                    <p class="text-sm text-gray-500 uppercase tracking-wide mb-1">Pendientes</p>
-                    <h3 class="text-3xl font-bold text-gray-900">
+                    <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">PENDIENTES</p>
+                    <h3 class="text-4xl font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">
                         {{ collect($consultas ?? [])->whereIn('Estado', ['Pendiente', 'EnRevision'])->count() }}
                     </h3>
                 </div>
-                <i class="fas fa-clock text-orange-600 text-3xl"></i>
+                <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-3 rounded-xl shadow-md">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-green-500">
-            <div class="flex items-center justify-between">
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition-shadow duration-300">
+            <div class="flex items-start justify-between">
                 <div>
-                    <p class="text-sm text-gray-500 uppercase tracking-wide mb-1">Respondidas</p>
-                    <h3 class="text-3xl font-bold text-gray-900">
+                    <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">RESPONDIDAS</p>
+                    <h3 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">
                         {{ collect($consultas ?? [])->where('Estado', 'Respondida')->count() }}
                     </h3>
                 </div>
-                <i class="fas fa-check-circle text-green-600 text-3xl"></i>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-xl shadow-md">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-gray-500">
-            <div class="flex items-center justify-between">
+        <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-gray-500 hover:shadow-xl transition-shadow duration-300">
+            <div class="flex items-start justify-between">
                 <div>
-                    <p class="text-sm text-gray-500 uppercase tracking-wide mb-1">Cerradas</p>
-                    <h3 class="text-3xl font-bold text-gray-900">
+                    <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">CERRADAS</p>
+                    <h3 class="text-4xl font-bold bg-gradient-to-r from-gray-600 to-gray-800 bg-clip-text text-transparent">
                         {{ collect($consultas ?? [])->where('Estado', 'Cerrada')->count() }}
                     </h3>
                 </div>
-                <i class="fas fa-archive text-gray-600 text-3xl"></i>
+                <div class="bg-gradient-to-br from-gray-500 to-gray-600 p-3 rounded-xl shadow-md">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                    </svg>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Lista de Consultas -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div class="p-6 border-b border-gray-200">
+    <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+        <div class="flex items-center justify-between mb-6">
             <h2 class="text-lg font-bold text-gray-800 flex items-center">
-                <i class="fas fa-list text-green-500 mr-3"></i>
+                <div class="bg-gradient-to-br from-green-500 to-teal-600 p-2 rounded-lg mr-3">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </div>
                 Mis Consultas
             </h2>
         </div>
 
-        <div class="p-6">
-            @if(isset($consultas) && count($consultas) > 0)
-                <div class="space-y-4">
-                    @foreach($consultas as $consulta)
-                        <div class="border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-300 overflow-hidden">
-                            <div class="p-6">
-                                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between">
-                                    <!-- Contenido Principal -->
-                                    <div class="flex-1">
-                                        <!-- Encabezado con Estado -->
-                                        <div class="flex items-start justify-between mb-3">
-                                            <h3 class="text-xl font-bold text-gray-900">
-                                                {{ $consulta->Asunto ?? 'Sin asunto' }}
-                                            </h3>
-                                            <span class="ml-4 px-4 py-1 text-sm font-semibold rounded-full whitespace-nowrap
-                                                {{ ($consulta->Estado ?? '') === 'Pendiente' ? 'bg-orange-100 text-orange-700' : '' }}
-                                                {{ ($consulta->Estado ?? '') === 'EnRevision' ? 'bg-blue-100 text-blue-700' : '' }}
-                                                {{ ($consulta->Estado ?? '') === 'Respondida' ? 'bg-green-100 text-green-700' : '' }}
-                                                {{ ($consulta->Estado ?? '') === 'Cerrada' ? 'bg-gray-100 text-gray-700' : '' }}">
-                                                {{ ($consulta->Estado ?? '') === 'EnRevision' ? 'En Revisión' : ($consulta->Estado ?? 'Sin estado') }}
+        @if(isset($consultas) && count($consultas) > 0)
+            <div class="space-y-4">
+                @foreach($consultas as $consulta)
+                    <div class="border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-300 overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between">
+                                <!-- Contenido Principal -->
+                                <div class="flex-1">
+                                    <!-- Encabezado con Estado -->
+                                    <div class="flex items-start justify-between mb-3">
+                                        <h3 class="text-xl font-bold text-gray-900">
+                                            {{ $consulta->Asunto ?? 'Sin asunto' }}
+                                        </h3>
+                                        <span class="ml-4 px-4 py-1 text-sm font-semibold rounded-full whitespace-nowrap
+                                            {{ ($consulta->Estado ?? '') === 'Pendiente' ? 'bg-orange-100 text-orange-700' : '' }}
+                                            {{ ($consulta->Estado ?? '') === 'EnRevision' ? 'bg-blue-100 text-blue-700' : '' }}
+                                            {{ ($consulta->Estado ?? '') === 'Respondida' ? 'bg-green-100 text-green-700' : '' }}
+                                            {{ ($consulta->Estado ?? '') === 'Cerrada' ? 'bg-gray-100 text-gray-700' : '' }}">
+                                            {{ ($consulta->Estado ?? '') === 'EnRevision' ? 'En Revisión' : ($consulta->Estado ?? 'Sin estado') }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Mensaje -->
+                                    <p class="text-gray-700 mb-4 line-clamp-2">
+                                        {{ $consulta->Mensaje ?? 'Sin mensaje' }}
+                                    </p>
+
+                                    <!-- Metadata -->
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                                        <!-- Fecha -->
+                                        <div class="flex items-center text-gray-600">
+                                            <svg class="w-4 h-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                            <span>
+                                                {{ isset($consulta->FechaConsulta) && $consulta->FechaConsulta 
+                                                    ? \Carbon\Carbon::parse($consulta->FechaConsulta)->format('d/m/Y H:i') 
+                                                    : 'Sin fecha' }}
                                             </span>
                                         </div>
 
-                                        <!-- Mensaje -->
-                                        <p class="text-gray-700 mb-4 line-clamp-2">
-                                            {{ $consulta->Mensaje ?? 'Sin mensaje' }}
-                                        </p>
-
-                                        <!-- Metadata -->
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                                            <!-- Fecha -->
-                                            <div class="flex items-center text-gray-600">
-                                                <i class="fas fa-calendar text-blue-500 mr-2"></i>
-                                                <span>
-                                                    {{ isset($consulta->FechaConsulta) && $consulta->FechaConsulta 
-                                                        ? \Carbon\Carbon::parse($consulta->FechaConsulta)->format('d/m/Y H:i') 
-                                                        : 'Sin fecha' }}
-                                                </span>
-                                            </div>
-
-                                            <!-- Categoría -->
-                                            <div class="flex items-center text-gray-600">
-                                                <i class="fas fa-tag text-purple-500 mr-2"></i>
-                                                <span>{{ $consulta->Categoria ?? 'Sin categoría' }}</span>
-                                            </div>
-
-                                            <!-- Prioridad -->
-                                            <div class="flex items-center">
-                                                <i class="fas fa-flag mr-2
-                                                    {{ ($consulta->Prioridad ?? '') === 'Alta' ? 'text-red-500' : '' }}
-                                                    {{ ($consulta->Prioridad ?? '') === 'Media' ? 'text-orange-500' : '' }}
-                                                    {{ ($consulta->Prioridad ?? '') === 'Baja' ? 'text-gray-500' : '' }}"></i>
-                                                <span class="text-gray-600">Prioridad: {{ $consulta->Prioridad ?? 'Normal' }}</span>
-                                            </div>
+                                        <!-- Categoría -->
+                                        <div class="flex items-center text-gray-600">
+                                            <svg class="w-4 h-4 text-purple-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                            </svg>
+                                            <span>{{ $consulta->Categoria ?? 'Sin categoría' }}</span>
                                         </div>
 
-                                        <!-- Respuesta (si existe) -->
-                                        @if(($consulta->Estado ?? '') === 'Respondida' && $consulta->Respuesta)
-                                            <div class="mt-4 p-4 bg-green-50 border-l-4 border-green-500 rounded">
-                                                <div class="flex items-start">
-                                                    <i class="fas fa-reply text-green-600 mt-1 mr-3"></i>
-                                                    <div class="flex-1">
-                                                        <p class="text-sm font-semibold text-green-900 mb-1">
-                                                            Respuesta de {{ $consulta->RespondidoPor ?? 'Secretaría' }}
+                                        <!-- Prioridad -->
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2
+                                                {{ ($consulta->Prioridad ?? '') === 'Alta' ? 'text-red-500' : '' }}
+                                                {{ ($consulta->Prioridad ?? '') === 'Media' ? 'text-orange-500' : '' }}
+                                                {{ ($consulta->Prioridad ?? '') === 'Baja' ? 'text-gray-500' : '' }}"
+                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
+                                            </svg>
+                                            <span class="text-gray-600">Prioridad: {{ $consulta->Prioridad ?? 'Normal' }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Respuesta (si existe) -->
+                                    @if(($consulta->Estado ?? '') === 'Respondida' && $consulta->Respuesta)
+                                        <div class="mt-4 p-4 bg-green-50 border-l-4 border-green-500 rounded">
+                                            <div class="flex items-start">
+                                                <svg class="w-5 h-5 text-green-600 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                                                </svg>
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-semibold text-green-900 mb-1">
+                                                        Respuesta de {{ $consulta->RespondidoPor ?? 'Secretaría' }}
+                                                    </p>
+                                                    <p class="text-sm text-gray-700 line-clamp-2">{{ $consulta->Respuesta }}</p>
+                                                    @if(isset($consulta->FechaRespuesta) && $consulta->FechaRespuesta)
+                                                        <p class="text-xs text-gray-500 mt-1">
+                                                            {{ \Carbon\Carbon::parse($consulta->FechaRespuesta)->format('d/m/Y H:i') }}
                                                         </p>
-                                                        <p class="text-sm text-gray-700 line-clamp-2">{{ $consulta->Respuesta }}</p>
-                                                        @if(isset($consulta->FechaRespuesta) && $consulta->FechaRespuesta)
-                                                            <p class="text-xs text-gray-500 mt-1">
-                                                                {{ \Carbon\Carbon::parse($consulta->FechaRespuesta)->format('d/m/Y H:i') }}
-                                                            </p>
-                                                        @endif
-                                                    </div>
+                                                    @endif
                                                 </div>
                                             </div>
-                                        @endif
+                                        </div>
+                                    @endif
 
-                                        <!-- Número de Mensajes -->
-                                        @if(isset($consulta->NumeroMensajes) && $consulta->NumeroMensajes > 1)
-                                            <div class="mt-3 flex items-center text-sm text-gray-600">
-                                                <i class="fas fa-comments text-blue-500 mr-2"></i>
-                                                <span>{{ $consulta->NumeroMensajes }} mensaje(s) en esta conversación</span>
-                                            </div>
-                                        @endif
-                                    </div>
+                                    <!-- Número de Mensajes -->
+                                    @if(isset($consulta->NumeroMensajes) && $consulta->NumeroMensajes > 1)
+                                        <div class="mt-3 flex items-center text-sm text-gray-600">
+                                            <svg class="w-4 h-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                                            </svg>
+                                            <span>{{ $consulta->NumeroMensajes }} mensaje(s) en esta conversación</span>
+                                        </div>
+                                    @endif
+                                </div>
 
-                                    <!-- Acciones -->
-                                    <div class="mt-4 lg:mt-0 lg:ml-6">
-                                        <a href="{{ route('socio.secretaria.ver', $consulta->ConsultaID ?? '#') }}" 
-                                           class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg">
-                                            <i class="fas fa-eye mr-2"></i>
-                                            Ver Detalle
-                                        </a>
-                                    </div>
+                                <!-- Acciones -->
+                                <div class="mt-4 lg:mt-0 lg:ml-6">
+                                    <a href="{{ route('socio.secretaria.ver', $consulta->ConsultaID ?? '#') }}" 
+                                       class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg font-semibold">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                        Ver Detalle
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                    @endforeach
-                </div>
-            @else
-                <!-- Estado Vacío -->
-                <div class="text-center py-16">
-                    <div class="inline-block p-6 bg-gray-100 rounded-full mb-4">
-                        <i class="fas fa-inbox text-6xl text-gray-400"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-700 mb-2">No tienes consultas aún</h3>
-                    <p class="text-gray-500 mb-6">Crea tu primera consulta para comunicarte con la Secretaría</p>
-                    <a href="{{ route('socio.secretaria.crear') }}" 
-                       class="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                        <i class="fas fa-plus mr-2"></i>
-                        Nueva Consulta
-                    </a>
+                @endforeach
+            </div>
+        @else
+            <!-- Estado Vacío -->
+            <div class="text-center py-16">
+                <div class="inline-block p-6 bg-gray-100 rounded-full mb-4">
+                    <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                    </svg>
                 </div>
-            @endif
-        </div>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">No tienes consultas aún</h3>
+                <p class="text-gray-500 mb-6">Crea tu primera consulta para comunicarte con la Secretaría</p>
+                <a href="{{ route('socio.secretaria.crear') }}" 
+                   class="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-md">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Nueva Consulta
+                </a>
+            </div>
+        @endif
     </div>
 
     <!-- Información Adicional -->
     <div class="mt-6 bg-green-50 border-l-4 border-green-500 rounded-lg p-6">
         <div class="flex items-start">
-            <i class="fas fa-info-circle text-green-600 text-2xl mr-4 mt-1"></i>
+            <svg class="w-6 h-6 text-green-600 mr-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
             <div>
                 <h4 class="font-bold text-green-900 mb-2">¿Cuándo contactar a la Secretaría?</h4>
                 <ul class="text-sm text-green-800 space-y-1">

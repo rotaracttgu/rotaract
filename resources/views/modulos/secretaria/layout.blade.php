@@ -4,24 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>@yield('page-title', 'Dashboard') - Rotaract Fuerza Tegucigalpa Sur</title>
-
+    <title>{{ config('app.name', 'Laravel') }} - Secretaría</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    @if(request()->has('embed'))
-    <style>
-        /* Ocultar solo header superior cuando está en iframe, mantener sidebar */
-        header { display: none !important; }
-        main { padding-top: 0 !important; }
-    </style>
-    @endif
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @stack('styles')
 </head>
-<body class="font-sans antialiased bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+<body class="font-sans antialiased bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50">
     <div class="min-h-screen">
         @if(!request()->has('embed'))
         @include('layouts.navigation')
@@ -34,11 +22,8 @@
             <!-- Sidebar Mejorado con Responsive -->
             <aside id="sidebar" class="fixed lg:static w-64 bg-white shadow-xl min-h-screen border-r border-gray-200 flex-shrink-0 z-40 -translate-x-full lg:translate-x-0 transition-transform duration-300">
                 <!-- Header del Sidebar -->
-                <div class="p-6 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 text-white flex justify-between items-center">
-                    <div>
-                        <h2 class="text-xl font-bold">Socio</h2>
-                        <p class="text-xs text-blue-200 mt-1">{{ Auth::user()->username ?? Auth::user()->name }}</p>
-                    </div>
+                <div class="p-6 bg-gradient-to-br from-purple-600 via-pink-600 to-rose-600 text-white flex justify-between items-center">
+                    <h2 class="text-xl font-bold">Secretaría</h2>
                     <!-- Botón cerrar en móvil -->
                     <button id="closeSidebar" class="lg:hidden text-white">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,74 +35,57 @@
                 <!-- Navegación -->
                 <nav class="p-3">
                     <!-- Inicio -->
-                    <a href="{{ route('socio.dashboard') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('socio.dashboard') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <a href="{{ route('secretaria.dashboard') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('secretaria.dashboard') ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md' : 'text-gray-700 hover:bg-purple-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                         </svg>
                         Inicio
                     </a>
 
-                    <!-- Calendario -->
-                    <a href="{{ route('socio.calendario') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('socio.calendario') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <!-- Consultas -->
+                    <a href="{{ route('secretaria.consultas') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('secretaria.consultas*') ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md' : 'text-gray-700 hover:bg-purple-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
                         </svg>
-                        <span class="flex-1">Calendario</span>
-                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Solo Lectura</span>
+                        Consultas
                     </a>
 
-                    <!-- Mis Proyectos -->
-                    <a href="{{ route('socio.proyectos') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('socio.proyectos*') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <!-- Actas -->
+                    <a href="{{ route('secretaria.actas.index') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('secretaria.actas*') ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md' : 'text-gray-700 hover:bg-purple-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
-                        Mis Proyectos
+                        Actas
                     </a>
 
-                    <!-- Mis Reuniones -->
-                    <a href="{{ route('socio.reuniones') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('socio.reuniones*') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <!-- Diplomas -->
+                    <a href="{{ route('secretaria.diplomas.index') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('secretaria.diplomas*') ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md' : 'text-gray-700 hover:bg-purple-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
                         </svg>
-                        Mis Reuniones
+                        Diplomas
                     </a>
 
-                    <!-- Divider -->
-                    <div class="my-3 border-t border-gray-200"></div>
-                    <div class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Comunicación</div>
-
-                    <!-- Secretaría -->
-                    <a href="{{ route('socio.secretaria.index') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('socio.secretaria*') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <!-- Documentos -->
+                    <a href="{{ route('secretaria.documentos.index') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('secretaria.documentos*') ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md' : 'text-gray-700 hover:bg-purple-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
                         </svg>
-                        <span class="flex-1">Secretaría</span>
-                        @if(isset($consultasSecretariaPendientes) && $consultasSecretariaPendientes > 0)
-                            <span class="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                {{ $consultasSecretariaPendientes }}
-                            </span>
-                        @endif
+                        Documentos
                     </a>
 
-                    <!-- Divider -->
-                    <div class="my-3 border-t border-gray-200"></div>
-                    <div class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Personal</div>
-
-                    <!-- Blog de Notas -->
-                    <a href="{{ route('socio.notas.index') }}" 
-                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('socio.notas*') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                    <!-- Calendario -->
+                    <a href="{{ route('secretaria.calendario') }}" 
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('secretaria.calendario') ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md' : 'text-gray-700 hover:bg-purple-50' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
-                        <span class="flex-1">Blog de Notas</span>
-                        @if(isset($notasActivas) && $notasActivas > 0)
-                            <span class="text-xs text-gray-400">{{ $notasActivas }}</span>
-                        @endif
+                        Calendario
                     </a>
                 </nav>
 
@@ -133,7 +101,7 @@
             <!-- Contenido Principal -->
             <main class="flex-1 p-4 lg:p-6 max-w-full overflow-x-hidden">
                 <!-- Botón menú hamburguesa para móvil -->
-                <button id="openSidebar" class="lg:hidden fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg z-50 hover:bg-blue-700 transition-colors">
+                <button id="openSidebar" class="lg:hidden fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 rounded-full shadow-lg z-50 hover:shadow-xl transition-all">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
@@ -171,30 +139,6 @@
                         <script>
                             setTimeout(() => {
                                 const notification = document.getElementById('success-notification');
-                                if (notification) {
-                                    notification.style.transition = 'opacity 0.5s ease-out';
-                                    notification.style.opacity = '0';
-                                    setTimeout(() => notification.remove(), 500);
-                                }
-                            }, 5000);
-                        </script>
-                    @endif
-
-                    @if(session('error'))
-                        <div id="error-notification" class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center" role="alert">
-                            <svg class="w-5 h-5 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                            <span class="font-medium">{{ session('error') }}</span>
-                            <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.remove()">
-                                <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <script>
-                            setTimeout(() => {
-                                const notification = document.getElementById('error-notification');
                                 if (notification) {
                                     notification.style.transition = 'opacity 0.5s ease-out';
                                     notification.style.opacity = '0';
