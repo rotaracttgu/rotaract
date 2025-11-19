@@ -1,16 +1,22 @@
+{{-- Extender layout solo si no es AJAX --}}
+@if(!isset($isAjax) || !$isAjax)
+    @extends('layouts.app-admin')
+    @section('content')
+@endif
+
 <!-- Vista AJAX para Crear Rol -->
-<div class="container-fluid p-0">
+<div class="w-full">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 rounded-lg shadow-lg p-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
+    <div class="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 rounded-xl shadow-lg p-6 mb-6">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h1 class="h3 mb-0 text-white font-weight-bold">
                     <i class="fas fa-plus-circle mr-2"></i>Crear Nuevo Rol
                 </h1>
-                <p class="text-white mb-0 mt-1 opacity-75">Define un nuevo rol y asigna sus permisos</p>
+                <p class="text-white mb-0 mt-2 opacity-90">Define un nuevo rol y asigna sus permisos</p>
             </div>
-            <button type="button" onclick="$('[data-section=\'roles\']').trigger('click')" class="btn btn-light shadow-sm">
-                <i class="fas fa-arrow-left mr-1"></i>Volver
+            <button type="button" onclick="volverARoles()" class="btn btn-light shadow-sm">
+                <i class="fas fa-arrow-left mr-2"></i>Volver a Roles
             </button>
         </div>
     </div>
@@ -33,22 +39,31 @@
                                 Nombre del Rol <span class="text-danger">*</span>
                             </label>
                             <input type="text" 
-                                   class="form-control bg-gray-700 text-white border-gray-600" 
+                                   class="form-control" 
                                    id="name" 
                                    name="name" 
-                                   placeholder="Ej: TÉCNICO, OFICIAL, etc."
-                                   required>
+                                   placeholder="Ej: TÉCNICO, OFICIAL, COORDINADOR, etc."
+                                   style="background-color: #374151; color: white; border-color: #4b5563;"
+                                   required
+                                   minlength="3"
+                                   maxlength="50">
+                            <div id="name-validation" class="mt-2" style="display: none;"></div>
                             <small class="form-text text-gray-400">
                                 <i class="fas fa-lightbulb mr-1"></i>
-                                Nombre único del rol (mayúsculas recomendadas)
+                                Nombre único del rol (3-50 caracteres, mayúsculas recomendadas)
+                            </small>
+                            <small class="form-text text-info d-block mt-2">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                <strong>Sugerencias:</strong> TÉCNICO, OFICIAL, COORDINADOR, DIRECTOR, GERENTE, ANALISTA, SUPERVISOR, ESPECIALISTA
                             </small>
                         </div>
 
                         <div class="form-group">
                             <label for="guard_name" class="font-weight-bold text-white">Guard</label>
-                            <select class="form-control bg-gray-700 text-white border-gray-600" 
+                            <select class="form-control" 
                                     id="guard_name" 
-                                    name="guard_name">
+                                    name="guard_name"
+                                    style="background-color: #374151; color: white; border-color: #4b5563;">
                                 <option value="web">Web</option>
                                 <option value="api">API</option>
                             </select>
@@ -70,7 +85,7 @@
                         <button type="submit" class="btn btn-primary btn-block btn-lg shadow-sm">
                             <i class="fas fa-save mr-2"></i>Guardar Rol
                         </button>
-                        <button type="button" onclick="$('[data-section=\'roles\']').trigger('click')" class="btn btn-secondary btn-block mt-2">
+                        <button type="button" onclick="volverARoles()" class="btn btn-secondary btn-block mt-2">
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
                     </div>
@@ -106,10 +121,53 @@
                                                     type="button" 
                                                     data-toggle="collapse" 
                                                     data-target="#collapse{{ $loop->index }}"
-                                                    aria-expanded="true">
+                                                    aria-expanded="{{ $loop->first ? 'true' : 'false' }}">
                                                 <span class="font-weight-bold">
-                                                    <i class="fas fa-folder-open text-purple-400 mr-2"></i>
-                                                    {{ ucfirst($modulo) }}
+                                                    @php
+                                                        $iconos = [
+                                                            'dashboard' => 'fa-chart-line',
+                                                            'usuarios' => 'fa-users',
+                                                            'roles' => 'fa-user-tag',
+                                                            'permisos' => 'fa-key',
+                                                            'presidente' => 'fa-crown',
+                                                            'vicepresidente' => 'fa-user-tie',
+                                                            'tesorero' => 'fa-coins',
+                                                            'secretaria' => 'fa-file-alt',
+                                                            'vocero' => 'fa-megaphone',
+                                                            'socio' => 'fa-user',
+                                                            'proyectos' => 'fa-project-diagram',
+                                                            'finanzas' => 'fa-dollar-sign',
+                                                            'eventos' => 'fa-calendar-alt',
+                                                            'actas' => 'fa-file-contract',
+                                                            'asistencias' => 'fa-user-check',
+                                                            'bitacora' => 'fa-history',
+                                                            'backup' => 'fa-database'
+                                                        ];
+                                                        $icono = $iconos[$modulo] ?? 'fa-folder-open';
+                                                        
+                                                        $nombres = [
+                                                            'dashboard' => 'Panel de Control',
+                                                            'usuarios' => 'Gestión de Usuarios',
+                                                            'roles' => 'Gestión de Roles',
+                                                            'permisos' => 'Gestión de Permisos',
+                                                            'presidente' => 'Módulo Presidente',
+                                                            'vicepresidente' => 'Módulo Vicepresidente',
+                                                            'tesorero' => 'Módulo Tesorero',
+                                                            'secretaria' => 'Módulo Secretaría',
+                                                            'vocero' => 'Módulo Vocero',
+                                                            'socio' => 'Módulo Socio',
+                                                            'proyectos' => 'Gestión de Proyectos',
+                                                            'finanzas' => 'Gestión Financiera',
+                                                            'eventos' => 'Gestión de Eventos',
+                                                            'actas' => 'Gestión de Actas',
+                                                            'asistencias' => 'Control de Asistencias',
+                                                            'bitacora' => 'Registro de Actividad',
+                                                            'backup' => 'Respaldos del Sistema'
+                                                        ];
+                                                        $nombreModulo = $nombres[$modulo] ?? ucfirst($modulo);
+                                                    @endphp
+                                                    <i class="fas {{ $icono }} text-purple-400 mr-2"></i>
+                                                    {{ $nombreModulo }}
                                                 </span>
                                                 <span class="badge badge-primary badge-pill">{{ $perms->count() }} permisos</span>
                                             </button>
@@ -123,13 +181,14 @@
                                             <div class="row">
                                                 @foreach($perms as $permission)
                                                 <div class="col-md-6 mb-2">
-                                                    <div class="custom-control custom-checkbox">
+                                                    <div class="form-check">
                                                         <input type="checkbox" 
-                                                               class="custom-control-input permission-checkbox" 
+                                                               class="form-check-input permission-checkbox" 
                                                                id="permission{{ $permission->id }}"
                                                                name="permissions[]" 
-                                                               value="{{ $permission->id }}">
-                                                        <label class="custom-control-label text-white" for="permission{{ $permission->id }}">
+                                                               value="{{ $permission->id }}"
+                                                               style="cursor: pointer;">
+                                                        <label class="form-check-label text-white" for="permission{{ $permission->id }}" style="cursor: pointer; user-select: none;">
                                                             <i class="fas fa-shield-alt text-green-400 mr-1"></i>
                                                             {{ $permission->name }}
                                                         </label>
@@ -155,12 +214,135 @@
     </form>
 </div>
 
+<style>
+    /* Asegurar que los checkboxes sean visibles y clickeables */
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        margin-top: 0.15rem;
+        cursor: pointer !important;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-check-label {
+        padding-left: 0.5rem;
+        cursor: pointer !important;
+        user-select: none;
+    }
+    
+    .form-check {
+        padding-left: 1.5rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Hover effect en los checkboxes */
+    .form-check:hover {
+        background-color: rgba(124, 58, 237, 0.1);
+        border-radius: 0.375rem;
+        padding: 0.25rem;
+        margin-left: -0.25rem;
+        transition: all 0.2s ease;
+    }
+    
+    /* Efecto visual al seleccionar */
+    .form-check-input:checked + .form-check-label {
+        color: #10b981 !important;
+        font-weight: 600;
+    }
+</style>
+
 <script>
+function volverARoles() {
+    $('#sidebar .ajax-load[data-section="roles"]').trigger('click');
+}
+
 $(document).ready(function() {
+    // ⭐ Validación en tiempo real del nombre del rol
+    let timeoutId = null;
+    $('#name').on('input', function() {
+        const value = $(this).val().trim();
+        const validationDiv = $('#name-validation');
+        
+        // Limpiar timeout anterior
+        if (timeoutId) clearTimeout(timeoutId);
+        
+        // Si tiene menos de 2 caracteres, no hacer nada
+        if (value.length < 2) {
+            validationDiv.hide();
+            return;
+        }
+        
+        // Validación local inmediata
+        if (value.length < 3) {
+            validationDiv.html(`
+                <div class="alert alert-warning py-2 mb-0">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    El nombre debe tener al menos 3 caracteres (actual: ${value.length})
+                </div>
+            `).show();
+            return;
+        }
+        
+        // Verificar que no sea solo espacios
+        if (value.length >= 3 && !value.match(/\S{3,}/)) {
+            validationDiv.html(`
+                <div class="alert alert-danger py-2 mb-0">
+                    <i class="fas fa-times-circle mr-2"></i>
+                    El nombre debe contener caracteres válidos
+                </div>
+            `).show();
+            return;
+        }
+        
+        // Mostrar OK si cumple requisitos básicos
+        validationDiv.html(`
+            <div class="alert alert-success py-2 mb-0">
+                <i class="fas fa-check-circle mr-2"></i>
+                Formato válido (${value.length} caracteres)
+            </div>
+        `).show();
+    });
+    
+    // ⭐ Contador de permisos seleccionados
+    function actualizarContador() {
+        const total = $('.permission-checkbox').length;
+        const seleccionados = $('.permission-checkbox:checked').length;
+        
+        // Actualizar en el botón de guardar
+        const btnSubmit = $('button[type="submit"]');
+        if (seleccionados === 0) {
+            btnSubmit.html('<i class="fas fa-exclamation-triangle mr-2"></i>Guardar sin permisos');
+            btnSubmit.removeClass('btn-primary').addClass('btn-warning');
+        } else {
+            btnSubmit.html(`<i class="fas fa-save mr-2"></i>Guardar Rol (${seleccionados} permisos)`);
+            btnSubmit.removeClass('btn-warning').addClass('btn-primary');
+        }
+    }
+    
+    // Ejecutar al cargar y al cambiar checkboxes
+    $('.permission-checkbox').on('change', actualizarContador);
+    actualizarContador();
+    
     $('#formCrearRol').on('submit', function(e) {
         e.preventDefault();
         
         const formData = $(this).serialize();
+        
+        // Mostrar loading
+        Swal.fire({
+            title: 'Guardando...',
+            text: 'Por favor espera',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            background: '#1f2937',
+            color: '#fff'
+        });
         
         $.ajax({
             url: '{{ route("admin.configuracion.roles.store") }}',
@@ -174,12 +356,13 @@ $(document).ready(function() {
                 Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
-                    text: 'Rol creado correctamente',
+                    text: response.message || 'Rol creado correctamente',
                     background: '#1f2937',
                     color: '#fff',
-                    confirmButtonColor: '#10b981'
+                    confirmButtonColor: '#10b981',
+                    timer: 2000
                 }).then(() => {
-                    $('[data-section="roles"]').trigger('click');
+                    volverARoles();
                 });
             },
             error: function(xhr) {
@@ -194,7 +377,8 @@ $(document).ready(function() {
                     title: 'Error',
                     html: errorMsg,
                     background: '#1f2937',
-                    color: '#fff'
+                    color: '#fff',
+                    confirmButtonColor: '#dc3545'
                 });
             }
         });
@@ -209,3 +393,8 @@ function deselectAll() {
     $('.permission-checkbox').prop('checked', false);
 }
 </script>
+
+{{-- Cerrar section solo si no es AJAX --}}
+@if(!isset($isAjax) || !$isAjax)
+    @endsection
+@endif

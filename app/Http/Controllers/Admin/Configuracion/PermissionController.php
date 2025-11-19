@@ -16,22 +16,32 @@ class PermissionController extends Controller
      */
     public function ajaxIndex()
     {
-        $permissions = Permission::with('roles')
+        // Optimizado con eager loading
+        $permissions = Permission::with('roles:id,name')
             ->orderBy('name')
             ->paginate(20);
             
-        $permissionsGrouped = Permission::all()->groupBy(function($permission) {
-            $parts = explode('.', $permission->name);
-            return $parts[0] ?? 'general';
-        });
+        $permissionsGrouped = Permission::with('roles:id,name')
+            ->get()
+            ->groupBy(function($permission) {
+                $parts = explode('.', $permission->name);
+                return $parts[0] ?? 'general';
+            });
         
-        // Si es petición AJAX, devolver solo el contenido
+        // Indicar que es AJAX para la vista
+        $isAjax = true;
+        
+        // Si es petición AJAX, devolver solo el contenido HTML sin layout
         if (request()->ajax() || request()->wantsJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
-            return view('modulos.admin.configuracion.permisos.index', compact('permissions', 'permissionsGrouped'))->render();
+            $html = view('modulos.admin.configuracion.permisos.index', compact('permissions', 'permissionsGrouped', 'isAjax'))->render();
+            return response($html)
+                ->header('Content-Type', 'text/html; charset=UTF-8')
+                ->header('X-AJAX-Response', 'true');
         }
         
-        // Si no es AJAX, devolver vista completa
-        return view('modulos.admin.configuracion.permisos.index', compact('permissions', 'permissionsGrouped'));
+        // Si no es AJAX, devolver vista completa con layout
+        $isAjax = false;
+        return view('modulos.admin.configuracion.permisos.index', compact('permissions', 'permissionsGrouped', 'isAjax'));
     }
 
     /**
@@ -59,7 +69,17 @@ class PermissionController extends Controller
             'backup' => 'Backup'
         ];
         
-        return view('modulos.admin.configuracion.permisos.create', compact('roles', 'modulos'));
+        // Si es petición AJAX, devolver solo el contenido HTML sin layout
+        if (request()->ajax() || request()->wantsJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
+            $isAjax = true;
+            $html = view('modulos.admin.configuracion.permisos.create', compact('roles', 'modulos', 'isAjax'))->render();
+            return response($html)
+                ->header('Content-Type', 'text/html; charset=UTF-8')
+                ->header('X-AJAX-Response', 'true');
+        }
+        
+        $isAjax = false;
+        return view('modulos.admin.configuracion.permisos.create', compact('roles', 'modulos', 'isAjax'));
     }
 
     /**
@@ -93,11 +113,29 @@ class PermissionController extends Controller
 
             DB::commit();
 
+            // Si es petición AJAX, devolver JSON
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Permiso creado exitosamente',
+                    'permission' => $permission->load('roles')
+                ]);
+            }
+
             return redirect()->route('admin.configuracion.permisos.ajax')
                 ->with('success', 'Permiso creado exitosamente');
                 
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // Si es petición AJAX, devolver JSON de error
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al crear el permiso: ' . $e->getMessage()
+                ], 500);
+            }
+            
             return back()->withInput()
                 ->with('error', 'Error al crear el permiso: ' . $e->getMessage());
         }
@@ -120,7 +158,17 @@ class PermissionController extends Controller
         $roles = Role::all();
         $permisoRoles = $permiso->roles->pluck('id')->toArray();
         
-        return view('modulos.admin.configuracion.permisos.edit', compact('permiso', 'roles', 'permisoRoles'));
+        // Si es petición AJAX, devolver solo el contenido HTML sin layout
+        if (request()->ajax() || request()->wantsJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
+            $isAjax = true;
+            $html = view('modulos.admin.configuracion.permisos.edit', compact('permiso', 'roles', 'permisoRoles', 'isAjax'))->render();
+            return response($html)
+                ->header('Content-Type', 'text/html; charset=UTF-8')
+                ->header('X-AJAX-Response', 'true');
+        }
+        
+        $isAjax = false;
+        return view('modulos.admin.configuracion.permisos.edit', compact('permiso', 'roles', 'permisoRoles', 'isAjax'));
     }
 
     /**
@@ -161,11 +209,29 @@ class PermissionController extends Controller
 
             DB::commit();
 
+            // Si es petición AJAX, devolver JSON
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Permiso actualizado exitosamente',
+                    'permission' => $permiso->load('roles')
+                ]);
+            }
+
             return redirect()->route('admin.configuracion.permisos.ajax')
                 ->with('success', 'Permiso actualizado exitosamente');
                 
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // Si es petición AJAX, devolver JSON de error
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar el permiso: ' . $e->getMessage()
+                ], 500);
+            }
+            
             return back()->withInput()
                 ->with('error', 'Error al actualizar el permiso: ' . $e->getMessage());
         }
@@ -174,7 +240,7 @@ class PermissionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Permission $permiso)
+    public function destroy(Request $request, Permission $permiso)
     {
         try {
             DB::table('role_has_permissions')->where('permission_id', $permiso->id)->delete();
@@ -182,9 +248,24 @@ class PermissionController extends Controller
             
             $permiso->delete();
             
+            // Si es petición AJAX, devolver JSON
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Permiso eliminado exitosamente'
+                ]);
+            }
+            
             return redirect()->route('admin.configuracion.permisos.ajax')
                 ->with('success', 'Permiso eliminado exitosamente');
         } catch (\Exception $e) {
+            // Si es petición AJAX, devolver JSON de error
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al eliminar el permiso: ' . $e->getMessage()
+                ], 500);
+            }
             return back()->with('error', 'Error al eliminar el permiso: ' . $e->getMessage());
         }
     }

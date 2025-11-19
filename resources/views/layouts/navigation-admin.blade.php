@@ -1,11 +1,11 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 fixed top-0 left-0 right-0 z-50">
+<nav class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-700 fixed top-0 left-0 right-0 z-50 shadow-lg" x-data="{ openDropdown: false, sidebarOpen: false }">
     <!-- Primary Navigation Menu -->
     <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-28">
+        <div class="flex justify-between h-20">
             <!-- Logo + Botón menú móvil -->
             <div class="flex items-center gap-4">
                 <!-- Botón hamburguesa para móvil -->
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none">
+                <button @click="sidebarOpen = !sidebarOpen; $dispatch('sidebar-toggle')" class="lg:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none transition-colors duration-200">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
@@ -13,14 +13,14 @@
 
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('admin.dashboard') }}">
-                        <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract Logo" class="block h-16 w-auto">
+                    <a href="{{ route('admin.dashboard') }}" class="hover:opacity-80 transition-opacity">
+                        <img src="{{ asset('images/LogoRotaract.png') }}" alt="Rotaract Logo" class="block h-12 w-auto">
                     </a>
                 </div>
             </div>
 
             <!-- Settings Dropdown en Desktop -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
+            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-6">
                 <!-- Icono de Notificaciones -->
                 @php
                     $notificacionesRoute = route('admin.notificaciones');

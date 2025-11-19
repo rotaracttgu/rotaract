@@ -1014,7 +1014,7 @@ class VicepresidenteController extends Controller
                 'Estado' => $proyecto->EstadoProyecto ?? $proyecto->Estatus,
                 'Presupuesto' => '$' . number_format($proyecto->Presupuesto ?? 0, 2),
                 'Tipo' => $proyecto->TipoProyecto ?? 'N/A',
-                'Responsable' => $proyecto->responsable ? $proyecto->responsable->Nombre . ' ' . $proyecto->responsable->Apellido : 'N/A',
+                'Responsable' => $proyecto->responsable ? $proyecto->responsable->Nombre : 'N/A',
                 'Participantes' => $proyecto->total_participantes ?? 0,
                 'Horas Totales' => $proyecto->horas_totales ?? 0,
                 'Monto Patrocinio' => '$' . number_format($proyecto->monto_patrocinio ?? 0, 2),

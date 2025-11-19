@@ -401,7 +401,7 @@
         // Mostrar modal con detalles completos
         function mostrarModalDetalles(proyecto) {
             const responsable = proyecto.responsable ? 
-                `${proyecto.responsable.Nombre} ${proyecto.responsable.Apellido}` : 'N/A';
+                `${proyecto.responsable.Nombre}` : 'N/A';
             
             const fechaInicio = proyecto.FechaInicio ? 
                 new Date(proyecto.FechaInicio).toLocaleDateString('es-GT') : 'N/A';
@@ -838,7 +838,7 @@
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             <option value="">Sin asignar</option>
                             @foreach($miembros as $miembro)
-                                <option value="{{ $miembro->MiembroID }}">{{ $miembro->Nombre }} {{ $miembro->Apellido }}</option>
+                                <option value="{{ $miembro->MiembroID }}">{{ $miembro->Nombre }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -929,7 +929,7 @@
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             <option value="">Sin asignar</option>
                             @foreach($miembros as $miembro)
-                                <option value="{{ $miembro->MiembroID }}">{{ $miembro->Nombre }} {{ $miembro->Apellido }}</option>
+                                <option value="{{ $miembro->MiembroID }}">{{ $miembro->Nombre }}</option>
                             @endforeach
                         </select>
                     </div>

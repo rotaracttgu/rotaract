@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Mail;
 // ⭐ IMPORTAR CONTROLADORES DE CONFIGURACIÓN
 use App\Http\Controllers\Admin\Configuracion\RoleController;
 use App\Http\Controllers\Admin\Configuracion\PermissionController;
+use App\Http\Controllers\AdminController;
 
 // Página de inicio (pública)
 Route::get('/', function () {
@@ -193,18 +194,72 @@ Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware:
         Route::get('permisos/ajax', [PermissionController::class, 'ajaxIndex'])
             ->name('permisos.ajax');
 
+        // Vista para asignar permisos por módulo
+        Route::get('roles/{role}/asignar-permisos', [RoleController::class, 'mostrarAsignarPermisos'])
+            ->name('roles.mostrar-asignar-permisos');
+        
+        Route::post('roles/{role}/asignar-permisos', [RoleController::class, 'asignarPermisos'])
+            ->name('roles.asignar-permisos');
+
         // RECURSOS SIN index (para create, edit, show, etc.)
         Route::resource('roles', RoleController::class)->except(['index']);
         Route::resource('permisos', PermissionController::class)->except(['index']);
+    });
 
-        // Asignar permisos a roles
-        Route::post('roles/{role}/permisos', [RoleController::class, 'asignarPermisos'])
-            ->name('roles.asignar-permisos');
+    // ============================================================================
+    // MÓDULO PRESIDENTE - Integrado en Admin
+    // ============================================================================
+    Route::prefix('presidente')->name('presidente.')->group(function () {
+        // Dashboard y vistas principales
+        Route::get('/dashboard', [AdminController::class, 'presidenteDashboard'])->name('dashboard');
+        
+        // Notificaciones
+        Route::get('/notificaciones', [AdminController::class, 'presidenteNotificaciones'])->name('notificaciones');
+        
+        // Cartas Formales
+        Route::get('/cartas/formales', [AdminController::class, 'presidenteCartasFormales'])->name('cartas.formales');
+        Route::get('/cartas/formales/{id}', [AdminController::class, 'showCartaFormal'])->name('cartas.formales.show');
+        Route::post('/cartas/formales', [AdminController::class, 'storeCartaFormal'])->name('cartas.formales.store');
+        Route::put('/cartas/formales/{id}', [AdminController::class, 'updateCartaFormal'])->name('cartas.formales.update');
+        Route::delete('/cartas/formales/{id}', [AdminController::class, 'destroyCartaFormal'])->name('cartas.formales.destroy');
+        Route::get('/cartas/formales/{id}/pdf', [AdminController::class, 'exportarCartaFormalPDF'])->name('cartas.formales.pdf');
+        Route::get('/cartas/formales/{id}/word', [AdminController::class, 'exportarCartaFormalWord'])->name('cartas.formales.word');
+        
+        // Cartas Patrocinio
+        Route::get('/cartas/patrocinio', [AdminController::class, 'presidenteCartasPatrocinio'])->name('cartas.patrocinio');
+        Route::get('/cartas/patrocinio/{id}', [AdminController::class, 'showCartaPatrocinio'])->name('cartas.patrocinio.show');
+        Route::post('/cartas/patrocinio', [AdminController::class, 'storeCartaPatrocinio'])->name('cartas.patrocinio.store');
+        Route::put('/cartas/patrocinio/{id}', [AdminController::class, 'updateCartaPatrocinio'])->name('cartas.patrocinio.update');
+        Route::delete('/cartas/patrocinio/{id}', [AdminController::class, 'destroyCartaPatrocinio'])->name('cartas.patrocinio.destroy');
+        Route::get('/cartas/patrocinio/{id}/pdf', [AdminController::class, 'exportarCartaPatrocinioPDF'])->name('cartas.patrocinio.pdf');
+        Route::get('/cartas/patrocinio/{id}/word', [AdminController::class, 'exportarCartaPatrocinioWord'])->name('cartas.patrocinio.word');
+        
+        // Estado de Proyectos
+        Route::get('/estado/proyectos', [AdminController::class, 'presidenteEstadoProyectos'])->name('estado.proyectos');
+        Route::get('/proyectos/{id}', [AdminController::class, 'showProyecto'])->name('proyectos.show');
+        Route::get('/proyectos/{id}/detalles', [AdminController::class, 'detallesProyecto'])->name('proyectos.detalles');
+        Route::post('/proyectos', [AdminController::class, 'storeProyecto'])->name('proyectos.store');
+        Route::put('/proyectos/{id}', [AdminController::class, 'updateProyecto'])->name('proyectos.update');
+        Route::delete('/proyectos/{id}', [AdminController::class, 'destroyProyecto'])->name('proyectos.destroy');
+    });
+
+    // API del Calendario de Presidente
+    Route::prefix('api/presidente/calendario')->name('api.presidente.calendario.')->group(function () {
+        Route::get('/eventos', [AdminController::class, 'obtenerEventos']);
+        Route::post('/eventos', [AdminController::class, 'crearEvento']);
+        Route::put('/eventos/{id}', [AdminController::class, 'actualizarEvento']);
+        Route::delete('/eventos/{id}', [AdminController::class, 'eliminarEvento']);
+        Route::patch('/eventos/{id}/fechas', [AdminController::class, 'actualizarFechas']);
+        Route::get('/miembros', [AdminController::class, 'obtenerMiembros']);
+        Route::get('/eventos/{id}/asistencias', [AdminController::class, 'obtenerAsistenciasEvento']);
+        Route::post('/asistencias', [AdminController::class, 'registrarAsistencia']);
+        Route::put('/asistencias/{id}', [AdminController::class, 'actualizarAsistencia']);
+        Route::delete('/asistencias/{id}', [AdminController::class, 'eliminarAsistencia']);
     });
 });
 
 // ============================================================================
-// RUTAS DEL MÓDULO PRESIDENTE
+// RUTAS DEL MÓDULO PRESIDENTE (Original - para usuarios con rol Presidente)
 // ============================================================================
 Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Presidente|Super Admin'])->name('presidente.')->group(function () {
     Route::get('/dashboard', [PresidenteController::class, 'dashboard'])->name('dashboard');

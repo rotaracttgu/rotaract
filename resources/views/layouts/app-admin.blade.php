@@ -30,13 +30,13 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #f3f4f6;
+            background: linear-gradient(to bottom right, #111827, #1e1b4b);
             font-family: 'Figtree', sans-serif;
         }
 
         .main-content-wrapper {
             margin-left: 280px;
-            padding-top: 7rem;
+            padding-top: 5rem;
             min-height: 100vh;
             transition: margin-left 0.3s ease;
         }
@@ -56,11 +56,19 @@
 
         /* Contenedor central para AJAX */
         #config-content {
-            min-height: 600px;
-            background: #1a1a2e;
-            border-radius: 12px;
-            padding: 1.5rem;
-            color: white;
+            width: 100%;
+            min-height: auto;
+            padding: 0;
+            margin: 0;
+            overflow: visible;
+        }
+        
+        #config-content.hidden {
+            display: none;
+        }
+        
+        #config-content.visible {
+            display: block;
         }
 
         .ajax-load {
@@ -101,12 +109,15 @@
             </header>
         @endisset
 
-        <main class="container-fluid px-4">
+        <main class="container-fluid">
             @isset($slot)
                 {{ $slot }}
             @else
                 @yield('content')
             @endisset
+            
+            <!-- ⭐ CONTENEDOR AJAX GLOBAL - Dentro del main para que tenga espacio completo -->
+            <div id="config-content" class="ajax-content-container hidden"></div>
         </main>
     </div>
 
@@ -132,10 +143,42 @@
     <script>
         $(document).ready(function() {
             console.log('✅ Sistema AJAX de Roles/Permisos inicializado');
+            console.log('🔵 jQuery versión:', $.fn.jquery);
+            console.log('🔵 Elementos .ajax-load encontrados:', $('.ajax-load').length);
+            
+            // Log al cargar la página
+            $('.ajax-load').each(function(index) {
+                console.log('🔵 Link #' + index + ':', $(this).attr('href'), 'Section:', $(this).data('section'));
+            });
+            
+            // ⭐ BANDERA PARA EVITAR LOOP INFINITO
+            let isAjaxLoading = false;
+            
+            // ⭐ AGREGAR LISTENER NATIVO DE JAVASCRIPT (NO JQUERY) PARA BYPASS ALPINE
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('.ajax-load');
+                if (target) {
+                    console.log('🟢 CLICK NATIVO DETECTADO en .ajax-load');
+                    console.log('🟢 Target:', target);
+                    console.log('🟢 Href:', target.getAttribute('href'));
+                }
+            }, true); // true = capture phase, se ejecuta ANTES que Alpine
 
-            // Función para cargar contenido vía AJAX
-            function cargarContenidoAjax(url, target) {
-                console.log('🔄 Cargando vía AJAX:', url);
+            // Función GLOBAL para cargar contenido vía AJAX
+            window.cargarContenidoAjax = function(url, target) {
+                if (isAjaxLoading) {
+                    console.log('⚠️ Ya hay una petición AJAX en curso, ignorando...');
+                    return;
+                }
+                
+                isAjaxLoading = true;
+                console.log('🔵 cargarContenidoAjax INICIADO');
+                console.log('🔵 URL:', url);
+                console.log('🔵 Target:', target);
+                console.log('🔵 Target existe?:', $(target).length);
+                
+                // ⭐ LIMPIAR COMPLETAMENTE el contenedor y mostrar
+                $(target).empty().removeClass('hidden').addClass('visible');
 
                 $(target).html(`
                     <div class="d-flex justify-content-center align-items-center" style="min-height: 500px;">
@@ -147,6 +190,8 @@
                         </div>
                     </div>
                 `);
+                
+                console.log('🔵 Spinner mostrado, iniciando AJAX...');
 
                 $.ajax({
                     url: url,
@@ -155,20 +200,52 @@
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'text/html'
                     },
-                    success: function(html) {
-                        console.log('✅ Contenido cargado exitosamente');
-                        $(target).html(html);
+                    beforeSend: function() {
+                        console.log('🔵 AJAX beforeSend - Enviando petición...');
+                    },
+                    success: function(html, textStatus, xhr) {
+                        console.log('✅ AJAX SUCCESS');
+                        console.log('✅ Response length:', html.length);
+                        console.log('✅ Status:', textStatus);
+                        console.log('✅ Headers:', xhr.getAllResponseHeaders());
+                        console.log('✅ HTML preview:', html.substring(0, 200));
                         
-                        // Re-inicializar tooltips si existen
+                        // ⭐ FORZAR contenedor visible antes de insertar HTML
+                        $(target).removeClass('hidden').addClass('visible');
+                        $(target).html(html);
+                        console.log('✅ HTML insertado en', target);
+                        console.log('✅ Contenedor clases:', $(target).attr('class'));
+                        console.log('✅ Contenedor display:', $(target).css('display'));
+                        
+                        // ⭐ Scroll suave al contenedor después de cargar
+                        setTimeout(function() {
+                            // Asegurar que sigue visible
+                            $(target).removeClass('hidden').addClass('visible');
+                            if ($(target).offset()) {
+                                $('html, body').animate({
+                                    scrollTop: $(target).offset().top - 100
+                                }, 300);
+                            }
+                        }, 150);
+                        
+                        // Re-inicializar componentes de Bootstrap
                         if (typeof bootstrap !== 'undefined') {
+                            // Tooltips
                             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                             tooltipTriggerList.map(function (tooltipTriggerEl) {
                                 return new bootstrap.Tooltip(tooltipTriggerEl);
                             });
+                            
+                            // Collapses - NO inicializar automáticamente, dejar que Bootstrap lo maneje
+                            console.log('✅ Componentes Bootstrap reinicializados');
                         }
                     },
                     error: function(xhr, status, error) {
-                        console.error('❌ Error AJAX:', { xhr, status, error });
+                        console.error('❌ AJAX ERROR');
+                        console.error('❌ XHR:', xhr);
+                        console.error('❌ Status:', status);
+                        console.error('❌ Error:', error);
+                        console.error('❌ Response:', xhr.responseText);
                         
                         let errorMessage = 'Error al cargar el contenido.';
                         
@@ -180,6 +257,8 @@
                             errorMessage = 'No se pudo conectar al servidor.';
                         }
                         
+                        // ⭐ Mantener visible en error
+                        $(target).removeClass('hidden').addClass('visible');
                         $(target).html(`
                             <div class="alert alert-danger p-4 text-center m-4">
                                 <i class="fas fa-exclamation-triangle me-2" style="font-size: 2rem;"></i>
@@ -190,17 +269,32 @@
                                 </button>
                             </div>
                         `);
+                    },
+                    complete: function() {
+                        console.log('🔵 AJAX COMPLETE - Petición finalizada');
+                        isAjaxLoading = false; // ⭐ Resetear la bandera
                     }
                 });
             }
 
             // Cargar contenido desde el sidebar
-            $(document).on('click', '.ajax-load', function(e) {
+            // ⭐ IMPORTANTE: Solo del SIDEBAR, NO del contenido cargado
+            $(document).on('click', '#sidebar .ajax-load', function(e) {
+                console.log('🔵🔵🔵 CLICK DETECTADO EN .ajax-load 🔵🔵🔵');
                 e.preventDefault();
+                e.stopPropagation(); // ⭐ Detener la propagación
+                
+                console.log('🔵 CLICK en .ajax-load detectado');
+                console.log('🔵 Elemento:', this);
+                console.log('🔵 Elemento HTML:', this.outerHTML);
 
                 const url = $(this).attr('href');
                 const target = $(this).data('target') || '#config-content';
                 const section = $(this).data('section') || '';
+                
+                console.log('🔵 URL extraída:', url);
+                console.log('🔵 Target extraído:', target);
+                console.log('🔵 Section extraída:', section);
 
                 // Verificar que el contenedor exista
                 if (!$(target).length) {
@@ -212,30 +306,40 @@
                         background: '#1f2937',
                         color: '#fff'
                     });
-                    return;
+                    return false; // ⭐ Detener ejecución
                 }
+                
+                console.log('✅ Contenedor existe, continuando...');
 
                 // Activar botón
-                $('.ajax-load').removeClass('active');
+                $('#sidebar .ajax-load').removeClass('active');
                 $(this).addClass('active');
-
-                cargarContenidoAjax(url, target);
+                
+                console.log('🔵 Llamando a cargarContenidoAjax...');
+                window.cargarContenidoAjax(url, target);
                 
                 if (section) {
                     history.pushState({ section }, '', url);
+                    console.log('🔵 History pushState:', section, url);
                 }
+                
+                return false; // ⭐ Prevenir cualquier acción adicional
             });
 
-            // ⭐ NUEVO: Interceptar clics en enlaces DENTRO de #config-content
-            $(document).on('click', '#config-content a:not([target="_blank"]):not(.no-ajax)', function(e) {
-                const href = $(this).attr('href');
+            // ⭐ INTERCEPTOR PARA PAGINACIÓN - Solo links de paginación dentro de #config-content
+            $(document).on('click', '#config-content .pagination a', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                // Solo interceptar enlaces que contengan 'admin/configuracion'
-                if (href && href.includes('admin/configuracion')) {
-                    e.preventDefault();
-                    console.log('🔗 Enlace interceptado:', href);
-                    cargarContenidoAjax(href, '#config-content');
+                const href = $(this).attr('href');
+                console.log('📄 Click en paginación detectado:', href);
+                
+                if (href && !$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
+                    console.log('📄 Cargando página vía AJAX...');
+                    window.cargarContenidoAjax(href, '#config-content');
                 }
+                
+                return false;
             });
 
             // Soporte para volver atrás
@@ -249,14 +353,15 @@
             });
 
             // Cargar por hash al inicio
-            const pathname = window.location.pathname;
-            if (pathname.includes('roles/ajax')) {
-                console.log('🔄 Auto-cargando Roles desde URL');
-                $(`.ajax-load[data-section="roles"]`).trigger('click');
-            } else if (pathname.includes('permisos/ajax')) {
-                console.log('🔄 Auto-cargando Permisos desde URL');
-                $(`.ajax-load[data-section="permisos"]`).trigger('click');
-            }
+            // ⭐ DESHABILITADO: Causaba loop infinito
+            // const pathname = window.location.pathname;
+            // if (pathname.includes('roles/ajax')) {
+            //     console.log('🔄 Auto-cargando Roles desde URL');
+            //     $(`.ajax-load[data-section="roles"]`).trigger('click');
+            // } else if (pathname.includes('permisos/ajax')) {
+            //     console.log('🔄 Auto-cargando Permisos desde URL');
+            //     $(`.ajax-load[data-section="permisos"]`).trigger('click');
+            // }
         });
     </script>
 </body>

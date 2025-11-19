@@ -1,3 +1,36 @@
+<!-- Header con Gradiente del Dashboard -->
+<div class="bg-gradient-to-r from-red-500 via-pink-600 to-purple-600 p-8 shadow-2xl rounded-2xl mb-8 -mt-8">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="bg-white/20 rounded-full p-4 backdrop-blur-sm">
+                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-4xl font-black text-white">👑 Panel de Administración</h1>
+                <p class="text-white/90 text-lg font-medium mt-1">Bienvenido al panel de control del Super Admin</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fecha y Hora -->
+    <div class="mt-4 flex items-center space-x-4 text-white/90">
+        <div class="flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span class="text-sm font-medium">📅 {{ now()->format('d/m/Y') }}</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-sm font-medium">🕐 {{ now()->format('H:i') }}</span>
+        </div>
+    </div>
+</div>
+
 <!-- Estadísticas de Usuarios -->
 <div class="mb-8">
     <h3 class="text-xl font-bold text-white mb-4 flex items-center">
@@ -12,12 +45,12 @@
             <div class="flex items-start justify-between">
                 <div class="flex-1">
                     <p class="text-blue-200 text-sm font-semibold uppercase mb-2">Total Usuarios</p>
-                    <p class="text-4xl font-black text-white">{{ $totalUsuarios ?? 11 }}</p>
+                    <p class="text-4xl font-black text-white">{{ $totalUsuarios ?? 0 }}</p>
                     <p class="text-blue-100 text-sm mt-2 flex items-center">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                         </svg>
-                        {{ $rolesActivos ?? 7 }} roles activos
+                        {{ $rolesActivos ?? 0 }} roles activos
                     </p>
                 </div>
                 <div class="bg-white/20 rounded-full p-3">
@@ -33,12 +66,12 @@
             <div class="flex items-start justify-between">
                 <div class="flex-1">
                     <p class="text-green-200 text-sm font-semibold uppercase mb-2">Verificados</p>
-                    <p class="text-4xl font-black text-white">{{ $verificados ?? 3 }}</p>
+                    <p class="text-4xl font-black text-white">{{ $verificados ?? 0 }}</p>
                     <div class="mt-2 flex items-center">
                         <div class="flex-1 bg-green-900/50 rounded-full h-2">
-                            <div class="bg-green-300 h-2 rounded-full" style="width: {{ $porcentajeVerificados ?? 27 }}%"></div>
+                            <div class="bg-green-300 h-2 rounded-full" style="width: {{ $porcentajeVerificados ?? 0 }}%"></div>
                         </div>
-                        <span class="text-green-100 text-sm ml-2 font-bold">{{ $porcentajeVerificados ?? 27 }}%</span>
+                        <span class="text-green-100 text-sm ml-2 font-bold">{{ $porcentajeVerificados ?? 0 }}%</span>
                     </div>
                     <p class="text-green-100 text-xs mt-1">Progreso</p>
                 </div>

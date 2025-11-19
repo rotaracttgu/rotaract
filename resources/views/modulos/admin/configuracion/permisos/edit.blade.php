@@ -1,3 +1,9 @@
+{{-- Extender layout solo si no es AJAX --}}
+@if(!isset($isAjax) || !$isAjax)
+    @extends('layouts.app-admin')
+    @section('content')
+@endif
+
 <!-- Vista AJAX para Editar Permiso -->
 <div class="container-fluid p-0">
     <!-- Header -->
@@ -9,8 +15,8 @@
                 </h1>
                 <p class="text-white mb-0 mt-1 opacity-75">Modifica la información del permiso</p>
             </div>
-            <button type="button" onclick="$('[data-section=\'permisos\']').trigger('click')" class="btn btn-light shadow-sm">
-                <i class="fas fa-arrow-left mr-1"></i>Volver
+            <button type="button" onclick="volverAPermisos()" class="btn btn-light shadow-sm">
+                <i class="fas fa-arrow-left mr-2"></i>Volver a Permisos
             </button>
         </div>
     </div>
@@ -33,23 +39,26 @@
                                 Nombre del Permiso <span class="text-danger">*</span>
                             </label>
                             <input type="text" 
-                                   class="form-control bg-gray-700 text-white border-gray-600" 
+                                   class="form-control" 
                                    id="name" 
                                    name="name" 
                                    value="{{ $permiso->name }}"
                                    placeholder="Ej: usuarios.ver, roles.crear"
+                                   style="background-color: #374151; color: white; border-color: #4b5563;"
                                    required>
+                            <div id="name-validation-permisos"></div>
                             <small class="form-text text-gray-400">
                                 <i class="fas fa-lightbulb mr-1"></i>
-                                Formato: modulo.accion
+                                Formato: modulo.accion (Ejemplos: usuarios.ver, proyectos.crear, finanzas.aprobar)
                             </small>
                         </div>
 
                         <div class="form-group">
                             <label for="guard_name" class="font-weight-bold text-white">Guard</label>
-                            <select class="form-control bg-gray-700 text-white border-gray-600" 
+                            <select class="form-control" 
                                     id="guard_name" 
-                                    name="guard_name">
+                                    name="guard_name"
+                                    style="background-color: #374151; color: white; border-color: #4b5563;">
                                 <option value="web" {{ $permiso->guard_name == 'web' ? 'selected' : '' }}>Web</option>
                                 <option value="api" {{ $permiso->guard_name == 'api' ? 'selected' : '' }}>API</option>
                             </select>
@@ -92,14 +101,15 @@
                         <div class="row">
                             @forelse($roles as $role)
                             <div class="col-md-6 mb-2">
-                                <div class="custom-control custom-checkbox">
+                                <div class="form-check">
                                     <input type="checkbox" 
-                                           class="custom-control-input role-checkbox" 
+                                           class="form-check-input role-checkbox" 
                                            id="role{{ $role->id }}"
                                            name="roles[]" 
                                            value="{{ $role->id }}"
+                                           style="cursor: pointer;"
                                            {{ in_array($role->id, $permisoRoles) ? 'checked' : '' }}>
-                                    <label class="custom-control-label text-white" for="role{{ $role->id }}">
+                                    <label class="form-check-label text-white" for="role{{ $role->id }}" style="cursor: pointer;">
                                         <i class="fas fa-shield-alt text-purple-400 mr-1"></i>
                                         <strong>{{ $role->name }}</strong>
                                         @if(in_array($role->id, $permisoRoles))
@@ -123,7 +133,7 @@
                         <button type="submit" class="btn btn-primary btn-lg btn-block shadow-sm">
                             <i class="fas fa-save mr-2"></i>Actualizar Permiso
                         </button>
-                        <button type="button" onclick="$('[data-section=\'permisos\']').trigger('click')" class="btn btn-secondary btn-block mt-2">
+                        <button type="button" onclick="volverAPermisos()" class="btn btn-secondary btn-block mt-2">
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
                     </div>
@@ -189,7 +199,47 @@
 </div>
 
 <script>
+function volverAPermisos() {
+    $('#sidebar .ajax-load[data-section="permisos"]').trigger('click');
+}
+
+// Variable para el timeout de validación
+let validationTimeout;
+
+// Función de validación en tiempo real
+function validarNombrePermiso() {
+    const nombre = $('#name').val().trim();
+    const validationDiv = $('#name-validation-permisos');
+    
+    // Limpiar validación anterior
+    validationDiv.empty();
+    
+    if (nombre.length === 0) {
+        return;
+    }
+    
+    if (nombre.length < 2) {
+        validationDiv.html('<div class="alert alert-warning alert-sm mt-2"><i class="fas fa-exclamation-triangle mr-2"></i>El nombre debe tener al menos 2 caracteres</div>');
+        return;
+    }
+    
+    // Validar formato modulo.accion
+    const formatoValido = /^[a-z_]+\.[a-z_]+$/.test(nombre);
+    
+    if (!formatoValido) {
+        validationDiv.html('<div class="alert alert-warning alert-sm mt-2"><i class="fas fa-info-circle mr-2"></i>Formato recomendado: <code>modulo.accion</code> (ejemplo: <code>usuarios.ver</code>)</div>');
+    } else {
+        validationDiv.html('<div class="alert alert-success alert-sm mt-2"><i class="fas fa-check-circle mr-2"></i>Formato correcto</div>');
+    }
+}
+
 $(document).ready(function() {
+    // Validación con debounce (500ms)
+    $('#name').on('input', function() {
+        clearTimeout(validationTimeout);
+        validationTimeout = setTimeout(validarNombrePermiso, 500);
+    });
+    
     // Interceptar el submit del formulario
     $('#formEditarPermiso').on('submit', function(e) {
         e.preventDefault();
@@ -214,7 +264,7 @@ $(document).ready(function() {
                     confirmButtonColor: '#10b981'
                 }).then(() => {
                     // Recargar la lista de permisos vía AJAX
-                    $('[data-section="permisos"]').trigger('click');
+                    volverAPermisos();
                 });
             },
             error: function(xhr) {
@@ -244,3 +294,8 @@ function deselectAllRoles() {
     $('.role-checkbox').prop('checked', false);
 }
 </script>
+
+{{-- Cerrar section solo si no es AJAX --}}
+@if(!isset($isAjax) || !$isAjax)
+    @endsection
+@endif

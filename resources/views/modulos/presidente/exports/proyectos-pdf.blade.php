@@ -103,7 +103,7 @@
                     <td class="proyecto-nombre">{{ $proyecto->Nombre }}</td>
                     <td>
                         @if($proyecto->responsable)
-                            {{ $proyecto->responsable->Nombre }} {{ $proyecto->responsable->Apellido }}
+                            {{ $proyecto->responsable->Nombre }}
                         @else
                             N/A
                         @endif

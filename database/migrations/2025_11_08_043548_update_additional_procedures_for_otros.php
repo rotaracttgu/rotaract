@@ -31,7 +31,7 @@ return new class extends Migration
     c.HoraFin,
     c.Ubicacion,
     c.OrganizadorID,
-    CONCAT(m.Nombre, ' ', m.Apellido) AS NombreOrganizador,
+    m.Nombre AS NombreOrganizador,
     c.ProyectoID,
     p.NombreProyecto
   FROM calendarios c
@@ -68,7 +68,7 @@ return new class extends Migration
     c.HoraFin,
     c.Ubicacion,
     c.OrganizadorID,
-    CONCAT(m.Nombre, ' ', m.Apellido) AS NombreOrganizador,
+    m.Nombre AS NombreOrganizador,
     c.ProyectoID,
     p.NombreProyecto
   FROM calendarios c

@@ -1,16 +1,22 @@
+{{-- Extender layout solo si no es AJAX --}}
+@if(!isset($isAjax) || !$isAjax)
+    @extends('layouts.app-admin')
+    @section('content')
+@endif
+
 <!-- Vista AJAX para Crear Permiso -->
-<div class="container-fluid p-0">
+<div class="w-full">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-green-600 via-teal-600 to-cyan-700 rounded-lg shadow-lg p-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
+    <div class="bg-gradient-to-r from-green-600 via-teal-600 to-cyan-700 rounded-xl shadow-lg p-6 mb-6">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h1 class="h3 mb-0 text-white font-weight-bold">
                     <i class="fas fa-plus-circle mr-2"></i>Crear Nuevo Permiso
                 </h1>
-                <p class="text-white mb-0 mt-1 opacity-75">Define un nuevo permiso para el sistema</p>
+                <p class="text-white mb-0 mt-2 opacity-90">Define un nuevo permiso para el sistema</p>
             </div>
-            <button type="button" onclick="$('[data-section=\'permisos\']').trigger('click')" class="btn btn-light shadow-sm">
-                <i class="fas fa-arrow-left mr-1"></i>Volver
+            <button type="button" onclick="volverAPermisos()" class="btn btn-light shadow-sm">
+                <i class="fas fa-arrow-left mr-2"></i>Volver a Permisos
             </button>
         </div>
     </div>
@@ -32,25 +38,35 @@
                                 Nombre del Permiso <span class="text-danger">*</span>
                             </label>
                             <input type="text" 
-                                   class="form-control bg-gray-700 text-white border-gray-600" 
+                                   class="form-control" 
                                    id="name" 
                                    name="name" 
                                    placeholder="Ej: usuarios.ver, roles.crear, etc."
-                                   required>
+                                   required
+                                   style="background-color: #374151; color: white; border-color: #4b5563;">
+                            <div id="name-validation-permisos" class="mt-2" style="display: none;"></div>
                             <small class="form-text text-gray-400">
                                 <i class="fas fa-lightbulb mr-1"></i>
-                                Usa el formato: modulo.accion (ej: usuarios.crear, proyectos.editar)
+                                Usa el formato: <strong>modulo.accion</strong> (ej: usuarios.crear, proyectos.editar)
+                            </small>
+                            <small class="form-text text-info d-block mt-2">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                <strong>Ejemplos:</strong>
                             </small>
                         </div>
 
                         <div class="form-group">
                             <label for="guard_name" class="font-weight-bold text-white">Guard</label>
-                            <select class="form-control bg-gray-700 text-white border-gray-600" 
+                            <select class="form-control" 
                                     id="guard_name" 
-                                    name="guard_name">
-                                <option value="web">Web</option>
+                                    name="guard_name"
+                                    style="background-color: #374151; color: white; border-color: #4b5563;">
+                                <option value="web">Web (Recomendado)</option>
                                 <option value="api">API</option>
                             </select>
+                            <small class="form-text text-gray-400">
+                                Normalmente se usa "Web" para la aplicación principal
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -76,13 +92,14 @@
                         <div class="row">
                             @forelse($roles as $role)
                             <div class="col-md-6 mb-2">
-                                <div class="custom-control custom-checkbox">
+                                <div class="form-check">
                                     <input type="checkbox" 
-                                           class="custom-control-input role-checkbox" 
+                                           class="form-check-input role-checkbox" 
                                            id="role{{ $role->id }}"
                                            name="roles[]" 
-                                           value="{{ $role->id }}">
-                                    <label class="custom-control-label text-white" for="role{{ $role->id }}">
+                                           value="{{ $role->id }}"
+                                           style="cursor: pointer;">
+                                    <label class="form-check-label text-white" for="role{{ $role->id }}" style="cursor: pointer;">
                                         <i class="fas fa-shield-alt text-purple-400 mr-1"></i>
                                         <strong>{{ $role->name }}</strong>
                                     </label>
@@ -103,7 +120,7 @@
                         <button type="submit" class="btn btn-success btn-lg btn-block shadow-sm">
                             <i class="fas fa-save mr-2"></i>Guardar Permiso
                         </button>
-                        <button type="button" onclick="$('[data-section=\'permisos\']').trigger('click')" class="btn btn-secondary btn-block mt-2">
+                        <button type="button" onclick="volverAPermisos()" class="btn btn-secondary btn-block mt-2">
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
                     </div>
@@ -159,7 +176,47 @@
 </div>
 
 <script>
+function volverAPermisos() {
+    $('#sidebar .ajax-load[data-section="permisos"]').trigger('click');
+}
+
+// Variable para el timeout de validación
+let validationTimeout;
+
+// Función de validación en tiempo real
+function validarNombrePermiso() {
+    const nombre = $('#name').val().trim();
+    const validationDiv = $('#name-validation-permisos');
+    
+    // Limpiar validación anterior
+    validationDiv.empty();
+    
+    if (nombre.length === 0) {
+        return;
+    }
+    
+    if (nombre.length < 2) {
+        validationDiv.html('<div class="alert alert-warning alert-sm mt-2"><i class="fas fa-exclamation-triangle mr-2"></i>El nombre debe tener al menos 2 caracteres</div>');
+        return;
+    }
+    
+    // Validar formato modulo.accion
+    const formatoValido = /^[a-z_]+\.[a-z_]+$/.test(nombre);
+    
+    if (!formatoValido) {
+        validationDiv.html('<div class="alert alert-warning alert-sm mt-2"><i class="fas fa-info-circle mr-2"></i>Formato recomendado: <code>modulo.accion</code> (ejemplo: <code>usuarios.ver</code>)</div>');
+    } else {
+        validationDiv.html('<div class="alert alert-success alert-sm mt-2"><i class="fas fa-check-circle mr-2"></i>Formato correcto</div>');
+    }
+}
+
 $(document).ready(function() {
+    // Validación con debounce (500ms)
+    $('#name').on('input', function() {
+        clearTimeout(validationTimeout);
+        validationTimeout = setTimeout(validarNombrePermiso, 500);
+    });
+    
     // Interceptar el submit del formulario
     $('#formCrearPermiso').on('submit', function(e) {
         e.preventDefault();
@@ -184,7 +241,7 @@ $(document).ready(function() {
                     confirmButtonColor: '#10b981'
                 }).then(() => {
                     // Recargar la lista de permisos vía AJAX
-                    $('[data-section="permisos"]').trigger('click');
+                    volverAPermisos();
                 });
             },
             error: function(xhr) {
@@ -214,3 +271,8 @@ function deselectAllRoles() {
     $('.role-checkbox').prop('checked', false);
 }
 </script>
+
+{{-- Cerrar section solo si no es AJAX --}}
+@if(!isset($isAjax) || !$isAjax)
+    @endsection
+@endif

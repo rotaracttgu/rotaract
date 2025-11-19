@@ -1,28 +1,44 @@
+{{-- Extender layout solo si no es AJAX --}}
+@if(!isset($isAjax) || !$isAjax)
+    @extends('layouts.app-admin')
+    @section('content')
+@endif
+
 <!-- Vista AJAX para Ver Detalles del Rol -->
-<div class="container-fluid p-0">
+<div class="w-full">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 rounded-lg shadow-lg p-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center">
+    <div class="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 rounded-xl shadow-lg p-6 mb-6">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h1 class="h3 mb-0 text-white font-weight-bold">
                     <i class="fas fa-eye mr-2"></i>Detalles del Rol: {{ $role->name }}
                 </h1>
-                <p class="text-white mb-0 mt-1 opacity-75">Información completa del rol y sus permisos</p>
+                <p class="text-white mb-0 mt-2 opacity-90">Información completa del rol y sus permisos</p>
             </div>
-            <div>
+            <div class="d-flex gap-2">
                 @if($role->name !== 'Super Admin')
                     <button type="button" 
-                            onclick="cargarContenidoAjax('{{ route('admin.configuracion.roles.edit', $role->id) }}', '#config-content')" 
-                            class="btn btn-warning shadow-sm mr-2">
-                        <i class="fas fa-edit mr-1"></i>Editar
+                            onclick="editarRol({{ $role->id }})" 
+                            class="btn btn-warning shadow-sm">
+                        <i class="fas fa-edit mr-2"></i>Editar
                     </button>
                 @endif
-                <button type="button" onclick="$('[data-section=\'roles\']').trigger('click')" class="btn btn-light shadow-sm">
-                    <i class="fas fa-arrow-left mr-1"></i>Volver
+                <button type="button" onclick="volverARoles()" class="btn btn-light shadow-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>Volver a Roles
                 </button>
             </div>
         </div>
     </div>
+
+<script>
+function volverARoles() {
+    $('#sidebar .ajax-load[data-section="roles"]').trigger('click');
+}
+
+function editarRol(roleId) {
+    window.cargarContenidoAjax(`{{ url('admin/configuracion/roles') }}/${roleId}/edit`, '#config-content');
+}
+</script>
 
     <div class="row">
         <!-- Información del rol -->
@@ -259,3 +275,8 @@ function cargarContenidoAjax(url, target) {
     });
 }
 </script>
+
+{{-- Cerrar section solo si no es AJAX --}}
+@if(!isset($isAjax) || !$isAjax)
+    @endsection
+@endif
