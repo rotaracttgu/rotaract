@@ -360,10 +360,12 @@
                 <p class="mb-0 opacity-75">Control y seguimiento de presupuestos por categoría</p>
             </div>
             <div class="col-md-4 text-md-end">
+                @can('finanzas.crear')
                 <a href="{{ route('tesorero.presupuestos.create') }}" class="btn btn-light btn-lg">
                     <i class="fas fa-plus me-2"></i>
                     Nuevo Presupuesto
                 </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -623,10 +625,13 @@
                                    class="btn btn-sm btn-outline-primary flex-fill">
                                     <i class="fas fa-eye me-1"></i>Ver
                                 </a>
+                                @can('finanzas.editar')
                                 <a href="{{ route('tesorero.presupuestos.edit', $presupuesto->id) }}" 
                                    class="btn btn-sm btn-outline-warning flex-fill">
                                     <i class="fas fa-edit me-1"></i>Editar
                                 </a>
+                                @endcan
+                                @can('finanzas.eliminar')
                                 <button type="button"
                                         class="btn btn-sm btn-outline-danger flex-fill btn-delete-presupuesto" 
                                         data-id="{{ $presupuesto->id }}"
@@ -634,6 +639,7 @@
                                         data-presupuesto="{{ number_format($presupuesto->presupuesto_mensual, 2) }}">
                                     <i class="fas fa-trash me-1"></i>Eliminar
                                 </button>
+                                @endcan
                             </div>
                         </div>
                     </div>
@@ -646,10 +652,12 @@
                 <i class="fas fa-chart-pie fa-4x text-muted mb-3"></i>
                 <h4 class="text-muted">No hay presupuestos configurados</h4>
                 <p class="text-muted">Configura presupuestos para el mes y año seleccionado</p>
+                @can('finanzas.crear')
                 <a href="{{ route('tesorero.presupuestos.create') }}" class="btn btn-purple btn-lg mt-3">
                     <i class="fas fa-plus me-2"></i>
                     Crear Primer Presupuesto
                 </a>
+                @endcan
             </div>
         </div>
     @endif

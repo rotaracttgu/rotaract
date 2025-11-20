@@ -202,6 +202,7 @@
         <div class="col-lg-8">
             <!-- Formulario -->
             <div class="form-card">
+                @can('finanzas.crear')
                 <form action="{{ route('tesorero.presupuestos.store') }}" method="POST" id="formPresupuesto">
                     @csrf
 
@@ -358,6 +359,7 @@
                         </button>
                     </div>
                 </form>
+                @endcan
             </div>
         </div>
 

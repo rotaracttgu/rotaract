@@ -195,12 +195,16 @@
                 <a href="{{ route('tesorero.gastos.index') }}" class="btn-modern btn-back">
                     <i class="fas fa-arrow-left"></i> Volver
                 </a>
+                @can('finanzas.editar')
                 <a href="{{ route('tesorero.gastos.edit', $gasto->id) }}" class="btn-modern btn-edit">
                     <i class="fas fa-edit"></i> Editar
                 </a>
+                @endcan
+                @can('finanzas.exportar')
                 <button onclick="window.print()" class="btn-modern btn-print">
                     <i class="fas fa-print"></i> Imprimir
                 </button>
+                @endcan
             </div>
         </div>
     </div>
@@ -385,17 +389,23 @@
         </div>
         
         <div class="btn-action-group" style="padding: 1rem;">
+            @can('finanzas.editar')
             <a href="{{ route('tesorero.gastos.edit', $gasto->id) }}" class="btn-modern btn-edit">
                 <i class="fas fa-edit"></i> Editar
             </a>
+            @endcan
+            @can('finanzas.exportar')
             <button onclick="window.print()" class="btn-modern btn-print">
                 <i class="fas fa-print"></i> Imprimir
             </button>
+            @endcan
+            @can('finanzas.eliminar')
             <button type="button" class="btn-modern btn-delete btn-delete-gasto"
                     data-descripcion="{{ $gasto->descripcion ?? $gasto->concepto }}"
                     data-monto="{{ number_format($gasto->monto, 2) }}">
                 <i class="fas fa-trash"></i> Eliminar
             </button>
+            @endcan
         </div>
     </div>
 </div>

@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BitacoraController;
 use App\Http\Controllers\Admin\UsuariosBloqueadosController;
 use App\Http\Controllers\BackupController;  // NUEVO: Importación para rutas de backup
+use App\Http\Controllers\UniversalDashboardController;  // NUEVO: Dashboard dinámico universal
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Mail;
@@ -84,26 +85,27 @@ Route::get('/dashboard', function () {
         return redirect()->route('login');
     }
 
-    // Redirigir al dashboard correspondiente según el rol
-    if ($user->hasRole('Super Admin')) {
-        return redirect()->route('admin.dashboard');
-    } elseif ($user->hasRole('Presidente')) {
-        return redirect()->route('presidente.dashboard');
-    } elseif ($user->hasRole('Vicepresidente')) {
-        return redirect()->route('vicepresidente.dashboard');
-    } elseif ($user->hasRole('Tesorero')) {
-        return redirect()->route('tesorero.dashboard');
-    } elseif ($user->hasRole('Secretario')) {
-        return redirect()->route('secretaria.dashboard');
-    } elseif ($user->hasRole('Vocero')) {
-        return redirect()->route('vocero.dashboard');
-    } elseif ($user->hasRole('Aspirante')) {
-        return redirect()->route('socio.dashboard'); // ACTUALIZADO
+    // Roles con módulos específicos - redirigen a su dashboard propio
+    $rolesConModulo = [
+        'Super Admin' => 'admin.dashboard',
+        'Presidente' => 'presidente.dashboard',
+        'Vicepresidente' => 'vicepresidente.dashboard',
+        'Tesorero' => 'tesorero.dashboard',
+        'Secretario' => 'secretaria.dashboard',
+        'Vocero' => 'vocero.dashboard',
+        'Aspirante' => 'socio.dashboard',
+    ];
+
+    // Verificar si tiene un rol con módulo específico
+    foreach ($rolesConModulo as $roleName => $route) {
+        if ($user->hasRole($roleName)) {
+            return redirect()->route($route);
+        }
     }
     
-    // Si no tiene rol definido, redirigir al login con mensaje
-    Auth::logout();
-    return redirect()->route('login')->with('error', 'No tienes un rol asignado. Contacta al administrador.');
+    // Si no tiene un módulo específico, usar el dashboard universal dinámico
+    // Este dashboard se adapta a los permisos del usuario
+    return redirect()->route('universal.dashboard');
 })->middleware(['auth', 'verified', 'check.first.login'])->name('dashboard');
 
 // ============================================================================
@@ -126,6 +128,13 @@ Route::middleware(['auth', 'check.first.login'])->group(function () {
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('perfil.editar');
     Route::patch('/perfil', [ProfileController::class, 'update'])->name('perfil.actualizar');
     Route::delete('/perfil', [ProfileController::class, 'destroy'])->name('perfil.eliminar');
+});
+
+// ============================================================================
+// DASHBOARD UNIVERSAL DINÁMICO (Para roles sin módulo específico)
+// ============================================================================
+Route::middleware(['auth', 'check.first.login'])->group(function () {
+    Route::get('/mi-dashboard', [UniversalDashboardController::class, 'index'])->name('universal.dashboard');
 });
 
 // ============================================================================
@@ -316,13 +325,13 @@ Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddle
 
     // Gestión de Usuarios
     Route::prefix('usuarios')->name('usuarios.')->group(function () {
-        Route::get('/', [UserController::class, 'index'])->name('lista');
-        Route::get('/crear', [UserController::class, 'create'])->name('crear');
-        Route::post('/', [UserController::class, 'store'])->name('guardar');
-        Route::get('/{usuario}', [UserController::class, 'show'])->name('ver');
-        Route::get('/{usuario}/editar', [UserController::class, 'edit'])->name('editar');
-        Route::put('/{usuario}', [UserController::class, 'update'])->name('actualizar');
-        Route::delete('/{usuario}', [UserController::class, 'destroy'])->name('eliminar');
+        Route::get('/', [PresidenteController::class, 'usuariosLista'])->name('lista');
+        Route::get('/crear', [PresidenteController::class, 'usuariosCrear'])->name('crear');
+        Route::post('/', [PresidenteController::class, 'usuariosGuardar'])->name('guardar');
+        Route::get('/{usuario}', [PresidenteController::class, 'usuariosVer'])->name('ver');
+        Route::get('/{usuario}/editar', [PresidenteController::class, 'usuariosEditar'])->name('editar');
+        Route::put('/{usuario}', [PresidenteController::class, 'usuariosActualizar'])->name('actualizar');
+        Route::delete('/{usuario}', [PresidenteController::class, 'usuariosEliminar'])->name('eliminar');
     });
 });
 
@@ -387,13 +396,10 @@ Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMi
 
     // Gestión de Usuarios
     Route::prefix('usuarios')->name('usuarios.')->group(function () {
-        Route::get('/', [UserController::class, 'index'])->name('lista');
-        Route::get('/crear', [UserController::class, 'create'])->name('crear');
-        Route::post('/', [UserController::class, 'store'])->name('guardar');
-        Route::get('/{usuario}', [UserController::class, 'show'])->name('ver');
-        Route::get('/{usuario}/editar', [UserController::class, 'edit'])->name('editar');
-        Route::put('/{usuario}', [UserController::class, 'update'])->name('actualizar');
-        Route::delete('/{usuario}', [UserController::class, 'destroy'])->name('eliminar');
+        Route::get('/', [VicepresidenteController::class, 'usuariosLista'])->name('lista');
+        Route::get('/{usuario}', [VicepresidenteController::class, 'usuariosVer'])->name('ver');
+        Route::get('/{usuario}/editar', [VicepresidenteController::class, 'usuariosEditar'])->name('editar');
+        Route::put('/{usuario}', [VicepresidenteController::class, 'usuariosActualizar'])->name('actualizar');
     });
 });
 

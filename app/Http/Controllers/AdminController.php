@@ -11,13 +11,22 @@ use App\Models\CartaFormal;
 use App\Http\Requests\CartaPatrocinioRequest;
 use App\Http\Requests\CartaFormalRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AdminController extends Controller
 {
+    use AuthorizesRequests;
     protected $presidenteController;
 
     public function __construct()
     {
+        $this->middleware(function ($request, $next) {
+            // Solo Super Admin y Presidente pueden acceder al AdminController
+            if (!auth()->check() || (!auth()->user()->hasRole('Super Admin') && !auth()->user()->hasRole('Presidente'))) {
+                abort(403, 'No tienes permisos para acceder a este módulo');
+            }
+            return $next($request);
+        });
         $this->presidenteController = new PresidenteController();
     }
 
@@ -30,6 +39,7 @@ class AdminController extends Controller
      */
     public function presidenteDashboard()
     {
+        $this->authorize('dashboard.ver');
         // Reutilizar la lógica del PresidenteController
         $totalProyectos = Proyecto::count();
         $proyectosActivos = Proyecto::whereNotNull('FechaInicio')
@@ -97,6 +107,7 @@ class AdminController extends Controller
      */
     public function presidenteCartasPatrocinio()
     {
+        $this->authorize('comunicaciones.ver');
         // Delegar al PresidenteController pero con vista de admin
         $cartas = CartaPatrocinio::with(['proyecto', 'usuario'])
                     ->orderBy('fecha_solicitud', 'desc')
@@ -120,7 +131,8 @@ class AdminController extends Controller
      */
     public function presidenteCartasFormales()
     {
-        $cartas = CartaFormal::orderBy('created_at', 'desc')->get();
+        $this->authorize('comunicaciones.ver');
+        $cartas = CartaFormal::with('usuario')->orderBy('created_at', 'desc')->get();
 
         $estadisticas = [
             'total' => $cartas->count(),
@@ -137,6 +149,7 @@ class AdminController extends Controller
      */
     public function presidenteEstadoProyectos()
     {
+        $this->authorize('proyectos.ver');
         $proyectos = Proyecto::with(['participaciones.usuario'])
                     ->orderBy('FechaInicio', 'desc')
                     ->get();
@@ -160,6 +173,7 @@ class AdminController extends Controller
      */
     public function presidenteNotificaciones()
     {
+        $this->authorize('comunicaciones.ver');
         // Reutilizar método del PresidenteController
         return $this->presidenteController->notificaciones();
     }
@@ -182,6 +196,7 @@ class AdminController extends Controller
      */
     public function storeCartaFormal(CartaFormalRequest $request)
     {
+        $this->authorize('comunicaciones.crear');
         $result = $this->presidenteController->storeCartaFormal($request);
         
         // Si es JSON redirect, cambiar la ruta a admin
@@ -197,6 +212,7 @@ class AdminController extends Controller
      */
     public function updateCartaFormal(CartaFormalRequest $request, $id)
     {
+        $this->authorize('comunicaciones.editar');
         $result = $this->presidenteController->updateCartaFormal($request, $id);
         
         if ($result instanceof \Illuminate\Http\JsonResponse) {
@@ -211,6 +227,7 @@ class AdminController extends Controller
      */
     public function destroyCartaFormal($id)
     {
+        $this->authorize('comunicaciones.eliminar');
         return $this->presidenteController->destroyCartaFormal($id);
     }
 
@@ -228,6 +245,7 @@ class AdminController extends Controller
      */
     public function storeCartaPatrocinio(CartaPatrocinioRequest $request)
     {
+        $this->authorize('comunicaciones.crear');
         $result = $this->presidenteController->storeCartaPatrocinio($request);
         
         if ($result instanceof \Illuminate\Http\JsonResponse) {
@@ -242,6 +260,7 @@ class AdminController extends Controller
      */
     public function updateCartaPatrocinio(CartaPatrocinioRequest $request, $id)
     {
+        $this->authorize('comunicaciones.editar');
         $result = $this->presidenteController->updateCartaPatrocinio($request, $id);
         
         if ($result instanceof \Illuminate\Http\JsonResponse) {
@@ -256,6 +275,7 @@ class AdminController extends Controller
      */
     public function destroyCartaPatrocinio($id)
     {
+        $this->authorize('comunicaciones.eliminar');
         return $this->presidenteController->destroyCartaPatrocinio($id);
     }
 
@@ -273,6 +293,7 @@ class AdminController extends Controller
      */
     public function storeProyecto(Request $request)
     {
+        $this->authorize('proyectos.crear');
         return $this->presidenteController->storeProyecto($request);
     }
 
@@ -281,6 +302,7 @@ class AdminController extends Controller
      */
     public function updateProyecto(Request $request, $id)
     {
+        $this->authorize('proyectos.editar');
         return $this->presidenteController->updateProyecto($request, $id);
     }
 
@@ -289,6 +311,7 @@ class AdminController extends Controller
      */
     public function destroyProyecto($id)
     {
+        $this->authorize('proyectos.eliminar');
         return $this->presidenteController->destroyProyecto($id);
     }
 
@@ -336,16 +359,19 @@ class AdminController extends Controller
 
     public function crearEvento(Request $request)
     {
+        $this->authorize('eventos.crear');
         return $this->presidenteController->crearEvento($request);
     }
 
     public function actualizarEvento(Request $request, $id)
     {
+        $this->authorize('eventos.editar');
         return $this->presidenteController->actualizarEvento($request, $id);
     }
 
     public function eliminarEvento($id)
     {
+        $this->authorize('eventos.eliminar');
         return $this->presidenteController->eliminarEvento($id);
     }
 
@@ -361,16 +387,19 @@ class AdminController extends Controller
 
     public function registrarAsistencia(Request $request)
     {
+        $this->authorize('asistencias.registrar');
         return $this->presidenteController->registrarAsistencia($request);
     }
 
     public function actualizarAsistencia(Request $request, $id)
     {
+        $this->authorize('asistencias.editar');
         return $this->presidenteController->actualizarAsistencia($request, $id);
     }
 
     public function eliminarAsistencia($id)
     {
+        $this->authorize('asistencias.eliminar');
         return $this->presidenteController->eliminarAsistencia($id);
     }
 }

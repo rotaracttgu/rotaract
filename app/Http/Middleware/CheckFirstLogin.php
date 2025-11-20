@@ -15,8 +15,11 @@ class CheckFirstLogin
     {
         // Si el usuario está autenticado y es su primer login
         if (auth()->check() && auth()->user()->isFirstLogin()) {
-            // Si ya está en la ruta de completar perfil, continuar
-            if ($request->routeIs('profile.complete.form') || $request->routeIs('profile.complete.store')) {
+            // Si ya está en la ruta de completar perfil o en su perfil personal, continuar
+            if ($request->routeIs('profile.complete.form') 
+                || $request->routeIs('profile.complete.store')
+                || $request->routeIs('perfil.editar')
+                || $request->routeIs('perfil.actualizar')) {
                 return $next($request);
             }
             

@@ -366,10 +366,12 @@
                         <i class="fas fa-home me-2"></i>
                         Dashboard Principal
                     </a>
+                    @can('finanzas.crear')
                     <a href="{{ route('tesorero.membresias.create') }}" class="btn btn-light btn-lg">
                         <i class="fas fa-plus-circle me-2"></i>
                         Registrar Pago de Membresía
                     </a>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -600,11 +602,14 @@
                                        title="Ver detalles">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @can('finanzas.editar')
                                     <a href="{{ route('tesorero.membresias.edit', $membresia->id) }}" 
                                        class="btn btn-sm btn-warning text-white" 
                                        title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    @endcan
+                                    @can('finanzas.eliminar')
                                     <button type="button" 
                                             class="btn btn-sm btn-danger text-white btn-delete" 
                                             data-id="{{ $membresia->id }}"
@@ -613,6 +618,7 @@
                                             title="Eliminar">
                                         <i class="fas fa-trash"></i>
                                     </button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -632,9 +638,11 @@
                                     </a>
                                 @else
                                     <p class="text-muted">No hay membresías registradas</p>
+                                    @can('finanzas.crear')
                                     <a href="{{ route('tesorero.membresias.create') }}" class="btn btn-primary-custom">
                                         <i class="fas fa-plus me-2"></i>Registrar Primera Membresía
                                     </a>
+                                    @endcan
                                 @endif
                             </td>
                         </tr>

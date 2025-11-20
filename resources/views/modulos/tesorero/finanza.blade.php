@@ -630,12 +630,14 @@
                             <button class="btn btn-light btn-custom" onclick="mostrarPerfilTesorero()">
                                 <i class="fas fa-user-tie me-2"></i>Mi Perfil
                             </button>
+                            @can('finanzas.exportar')
                             <button class="btn btn-light btn-custom" onclick="generarReporte()">
                                 <i class="fas fa-file-pdf me-2"></i>Generar Reporte
                             </button>
                             <button class="btn btn-light btn-custom" onclick="exportarExcel()">
                                 <i class="fas fa-file-excel me-2"></i>Exportar
                             </button>
+                            @endcan
                             <button class="btn btn-outline-light btn-custom" onclick="confirmarCierreSesion()">
                                 <i class="fas fa-sign-out-alt me-2"></i>Salir
                             </button>
@@ -799,18 +801,17 @@
             <div class="row section-spacing">
                 <div class="col-12">
                     <div class="d-flex flex-wrap gap-3 justify-content-center">
+                        @can('finanzas.crear')
                         <button class="btn btn-lg shadow-lg" onclick="registrarIngreso()" style="background: linear-gradient(135deg, #0d9668 0%, #047857 100%); color: white; border: none; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; transition: all 0.3s ease;">
                             <i class="fas fa-plus-circle me-2"></i>Registrar Ingreso
                         </button>
                         <button class="btn btn-lg shadow-lg" onclick="registrarGasto()" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; border: none; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; transition: all 0.3s ease;">
                             <i class="fas fa-minus-circle me-2"></i>Registrar Gasto
                         </button>
-                        <button class="btn btn-lg shadow-lg" onclick="registrarTransferencia()" style="background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); color: white; border: none; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; transition: all 0.3s ease;">
-                            <i class="fas fa-exchange-alt me-2"></i>Transferencia
-                        </button>
                         <button class="btn btn-lg shadow-lg" onclick="registrarMembresia()" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: white; border: none; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 600; transition: all 0.3s ease;">
                             <i class="fas fa-id-card me-2"></i>Nueva Membresía
                         </button>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -863,12 +864,14 @@
                                             <td class="text-center">{{ $gasto->registrado_por ?? 'N/A' }}</td>
                                             <td class="text-center">
                                                 <div class="btn-group btn-group-sm">
+                                                    @can('finanzas.aprobar')
                                                     <button class="btn btn-success" onclick="aprobarGasto({{ $gasto->id }})" title="Aprobar">
                                                         <i class="fas fa-check"></i>
                                                     </button>
                                                     <button class="btn btn-danger" onclick="rechazarGasto({{ $gasto->id }})" title="Rechazar">
                                                         <i class="fas fa-times"></i>
                                                     </button>
+                                                    @endcan
                                                     <button class="btn btn-info" onclick="verDetalles({{ $gasto->id }})" title="Ver detalles">
                                                         <i class="fas fa-eye"></i>
                                                     </button>

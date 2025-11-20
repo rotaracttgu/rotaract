@@ -244,9 +244,11 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
+                                @can('asistencias.registrar')
                                 <button class="btn btn-primary" onclick="openNewAttendanceModal()" id="add-attendance-btn" disabled>
                                     <i class="fas fa-user-plus me-2"></i>Registrar Asistencia
                                 </button>
+                                @endcan
                             </div>
                         </div>
 
@@ -402,6 +404,12 @@
         let miembrosData = [];
         let currentEventId = null;
         let attendanceModal;
+
+        // Variables de permisos
+        const userPermissions = {
+            editAttendance: {{ auth()->user() && auth()->user()->can('asistencias.editar') ? 'true' : 'false' }},
+            deleteAttendance: {{ auth()->user() && auth()->user()->can('asistencias.eliminar') ? 'true' : 'false' }}
+        };
 
         $(document).ready(function() {
             attendanceModal = new bootstrap.Modal(document.getElementById('attendanceModal'));
@@ -642,12 +650,8 @@
                         <td>${att.arrival_time || 'N/A'}</td>
                         <td>${att.minutes_late || 0} min</td>
                         <td>
-                            <button class="btn btn-sm btn-info" onclick="editAttendance(${att.id})" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteAttendance(${att.id})" title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            ${userPermissions.editAttendance ? `<button class="btn btn-sm btn-info" onclick="editAttendance(${att.id})" title="Editar"><i class="fas fa-edit"></i></button>` : ''}
+                            ${userPermissions.deleteAttendance ? `<button class="btn btn-sm btn-danger" onclick="deleteAttendance(${att.id})" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
                         </td>
                     </tr>
                 `;

@@ -123,7 +123,7 @@ class SecurityQuestionPasswordResetController extends Controller
             }
 
             $user = User::findOrFail($userId);
-            $user->password = Hash::make($request->password);
+            $user->password = $request->password; // No usar Hash::make() porque el modelo ya hashea con casting 'hashed'
             $user->save();
 
             // Resetear intentos de login

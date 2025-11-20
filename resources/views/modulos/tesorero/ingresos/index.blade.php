@@ -328,9 +328,11 @@
             <p>Administra y controla todos los ingresos del club</p>
         </div>
         <div class="d-flex gap-2">
+            @can('finanzas.crear')
             <a href="{{ route('tesorero.ingresos.create') }}" class="btn-nuevo">
                 <i class="fas fa-plus"></i> Nuevo Ingreso
             </a>
+            @endcan
         </div>
     </div>
     <!-- Mensajes de éxito/error -->
@@ -435,11 +437,14 @@
                                        title="Ver detalles">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @can('finanzas.editar')
                                     <a href="{{ route('tesorero.ingresos.edit', $ingreso->id) }}" 
                                        class="btn btn-sm btn-edit"
                                        title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    @endcan
+                                    @can('finanzas.eliminar')
                                     <form action="{{ route('tesorero.ingresos.destroy', $ingreso->id) }}" 
                                           method="POST" 
                                           class="d-inline"
@@ -455,6 +460,7 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

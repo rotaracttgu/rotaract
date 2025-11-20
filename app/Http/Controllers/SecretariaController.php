@@ -14,15 +14,18 @@ use App\Models\Documento;
 use App\Models\User;
 use App\Models\Miembro;
 use App\Services\NotificacionService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class SecretariaController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Dashboard principal de secretaría
      * Usa stored procedure SP_EstadisticasSecretaria para optimizar consultas
      */
     public function dashboard()
     {
+        $this->authorize('actas.ver');
         // Obtener estadísticas usando stored procedure
         try {
             $results = DB::select('CALL SP_EstadisticasSecretaria()');
@@ -112,6 +115,7 @@ class SecretariaController extends Controller
      */
     public function calendario()
     {
+        $this->authorize('actas.ver');
         return view('modulos.secretaria.calendario');
     }
 
@@ -124,6 +128,7 @@ class SecretariaController extends Controller
      */
     public function consultas()
     {
+        $this->authorize('actas.ver');
         $consultas = Consulta::with('usuario')
             ->latest()
             ->paginate(15);
@@ -144,6 +149,7 @@ class SecretariaController extends Controller
      */
     public function consultasPendientes()
     {
+        $this->authorize('actas.ver');
         $consultas = Consulta::with('usuario')
             ->where('estado', 'pendiente')
             ->latest()
@@ -165,6 +171,7 @@ class SecretariaController extends Controller
      */
     public function consultasRecientes()
     {
+        $this->authorize('actas.ver');
         $consultas = Consulta::with('usuario')
             ->latest()
             ->take(10)
@@ -186,6 +193,7 @@ class SecretariaController extends Controller
      */
     public function getConsulta($id)
     {
+        $this->authorize('actas.ver');
         $consulta = Consulta::with('usuario')->findOrFail($id);
         
         // Agregar URL del comprobante si existe
@@ -205,6 +213,7 @@ class SecretariaController extends Controller
      */
     public function responderConsulta(Request $request, $id)
     {
+        $this->authorize('actas.editar');
         $request->validate([
             'respuesta' => 'required|string|max:1000',
         ]);
@@ -229,6 +238,7 @@ class SecretariaController extends Controller
      */
     public function eliminarConsulta($id)
     {
+        $this->authorize('actas.eliminar');
         $consulta = Consulta::findOrFail($id);
         
         // Eliminar comprobante si existe
@@ -249,6 +259,7 @@ class SecretariaController extends Controller
      */
     public function descargarComprobante($id)
     {
+        $this->authorize('actas.exportar');
         $consulta = Consulta::findOrFail($id);
         
         if (!$consulta->comprobante_ruta) {
@@ -282,6 +293,7 @@ class SecretariaController extends Controller
      */
     public function actas()
     {
+        $this->authorize('actas.ver');
         $actas = Acta::with('creador')
             ->latest('fecha_reunion')
             ->paginate(15);
@@ -304,6 +316,7 @@ class SecretariaController extends Controller
      */
     public function getActa($id)
     {
+        $this->authorize('actas.ver');
         $acta = Acta::with('creador')->findOrFail($id);
         return response()->json($acta);
     }
@@ -313,6 +326,7 @@ class SecretariaController extends Controller
      */
     public function storeActa(Request $request)
     {
+        $this->authorize('actas.crear');
         $request->validate([
             'titulo' => 'required|string|max:255',
             'fecha_reunion' => 'required|date',
@@ -347,6 +361,7 @@ class SecretariaController extends Controller
      */
     public function updateActa(Request $request, $id)
     {
+        $this->authorize('actas.editar');
         $request->validate([
             'titulo' => 'required|string|max:255',
             'fecha_reunion' => 'required|date',
@@ -386,6 +401,7 @@ class SecretariaController extends Controller
      */
     public function eliminarActa($id)
     {
+        $this->authorize('actas.eliminar');
         $acta = Acta::findOrFail($id);
 
         // Eliminar archivo si existe
@@ -410,6 +426,7 @@ class SecretariaController extends Controller
      */
     public function diplomas()
     {
+        $this->authorize('diplomas.ver');
         $diplomas = Diploma::with('miembro', 'emisor')
             ->latest()
             ->paginate(15);
@@ -440,6 +457,7 @@ class SecretariaController extends Controller
      */
     public function getDiploma($id)
     {
+        $this->authorize('diplomas.ver');
         $diploma = Diploma::with('miembro', 'emisor')->findOrFail($id);
         return response()->json($diploma);
     }
@@ -449,6 +467,7 @@ class SecretariaController extends Controller
      */
     public function storeDiploma(Request $request)
     {
+        $this->authorize('diplomas.crear');
         $request->validate([
             'miembro_id' => 'required|exists:users,id',
             'tipo' => 'required|in:participacion,reconocimiento,merito,asistencia',
@@ -486,6 +505,7 @@ class SecretariaController extends Controller
      */
     public function updateDiploma(Request $request, $id)
     {
+        $this->authorize('diplomas.editar');
         $request->validate([
             'miembro_id' => 'required|exists:users,id',
             'tipo' => 'required|string|in:participacion,reconocimiento,merito,asistencia',
@@ -520,6 +540,7 @@ class SecretariaController extends Controller
      */
     public function eliminarDiploma($id)
     {
+        $this->authorize('diplomas.eliminar');
         $diploma = Diploma::findOrFail($id);
 
         // Eliminar archivo asociado si existe
@@ -540,6 +561,7 @@ class SecretariaController extends Controller
      */
     public function enviarEmailDiploma(Request $request, $id)
     {
+        $this->authorize('diplomas.enviar');
         $diploma = Diploma::with(['miembro', 'emisor'])->findOrFail($id);
 
         try {
@@ -588,6 +610,7 @@ class SecretariaController extends Controller
      */
     public function documentos()
     {
+        $this->authorize('documentos.ver');
         $documentos = Documento::with('creador')
             ->latest()
             ->paginate(15);
@@ -611,6 +634,7 @@ class SecretariaController extends Controller
      */
     public function getDocumento($id)
     {
+        $this->authorize('documentos.ver');
         $documento = Documento::with('creador')->findOrFail($id);
         return response()->json($documento);
     }
@@ -620,6 +644,7 @@ class SecretariaController extends Controller
      */
     public function storeDocumento(Request $request)
     {
+        $this->authorize('documentos.crear');
         $request->validate([
             'titulo' => 'required|string|max:255',
             'tipo' => 'required|string|in:oficial,interno,comunicado,carta,informe,otro',
@@ -652,6 +677,7 @@ class SecretariaController extends Controller
      */
     public function updateDocumento(Request $request, $id)
     {
+        $this->authorize('documentos.editar');
         $request->validate([
             'titulo' => 'required|string|max:255',
             'tipo' => 'required|string|in:oficial,interno,comunicado,carta,informe,otro',
@@ -688,6 +714,7 @@ class SecretariaController extends Controller
      */
     public function eliminarDocumento($id)
     {
+        $this->authorize('documentos.eliminar');
         $documento = Documento::findOrFail($id);
 
         // Eliminar archivo asociado si existe
@@ -712,6 +739,7 @@ class SecretariaController extends Controller
      */
     public function notificaciones()
     {
+        $this->authorize('actas.ver');
         // Auto-marcar todas las notificaciones como leídas al entrar
         \App\Models\Notificacion::where('usuario_id', auth()->id())
             ->where('leida', false)
@@ -759,6 +787,7 @@ class SecretariaController extends Controller
      */
     public function obtenerEventos()
     {
+        $this->authorize('actas.ver');
         try {
             // Obtener eventos directamente desde la tabla calendarios
             $eventos = DB::table('calendarios')
@@ -856,6 +885,7 @@ class SecretariaController extends Controller
      */
     public function crearEvento(Request $request)
     {
+        $this->authorize('actas.crear');
         try {
             $validated = $request->validate([
                 'titulo' => 'required|string|max:100',
@@ -933,6 +963,7 @@ class SecretariaController extends Controller
      */
     public function actualizarEvento(Request $request, $id)
     {
+        $this->authorize('actas.editar');
         try {
             $validated = $request->validate([
                 'titulo' => 'required|string|max:100',
@@ -1003,6 +1034,7 @@ class SecretariaController extends Controller
      */
     public function eliminarEvento($id)
     {
+        $this->authorize('actas.eliminar');
         try {
             DB::select('CALL sp_eliminar_evento(?, @mensaje)', [$id]);
             $output = DB::select('SELECT @mensaje as mensaje');
@@ -1026,6 +1058,7 @@ class SecretariaController extends Controller
      */
     public function actualizarFechas(Request $request, $id)
     {
+        $this->authorize('actas.editar');
         try {
             $validated = $request->validate([
                 'fecha_inicio' => 'required|date',
@@ -1088,6 +1121,7 @@ class SecretariaController extends Controller
      */
     public function gestionAsistencias()
     {
+        $this->authorize('asistencias.ver');
         return view('modulos.secretaria.gestion-asistencias');
     }
 
@@ -1096,6 +1130,7 @@ class SecretariaController extends Controller
      */
     public function obtenerAsistenciasEvento($eventoId)
     {
+        $this->authorize('asistencias.ver');
         try {
             $asistencias = DB::select('CALL sp_obtener_asistencias_evento(?)', [$eventoId]);
             
@@ -1135,6 +1170,7 @@ class SecretariaController extends Controller
      */
     public function registrarAsistencia(Request $request)
     {
+        $this->authorize('asistencias.registrar');
         try {
             $validated = $request->validate([
                 'member_id' => 'required|integer',
@@ -1185,6 +1221,7 @@ class SecretariaController extends Controller
      */
     public function actualizarAsistencia(Request $request, $id)
     {
+        $this->authorize('asistencias.editar');
         try {
             $validated = $request->validate([
                 'status' => 'required|in:presente,ausente,justificado',
@@ -1224,6 +1261,7 @@ class SecretariaController extends Controller
      */
     public function eliminarAsistencia($id)
     {
+        $this->authorize('asistencias.eliminar');
         try {
             DB::select('CALL sp_eliminar_asistencia(?, @mensaje)', [$id]);
             
@@ -1392,6 +1430,7 @@ class SecretariaController extends Controller
      */
     public function reporteDiplomas(Request $request)
     {
+        $this->authorize('diplomas.exportar');
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
@@ -1439,6 +1478,7 @@ class SecretariaController extends Controller
      */
     public function buscarDocumentos(Request $request)
     {
+        $this->authorize('documentos.ver');
         $request->validate([
             'busqueda' => 'nullable|string|max:255',
             'tipo' => 'nullable|in:oficial,interno,comunicado,carta,informe,otro',
@@ -1489,6 +1529,7 @@ class SecretariaController extends Controller
      */
     public function resumenActas(Request $request)
     {
+        $this->authorize('actas.exportar');
         $request->validate([
             'anio' => 'nullable|integer|min:2020|max:2100',
             'mes' => 'nullable|integer|min:1|max:12'
@@ -1539,6 +1580,7 @@ class SecretariaController extends Controller
      */
     public function descargarDiploma($id)
     {
+        $this->authorize('diplomas.exportar');
         $diploma = Diploma::with(['miembro', 'emisor'])->findOrFail($id);
         $pdfService = new \App\Services\DiplomaPdfService();
         return $pdfService->descargarPDF($diploma);
@@ -1549,6 +1591,7 @@ class SecretariaController extends Controller
      */
     public function descargarActa($id)
     {
+        $this->authorize('actas.exportar');
         $acta = Acta::with('creador')->findOrFail($id);
         $pdfService = new \App\Services\ActaPdfService();
         return $pdfService->descargarPDF($acta);
@@ -1559,6 +1602,7 @@ class SecretariaController extends Controller
      */
     public function exportarConsultasPDF(Request $request)
     {
+        $this->authorize('actas.exportar');
         $query = Consulta::with(['usuario', 'respondedor'])
             ->orderBy('created_at', 'desc');
 
@@ -1592,6 +1636,7 @@ class SecretariaController extends Controller
      */
     public function exportarConsultasWord(Request $request)
     {
+        $this->authorize('actas.exportar');
         $query = Consulta::with(['usuario', 'respondedor'])
             ->orderBy('created_at', 'desc');
 

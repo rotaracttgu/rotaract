@@ -7,12 +7,14 @@
             <p class="text-gray-600 mt-1">Gestión de correspondencia oficial del club</p>
         </div>
         <div class="flex gap-3">
+            @can('cartas.crear')
             <button onclick="abrirModalFormal()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
                 Nueva Carta Formal
             </button>
+            @endcan
             <a href="{{ route('vicepresidente.dashboard') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -171,27 +173,35 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex gap-2">
+                                                @can('cartas.ver')
                                                 <button class="text-purple-600 hover:text-purple-900" title="Ver carta" onclick="verCartaFormal({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
+                                                @can('cartas.editar')
                                                 <button class="text-yellow-600 hover:text-yellow-900" title="Editar" onclick="editarCartaFormal({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
+                                                @can('cartas.eliminar')
                                                 <button class="text-red-600 hover:text-red-900" title="Eliminar" onclick="eliminarCartaFormal({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
+                                                @can('cartas.exportar')
                                                 <button class="text-green-600 hover:text-green-900" title="Descargar PDF" onclick="descargarCartaPDF({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
                                             </div>
                                         </td>
                                     </tr>
@@ -278,7 +288,7 @@
                 </div>
             </div>
             
-            <form id="formCartaFormal" action="{{ route('vicepresidente.cartas.formales.store') }}" method="POST" class="p-6" onsubmit="return validarFormulario('formCartaFormal')">
+            <form id="formCartaFormal" action="{{ route('vicepresidente.cartas.formales.store') }}" method="POST" class="p-6" onsubmit="return enviarNuevaCartaFormal(event)">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Número de Carta -->
@@ -415,7 +425,7 @@
                 </div>
             </div>
             
-            <form id="formEditarCartaFormal" action="" method="POST" class="p-6" onsubmit="return validarFormulario('formEditarCartaFormal')">
+            <form id="formEditarCartaFormal" action="" method="POST" class="p-6" onsubmit="return enviarEditarCartaFormal(event)">
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_formal_id" name="carta_id">
@@ -520,7 +530,40 @@
         }
 
         // Validar formulario antes de enviar
-        function validarFormulario(formId) {
+        // Enviar nueva carta formal por AJAX
+        window.enviarNuevaCartaFormal = async function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Error: ' + (error.message || 'No se pudo crear la carta'));
+                    return false;
+                }
+                
+                const data = await response.json();
+                alert('Carta creada correctamente');
+                cerrarModalFormal();
+                location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al crear la carta: ' + error.message);
+            }
+            return false;
+        }
+
+        window.validarFormulario = function(formId) {
             const form = document.getElementById(formId);
             const inputs = form.querySelectorAll('input[oninput*="validarCaracteresRepetidos"], textarea[oninput*="validarCaracteresRepetidos"]');
             let valido = true;
@@ -542,12 +585,12 @@
         const baseRoute = 'vicepresidente';
         
         // Modal Nueva Carta
-        function abrirModalFormal() {
+        window.abrirModalFormal = function() {
             document.getElementById('modalNuevaCartaFormal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
 
-        function cerrarModalFormal() {
+        window.cerrarModalFormal = function() {
             document.getElementById('modalNuevaCartaFormal').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('formCartaFormal').reset();
@@ -560,9 +603,11 @@
         }
 
         // Modal Ver Detalles con loading
-        async function verCartaFormal(id) {
+        window.verCartaFormal = async function(id) {
+            console.log('🔍 [Ver Carta Formal] ID:', id);
             const modal = document.getElementById('modalVerDetalleFormal');
             const contenedor = document.getElementById('detalleContenidoFormal');
+            console.log('🔍 [Ver Carta Formal] Modal:', modal, 'Contenedor:', contenedor);
             
             // Mostrar modal con loader
             modal.classList.remove('hidden');
@@ -686,15 +731,56 @@
             }
         }
 
-        function cerrarModalDetalleFormal() {
+        window.cerrarModalDetalleFormal = function() {
             document.getElementById('modalVerDetalleFormal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
 
+        // Enviar formulario de edición por AJAX
+        window.enviarEditarCartaFormal = async function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const action = form.action;
+            
+            if (!action) {
+                alert('Error: No se ha cargado el ID de la carta');
+                return false;
+            }
+            
+            try {
+                const response = await fetch(action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Error: ' + (error.message || 'No se pudo actualizar la carta'));
+                    return false;
+                }
+                
+                const data = await response.json();
+                alert('Carta actualizada correctamente');
+                cerrarModalEditarFormal();
+                location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al actualizar la carta: ' + error.message);
+            }
+            return false;
+        }
+
         // Modal Editar con loading
-        async function editarCartaFormal(id) {
+        window.editarCartaFormal = async function(id) {
+            console.log('✏️ [Editar Carta Formal] ID:', id);
             const modal = document.getElementById('modalEditarCartaFormal');
             const form = document.getElementById('formEditarCartaFormal');
+            console.log('✏️ [Editar Carta Formal] Modal:', modal, 'Form:', form);
             
             // Mostrar modal
             modal.classList.remove('hidden');
@@ -725,7 +811,7 @@
             }
         }
 
-        function cerrarModalEditarFormal() {
+        window.cerrarModalEditarFormal = function() {
             document.getElementById('modalEditarCartaFormal').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('formEditarCartaFormal').reset();
@@ -738,7 +824,8 @@
         }
 
         // Eliminar carta
-        function eliminarCartaFormal(id) {
+        window.eliminarCartaFormal = function(id) {
+            console.log('🗑️ [Eliminar Carta Formal] ID:', id);
             if (confirm('¿Estás seguro de que deseas eliminar esta carta formal? Esta acción no se puede deshacer.')) {
                 const form = document.createElement('form');
                 form.method = 'POST';
@@ -762,19 +849,19 @@
             }
         }
 
-        function descargarCartaPDF(id) {
+        window.descargarCartaPDF = function(id) {
             // TODO: Implementar en Fase 4
             console.log('Descargar PDF carta:', id);
             alert('Función de descarga PDF próximamente disponible');
         }
 
         // Filtros y búsqueda
-        function filtrarPorEstadoFormal(estado) {
+        window.filtrarPorEstadoFormal = function(estado) {
             document.getElementById('filtro-estado-formal').value = estado;
             aplicarFiltrosFormal();
         }
 
-        function filtrarPorAnio(anio) {
+        window.filtrarPorAnio = function(anio) {
             const buscador = document.getElementById('buscador-formal');
             const filtroFechaDesde = document.getElementById('filtro-fecha-desde-formal');
             const filtroFechaHasta = document.getElementById('filtro-fecha-hasta-formal');
@@ -795,7 +882,7 @@
             document.querySelector('#tabla-cartas-formal').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function aplicarFiltrosFormal() {
+        window.aplicarFiltrosFormal = function() {
             const buscador = document.getElementById('buscador-formal').value.toLowerCase();
             const filtroTipo = document.getElementById('filtro-tipo-formal').value;
             const filtroEstado = document.getElementById('filtro-estado-formal').value;

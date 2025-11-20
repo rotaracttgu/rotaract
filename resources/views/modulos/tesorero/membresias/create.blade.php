@@ -280,6 +280,7 @@
     </div>
 
     <!-- Formulario -->
+    @can('finanzas.crear')
     <form action="{{ route('tesorero.membresias.store') }}" method="POST" enctype="multipart/form-data" id="formMembresia">
         @csrf
 
@@ -566,6 +567,7 @@
         </div>
 
     </form>
+    @endcan
 
 </div>
 @endsection

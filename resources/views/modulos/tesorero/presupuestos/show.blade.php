@@ -293,10 +293,12 @@
                     <i class="fas fa-arrow-left me-2"></i>
                     Volver
                 </a>
+                @can('finanzas.editar')
                 <a href="{{ route('tesorero.presupuestos.edit', $presupuesto->id) }}" class="btn btn-warning">
                     <i class="fas fa-edit me-2"></i>
                     Editar
                 </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -377,14 +379,19 @@
                     Acciones
                 </h5>
                 <div class="d-grid gap-2">
+                    @can('finanzas.crear')
                     <button class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#modalDuplicar">
                         <i class="fas fa-copy me-2"></i>
                         Duplicar a otro período
                     </button>
+                    @endcan
+                    @can('finanzas.editar')
                     <a href="{{ route('tesorero.presupuestos.edit', $presupuesto->id) }}" class="btn btn-outline-primary">
                         <i class="fas fa-edit me-2"></i>
                         Editar Presupuesto
                     </a>
+                    @endcan
+                    @can('finanzas.eliminar')
                     <form action="{{ route('tesorero.presupuestos.destroy', $presupuesto->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este presupuesto?')">
                         @csrf
                         @method('DELETE')
@@ -393,6 +400,7 @@
                             Eliminar Presupuesto
                         </button>
                     </form>
+                    @endcan
                 </div>
             </div>
         </div>

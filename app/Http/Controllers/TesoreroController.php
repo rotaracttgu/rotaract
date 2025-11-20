@@ -12,14 +12,17 @@ use App\Models\PagoMembresia;
 use App\Models\Presupuesto;
 use App\Models\Finanza;
 use App\Models\Notificacion;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TesoreroController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Muestra el dashboard principal del Tesorero
      */
     public function index()
     {
+        $this->authorize('finanzas.ver');
         // Datos del mes actual
         $mesActual = now()->month;
         $anioActual = now()->year;
@@ -203,6 +206,7 @@ class TesoreroController extends Controller
      */
     public function finanzas()
     {
+        $this->authorize('finanzas.ver');
         // Calcular datos de ingresos y gastos
         $total_ingresos = Ingreso::sum('monto') ?? 0;
         $total_gastos = Egreso::sum('monto') ?? 0;
@@ -355,6 +359,7 @@ class TesoreroController extends Controller
      */
     public function presupuestosIndex()
     {
+        $this->authorize('finanzas.ver');
         $mesActual = request('mes', now()->month);
         $anioActual = request('anio', now()->year);
         $categoriaFiltro = request('categoria', null);
@@ -449,6 +454,7 @@ class TesoreroController extends Controller
      */
     public function presupuestosCreate()
     {
+        $this->authorize('finanzas.crear');
         // Obtener categorías únicas de presupuestos existentes
         $categorias = Presupuesto::select('categoria')
             ->distinct()
@@ -467,6 +473,7 @@ class TesoreroController extends Controller
      */
     public function presupuestosStore(Request $request)
     {
+        $this->authorize('finanzas.crear');
         $validated = $request->validate([
             'categoria' => 'required|string|max:100',
             'monto_presupuestado' => 'required|numeric|min:0',
@@ -531,6 +538,7 @@ class TesoreroController extends Controller
      */
     public function presupuestosShow($id)
     {
+        $this->authorize('finanzas.ver');
         $presupuesto = Presupuesto::findOrFail($id);
         
         // Obtener gastos relacionados con la categoría del presupuesto
@@ -552,6 +560,7 @@ class TesoreroController extends Controller
      */
     public function presupuestosEdit($id)
     {
+        $this->authorize('finanzas.editar');
         $presupuesto = Presupuesto::findOrFail($id);
         
         // Obtener categorías únicas de presupuestos existentes
@@ -572,6 +581,7 @@ class TesoreroController extends Controller
      */
     public function presupuestosUpdate(Request $request, $id)
     {
+        $this->authorize('finanzas.editar');
         $presupuesto = Presupuesto::findOrFail($id);
 
         $validated = $request->validate([
@@ -605,6 +615,7 @@ class TesoreroController extends Controller
      */
     public function presupuestosDestroy($id)
     {
+        $this->authorize('finanzas.eliminar');
         $presupuesto = Presupuesto::findOrFail($id);
         $presupuesto->delete();
 
@@ -617,6 +628,7 @@ class TesoreroController extends Controller
      */
     public function presupuestosSeguimiento()
     {
+        $this->authorize('finanzas.ver');
         $presupuestos = Presupuesto::with('usuario')->get();
         
         $presupuestos = $presupuestos->map(function($item) {
@@ -637,6 +649,7 @@ class TesoreroController extends Controller
      */
     public function presupuestosDuplicar(Request $request, $id)
     {
+        $this->authorize('finanzas.crear');
         $presupuesto = Presupuesto::findOrFail($id);
         
         $nuevo = $presupuesto->replicate();
@@ -654,6 +667,7 @@ class TesoreroController extends Controller
      */
     public function presupuestosExportarExcel(Request $request)
     {
+        $this->authorize('finanzas.exportar');
         // Obtener mes y año actual o desde request
         $mes = $request->input('mes', now()->month);
         $anio = $request->input('anio', now()->year);
@@ -686,6 +700,7 @@ class TesoreroController extends Controller
      */
     public function presupuestosExportarPDF(Request $request)
     {
+        $this->authorize('finanzas.exportar');
         // Obtener mes y año actual o desde request
         $mes = $request->input('mes', now()->month);
         $anio = $request->input('anio', now()->year);
@@ -720,12 +735,14 @@ class TesoreroController extends Controller
 
     public function ingresosIndex()
     {
+        $this->authorize('finanzas.ver');
         $ingresos = Ingreso::orderBy('fecha', 'desc')->paginate(15);
         return view('modulos.tesorero.ingresos.index', compact('ingresos'));
     }
 
     public function ingresosCreate()
     {
+        $this->authorize('finanzas.crear');
         $metodos_pago = [
             'efectivo' => 'Efectivo',
             'transferencia' => 'Transferencia Bancaria',
@@ -739,6 +756,7 @@ class TesoreroController extends Controller
 
     public function ingresosStore(Request $request)
     {
+        $this->authorize('finanzas.crear');
         $validated = $request->validate([
             'descripcion' => ['required', 'string', 'max:255', 'regex:/^(?!.*(.)\\1{2})/'],
             'categoria' => ['required', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
@@ -773,12 +791,14 @@ class TesoreroController extends Controller
 
     public function ingresosShow($id)
     {
+        $this->authorize('finanzas.ver');
         $ingreso = Ingreso::findOrFail($id);
         return view('modulos.tesorero.ingresos.show', compact('ingreso'));
     }
 
     public function ingresosEdit($id)
     {
+        $this->authorize('finanzas.editar');
         $ingreso = Ingreso::findOrFail($id);
         $metodos_pago = [
             'efectivo' => 'Efectivo',
@@ -793,6 +813,7 @@ class TesoreroController extends Controller
 
     public function ingresosUpdate(Request $request, $id)
     {
+        $this->authorize('finanzas.editar');
         $ingreso = Ingreso::findOrFail($id);
         
         $validated = $request->validate([
@@ -833,6 +854,7 @@ class TesoreroController extends Controller
 
     public function ingresosDestroy($id)
     {
+        $this->authorize('finanzas.eliminar');
         $ingreso = Ingreso::findOrFail($id);
         $ingreso->delete();
         return redirect()->route('tesorero.ingresos.index')->with('success', 'Ingreso eliminado correctamente.');
@@ -844,12 +866,14 @@ class TesoreroController extends Controller
 
     public function gastosIndex()
     {
+        $this->authorize('finanzas.ver');
         $gastos = Egreso::orderBy('fecha', 'desc')->paginate(15);
         return view('modulos.tesorero.gastos.index', compact('gastos'));
     }
 
     public function gastosCreate()
     {
+        $this->authorize('finanzas.crear');
         $metodos_pago = [
             'efectivo' => 'Efectivo',
             'transferencia' => 'Transferencia Bancaria',
@@ -869,6 +893,7 @@ class TesoreroController extends Controller
 
     public function gastosStore(Request $request)
     {
+        $this->authorize('finanzas.crear');
         $validated = $request->validate([
             'descripcion' => ['required', 'string', 'max:255', 'regex:/^(?!.*(.)\\1{2})/'],
             'categoria' => ['required', 'string', 'max:100', 'regex:/^(?!.*(.)\\1{2})/'],
@@ -911,12 +936,14 @@ class TesoreroController extends Controller
 
     public function gastosShow($id)
     {
+        $this->authorize('finanzas.ver');
         $gasto = Egreso::findOrFail($id);
         return view('modulos.tesorero.gastos.show', compact('gasto'));
     }
 
     public function gastosEdit($id)
     {
+        $this->authorize('finanzas.editar');
         $gasto = Egreso::findOrFail($id);
         $metodos_pago = [
             'efectivo' => 'Efectivo',
@@ -931,6 +958,7 @@ class TesoreroController extends Controller
 
     public function gastosUpdate(Request $request, $id)
     {
+        $this->authorize('finanzas.editar');
         $gasto = Egreso::findOrFail($id);
         
         $validated = $request->validate([
@@ -970,6 +998,7 @@ class TesoreroController extends Controller
 
     public function gastosDestroy($id)
     {
+        $this->authorize('finanzas.eliminar');
         $gasto = Egreso::findOrFail($id);
         $gasto->delete();
         return redirect()->route('tesorero.gastos.index')->with('success', 'Gasto eliminado correctamente.');
@@ -980,6 +1009,7 @@ class TesoreroController extends Controller
      */
     public function aprobarGasto($id)
     {
+        $this->authorize('finanzas.aprobar');
         try {
             $gasto = Egreso::findOrFail($id);
             
@@ -1014,6 +1044,7 @@ class TesoreroController extends Controller
      */
     public function rechazarGasto(Request $request, $id)
     {
+        $this->authorize('finanzas.aprobar');
         try {
             $gasto = Egreso::findOrFail($id);
             
@@ -1048,6 +1079,7 @@ class TesoreroController extends Controller
      */
     public function verDetallesGasto($id)
     {
+        $this->authorize('finanzas.ver');
         try {
             $gasto = Egreso::with(['usuarioRegistro', 'usuarioAprobacion'])->findOrFail($id);
             
@@ -1089,6 +1121,7 @@ class TesoreroController extends Controller
 
     public function transferenciasIndex()
     {
+        $this->authorize('finanzas.ver');
         $query = Egreso::where('tipo', 'transferencia')->orderBy('fecha', 'desc');
 
         // Filtros de búsqueda simples
@@ -1129,6 +1162,7 @@ class TesoreroController extends Controller
 
    public function transferenciasCreate()
     {
+        $this->authorize('finanzas.crear');
         // Tipos de transferencia (puede ajustarse según reglas del negocio)
         $tipos_transferencia = [
             'interna' => 'Interna (entre cuentas propias)',
@@ -1149,6 +1183,7 @@ class TesoreroController extends Controller
 
     public function transferenciasStore(Request $request)
     {
+        $this->authorize('finanzas.crear');
         $validated = $request->validate([
             'descripcion' => 'required|string|max:255',
             'monto' => 'required|numeric|min:0',
@@ -1194,12 +1229,14 @@ class TesoreroController extends Controller
 
     public function transferenciasShow($id)
     {
+        $this->authorize('finanzas.ver');
         $transferencia = Egreso::findOrFail($id);
         return view('modulos.tesorero.transferencias.show', compact('transferencia'));
     }
 
     public function transferenciasEdit($id)
     {
+        $this->authorize('finanzas.editar');
         $transferencia = Egreso::findOrFail($id);
         // Tipos de transferencia y cuentas (coincidentes con create)
         $tipos_transferencia = [
@@ -1220,6 +1257,7 @@ class TesoreroController extends Controller
 
     public function transferenciasUpdate(Request $request, $id)
     {
+        $this->authorize('finanzas.editar');
         $transferencia = Egreso::findOrFail($id);
         
         $validated = $request->validate([
@@ -1276,6 +1314,7 @@ class TesoreroController extends Controller
 
     public function transferenciasDestroy($id)
     {
+        $this->authorize('finanzas.eliminar');
         $transferencia = Egreso::findOrFail($id);
         $transferencia->delete();
         return redirect()->route('tesorero.transferencias.index')->with('success', 'Transferencia eliminada correctamente.');
@@ -1287,6 +1326,7 @@ class TesoreroController extends Controller
 
     public function membresiasIndex()
     {
+        $this->authorize('finanzas.ver');
         $query = PagoMembresia::with('usuario')->orderBy('fecha_pago', 'desc');
 
         // Búsqueda simple por nombre o correo en la tabla users (relación 'usuario')
@@ -1371,6 +1411,7 @@ class TesoreroController extends Controller
 
     public function membresiasCreate()
     {
+        $this->authorize('finanzas.crear');
         // Solo mostrar miembros con user_id válido
         $miembros = Miembro::whereNotNull('user_id')->get();
         $tipos_membresia = [
@@ -1397,6 +1438,7 @@ class TesoreroController extends Controller
 
     public function membresiasStore(Request $request)
     {
+        $this->authorize('finanzas.crear');
         $validated = $request->validate([
             'usuario_id' => 'required|exists:users,id',
             'tipo_membresia' => 'required|in:activo,honorario,aspirante,alumni',
@@ -1434,12 +1476,14 @@ class TesoreroController extends Controller
 
     public function membresiasShow($id)
     {
+        $this->authorize('finanzas.ver');
         $membresia = PagoMembresia::findOrFail($id);
         return view('modulos.tesorero.membresias.show', compact('membresia'));
     }
 
     public function membresiasEdit($id)
     {
+        $this->authorize('finanzas.editar');
         $membresia = PagoMembresia::findOrFail($id);
         // Solo mostrar miembros con user_id válido
         $miembros = Miembro::whereNotNull('user_id')->get();
@@ -1467,6 +1511,7 @@ class TesoreroController extends Controller
 
     public function membresiasUpdate(Request $request, $id)
     {
+        $this->authorize('finanzas.editar');
         $membresia = PagoMembresia::findOrFail($id);
         
         $validated = $request->validate([
@@ -1509,6 +1554,7 @@ class TesoreroController extends Controller
 
     public function membresiasDestroy($id)
     {
+        $this->authorize('finanzas.eliminar');
         $membresia = PagoMembresia::findOrFail($id);
         $membresia->delete();
         return redirect()->route('tesorero.membresias.index')->with('success', 'Membresía eliminada correctamente.');
@@ -1641,6 +1687,7 @@ class TesoreroController extends Controller
      */
     public function reportes()
     {
+        $this->authorize('finanzas.ver');
         // Datos generales
         $totalIngresos = Ingreso::sum('monto') ?? 0;
         $totalGastos = Egreso::sum('monto') ?? 0;
@@ -1674,6 +1721,7 @@ class TesoreroController extends Controller
      */
     public function generarReporte(Request $request)
     {
+        $this->authorize('finanzas.exportar');
         $tipo = $request->tipo ?? 'general';
         $fechaInicio = $request->fecha_inicio ? \Carbon\Carbon::parse($request->fecha_inicio) : now()->startOfMonth();
         $fechaFin = $request->fecha_fin ? \Carbon\Carbon::parse($request->fecha_fin) : now();
@@ -1702,6 +1750,7 @@ class TesoreroController extends Controller
      */
     public function reporteMensual(Request $request)
     {
+        $this->authorize('finanzas.exportar');
         $mes = $request->mes ?? now()->month;
         $anio = $request->anio ?? now()->year;
         
@@ -1733,6 +1782,7 @@ class TesoreroController extends Controller
      */
     public function reporteAnual(Request $request)
     {
+        $this->authorize('finanzas.exportar');
         $anio = $request->anio ?? now()->year;
         
         $ingresos = Ingreso::whereYear('fecha', $anio)->get();

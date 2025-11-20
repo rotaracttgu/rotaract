@@ -7,9 +7,11 @@ use App\Models\BitacoraSistema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UserController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Determina el módulo actual basado en la ruta
      */
@@ -40,6 +42,7 @@ class UserController extends Controller
      */
     public function index()
     {
+        $this->authorize('usuarios.ver');
         try {
             // if (!auth()->user()->can('ver usuarios')) {
             //     abort(403, 'No tienes permisos para ver usuarios');
@@ -81,8 +84,11 @@ class UserController extends Controller
      */
     public function create()
     {
+        $this->authorize('usuarios.crear');
         $moduloActual = $this->getModuloActual();
-        return view('modulos.users.create', compact('moduloActual'));
+        // Cargar todos los roles disponibles desde la BD
+        $roles = \Spatie\Permission\Models\Role::orderBy('name')->get();
+        return view('modulos.users.create', compact('moduloActual', 'roles'));
     }
 
     /**
@@ -90,6 +96,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('usuarios.crear');
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -109,7 +116,7 @@ class UserController extends Controller
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($passwordAleatorio),
+                'password' => $passwordAleatorio, // No usar Hash::make() porque el modelo ya hashea con casting 'hashed'
                 'email_verified_at' => $request->email_verified ? now() : null,
                 'first_login' => true,
                 'two_factor_enabled' => true, // Mantener 2FA habilitado por defecto
@@ -175,6 +182,7 @@ class UserController extends Controller
      */
     public function show($usuario)
     {
+        $this->authorize('usuarios.ver');
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
         
@@ -189,7 +197,9 @@ class UserController extends Controller
         ]);
         
         $moduloActual = $this->getModuloActual();
-        return view('modulos.users.ver', compact('usuario', 'moduloActual'));
+        $totalUsuarios = User::count();
+        $usuarios = User::orderBy('created_at', 'desc')->paginate(10);
+        return view('modulos.users.ver', compact('usuario', 'moduloActual', 'totalUsuarios', 'usuarios'));
     }
 
     /**
@@ -197,10 +207,13 @@ class UserController extends Controller
      */
     public function edit($usuario)
     {
+        $this->authorize('usuarios.editar');
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
         $moduloActual = $this->getModuloActual();
-        return view('modulos.users.edit', compact('usuario', 'moduloActual'));
+        // Cargar todos los roles disponibles desde la BD
+        $roles = \Spatie\Permission\Models\Role::orderBy('name')->get();
+        return view('modulos.users.edit', compact('usuario', 'moduloActual', 'roles'));
     }
 
     /**
@@ -208,6 +221,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $usuario)
     {
+        $this->authorize('usuarios.editar');
         // Buscar el usuario por ID
         $usuario = User::findOrFail($usuario);
         
@@ -255,7 +269,7 @@ class UserController extends Controller
 
             // Actualizar contraseña solo si se proporciona
             if ($request->filled('password')) {
-                $userData['password'] = Hash::make($request->password);
+                $userData['password'] = $request->password; // No usar Hash::make() porque el modelo ya hashea con casting 'hashed'
             }
 
             // Manejar verificación de email
@@ -337,6 +351,7 @@ class UserController extends Controller
      */
     public function destroy($usuario)
     {
+        $this->authorize('usuarios.eliminar');
         try {
             // Buscar el usuario por ID
             $usuario = User::findOrFail($usuario);
@@ -389,6 +404,7 @@ class UserController extends Controller
      */
     public function getStats()
     {
+        $this->authorize('usuarios.ver');
         try {
             $stats = [
                 'total_usuarios' => User::count(),

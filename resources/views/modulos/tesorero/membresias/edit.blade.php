@@ -211,6 +211,7 @@
         <strong>Advertencia:</strong> Los cambios afectarán los registros contables.
     </div>
 
+    @can('finanzas.editar')
     <form action="{{ route('tesorero.membresias.update', $membresia->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -355,6 +356,7 @@
             </button>
         </div>
     </form>
+    @endcan
 
 </div>
 

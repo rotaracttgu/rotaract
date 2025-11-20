@@ -207,6 +207,7 @@
     </div>
 
     <!-- Formulario -->
+    @can('finanzas.crear')
     <form action="{{ route('tesorero.gastos.store') }}" method="POST" enctype="multipart/form-data" novalidate>
         @csrf
         <!-- Campo estado oculto - por defecto pendiente -->
@@ -348,6 +349,7 @@
             </button>
         </div>
     </form>
+    @endcan
 </div>
 
 @push('scripts')

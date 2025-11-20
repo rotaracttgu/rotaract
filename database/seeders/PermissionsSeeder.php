@@ -85,6 +85,7 @@ class PermissionsSeeder extends Seeder
                 'ver' => 'Ver registro de asistencias',
                 'registrar' => 'Registrar asistencias',
                 'editar' => 'Editar asistencias',
+                'eliminar' => 'Eliminar asistencias',
                 'exportar' => 'Exportar reportes de asistencias',
             ],
 
@@ -98,9 +99,28 @@ class PermissionsSeeder extends Seeder
                 'exportar' => 'Exportar actas en PDF',
             ],
 
+            // Módulo de Diplomas
+            'diplomas' => [
+                'ver' => 'Ver diplomas',
+                'crear' => 'Crear nuevos diplomas',
+                'editar' => 'Editar diplomas existentes',
+                'eliminar' => 'Eliminar diplomas',
+                'enviar' => 'Enviar diplomas por email',
+                'exportar' => 'Exportar diplomas en PDF',
+            ],
+
+            // Módulo de Documentos
+            'documentos' => [
+                'ver' => 'Ver documentos',
+                'crear' => 'Crear nuevos documentos',
+                'editar' => 'Editar documentos existentes',
+                'eliminar' => 'Eliminar documentos',
+            ],
+
             // Módulo de Comunicaciones
             'comunicaciones' => [
                 'ver' => 'Ver comunicaciones',
+                'crear' => 'Crear comunicaciones',
                 'enviar' => 'Enviar comunicaciones',
                 'editar' => 'Editar comunicaciones',
                 'eliminar' => 'Eliminar comunicaciones',
@@ -126,6 +146,16 @@ class PermissionsSeeder extends Seeder
                 'restaurar' => 'Restaurar backup',
                 'eliminar' => 'Eliminar backups',
                 'descargar' => 'Descargar backups',
+            ],
+
+            // Módulo de Cartas (Formales y Patrocinio)
+            'cartas' => [
+                'ver' => 'Ver cartas formales y de patrocinio',
+                'crear' => 'Crear nuevas cartas',
+                'editar' => 'Editar cartas existentes',
+                'eliminar' => 'Eliminar cartas',
+                'aprobar' => 'Aprobar cartas',
+                'exportar' => 'Exportar cartas en PDF/Word',
             ],
 
             // Módulo de Bitácora
@@ -179,23 +209,25 @@ class PermissionsSeeder extends Seeder
         // PRESIDENTE - Acceso amplio a casi todo
         $presidente = Role::where('name', 'Presidente')->first();
         if ($presidente) {
-            $presidente->givePermissionTo([
-                // Usuarios
-                'usuarios.ver',
+            $presidente->syncPermissions([
+                // Usuarios - TODOS los permisos (Solo Presidente puede delegar)
+                'usuarios.ver', 'usuarios.crear', 'usuarios.editar', 'usuarios.eliminar',
                 // Miembros
                 'miembros.ver', 'miembros.crear', 'miembros.editar', 'miembros.exportar',
-                // Proyectos
-                'proyectos.ver', 'proyectos.crear', 'proyectos.editar', 'proyectos.aprobar',
+                // Proyectos - TODOS los permisos
+                'proyectos.ver', 'proyectos.crear', 'proyectos.editar', 'proyectos.eliminar', 'proyectos.aprobar',
                 // Finanzas
                 'finanzas.ver', 'finanzas.aprobar', 'finanzas.exportar',
-                // Eventos
-                'eventos.ver', 'eventos.crear', 'eventos.editar', 'eventos.publicar',
-                // Asistencias
-                'asistencias.ver', 'asistencias.exportar',
+                // Eventos - TODOS los permisos
+                'eventos.ver', 'eventos.crear', 'eventos.editar', 'eventos.eliminar', 'eventos.publicar',
+                // Asistencias - TODOS los permisos
+                'asistencias.ver', 'asistencias.registrar', 'asistencias.editar', 'asistencias.eliminar', 'asistencias.exportar',
                 // Actas
                 'actas.ver', 'actas.crear', 'actas.editar', 'actas.aprobar', 'actas.exportar',
-                // Comunicaciones
-                'comunicaciones.ver', 'comunicaciones.enviar',
+                // Cartas - TODOS los permisos
+                'cartas.ver', 'cartas.crear', 'cartas.editar', 'cartas.eliminar', 'cartas.aprobar', 'cartas.exportar',
+                // Comunicaciones - TODOS los permisos
+                'comunicaciones.ver', 'comunicaciones.crear', 'comunicaciones.enviar', 'comunicaciones.editar', 'comunicaciones.eliminar',
                 // Reportes
                 'reportes.ver', 'reportes.exportar', 'reportes.generar',
                 // Dashboard
@@ -209,15 +241,20 @@ class PermissionsSeeder extends Seeder
         // VICEPRESIDENTE - Similar al presidente pero sin aprobaciones finales
         $vicepresidente = Role::where('name', 'Vicepresidente')->first();
         if ($vicepresidente) {
-            $vicepresidente->givePermissionTo([
-                'usuarios.ver',
+            $vicepresidente->syncPermissions([
+                // Usuarios - Solo ver y editar
+                'usuarios.ver', 'usuarios.editar',
                 'miembros.ver', 'miembros.crear', 'miembros.editar',
-                'proyectos.ver', 'proyectos.crear', 'proyectos.editar',
+                // Proyectos - Todos excepto aprobar
+                'proyectos.ver', 'proyectos.crear', 'proyectos.editar', 'proyectos.eliminar',
                 'finanzas.ver', 'finanzas.exportar',
                 'eventos.ver', 'eventos.crear', 'eventos.editar',
                 'asistencias.ver', 'asistencias.exportar',
                 'actas.ver', 'actas.crear', 'actas.editar',
-                'comunicaciones.ver', 'comunicaciones.enviar',
+                // Cartas - TODOS los permisos excepto aprobar
+                'cartas.ver', 'cartas.crear', 'cartas.editar', 'cartas.eliminar', 'cartas.exportar',
+                // Comunicaciones - TODOS los permisos
+                'comunicaciones.ver', 'comunicaciones.crear', 'comunicaciones.enviar', 'comunicaciones.editar', 'comunicaciones.eliminar',
                 'reportes.ver', 'reportes.exportar',
                 'dashboard.ver',
             ]);
@@ -227,7 +264,7 @@ class PermissionsSeeder extends Seeder
         // TESORERO - Enfoque en finanzas
         $tesorero = Role::where('name', 'Tesorero')->first();
         if ($tesorero) {
-            $tesorero->givePermissionTo([
+            $tesorero->syncPermissions([
                 'miembros.ver',
                 'proyectos.ver',
                 'finanzas.ver', 'finanzas.crear', 'finanzas.editar', 'finanzas.exportar',
@@ -241,11 +278,13 @@ class PermissionsSeeder extends Seeder
         // SECRETARIO - Enfoque en actas y documentación
         $secretario = Role::where('name', 'Secretario')->first();
         if ($secretario) {
-            $secretario->givePermissionTo([
+            $secretario->syncPermissions([
                 'miembros.ver',
                 'eventos.ver',
-                'asistencias.ver', 'asistencias.registrar', 'asistencias.editar',
-                'actas.ver', 'actas.crear', 'actas.editar', 'actas.exportar',
+                'asistencias.ver', 'asistencias.registrar', 'asistencias.editar', 'asistencias.eliminar',
+                'actas.ver', 'actas.crear', 'actas.editar', 'actas.eliminar', 'actas.exportar',
+                'diplomas.ver', 'diplomas.crear', 'diplomas.editar', 'diplomas.eliminar', 'diplomas.enviar', 'diplomas.exportar',
+                'documentos.ver', 'documentos.crear', 'documentos.editar', 'documentos.eliminar',
                 'comunicaciones.ver', 'comunicaciones.enviar',
                 'reportes.ver', 'reportes.exportar',
                 'dashboard.ver',
@@ -256,13 +295,13 @@ class PermissionsSeeder extends Seeder
         // VOCERO - Enfoque en eventos y comunicaciones
         $vocero = Role::where('name', 'Vocero')->first();
         if ($vocero) {
-            $vocero->givePermissionTo([
+            $vocero->syncPermissions([
                 'miembros.ver',
                 'proyectos.ver',
-                'eventos.ver', 'eventos.crear', 'eventos.editar', 'eventos.publicar',
-                'asistencias.ver', 'asistencias.registrar',
+                'eventos.ver', 'eventos.crear', 'eventos.editar', 'eventos.eliminar', 'eventos.publicar',
+                'asistencias.ver', 'asistencias.registrar', 'asistencias.editar', 'asistencias.eliminar',
                 'comunicaciones.ver', 'comunicaciones.enviar', 'comunicaciones.editar',
-                'reportes.ver',
+                'reportes.ver', 'reportes.exportar', 'reportes.generar',
                 'dashboard.ver',
             ]);
             $this->command->info("✓ Permisos asignados a Vocero");
@@ -271,7 +310,7 @@ class PermissionsSeeder extends Seeder
         // ASPIRANTE - Permisos limitados, solo visualización
         $aspirante = Role::where('name', 'Aspirante')->first();
         if ($aspirante) {
-            $aspirante->givePermissionTo([
+            $aspirante->syncPermissions([
                 'miembros.ver',
                 'proyectos.ver',
                 'eventos.ver',

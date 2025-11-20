@@ -271,6 +271,7 @@
         </div>
     @endif
 
+    @can('finanzas.editar')
     <form action="{{ route('tesorero.gastos.update', $gasto->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -404,6 +405,7 @@
             <button type="submit" class="btn-modern btn-submit"><i class="fas fa-save"></i> Actualizar Gasto</button>
         </div>
     </form>
+    @endcan
 </div>
 
 @push('scripts')

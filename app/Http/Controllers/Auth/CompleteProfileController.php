@@ -92,7 +92,7 @@ class CompleteProfileController extends Controller
             'email' => $validated['email'],
             'dni' => $validated['dni'],
             'telefono' => $validated['telefono'] ?? null,
-            'password' => Hash::make($validated['password']),
+            'password' => $validated['password'], // No usar Hash::make() porque el modelo ya hashea con casting 'hashed'
             'pregunta_seguridad_1' => $pregunta1,
             'respuesta_seguridad_1' => strtolower(trim($validated['respuesta_seguridad_1'])),
             'pregunta_seguridad_2' => $pregunta2,

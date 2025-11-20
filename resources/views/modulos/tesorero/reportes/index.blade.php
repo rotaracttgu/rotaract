@@ -129,9 +129,13 @@
                                 @endfor
                             </select>
                         </div>
+                        @can('finanzas.exportar')
                         <button type="submit" class="btn btn-success w-100 mt-4">
                             <i class="fas fa-file-download me-2"></i> Generar Reporte
                         </button>
+                        @endcan
+                    </form>utton>
+                        @endcan
                     </form>
                 </div>
             </div>
@@ -168,9 +172,11 @@
                                 </select>
                             </div>
                         </div>
+                        @can('finanzas.exportar')
                         <button type="submit" class="btn btn-info w-100 mt-3">
                             <i class="fas fa-file-download me-2"></i> Generar Reporte Personalizado
                         </button>
+                        @endcan
                     </form>
                 </div>
             </div>

@@ -303,13 +303,11 @@
                                 <select id="role" name="role" required
                                     class="block w-full pl-12 pr-4 py-4 text-base border-2 border-gray-300 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 @error('role') border-red-400 bg-red-50 @enderror appearance-none bg-white cursor-pointer">
                                     <option value="">Seleccione un rol</option>
-                                    <option value="Super Admin" {{ old('role') == 'Super Admin' ? 'selected' : '' }}>🔐 Super Admin</option>
-                                    <option value="Presidente" {{ old('role') == 'Presidente' ? 'selected' : '' }}>👑 Presidente</option>
-                                    <option value="Vicepresidente" {{ old('role') == 'Vicepresidente' ? 'selected' : '' }}>👔 Vicepresidente</option>
-                                    <option value="Tesorero" {{ old('role') == 'Tesorero' ? 'selected' : '' }}>💰 Tesorero</option>
-                                    <option value="Secretario" {{ old('role') == 'Secretario' ? 'selected' : '' }}>📝 Secretario</option>
-                                    <option value="Vocero" {{ old('role') == 'Vocero' ? 'selected' : '' }}>📢 Vocero</option>
-                                    <option value="Aspirante" {{ old('role') == 'Aspirante' ? 'selected' : '' }}>⭐ Aspirante</option>
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>
+                                            {{ $role->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                     <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

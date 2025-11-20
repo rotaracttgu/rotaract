@@ -217,6 +217,7 @@
         </div>
     @endif
 
+    @can('finanzas.crear')
     <form action="{{ route('tesorero.ingresos.store') }}" method="POST" enctype="multipart/form-data" id="formIngreso">
         @csrf
 
@@ -353,6 +354,7 @@
             </button>
         </div>
     </form>
+    @endcan
 </div>
 
 @push('scripts')

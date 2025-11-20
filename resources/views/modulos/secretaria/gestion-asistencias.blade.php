@@ -240,9 +240,11 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
+                                @can('asistencias.registrar')
                                 <button class="btn btn-primary" onclick="openNewAttendanceModal()" id="add-attendance-btn" disabled>
                                     <i class="fas fa-user-plus me-2"></i>Registrar Asistencia
                                 </button>
+                                @endcan
                             </div>
                         </div>
 
@@ -387,6 +389,14 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
+    
+    <!-- Variables de permisos para JavaScript -->
+    <script>
+        const userPermissions = {
+            editAttendance: {{ auth()->user() && auth()->user()->can('asistencias.editar') ? 'true' : 'false' }},
+            deleteAttendance: {{ auth()->user() && auth()->user()->can('asistencias.eliminar') ? 'true' : 'false' }}
+        };
+    </script>
 
     <script>
         // ============================================================================
@@ -638,12 +648,8 @@
                         <td>${att.arrival_time || 'N/A'}</td>
                         <td>${att.minutes_late || 0} min</td>
                         <td>
-                            <button class="btn btn-sm btn-info" onclick="editAttendance(${att.id})" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteAttendance(${att.id})" title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            ${userPermissions.editAttendance ? `<button class="btn btn-sm btn-info" onclick="editAttendance(${att.id})" title="Editar"><i class="fas fa-edit"></i></button>` : ''}
+                            ${userPermissions.deleteAttendance ? `<button class="btn btn-sm btn-danger" onclick="deleteAttendance(${att.id})" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
                         </td>
                     </tr>
                 `;

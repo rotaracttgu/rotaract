@@ -270,10 +270,12 @@
                 <p class="mb-0 opacity-90">Gestión de transferencias entre cuentas</p>
             </div>
             <div class="col-md-6 text-md-end">
+                @can('finanzas.crear')
                 <a href="{{ route('tesorero.transferencias.create') }}" class="btn btn-light btn-lg">
                     <i class="fas fa-plus-circle me-2"></i>
                     Nueva Transferencia
                 </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -530,11 +532,14 @@
                                        title="Ver detalles">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @can('finanzas.editar')
                                     <a href="{{ route('tesorero.transferencias.edit', $transferencia->id) }}" 
                                        class="btn btn-sm btn-warning text-white" 
                                        title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    @endcan
+                                    @can('finanzas.eliminar')
                                     <form action="{{ route('tesorero.transferencias.destroy', $transferencia->id) }}" 
                                           method="POST" 
                                           id="delete-form-{{ $transferencia->id }}"
@@ -548,6 +553,7 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

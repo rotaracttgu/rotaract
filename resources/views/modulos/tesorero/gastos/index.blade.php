@@ -253,9 +253,11 @@
             <h1><i class="fas fa-arrow-down me-2"></i>Gestión de Gastos</h1>
             <p>Administra y controla todos los gastos del club Rotaract</p>
         </div>
+        @can('finanzas.crear')
         <a href="{{ route('tesorero.gastos.create') }}" class="btn-nuevo">
             <i class="fas fa-plus"></i> Nuevo Gasto
         </a>
+        @endcan
     </div>
 
     <!-- Filtros -->
@@ -330,15 +332,19 @@
                                 <a href="{{ route('tesorero.gastos.show', $gasto->id) }}" class="btn-action btn-view" title="Ver">
                                     <i class="fas fa-eye"></i>
                                 </a>
+                                @can('finanzas.editar')
                                 <a href="{{ route('tesorero.gastos.edit', $gasto->id) }}" class="btn-action btn-edit" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                @endcan
+                                @can('finanzas.eliminar')
                                 <button type="button" class="btn-action btn-delete btn-delete-gasto" 
                                         data-id="{{ $gasto->id }}"
                                         data-descripcion="{{ $gasto->descripcion }}"
                                         title="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </button>
+                                @endcan
                                 <form id="deleteForm{{ $gasto->id }}" 
                                       action="{{ route('tesorero.gastos.destroy', $gasto->id) }}" 
                                       method="POST" style="display:none;">

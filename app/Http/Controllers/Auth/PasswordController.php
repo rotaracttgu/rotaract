@@ -21,7 +21,7 @@ class PasswordController extends Controller
         ]);
 
         $request->user()->update([
-            'password' => Hash::make($validated['password']),
+            'password' => $validated['password'], // No usar Hash::make() porque el modelo ya hashea con casting 'hashed'
         ]);
 
         return back()->with('status', 'password-updated');

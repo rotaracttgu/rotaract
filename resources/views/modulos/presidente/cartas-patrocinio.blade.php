@@ -45,12 +45,14 @@
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-lg font-semibold text-gray-800">Gestión de Cartas de Patrocinio</h3>
+                        @can('cartas.crear')
                         <button onclick="abrirModalPatrocinio()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
                             Nueva Carta de Patrocinio
                         </button>
+                        @endcan
                     </div>
 
                     <!-- Filtros avanzados -->
@@ -150,27 +152,35 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex gap-2">
+                                                @can('cartas.ver')
                                                 <button class="text-blue-600 hover:text-blue-900" title="Ver detalles" onclick="verDetalleCarta({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
+                                                @can('cartas.editar')
                                                 <button class="text-yellow-600 hover:text-yellow-900" title="Editar" onclick="editarCarta({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
+                                                @can('cartas.eliminar')
                                                 <button class="text-red-600 hover:text-red-900" title="Eliminar" onclick="eliminarCarta({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
+                                                @can('cartas.exportar')
                                                 <button class="text-green-600 hover:text-green-900" title="Descargar PDF" onclick="descargarPDF({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
                                             </div>
                                         </td>
                                     </tr>
@@ -228,7 +238,7 @@
                 </button>
             </div>
             
-            <form id="formCartaPatrocinio" action="{{ route('presidente.cartas.patrocinio.store') }}" method="POST" class="p-6" onsubmit="return validarFormulario('formCartaPatrocinio')">
+            <form id="formCartaPatrocinio" action="{{ route('presidente.cartas.patrocinio.store') }}" method="POST" class="p-6" onsubmit="return enviarNuevaCartaPatrocinio(event)">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -376,7 +386,7 @@
                 </button>
             </div>
             
-            <form id="formEditarCarta" action="" method="POST" class="p-6" onsubmit="return validarFormulario('formEditarCarta')">
+            <form id="formEditarCarta" action="" method="POST" class="p-6" onsubmit="return enviarEditarCarta(event)">
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_carta_id" name="carta_id">
@@ -483,6 +493,78 @@
         }
 
         // Validar formulario antes de enviar
+        // Enviar nueva carta de patrocinio por AJAX
+        async function enviarNuevaCartaPatrocinio(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Error: ' + (error.message || 'No se pudo crear la carta'));
+                    return false;
+                }
+                
+                const data = await response.json();
+                alert('Carta creada correctamente');
+                cerrarModalPatrocinio();
+                location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al crear la carta: ' + error.message);
+            }
+            return false;
+        }
+
+        // Enviar edición de carta de patrocinio por AJAX
+        async function enviarEditarCarta(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const action = form.action;
+            
+            if (!action) {
+                alert('Error: No se ha cargado el ID de la carta');
+                return false;
+            }
+            
+            try {
+                const response = await fetch(action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Error: ' + (error.message || 'No se pudo actualizar la carta'));
+                    return false;
+                }
+                
+                const data = await response.json();
+                alert('Carta actualizada correctamente');
+                cerrarModalEditar();
+                location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al actualizar la carta: ' + error.message);
+            }
+            return false;
+        }
+
         function validarFormulario(formId) {
             const form = document.getElementById(formId);
             const inputs = form.querySelectorAll('input[oninput*="validarCaracteresRepetidos"], textarea[oninput*="validarCaracteresRepetidos"]');

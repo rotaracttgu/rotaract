@@ -205,6 +205,7 @@
         <div class="col-lg-8 mx-auto">
             <!-- Formulario -->
             <div class="form-card">
+                @can('finanzas.editar')
                 <form action="{{ route('tesorero.presupuestos.update', $presupuesto->id) }}" method="POST">
                     @csrf
                     @method('PUT')
@@ -331,6 +332,7 @@
                         </button>
                     </div>
                 </form>
+                @endcan
             </div>
         </div>
     </div>

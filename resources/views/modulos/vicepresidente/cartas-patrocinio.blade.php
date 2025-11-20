@@ -45,12 +45,14 @@
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-lg font-semibold text-gray-800">Gestión de Cartas de Patrocinio</h3>
-                        <button onclick="abrirModalPatrocinio()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
+                        @can('cartas.crear')
+                        <button onclick="abrirModalPatrocinio()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
                             Nueva Carta de Patrocinio
                         </button>
+                        @endcan
                     </div>
 
                     <!-- Filtros avanzados -->
@@ -150,27 +152,35 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex gap-2">
+                                                @can('cartas.ver')
                                                 <button class="text-blue-600 hover:text-blue-900" title="Ver detalles" onclick="verDetalleCarta({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
+                                                @can('cartas.editar')
                                                 <button class="text-yellow-600 hover:text-yellow-900" title="Editar" onclick="editarCarta({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
+                                                @can('cartas.eliminar')
                                                 <button class="text-red-600 hover:text-red-900" title="Eliminar" onclick="eliminarCarta({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
+                                                @can('cartas.exportar')
                                                 <button class="text-green-600 hover:text-green-900" title="Descargar PDF" onclick="descargarPDF({{ $carta->id }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                                     </svg>
                                                 </button>
+                                                @endcan
                                             </div>
                                         </td>
                                     </tr>
@@ -228,7 +238,7 @@
                 </button>
             </div>
             
-            <form id="formCartaPatrocinio" action="{{ route('vicepresidente.cartas.patrocinio.store') }}" method="POST" class="p-6" onsubmit="return validarFormulario('formCartaPatrocinio')">
+            <form id="formCartaPatrocinio" action="{{ route('vicepresidente.cartas.patrocinio.store') }}" method="POST" class="p-6" onsubmit="return enviarNuevaCartaPatrocinio(event)">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -379,7 +389,7 @@
                 </button>
             </div>
             
-            <form id="formEditarCarta" action="" method="POST" class="p-6" onsubmit="return validarFormulario('formEditarCarta')">
+            <form id="formEditarCarta" action="" method="POST" class="p-6" onsubmit="return enviarEditarCarta(event)">
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_carta_id" name="carta_id">
@@ -464,10 +474,12 @@
 
     <!-- JavaScript -->
     <script>
+        console.log('🔧 [Cartas Patrocinio] Script cargado correctamente');
         const baseRoute = 'vicepresidente';
+        console.log('🔧 [Cartas Patrocinio] Base route:', baseRoute);
 
         // Función de validación de caracteres repetidos
-        function validarCaracteresRepetidos(input) {
+        window.validarCaracteresRepetidos = function(input) {
             const valor = input.value;
             const regex = /(.)\1{2,}/;
             const errorSpan = document.getElementById('error_' + input.id);
@@ -508,16 +520,50 @@
             return valid;
         }
 
+
+        // Enviar nueva carta de patrocinio por AJAX
+        window.enviarNuevaCartaPatrocinio = async function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Error: ' + (error.message || 'No se pudo crear la carta'));
+                    return false;
+                }
+                
+                const data = await response.json();
+                alert('Carta creada correctamente');
+                cerrarModalPatrocinio();
+                location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al crear la carta: ' + error.message);
+            }
+            return false;
+        }
+
         // Definir ruta base según el módulo
         const baseRoute = 'vicepresidente';
 
         // Modal Nueva Carta
-        function abrirModalPatrocinio() {
+        window.abrirModalPatrocinio = function() {
             document.getElementById('modalNuevaCartaPatrocinio').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
 
-        function cerrarModalPatrocinio() {
+        window.cerrarModalPatrocinio = function() {
             document.getElementById('modalNuevaCartaPatrocinio').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('formCartaPatrocinio').reset();
@@ -530,9 +576,11 @@
         }
 
         // Modal Ver Detalles con loading y animaciones
-        async function verDetalleCarta(id) {
+        window.verDetalleCarta = async function(id) {
+            console.log('🔍 [Ver Carta Patrocinio] ID:', id);
             const modal = document.getElementById('modalVerDetalle');
             const contenedor = document.getElementById('detalleContenido');
+            console.log('🔍 [Ver Carta Patrocinio] Modal:', modal, 'Contenedor:', contenedor);
             
             // Mostrar modal con loader
             modal.classList.remove('hidden');
@@ -641,14 +689,55 @@
             }
         }
 
-        function cerrarModalDetalle() {
+        window.cerrarModalDetalle = function() {
             document.getElementById('modalVerDetalle').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
 
-        async function editarCarta(id) {
+        // Enviar formulario de edición por AJAX
+        window.enviarEditarCarta = async function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const action = form.action;
+            
+            if (!action) {
+                alert('Error: No se ha cargado el ID de la carta');
+                return false;
+            }
+            
+            try {
+                const response = await fetch(action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    alert('Error: ' + (error.message || 'No se pudo actualizar la carta'));
+                    return false;
+                }
+                
+                const data = await response.json();
+                alert('Carta actualizada correctamente');
+                cerrarModalEditar();
+                location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al actualizar la carta: ' + error.message);
+            }
+            return false;
+        }
+
+        window.editarCarta = async function(id) {
+            console.log('✏️ [Editar Carta Patrocinio] ID:', id);
             const modal = document.getElementById('modalEditarCarta');
             const form = document.getElementById('formEditarCarta');
+            console.log('✏️ [Editar Carta Patrocinio] Modal:', modal, 'Form:', form);
             
             // Mostrar modal
             modal.classList.remove('hidden');
@@ -680,7 +769,7 @@
             }
         }
 
-        function cerrarModalEditar() {
+        window.cerrarModalEditar = function() {
             document.getElementById('modalEditarCarta').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('formEditarCarta').reset();
@@ -694,7 +783,8 @@
 
         // Eliminar
         // Eliminar con modal de confirmación personalizado
-        function eliminarCarta(id) {
+        window.eliminarCarta = function(id) {
+            console.log('🗑️ [Eliminar Carta Patrocinio] ID:', id);
             if (confirm('¿Estás seguro de que deseas eliminar esta carta de patrocinio? Esta acción no se puede deshacer.')) {
                 const form = document.createElement('form');
                 form.method = 'POST';
@@ -718,19 +808,19 @@
             }
         }
 
-        function descargarPDF(id) {
+        window.descargarPDF = function(id) {
             // TODO: Implementar en Fase 4
             console.log('Descargar PDF carta:', id);
             alert('Función de descarga PDF próximamente disponible');
         }
 
         // Filtros y búsqueda
-        function filtrarPorEstado(estado) {
+        window.filtrarPorEstado = function(estado) {
             document.getElementById('filtro-estado').value = estado;
             aplicarFiltros();
         }
 
-        function aplicarFiltros() {
+        window.aplicarFiltros = function() {
             const buscador = document.getElementById('buscador').value.toLowerCase();
             const filtroEstado = document.getElementById('filtro-estado').value;
             const filtroProyecto = document.getElementById('filtro-proyecto').value;

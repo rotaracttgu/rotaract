@@ -9,9 +9,11 @@ use App\Services\NotificacionService;
 use App\Models\Reunion;
 use App\Models\User;
 use Exception;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class VoceroController extends Controller
 {
+    use AuthorizesRequests;
     // ============================================================================
     // VISTAS DEL MÓDULO VOCERO
     // ============================================================================
@@ -19,42 +21,49 @@ class VoceroController extends Controller
     // Vista principal/bienvenida del módulo vocero
     public function index()
     {
+        $this->authorize('eventos.ver');
         return view('modulos.vocero.vocero');
     }
 
     // Vista de bienvenida específica
     public function welcome()
     {
+        $this->authorize('eventos.ver');
         return view('modulos.vocero.welcome');
     }
 
     // Vista del calendario
     public function calendario()
     {
+        $this->authorize('eventos.ver');
         return view('modulos.vocero.calendario');
     }
 
     // Vista del dashboard
     public function dashboard()
     {
+        $this->authorize('eventos.ver');
         return view('modulos.vocero.dashboard');
     }
 
     // Vista de gestión de asistencias
     public function gestionAsistencias()
     {
+        $this->authorize('asistencias.ver');
         return view('modulos.vocero.gestion-asistencias');
     }
 
     // Vista de gestión de eventos
     public function gestionEventos()
     {
+        $this->authorize('eventos.ver');
         return view('modulos.vocero.gestion-eventos');
     }
 
     // Vista de reportes y análisis
     public function reportesAnalisis()
     {
+        $this->authorize('reportes.ver');
         return view('modulos.vocero.reportes-analisis');
     }
 
@@ -63,6 +72,7 @@ class VoceroController extends Controller
      */
     public function notificaciones()
     {
+        $this->authorize('eventos.ver');
         // Auto-marcar todas las notificaciones como leídas al entrar
         \App\Models\Notificacion::where('usuario_id', auth()->id())
             ->where('leida', false)
@@ -84,6 +94,7 @@ class VoceroController extends Controller
      */
     public function marcarNotificacionLeida($id)
     {
+        $this->authorize('eventos.ver');
         $notificacionService = app(NotificacionService::class);
         $notificacionService->marcarComoLeida($id);
         
@@ -95,6 +106,7 @@ class VoceroController extends Controller
      */
     public function marcarTodasNotificacionesLeidas()
     {
+        $this->authorize('eventos.ver');
         $notificacionService = app(NotificacionService::class);
         $notificacionService->marcarTodasComoLeidas(auth()->id());
         
@@ -110,6 +122,7 @@ class VoceroController extends Controller
      */
     public function obtenerEventos()
     {
+        $this->authorize('eventos.ver');
         try {
             // Obtener eventos directamente desde la tabla calendarios
             $eventos = DB::table('calendarios')
@@ -177,6 +190,7 @@ class VoceroController extends Controller
      */
     public function obtenerMiembros()
     {
+        $this->authorize('eventos.ver');
         try {
             // Consulta ajustada según tu estructura de tabla
             $miembros = DB::select('
@@ -208,6 +222,7 @@ class VoceroController extends Controller
      */
     public function crearEvento(Request $request)
     {
+        $this->authorize('eventos.crear');
         try {
             // Validar datos - 🆕 AGREGADO "otros" en la validación
             $validated = $request->validate([
@@ -305,6 +320,7 @@ class VoceroController extends Controller
      */
     public function actualizarEvento(Request $request, $id)
     {
+        $this->authorize('eventos.editar');
         try {
             // Validar datos - 🆕 AGREGADO "otros" en la validación
             $validated = $request->validate([
@@ -399,6 +415,7 @@ class VoceroController extends Controller
      */
     public function eliminarEvento($id)
     {
+        $this->authorize('eventos.eliminar');
         try {
             // Obtener datos del evento antes de eliminarlo para la notificación
             $evento = DB::select('CALL sp_obtener_detalle_evento(?)', [$id]);
@@ -442,6 +459,7 @@ class VoceroController extends Controller
      */
     public function actualizarFechas(Request $request, $id)
     {
+        $this->authorize('eventos.editar');
         try {
             $validated = $request->validate([
                 'fecha_inicio' => 'required|date',
@@ -512,6 +530,7 @@ class VoceroController extends Controller
      */
     public function obtenerAsistenciasEvento($eventoId)
     {
+        $this->authorize('asistencias.ver');
         try {
             $asistencias = DB::select('CALL sp_obtener_asistencias_evento(?)', [$eventoId]);
             
@@ -551,6 +570,7 @@ class VoceroController extends Controller
      */
     public function registrarAsistencia(Request $request)
     {
+        $this->authorize('asistencias.registrar');
         try {
             $validated = $request->validate([
                 'member_id' => 'required|integer',
@@ -601,6 +621,7 @@ class VoceroController extends Controller
      */
     public function actualizarAsistencia(Request $request, $id)
     {
+        $this->authorize('asistencias.editar');
         try {
             $validated = $request->validate([
                 'status' => 'required|in:presente,ausente,justificado',
@@ -640,6 +661,7 @@ class VoceroController extends Controller
      */
     public function eliminarAsistencia($id)
     {
+        $this->authorize('asistencias.eliminar');
         try {
             DB::select('CALL sp_eliminar_asistencia(?, @mensaje)', [$id]);
             
@@ -819,6 +841,7 @@ class VoceroController extends Controller
      */
     public function obtenerEstadisticasGenerales()
     {
+        $this->authorize('reportes.ver');
         try {
             $stats = DB::select('CALL sp_generar_reporte_general_eventos()');
             
@@ -857,6 +880,7 @@ class VoceroController extends Controller
      */
     public function obtenerReporteDetallado()
     {
+        $this->authorize('reportes.ver');
         try {
             $eventos = DB::select('CALL sp_generar_reporte_detallado_eventos()');
             
@@ -879,6 +903,7 @@ class VoceroController extends Controller
      */
     public function obtenerReporteEvento($eventoId)
     {
+        $this->authorize('reportes.ver');
         try {
             $reporte = DB::select('CALL sp_generar_reporte_evento(?)', [$eventoId]);
             
@@ -908,6 +933,7 @@ class VoceroController extends Controller
      */
     public function obtenerEstadisticasMiembro($miembroId)
     {
+        $this->authorize('reportes.ver');
         try {
             $stats = DB::select('CALL sp_estadisticas_asistencia_miembro(?)', [$miembroId]);
             
@@ -937,6 +963,7 @@ class VoceroController extends Controller
      */
     public function buscarEventosPorFecha(Request $request)
     {
+        $this->authorize('eventos.ver');
         try {
             $validated = $request->validate([
                 'fecha_inicio' => 'required|date',
@@ -967,6 +994,7 @@ class VoceroController extends Controller
      */
     public function obtenerDatosGraficos()
     {
+        $this->authorize('reportes.ver');
         try {
             // Obtener estadísticas generales
             $statsGenerales = DB::select('CALL sp_generar_reporte_general_eventos()');
@@ -1139,6 +1167,7 @@ class VoceroController extends Controller
      */
     public function verificarActualizaciones()
     {
+        $this->authorize('eventos.ver');
         try {
             $notificacionService = app(\App\Services\NotificacionService::class);
             $ultimasNotificaciones = $notificacionService->obtenerNoLeidas(Auth::id())

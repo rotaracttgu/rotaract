@@ -21,9 +21,13 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProyectosExport;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Models\BitacoraSistema;
+use Spatie\Permission\Models\Role;
 
 class VicepresidenteController extends Controller
 {
+    use AuthorizesRequests;
     // *** 1. PANEL PRINCIPAL (DASHBOARD) ***
 
     /**
@@ -890,6 +894,7 @@ class VicepresidenteController extends Controller
      */
     public function cartasFormales()
     {
+        $this->authorize('cartas.ver');
         $cartas = CartaFormal::with('usuario')
                              ->orderBy('created_at', 'desc')
                              ->get();
@@ -911,6 +916,7 @@ class VicepresidenteController extends Controller
      */
     public function cartasPatrocinio()
     {
+        $this->authorize('cartas.ver');
         $cartas = CartaPatrocinio::with(['proyecto', 'usuario'])
                                  ->orderBy('fecha_solicitud', 'desc')
                                  ->get();
@@ -1051,6 +1057,8 @@ class VicepresidenteController extends Controller
      */
     public function storeProyecto(Request $request)
     {
+        $this->authorize('proyectos.crear');
+        
         $validated = $request->validate([
             'Nombre' => 'required|string|max:255',
             'Descripcion' => 'nullable|string',
@@ -1075,6 +1083,8 @@ class VicepresidenteController extends Controller
      */
     public function updateProyecto(Request $request, $id)
     {
+        $this->authorize('proyectos.editar');
+        
         $proyecto = Proyecto::findOrFail($id);
 
         $validated = $request->validate([
@@ -1106,6 +1116,8 @@ class VicepresidenteController extends Controller
      */
     public function destroyProyecto($id)
     {
+        $this->authorize('proyectos.eliminar');
+        
         $proyecto = Proyecto::findOrFail($id);
         
         // Verificar si tiene participaciones (tabla original), participaciones de proyectos o cartas de patrocinio
@@ -1155,6 +1167,7 @@ class VicepresidenteController extends Controller
      */
     public function showCartaFormal($id)
     {
+        $this->authorize('cartas.ver');
         $carta = CartaFormal::with('usuario')->findOrFail($id);
         return response()->json($carta);
     }
@@ -1164,6 +1177,8 @@ class VicepresidenteController extends Controller
      */
     public function storeCartaFormal(CartaFormalRequest $request)
     {
+        $this->authorize('cartas.crear');
+        
         $validated = $request->validated();
 
         // Generar número de carta automáticamente si no se proporciona
@@ -1174,10 +1189,13 @@ class VicepresidenteController extends Controller
         $validated['usuario_id'] = auth()->id();
         $validated['estado'] = $validated['estado'] ?? 'Borrador';
 
-        CartaFormal::create($validated);
+        $carta = CartaFormal::create($validated);
 
-        return redirect()->route('vicepresidente.cartas.formales')
-                        ->with('success', 'Carta formal creada exitosamente con número: ' . $validated['numero_carta']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Carta formal creada exitosamente con número: ' . $validated['numero_carta'],
+            'data' => $carta
+        ]);
     }
 
     /**
@@ -1185,6 +1203,8 @@ class VicepresidenteController extends Controller
      */
     public function updateCartaFormal(CartaFormalRequest $request, $id)
     {
+        $this->authorize('cartas.editar');
+        
         $carta = CartaFormal::findOrFail($id);
         $validated = $request->validated();
 
@@ -1195,8 +1215,11 @@ class VicepresidenteController extends Controller
 
         $carta->update($validated);
 
-        return redirect()->route('vicepresidente.cartas.formales')
-                        ->with('success', '✓ Carta formal actualizada exitosamente.');
+        return response()->json([
+            'success' => true,
+            'message' => '✓ Carta formal actualizada exitosamente.',
+            'data' => $carta
+        ]);
     }
 
     /**
@@ -1204,6 +1227,8 @@ class VicepresidenteController extends Controller
      */
     public function destroyCartaFormal($id)
     {
+        $this->authorize('cartas.eliminar');
+        
         $carta = CartaFormal::findOrFail($id);
         $numeroCartaEliminada = $carta->numero_carta;
         $carta->delete();
@@ -1219,6 +1244,7 @@ class VicepresidenteController extends Controller
      */
     public function showCartaPatrocinio($id)
     {
+        $this->authorize('cartas.ver');
         $carta = CartaPatrocinio::with(['proyecto', 'usuario'])->findOrFail($id);
         return response()->json($carta);
     }
@@ -1228,6 +1254,8 @@ class VicepresidenteController extends Controller
      */
     public function storeCartaPatrocinio(CartaPatrocinioRequest $request)
     {
+        $this->authorize('cartas.crear');
+        
         $validated = $request->validated();
 
         // Generar número de carta automáticamente si no se proporciona
@@ -1238,10 +1266,13 @@ class VicepresidenteController extends Controller
         $validated['usuario_id'] = auth()->id();
         $validated['estado'] = $validated['estado'] ?? 'Pendiente';
 
-        CartaPatrocinio::create($validated);
+        $carta = CartaPatrocinio::create($validated);
 
-        return redirect()->route('vicepresidente.cartas.patrocinio')
-                        ->with('success', 'Carta de patrocinio creada exitosamente con número: ' . $validated['numero_carta']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Carta de patrocinio creada exitosamente con número: ' . $validated['numero_carta'],
+            'data' => $carta
+        ]);
     }
 
     /**
@@ -1249,6 +1280,8 @@ class VicepresidenteController extends Controller
      */
     public function updateCartaPatrocinio(CartaPatrocinioRequest $request, $id)
     {
+        $this->authorize('cartas.editar');
+        
         $carta = CartaPatrocinio::findOrFail($id);
         $validated = $request->validated();
 
@@ -1267,8 +1300,11 @@ class VicepresidenteController extends Controller
 
         $carta->update($validated);
 
-        return redirect()->route('vicepresidente.cartas.patrocinio')
-                        ->with('success', '✓ Carta de patrocinio actualizada exitosamente.');
+        return response()->json([
+            'success' => true,
+            'message' => '✓ Carta de patrocinio actualizada exitosamente.',
+            'data' => $carta
+        ]);
     }
 
     /**
@@ -1276,6 +1312,8 @@ class VicepresidenteController extends Controller
      */
     public function destroyCartaPatrocinio($id)
     {
+        $this->authorize('cartas.eliminar');
+        
         $carta = CartaPatrocinio::findOrFail($id);
         $numeroCartaEliminada = $carta->numero_carta;
         $carta->delete();
@@ -1616,4 +1654,118 @@ class VicepresidenteController extends Controller
         $objWriter->save('php://output');
         exit;
     }
+
+    // ============================================================================
+    // GESTIÓN DE USUARIOS (Limitado para Vicepresidente)
+    // ============================================================================
+
+    /**
+     * Lista de usuarios (solo ver y editar para vicepresidente)
+     */
+    public function usuariosLista()
+    {
+        $this->authorize('usuarios.ver');
+        $usuarios = User::orderBy('created_at', 'desc')->paginate(10);
+        $totalUsuarios = User::count();
+        return view('modulos.vicepresidente.usuarios', compact('usuarios', 'totalUsuarios'));
+    }
+
+    /**
+     * Ver usuario específico
+     */
+    public function usuariosVer($usuario)
+    {
+        $this->authorize('usuarios.ver');
+        $usuario = User::findOrFail($usuario);
+        $usuarios = User::orderBy('created_at', 'desc')->paginate(10);
+        $totalUsuarios = User::count();
+        
+        BitacoraSistema::registrar([
+            'accion' => 'view',
+            'modulo' => 'usuarios',
+            'tabla' => 'users',
+            'registro_id' => $usuario->id,
+            'descripcion' => "Visualización del perfil de usuario: {$usuario->name}",
+            'estado' => 'exitoso',
+        ]);
+        
+        return view('modulos.vicepresidente.usuarios', compact('usuario', 'usuarios', 'totalUsuarios'));
+    }
+
+    /**
+     * Formulario de edición de usuario
+     */
+    public function usuariosEditar($usuario)
+    {
+        $this->authorize('usuarios.editar');
+        $usuario = User::findOrFail($usuario);
+        $roles = Role::orderBy('name')->get();
+        return view('modulos.users.edit', compact('usuario', 'roles'));
+    }
+
+    /**
+     * Actualizar usuario
+     */
+    /**
+     * Actualizar usuario (Vicepresidente - sin cambio de rol)
+     */
+    public function usuariosActualizar(Request $request, $usuario)
+    {
+        $this->authorize('usuarios.editar');
+        $usuario = User::findOrFail($usuario);
+        
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $usuario->id],
+            'email_verified' => ['nullable', 'boolean'],
+            'two_factor_verified' => ['nullable', 'boolean'],
+            'rotary_id' => ['nullable', 'string', 'max:50'],
+            'fecha_juramentacion' => ['nullable', 'date'],
+            'fecha_cumpleaños' => ['nullable', 'date'],
+            'activo' => ['nullable', 'boolean'],
+        ]);
+        
+        try {
+            $datosAntiguos = $usuario->getAttributes();
+            
+            $usuario->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'email_verified_at' => $request->email_verified ? now() : null,
+                'two_factor_verified_at' => $request->two_factor_verified ? now() : null,
+                'rotary_id' => $request->rotary_id,
+                'fecha_juramentacion' => $request->fecha_juramentacion,
+                'fecha_cumpleaños' => $request->fecha_cumpleaños,
+                'activo' => $request->has('activo') ? (bool)$request->activo : true,
+            ]);
+            
+            BitacoraSistema::registrar([
+                'accion' => 'update',
+                'modulo' => 'usuarios',
+                'tabla' => 'users',
+                'registro_id' => $usuario->id,
+                'descripcion' => "Actualización de usuario por vicepresidente: {$usuario->name} ({$usuario->email})",
+                'estado' => 'exitoso',
+                'datos_antiguos' => $datosAntiguos,
+                'datos_nuevos' => $usuario->getAttributes(),
+            ]);
+            
+            return redirect()->route('vicepresidente.usuarios.lista')
+                ->with('success', "Usuario {$usuario->name} actualizado correctamente");
+        } catch (\Exception $e) {
+            BitacoraSistema::registrar([
+                'accion' => 'update',
+                'modulo' => 'usuarios',
+                'tabla' => 'users',
+                'registro_id' => $usuario->id,
+                'descripcion' => "Error al actualizar usuario: {$usuario->name}",
+                'estado' => 'fallido',
+                'error_mensaje' => $e->getMessage(),
+            ]);
+
+            return back()->withInput()
+                ->withErrors(['error' => 'Error al actualizar el usuario: ' . $e->getMessage()]);
+        }
+    }
 }
+

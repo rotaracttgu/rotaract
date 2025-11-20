@@ -528,9 +528,11 @@
                         <p class="page-subtitle">Administra y visualiza todos tus eventos programados</p>
                         
                         <div class="header-actions">
+                            @can('eventos.crear')
                             <a href="{{ route('vocero.calendario') }}" class="btn btn-primary">
                                 <i class="fas fa-plus me-2"></i>Crear Nuevo Evento
                             </a>
+                            @endcan
                             <button class="btn btn-outline-secondary" onclick="refreshEvents()">
                                 <i class="fas fa-sync-alt me-2"></i>Actualizar
                             </button>
@@ -717,6 +719,11 @@
         let eventsData = [];
         let filteredEvents = [];
         let currentFilter = 'all';
+
+        // Variables de permisos
+        const userPermissions = {
+            canDeleteEvent: {{ auth()->user() && auth()->user()->can('eventos.eliminar') ? 'true' : 'false' }}
+        };
 
         $(document).ready(function() {
             loadEvents();
@@ -955,9 +962,7 @@
                                 <button class="btn btn-info btn-sm" onclick="viewEvent(${event.id})" title="Ver detalles">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteEvent(${event.id})" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                ${userPermissions.canDeleteEvent ? `<button class="btn btn-danger btn-sm" onclick="deleteEvent(${event.id})" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
                             </div>
                         </td>
                     </tr>
