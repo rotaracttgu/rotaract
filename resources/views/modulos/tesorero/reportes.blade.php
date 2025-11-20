@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('modulos.tesorero.layout')
 
 @section('content')
 <div class="container-fluid">

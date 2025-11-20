@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- 🆕 jsPDF para generar PDF -->
+    <!-- jsPDF para generar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
@@ -45,7 +45,7 @@
         }
 
         body {
-            background: #d0cfcd;
+            background: #f1f5f9;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
@@ -55,73 +55,120 @@
             overflow-x: hidden;
         }
 
+        /* SIDEBAR MODERNIZADO */
         .sidebar {
-            background: var(--sidebar-bg);
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             min-height: 100vh;
-            width: 200px;
+            width: 250px;
             position: fixed;
             left: 0;
             top: 0;
             z-index: 1000;
             transition: all 0.3s ease;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .sidebar-brand {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 24px 20px;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+            margin-bottom: 16px;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
         }
 
         .sidebar-brand h4 {
-            color: var(--sidebar-text);
-            font-weight: 600;
+            color: white;
             margin: 0;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1.5rem;
+            justify-content: center;
+            gap: 12px;
+            font-size: 1.75rem;
+            letter-spacing: -0.5px;
         }
 
         .sidebar-brand h4 i {
-            color: var(--primary-color);
+            color: #3b82f6;
             font-size: 1.75rem;
+            filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.4));
         }
 
         .sidebar-nav {
-            padding: 20px 0;
+            padding: 24px 0;
         }
 
         .sidebar .nav-link {
-            color: var(--sidebar-text);
-            padding: 12px 16px;
+            color: #cbd5e1;
+            border-radius: 12px;
+            margin: 6px 16px;
+            padding: 14px 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 12px;
-            transition: all 0.2s ease;
-            border: none;
-            background: none;
-            text-decoration: none;
+            gap: 14px;
             font-weight: 500;
-            border-radius: 8px;
-            margin: 4px 16px;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .sidebar .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
         }
 
         .sidebar .nav-link:hover {
-            background: rgba(59, 130, 246, 0.1);
-            color: #60a5fa;
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .sidebar .nav-link:hover::before {
+            transform: scaleY(1);
         }
 
         .sidebar .nav-link.active {
-            background: var(--primary-color);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.25) 100%);
             color: white;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .sidebar .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover i,
+        .sidebar .nav-link.active i {
+            transform: scale(1.1);
+            filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.4));
         }
 
         .main-content {
-            margin-left: 200px;
+            margin-left: 250px;
             min-height: 100vh;
-            background: #d0cfcd;
+            background: #f1f5f9;
             padding: 0;
-            width: calc(100% - 200px);
-            max-width: calc(100% - 200px);
+            width: calc(100% - 250px);
+            max-width: calc(100% - 250px);
             overflow-x: hidden;
         }
 
@@ -165,23 +212,24 @@
 
         .stat-card {
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 25px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: 1px solid var(--border-color);
-            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+            border: 2px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             height: 100%;
             cursor: pointer;
         }
 
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+            border-color: var(--primary-color);
         }
 
         .stat-card.active {
             border-color: var(--primary-color);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
             background: rgba(37, 99, 235, 0.02);
         }
 
@@ -196,17 +244,19 @@
             font-size: 14px;
             color: var(--secondary-color);
             margin: 0;
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .stat-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             color: white;
         }
 
@@ -227,10 +277,10 @@
 
         .filter-section {
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
             border: 1px solid var(--border-color);
         }
 
@@ -246,8 +296,8 @@
 
         .table-section {
             background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
             border: 1px solid var(--border-color);
             overflow: hidden;
         }
@@ -280,12 +330,12 @@
         }
 
         .events-table thead th {
-            background: var(--light-bg);
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             color: var(--dark-color);
-            font-weight: 600;
-            padding: 15px 20px;
+            font-weight: 700;
+            padding: 16px 20px;
             border: none;
-            font-size: 13px;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -300,8 +350,13 @@
             border-bottom: none;
         }
 
+        .events-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
         .events-table tbody tr:hover {
             background-color: rgba(37, 99, 235, 0.02);
+            transform: scale(1.005);
         }
 
         .event-title {
@@ -317,27 +372,27 @@
         }
 
         .badge {
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: 500;
-            font-size: 12px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.75rem;
             display: inline-flex;
             align-items: center;
             gap: 6px;
         }
 
-        .badge-status-programado { background: #dbeafe; color: #1e40af; }
-        .badge-status-en_curso { background: #fef3c7; color: #92400e; }
-        .badge-status-en-curso { background: #fef3c7; color: #92400e; }
-        .badge-status-encurso { background: #fef3c7; color: #92400e; }
-        .badge-status-finalizado { background: #d1fae5; color: #065f46; }
-        .badge-status-cancelado { background: #fee2e2; color: #991b1b; }
+        .badge-status-programado { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1e40af; }
+        .badge-status-en_curso { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; }
+        .badge-status-en-curso { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; }
+        .badge-status-encurso { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; }
+        .badge-status-finalizado { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; }
+        .badge-status-cancelado { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; }
 
-        .badge-category-reunion-virtual { background: #dbeafe; color: #1e40af; }
-        .badge-category-reunion-presencial { background: #d1fae5; color: #065f46; }
-        .badge-category-inicio-proyecto { background: #fef3c7; color: #92400e; }
-        .badge-category-finalizar-proyecto { background: #fee2e2; color: #991b1b; }
-        .badge-category-otros { background: #ede9fe; color: #6b21a8; }
+        .badge-category-reunion-virtual { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1e40af; }
+        .badge-category-reunion-presencial { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; }
+        .badge-category-inicio-proyecto { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; }
+        .badge-category-finalizar-proyecto { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; }
+        .badge-category-otros { background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); color: #6b21a8; }
 
         .action-buttons {
             display: flex;
@@ -347,37 +402,43 @@
         .btn-sm {
             padding: 8px 12px;
             font-size: 13px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .btn-primary {
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
             border: none;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
         }
 
         .btn-primary:hover {
-            background: #1d4ed8;
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
         }
 
         .btn-info {
-            background: var(--info-color);
+            background: linear-gradient(135deg, var(--info-color) 0%, #0891b2 100%);
             border: none;
             color: white;
         }
 
         .btn-info:hover {
-            background: #0891b2;
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
             color: white;
+            transform: scale(1.05);
         }
 
         .btn-danger {
-            background: var(--danger-color);
+            background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%);
             border: none;
         }
 
         .btn-danger:hover {
-            background: #dc2626;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transform: scale(1.05);
         }
 
         .btn-outline-secondary {
@@ -385,6 +446,7 @@
             color: var(--primary-color);
             background: white;
             font-weight: 600;
+            border-radius: 10px;
         }
 
         .btn-outline-secondary:hover {
@@ -394,15 +456,17 @@
         }
 
         .btn-export-pdf {
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border: none;
             color: white;
             font-weight: 600;
+            border-radius: 10px;
         }
 
         .btn-export-pdf:hover {
-            background: #059669;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
             color: white;
+            transform: translateY(-2px);
         }
 
         .empty-state {
@@ -457,6 +521,20 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
 
         .filter-indicator {
             display: inline-flex;
@@ -716,6 +794,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
 
     <script>
+        // [El JavaScript completo del documento original se mantiene aquí - continúa en el siguiente comentario debido al límite de caracteres]
         let eventsData = [];
         let filteredEvents = [];
         let currentFilter = 'all';
@@ -814,13 +893,6 @@
                     filteredEvents = eventsData.filter(e => {
                         const eventDate = new Date(e.start || e.fecha_inicio);
                         return eventDate >= today && (e.extendedProps?.estado !== 'finalizado');
-                    });
-                    break;
-                
-                case 'today':
-                    filteredEvents = eventsData.filter(e => {
-                        const eventDate = new Date(e.start || e.fecha_inicio);
-                        return eventDate.toDateString() === today.toDateString();
                     });
                     break;
                 
@@ -1122,7 +1194,6 @@
             loadEvents();
         }
 
-        // 🆕 FUNCIÓN MEJORADA: Exportar a PDF
         async function exportEvents() {
             const eventsToExport = filteredEvents.length > 0 ? filteredEvents : eventsData;
             
@@ -1135,7 +1206,7 @@
             
             try {
                 const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('l', 'mm', 'a4'); // Orientación horizontal
+                const doc = new jsPDF('l', 'mm', 'a4');
                 
                 let yPos = 20;
                 const pageWidth = doc.internal.pageSize.getWidth();
@@ -1143,14 +1214,29 @@
                 const margin = 15;
                 const usableWidth = pageWidth - (margin * 2);
                 
-                // ENCABEZADO
                 doc.setFillColor(37, 99, 235);
                 doc.rect(0, 0, pageWidth, 50, 'F');
                 
                 doc.setTextColor(255, 255, 255);
-                doc.setFontSize(24);
+                doc.setFontSize(28);
                 doc.setFont(undefined, 'bold');
                 doc.text('Lista de Eventos', pageWidth / 2, 25, { align: 'center' });
+                
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'normal');
+                const fechaActual = new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                doc.text(fechaActual, pageWidth / 2, 38, { align: 'center' });
+                
+                yPos = 60;
+                doc.setTextColor(0, 0, 0);
+                
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(37, 99, 235);
                 
                 let filtroTexto = '';
                 switch(currentFilter) {
@@ -1160,32 +1246,16 @@
                     default: filtroTexto = 'Todos los Eventos';
                 }
                 
-                doc.setFontSize(12);
-                doc.setFont(undefined, 'normal');
-                doc.text(filtroTexto, pageWidth / 2, 38, { align: 'center' });
+                doc.text(filtroTexto, margin, yPos);
+                yPos += 10;
                 
-                yPos = 60;
-                doc.setTextColor(0, 0, 0);
-                
-                // INFO GENERAL
                 doc.setFontSize(10);
                 doc.setTextColor(100, 116, 139);
-                const fechaActual = new Date().toLocaleDateString('es-ES', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                doc.text(`Generado: ${fechaActual}`, margin, yPos);
-                yPos += 8;
-                
                 doc.text(`Total de eventos: ${eventsToExport.length}`, margin, yPos);
                 yPos += 12;
                 
                 doc.setTextColor(0, 0, 0);
                 
-                // ENCABEZADOS DE TABLA
                 const colWidths = {
                     titulo: 55,
                     fecha: 35,
@@ -1228,13 +1298,11 @@
                 let rowCount = 0;
                 let alternateRow = false;
                 
-                // FILAS DE DATOS
                 eventsToExport.forEach(event => {
                     if (yPos > pageHeight - 30) {
                         doc.addPage();
                         yPos = 20;
                         
-                        // Repetir encabezados en nueva página
                         doc.setFillColor(241, 245, 249);
                         doc.rect(margin, yPos, usableWidth, 10, 'F');
                         
@@ -1316,7 +1384,6 @@
                     rowCount++;
                 });
                 
-                // PIE DE PÁGINA
                 const pageCount = doc.internal.getNumberOfPages();
                 for (let i = 1; i <= pageCount; i++) {
                     doc.setPage(i);

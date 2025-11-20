@@ -181,23 +181,62 @@ class TesoreroController extends Controller
             $montos_categorias = [0];
         }
         
-        return view('modulos.tesorero.finanza', compact(
-            'totalIngresosMes',
-            'totalEgresosMes',
-            'balanceMes',
-            'finanzaActual',
-            'balance_general',
-            'presupuesto_disponible',
-            'miembros_activos',
-            'alertas_presupuesto',
-            'gastos_pendientes',
-            'control_presupuesto',
-            'movimientos_recientes',
-            'meses',
-            'ingresos_mensuales',
-            'gastos_mensuales',
-            'categorias',
-            'montos_categorias'
+        // Preparar datos para la nueva vista dashboard
+        $balanceTotal = $balance_general->balance_neto;
+        $totalIngresos = $balance_general->total_ingresos;
+        $totalGastos = $balance_general->total_gastos;
+        $gastosPendientes = $gastos_pendientes->count();
+        
+        // Alertas de presupuesto
+        $alertasPresupuesto = [];
+        foreach ($control_presupuesto as $presupuesto) {
+            if ($presupuesto->estado_presupuesto === 'Excedido') {
+                $alertasPresupuesto[] = "Presupuesto de {$presupuesto->categoria} excedido en " . number_format($presupuesto->porcentaje_usado - 100, 1) . "%";
+            } elseif ($presupuesto->estado_presupuesto === 'Alerta') {
+                $alertasPresupuesto[] = "Presupuesto de {$presupuesto->categoria} al " . number_format($presupuesto->porcentaje_usado, 1) . "% de uso";
+            }
+        }
+        
+        // Datos para la gráfica de flujo de efectivo
+        $datosFlujo = [
+            'meses' => $meses,
+            'ingresos' => $ingresos_mensuales,
+            'gastos' => $gastos_mensuales
+        ];
+        
+        // Gastos pendientes de aprobación con formato mejorado
+        $gastosPendientesAprobacion = $gastos_pendientes->map(function($gasto) {
+            return (object)[
+                'id' => $gasto->id,
+                'descripcion' => $gasto->concepto ?? $gasto->descripcion ?? 'Sin descripción',
+                'categoria' => $gasto->categoria ?? 'General',
+                'fecha' => $gasto->fecha ? date('d/m/Y', strtotime($gasto->fecha)) : 'N/A',
+                'monto' => $gasto->monto ?? 0,
+                'dias_pendiente' => $gasto->dias_pendiente ?? 0,
+                'prioridad' => $gasto->prioridad ?? 'Normal'
+            ];
+        });
+        
+        // Presupuestos activos
+        $presupuestosActivos = Presupuesto::where('estado', 'activa')
+            ->get()
+            ->map(function($presupuesto) {
+                return (object)[
+                    'nombre' => $presupuesto->nombre ?? $presupuesto->categoria,
+                    'monto' => $presupuesto->monto_presupuestado ?? 0,
+                    'gastado' => $presupuesto->monto_gastado ?? 0
+                ];
+            });
+        
+        return view('modulos.tesorero.dashboard', compact(
+            'balanceTotal',
+            'totalIngresos',
+            'totalGastos',
+            'gastosPendientes',
+            'alertasPresupuesto',
+            'datosFlujo',
+            'gastosPendientesAprobacion',
+            'presupuestosActivos'
         ));
     }
 

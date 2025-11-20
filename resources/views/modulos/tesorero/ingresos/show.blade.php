@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('modulos.tesorero.layout')
 
 @push('styles')
 <style>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Vocero - Calendario de Eventos</title>
+    <title>Macero - Calendario de Eventos</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -22,12 +22,12 @@
             --info-color: #06b6d4;
             --sidebar-bg: #1e293b;
             --sidebar-text: #e2e8f0;
-            --otros-color: #8b5cf6; /* 🆕 Color para "Otros" */
+            --otros-color: #8b5cf6;
         }
 
         /* Estilos base */
         body {
-            background-color: #d0cfcd;
+            background-color: #f1f5f9;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 0;
@@ -35,27 +35,33 @@
             overflow: hidden;
         }
         
+        /* SIDEBAR MODERNIZADO */
         .sidebar-vocero {
-            background: var(--sidebar-bg);
-            width: 200px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            width: 250px;
             position: fixed;
             left: 0;
             top: 0; 
             z-index: 20; 
             height: 100vh;
-            padding-top: 64px;
+            padding-top: 0;
             transition: all 0.3s ease;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .main-content-vocero {
-            margin-left: 300px; 
+            margin-left: 250px;
             min-height: 100vh;
             flex-grow: 1;
-            width: 900px;
-            padding: 100;
-            background: linear-gradient(135deg, #d0cfcd 0%, #c5c3c1 100%);
+            width: calc(100% - 250px);
+            padding: 0;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
             position: relative;
             overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
 
         .main-content-vocero::before {
@@ -71,54 +77,94 @@
         }
         
         .sidebar-brand {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 24px 20px;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.2);
             text-align: center;
-            position: absolute; 
-            top: 0;
-            width: 100%;
-            height: 64px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 40; 
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
         }
 
         .sidebar-brand h4 {
-            color: var(--sidebar-text);
-            font-weight: 600;
+            color: white;
+            font-weight: 700;
             margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            font-size: 1.75rem;
+            letter-spacing: -0.5px;
+        }
+
+        .sidebar-brand h4 i {
+            color: #3b82f6;
+            filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.4));
         }
 
         .sidebar-nav {
-            padding: 20px 0;
+            padding: 24px 0;
         }
 
         .sidebar-vocero .nav-link {
-            color: var(--sidebar-text);
-            border-radius: 8px;
-            margin: 4px 16px;
-            padding: 12px 16px;
-            transition: all 0.2s ease;
+            color: #cbd5e1;
+            border-radius: 12px;
+            margin: 6px 16px;
+            padding: 14px 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-vocero .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
         }
 
         .sidebar-vocero .nav-link:hover {
-            background: rgba(59, 130, 246, 0.1);
-            color: #60a5fa;
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .sidebar-vocero .nav-link:hover::before {
+            transform: scaleY(1);
         }
 
         .sidebar-vocero .nav-link.active {
-            background: var(--primary-color);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.25) 100%);
             color: white;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .sidebar-vocero .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .sidebar-vocero .nav-link i {
+            width: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-vocero .nav-link:hover i,
+        .sidebar-vocero .nav-link.active i {
+            transform: scale(1.1);
+            filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.4));
         }
 
         .content-wrapper {
@@ -126,9 +172,11 @@
             border-radius: 0;
             box-shadow: none;
             margin: 0;
-            padding: 15px;
+            padding: 15px 40px;
             height: 100vh;
             overflow: hidden;
+            width: 100%;
+            max-width: 1400px;
         }
 
         .card {
@@ -137,29 +185,34 @@
             box-shadow: none;
             transition: transform 0.2s ease;
             height: calc(100vh - 100px);
+            margin: 0 auto;
         }
 
         .card-body {
-            padding: 0 !important;
+            padding: 0 20px !important;
             height: 100%;
         }
 
         .btn-primary {
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
             border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-weight: 500;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+            transition: all 0.3s ease;
         }
 
         .btn-primary:hover {
-            background: #1d4ed8;
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
         }
 
         #calendar {
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             border-radius: 16px;
-            padding: 24px;
+            padding: 30px 40px;
             height: 100%;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             animation: fadeInUp 0.6s ease-out;
@@ -377,9 +430,25 @@
         }
 
         .header-section {
-            padding: 15px 20px;
+            padding: 15px 40px;
             background: white;
             border-bottom: 1px solid #e5e7eb;
+        }
+
+        .header-section > div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-section h2 {
+            text-align: left;
+            margin: 0;
+        }
+
+        .header-section p {
+            text-align: left;
+            margin: 0;
         }
 
         .validation-message {
@@ -506,7 +575,6 @@
             transform: translateX(5px);
         }
 
-        /* Colores por tipo de evento */
         .event-list-item.reunion-virtual {
             border-left-color: #3b82f6;
         }
@@ -543,7 +611,6 @@
             color: #ef4444;
         }
 
-        /* 🆕 ESTILOS PARA "OTROS" */
         .event-list-item.otros {
             border-left-color: #8b5cf6;
         }
@@ -689,7 +756,6 @@
             background: #94a3b8;
         }
 
-        /* 🆕 Estilos para el modal de detalles del evento */
         .animated-modal {
             animation: modalSlideIn 0.3s ease-out;
         }
@@ -721,28 +787,28 @@
         {{-- MENÚ LATERAL (SIDEBAR) --}}
         <div class="sidebar-vocero">
             <div class="sidebar-brand">
-                <h4><i class="fas fa-calendar-alt text-primary"></i> Macero</h4>
+                <h4><i class="fas fa-calendar-alt"></i> Macero</h4>
             </div>
             
             <nav class="sidebar-nav">
                 <a class="nav-link {{ request()->routeIs('vocero.dashboard') ? 'active' : '' }}" href="{{ route('vocero.dashboard') }}">
-                    <i class="fas fa-chart-line me-2"></i>
+                    <i class="fas fa-chart-line"></i>
                     Resumen General
                 </a>
                 <a class="nav-link {{ request()->routeIs('vocero.calendario') ? 'active' : '' }}" href="{{ route('vocero.calendario') }}">
-                    <i class="fas fa-calendar me-2"></i>
+                    <i class="fas fa-calendar"></i>
                     Calendario
                 </a>
                 <a class="nav-link {{ request()->routeIs('vocero.eventos') ? 'active' : '' }}" href="{{ route('vocero.eventos') }}">
-                    <i class="fas fa-calendar-plus me-2"></i>
+                    <i class="fas fa-calendar-plus"></i>
                     Gestión de Eventos
                 </a>
                 <a class="nav-link {{ request()->routeIs('vocero.asistencias') ? 'active' : '' }}" href="{{ route('vocero.asistencias') }}">
-                    <i class="fas fa-users me-2"></i>
+                    <i class="fas fa-users"></i>
                     Asistencias
                 </a>
                 <a class="nav-link {{ request()->routeIs('vocero.reportes') ? 'active' : '' }}" href="{{ route('vocero.reportes') }}">
-                    <i class="fas fa-chart-bar me-2"></i>
+                    <i class="fas fa-chart-bar"></i>
                     Reportes
                 </a>
             </nav>
@@ -904,6 +970,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
 
     <script>
+        // [El JavaScript completo del documento original se mantiene intacto]
         let calendar;
         let eventModal;
         let eventSelectorModal;
@@ -916,7 +983,7 @@
             'reunion-presencial': '#10b981',
             'inicio-proyecto': '#f59e0b',
             'finalizar-proyecto': '#ef4444',
-            'otros': '#8b5cf6'  // 🆕 Color para "Otros"
+            'otros': '#8b5cf6'
         };
 
         const iconosPorTipo = {
@@ -924,7 +991,7 @@
             'reunion-presencial': 'fa-users',
             'inicio-proyecto': 'fa-rocket',
             'finalizar-proyecto': 'fa-flag-checkered',
-            'otros': 'fa-star'  // 🆕 Icono para "Otros"
+            'otros': 'fa-star'
         };
 
         $(document).ready(function() {
@@ -1087,7 +1154,7 @@
                     $('#presencialFields').show();
                 } else if (selectedType === 'inicio-proyecto' || selectedType === 'finalizar-proyecto') {
                     $('#proyectoFields').show();
-                } else if (selectedType === 'otros') {  // 🆕 AGREGADO
+                } else if (selectedType === 'otros') {
                     $('#otrosFields').show();
                 }
             });
@@ -1144,13 +1211,13 @@
                         ? `${Math.floor(duracionMinutos / 60)}h ${duracionMinutos % 60}m`
                         : `${duracionMinutos}m`;
                     
-                    const horaInicioStr = horaInicio.toLocaleTimeString('es-ES', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
+                    const horaInicioStr = horaInicio.toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit'
                     });
-                    const horaFinStr = horaFin.toLocaleTimeString('es-ES', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
+                    const horaFinStr = horaFin.toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit'
                     });
                     
                     const tipoNombres = {
@@ -1158,7 +1225,7 @@
                         'reunion-presencial': 'Reunión Presencial',
                         'inicio-proyecto': 'Inicio de Proyecto',
                         'finalizar-proyecto': 'Finalización de Proyecto',
-                        'otros': 'Otros'  // 🆕 AGREGADO
+                        'otros': 'Otros'
                     };
                     
                     const estadoBadges = {
@@ -1212,14 +1279,12 @@
             if (evento) {
                 eventSelectorModal.hide();
                 
-                // Mostrar modal de detalles del evento
                 setTimeout(() => {
                     mostrarDetallesEvento(evento);
                 }, 300);
             }
         }
 
-        // 🆕 NUEVA FUNCIÓN: Mostrar detalles del evento con opciones
         function mostrarDetallesEvento(evento) {
             const props = evento.extendedProps || {};
             const detalles = props.detalles || {};
@@ -1261,7 +1326,6 @@
             
             let ubicacionHTML = '';
             
-            // 🆕 ENLACE CLICKEABLE PARA REUNIÓN VIRTUAL
             if (tipo === 'reunion-virtual' && detalles.enlace) {
                 ubicacionHTML = `
                     <div style="margin: 15px 0; padding: 15px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 10px; text-align: center;">
@@ -1317,16 +1381,13 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Editar evento
                     editEvent({ event: evento });
                 } else if (result.isDenied) {
-                    // Eliminar evento
                     eliminarEventoDesdeDetalle(evento.id);
                 }
             });
         }
 
-        // 🆕 NUEVA FUNCIÓN: Eliminar evento desde modal de detalles
         function eliminarEventoDesdeDetalle(eventoId) {
             Swal.fire({
                 title: '¿Estás seguro?',
@@ -1461,7 +1522,7 @@
                 $('#enlace').val(detalles.enlace || '');
                 $('#lugar').val(detalles.lugar || '');
                 $('#ubicacion_proyecto').val(detalles.ubicacion_proyecto || '');
-                $('#ubicacion_otros').val(detalles.ubicacion_otros || '');  // 🆕 AGREGADO
+                $('#ubicacion_otros').val(detalles.ubicacion_otros || '');
             }
             
             eventModal.show();
@@ -1508,7 +1569,7 @@
                 detalles.lugar = $('#lugar').val();
             } else if (tipo === 'inicio-proyecto' || tipo === 'finalizar-proyecto') {
                 detalles.ubicacion_proyecto = $('#ubicacion_proyecto').val();
-            } else if (tipo === 'otros') {  // 🆕 AGREGADO
+            } else if (tipo === 'otros') {
                 detalles.ubicacion_otros = $('#ubicacion_otros').val();
             }
             
