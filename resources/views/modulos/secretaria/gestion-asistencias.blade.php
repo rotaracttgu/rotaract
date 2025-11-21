@@ -224,8 +224,8 @@
                         <button class="btn btn-outline-secondary" onclick="refreshData()">
                             <i class="fas fa-sync-alt me-2"></i>Actualizar
                         </button>
-                        <button class="btn btn-success" onclick="exportToCSV()" id="export-btn" disabled>
-                            <i class="fas fa-download me-2"></i>Exportar CSV
+                        <button class="btn btn-success" onclick="exportToPDF()" id="export-btn" disabled>
+                            <i class="fas fa-download me-2"></i>Exportar
                         </button>
                     </div>
                 </div>
@@ -389,6 +389,8 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     
     <!-- Variables de permisos para JavaScript -->
     <script>
@@ -874,36 +876,98 @@
             }
         }
 
-        function exportToCSV() {
+        function exportToPDF() {
             if (!currentEventId || attendanceData.length === 0) {
                 showToast('No hay registros para exportar', 'warning');
                 return;
             }
 
-            const headers = ['Nombre', 'Email', 'Estado', 'Hora Llegada', 'Minutos Tarde', 'Observaciones'];
-            const rows = attendanceData.map(att => [
-                att.name,
-                att.email || 'N/A',
-                getStatusName(att.status),
-                att.arrival_time || 'N/A',
-                att.minutes_late || 0,
-                att.notes || 'Sin observaciones'
-            ]);
-
-            const csvContent = [headers, ...rows]
-                .map(row => row.map(field => `"${field}"`).join(','))
-                .join('\n');
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            
-            const eventTitle = eventsData.find(e => e.id == currentEventId)?.title || 'evento';
-            link.download = `asistencia_${eventTitle.replace(/\s/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
-            
-            link.click();
-            
-            showToast('Archivo CSV descargado correctamente', 'success');
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const eventTitle = eventsData.find(e => e.id == currentEventId)?.title || 'Evento';
+                const date = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                
+                // Título del documento
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.text('Reporte de Asistencias', 105, 20, { align: 'center' });
+                
+                // Información del evento
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Evento: ${eventTitle}`, 14, 35);
+                doc.text(`Fecha de generación: ${date} ${time}`, 14, 42);
+                doc.text(`Total de registros: ${attendanceData.length}`, 14, 49);
+                
+                // Calcular estadísticas
+                const presentes = attendanceData.filter(a => a.status === 'presente').length;
+                const ausentes = attendanceData.filter(a => a.status === 'ausente').length;
+                const justificados = attendanceData.filter(a => a.status === 'justificado').length;
+                
+                doc.text(`Presentes: ${presentes} | Ausentes: ${ausentes} | Justificados: ${justificados}`, 14, 56);
+                
+                // Preparar datos para la tabla
+                const tableData = attendanceData.map(att => [
+                    att.name,
+                    att.email || 'N/A',
+                    getStatusName(att.status),
+                    att.arrival_time || 'N/A',
+                    att.minutes_late || 0,
+                    att.notes || 'Sin observaciones'
+                ]);
+                
+                // Crear tabla
+                doc.autoTable({
+                    head: [['Nombre', 'Email', 'Estado', 'Hora Llegada', 'Min. Tarde', 'Observaciones']],
+                    body: tableData,
+                    startY: 65,
+                    styles: { fontSize: 9, cellPadding: 3 },
+                    headStyles: { fillColor: [76, 175, 80], textColor: 255, fontStyle: 'bold' },
+                    alternateRowStyles: { fillColor: [245, 245, 245] },
+                    margin: { top: 65, left: 14, right: 14 },
+                    columnStyles: {
+                        0: { cellWidth: 40 },
+                        1: { cellWidth: 45 },
+                        2: { cellWidth: 25 },
+                        3: { cellWidth: 25 },
+                        4: { cellWidth: 20 },
+                        5: { cellWidth: 'auto' }
+                    }
+                });
+                
+                // Footer
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.setTextColor(128);
+                    doc.text(
+                        'Documento generado automáticamente por el Sistema de Gestión Rotaract',
+                        105,
+                        doc.internal.pageSize.height - 10,
+                        { align: 'center' }
+                    );
+                    doc.text(
+                        `Página ${i} de ${pageCount}`,
+                        105,
+                        doc.internal.pageSize.height - 5,
+                        { align: 'center' }
+                    );
+                }
+                
+                // Descargar el PDF
+                const fileName = `asistencia_${eventTitle.replace(/\s/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(fileName);
+                
+                showToast('PDF descargado correctamente', 'success');
+                
+            } catch (error) {
+                console.error('Error al generar PDF:', error);
+                showToast('Error al generar el PDF: ' + error.message, 'error');
+            }
         }
 
         function getStatusBadge(status) {

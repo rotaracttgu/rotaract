@@ -984,10 +984,22 @@
                 
                 const tipoEvento = event.extendedProps?.tipo_evento || '';
                 const estado = event.extendedProps?.estado || 'programado';
-                const organizador = event.extendedProps?.organizador || 'Sin organizador';
                 
+                // Obtener organizador desde detalles
+                const organizador = event.extendedProps?.detalles?.organizador || 'Sin organizador';
+                
+                // Obtener ubicación desde extendedProps.ubicacion o construir desde detalles
                 let ubicacion = '';
-                if (event.extendedProps?.detalles) {
+                const ubicacionDirecta = event.extendedProps?.ubicacion;
+                
+                if (ubicacionDirecta && ubicacionDirecta.trim()) {
+                    // Si hay ubicación directa, determinar el formato según el tipo de evento
+                    if (tipoEvento === 'reunion-virtual' && ubicacionDirecta.includes('http')) {
+                        ubicacion = `<a href="${ubicacionDirecta}" target="_blank" class="text-primary"><i class="fas fa-video me-1"></i> Virtual</a>`;
+                    } else {
+                        ubicacion = `<i class="fas fa-map-marker-alt me-1 text-muted"></i> ${ubicacionDirecta}`;
+                    }
+                } else if (event.extendedProps?.detalles) {
                     const detalles = event.extendedProps.detalles;
                     
                     if (detalles.lugar) {
@@ -1059,10 +1071,18 @@
             
             const tipoEvento = event.extendedProps?.tipo_evento || '';
             const estado = event.extendedProps?.estado || 'programado';
-            const organizador = event.extendedProps?.organizador || 'Sin organizador';
+            
+            // Obtener organizador desde detalles
+            const organizador = event.extendedProps?.detalles?.organizador || 'Sin organizador';
             
             let ubicacion = 'Sin ubicación';
             let detallesAdicionales = '';
+            
+            // Primero intentar obtener ubicación directa
+            const ubicacionDirecta = event.extendedProps?.ubicacion;
+            if (ubicacionDirecta && ubicacionDirecta.trim()) {
+                ubicacion = ubicacionDirecta;
+            }
             
             if (event.extendedProps?.detalles) {
                 const detalles = event.extendedProps.detalles;

@@ -22,22 +22,26 @@ trait ManagesCalendarEvents
     public function obtenerEventos()
     {
         try {
-            $eventos = DB::table('calendarios')
+            $eventos = DB::table('calendarios as c')
+                ->leftJoin('miembros as m', 'c.OrganizadorID', '=', 'm.MiembroID')
+                ->leftJoin('proyectos as p', 'c.ProyectoID', '=', 'p.ProyectoID')
                 ->select(
-                    'CalendarioID',
-                    'TituloEvento',
-                    'Descripcion',
-                    'TipoEvento',
-                    'EstadoEvento',
-                    'FechaInicio',
-                    'FechaFin',
-                    'HoraInicio',
-                    'HoraFin',
-                    'Ubicacion',
-                    'OrganizadorID',
-                    'ProyectoID'
+                    'c.CalendarioID',
+                    'c.TituloEvento',
+                    'c.Descripcion',
+                    'c.TipoEvento',
+                    'c.EstadoEvento',
+                    'c.FechaInicio',
+                    'c.FechaFin',
+                    'c.HoraInicio',
+                    'c.HoraFin',
+                    'c.Ubicacion',
+                    'c.OrganizadorID',
+                    'c.ProyectoID',
+                    DB::raw('COALESCE(m.Nombre, "Sin Organizador") as NombreOrganizador'),
+                    'p.Nombre as NombreProyecto'
                 )
-                ->orderBy('FechaInicio', 'desc')
+                ->orderBy('c.FechaInicio', 'desc')
                 ->get();
 
             $eventosFormateados = $eventos->map(function($evento) {
@@ -64,7 +68,11 @@ trait ManagesCalendarEvents
                         'hora_fin' => $evento->HoraFin,
                         'ubicacion' => $evento->Ubicacion,
                         'organizador_id' => $evento->OrganizadorID,
-                        'proyecto_id' => $evento->ProyectoID
+                        'proyecto_id' => $evento->ProyectoID,
+                        'detalles' => [
+                            'organizador' => $evento->NombreOrganizador ?? 'Sin Organizador',
+                            'proyecto' => $evento->NombreProyecto ?? null
+                        ]
                     ]
                 ];
             });

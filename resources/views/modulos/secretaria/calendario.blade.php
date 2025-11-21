@@ -94,19 +94,23 @@
                     <div class="mt-6 flex flex-wrap gap-4 justify-center">
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                            <span class="text-sm text-gray-600">Reuniones</span>
+                            <span class="text-sm text-gray-600">Reunión Presencial</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-                            <span class="text-sm text-gray-600">Eventos</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                            <span class="text-sm text-gray-600">Importante</span>
+                            <span class="text-sm text-gray-600">Reunión Virtual</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 rounded-full bg-purple-500"></div>
-                            <span class="text-sm text-gray-600">Actividades</span>
+                            <span class="text-sm text-gray-600">Inicio Proyecto</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <span class="text-sm text-gray-600">Fin Proyecto</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-gray-500"></div>
+                            <span class="text-sm text-gray-600">Otros</span>
                         </div>
                     </div>
                 </div>
@@ -246,6 +250,10 @@
                     console.log(`Día ${day}: ${dayEvents.length} evento(s)`, dayEvents);
                 }
                 
+                // Contenedor de eventos
+                const eventsContainer = document.createElement('div');
+                eventsContainer.className = 'space-y-1';
+                
                 dayEvents.forEach((evento, index) => {
                     if (index < 3) { // Máximo 3 eventos por día
                         const eventDiv = document.createElement('div');
@@ -255,21 +263,30 @@
                         
                         // Obtener la hora si existe
                         let hora = '';
-                        if (evento.hora) {
-                            hora = evento.hora;
+                        if (evento.extendedProps?.hora_inicio) {
+                            hora = evento.extendedProps.hora_inicio.substring(0, 5);
                         } else if (evento.start) {
                             const startDate = new Date(evento.start);
-                            if (!isNaN(startDate.getTime())) {
+                            if (!isNaN(startDate.getTime()) && evento.start.includes('T')) {
                                 hora = startDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
                             }
                         }
                         
-                        eventDiv.className = `text-xs px-2 py-1 mb-1 rounded cursor-pointer hover:opacity-80 transition-opacity ${getEventColor(evento.tipo || evento.type)}`;
-                        eventDiv.textContent = hora ? `${hora} ${titulo}` : titulo;
+                        // Obtener tipo de evento
+                        const tipo = evento.extendedProps?.tipo_evento || evento.tipo || evento.type || 'otros';
+                        
+                        // Crear elemento con puntito de color
+                        eventDiv.className = 'flex items-start gap-1 text-xs cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors';
+                        eventDiv.innerHTML = `
+                            <span class="w-2 h-2 rounded-full ${getEventDot(tipo)} mt-1 flex-shrink-0"></span>
+                            <span class="text-gray-700 line-clamp-1">${hora ? hora + ' ' : ''}${titulo}</span>
+                        `;
                         eventDiv.onclick = () => mostrarEvento(evento);
-                        dayDiv.appendChild(eventDiv);
+                        eventsContainer.appendChild(eventDiv);
                     }
                 });
+                
+                dayDiv.appendChild(eventsContainer);
                 
                 if (dayEvents.length > 3) {
                     const moreDiv = document.createElement('div');
@@ -281,6 +298,110 @@
             }
             
             return dayDiv;
+        }
+
+        // Renderizar vista semanal
+        function renderWeekView() {
+            const calendarDays = document.getElementById('calendarDays');
+            const currentMonth = document.getElementById('currentMonth');
+            
+            // Obtener el inicio de la semana (domingo)
+            const startOfWeek = new Date(currentDate);
+            startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+            
+            // Obtener el fin de la semana (sábado)
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            
+            // Actualizar título
+            const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            currentMonth.textContent = `Semana del ${startOfWeek.getDate()} al ${endOfWeek.getDate()} de ${monthNames[startOfWeek.getMonth()]} ${startOfWeek.getFullYear()}`;
+            
+            // Limpiar calendario
+            calendarDays.innerHTML = '';
+            calendarDays.className = 'grid grid-cols-7 min-h-[500px]';
+            
+            // Renderizar los 7 días de la semana
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(startOfWeek);
+                day.setDate(startOfWeek.getDate() + i);
+                const dayDiv = createDayElement(day.getDate(), false, day);
+                calendarDays.appendChild(dayDiv);
+            }
+        }
+
+        // Renderizar vista diaria
+        function renderDayView() {
+            const calendarDays = document.getElementById('calendarDays');
+            const currentMonth = document.getElementById('currentMonth');
+            
+            // Actualizar título
+            const dayNames = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+            const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            currentMonth.textContent = `${dayNames[currentDate.getDay()]}, ${currentDate.getDate()} de ${monthNames[currentDate.getMonth()]} de ${currentDate.getFullYear()}`;
+            
+            // Limpiar calendario
+            calendarDays.innerHTML = '';
+            calendarDays.className = 'grid grid-cols-1 min-h-[500px]';
+            
+            // Obtener eventos del día
+            const dayEvents = getEventsForDate(currentDate);
+            
+            // Crear vista detallada del día
+            const dayView = document.createElement('div');
+            dayView.className = 'p-6 bg-white';
+            
+            if (dayEvents.length === 0) {
+                dayView.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 text-gray-500">
+                        <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p class="text-lg font-medium">No hay eventos programados para este día</p>
+                    </div>
+                `;
+            } else {
+                let eventosHTML = '<div class="space-y-4">';
+                
+                // Ordenar eventos por hora
+                dayEvents.sort((a, b) => {
+                    const horaA = a.extendedProps?.hora_inicio || '00:00';
+                    const horaB = b.extendedProps?.hora_inicio || '00:00';
+                    return horaA.localeCompare(horaB);
+                });
+                
+                dayEvents.forEach(evento => {
+                    const titulo = evento.title || evento.titulo || 'Sin título';
+                    const tipo = evento.extendedProps?.tipo_evento || evento.tipo || 'otros';
+                    const hora = evento.extendedProps?.hora_inicio ? evento.extendedProps.hora_inicio.substring(0, 5) : '';
+                    const horaFin = evento.extendedProps?.hora_fin ? evento.extendedProps.hora_fin.substring(0, 5) : '';
+                    const descripcion = evento.extendedProps?.descripcion || '';
+                    const ubicacion = evento.extendedProps?.ubicacion || '';
+                    
+                    eventosHTML += `
+                        <div class="border-l-4 ${getBorderColor(tipo)} bg-gray-50 p-6 rounded-r-lg hover:shadow-md transition-shadow cursor-pointer" onclick='mostrarEvento(eventos.find(e => e.id === ${evento.id}))'>
+                            <div class="flex items-start justify-between mb-3">
+                                <div>
+                                    <h4 class="text-lg font-bold text-gray-800">${titulo}</h4>
+                                    ${hora ? `<p class="text-sm text-gray-600 mt-1">🕐 ${hora}${horaFin ? ' - ' + horaFin : ''}</p>` : ''}
+                                </div>
+                                <span class="px-3 py-1 ${getEventColor(tipo)} text-xs font-semibold rounded-full capitalize">
+                                    ${tipo.replace(/([A-Z])/g, ' $1').trim()}
+                                </span>
+                            </div>
+                            ${descripcion ? `<p class="text-sm text-gray-700 mb-2">${descripcion}</p>` : ''}
+                            ${ubicacion ? `<p class="text-sm text-gray-600">📍 ${ubicacion}</p>` : ''}
+                        </div>
+                    `;
+                });
+                
+                eventosHTML += '</div>';
+                dayView.innerHTML = eventosHTML;
+            }
+            
+            calendarDays.appendChild(dayView);
         }
 
         // Obtener eventos de una fecha específica
@@ -305,20 +426,49 @@
 
         // Obtener color según tipo de evento
         function getEventColor(tipo) {
-            // Normalizar el tipo a minúsculas
-            const tipoNormalizado = (tipo || '').toLowerCase();
+            // Normalizar el tipo
+            const tipoNormalizado = (tipo || '').toLowerCase().replace(/[\s-]/g, '');
             
             const colores = {
-                'reunion': 'bg-green-100 text-green-800',
-                'reuniones': 'bg-green-100 text-green-800',
-                'evento': 'bg-blue-100 text-blue-800',
-                'eventos': 'bg-blue-100 text-blue-800',
-                'importante': 'bg-red-100 text-red-800',
-                'actividad': 'bg-purple-100 text-purple-800',
-                'actividades': 'bg-purple-100 text-purple-800'
+                'virtual': 'bg-blue-100 text-blue-800',
+                'presencial': 'bg-green-100 text-green-800',
+                'reunion-virtual': 'bg-blue-100 text-blue-800',
+                'reunion-presencial': 'bg-green-100 text-green-800',
+                'reunionvirtual': 'bg-blue-100 text-blue-800',
+                'reunionpresencial': 'bg-green-100 text-green-800',
+                'inicioproyecto': 'bg-purple-100 text-purple-800',
+                'inicio-proyecto': 'bg-purple-100 text-purple-800',
+                'finproyecto': 'bg-red-100 text-red-800',
+                'finalizar-proyecto': 'bg-red-100 text-red-800',
+                'finalizarproyecto': 'bg-red-100 text-red-800',
+                'otros': 'bg-gray-100 text-gray-800',
+                'importante': 'bg-red-100 text-red-800'
             };
             
             return colores[tipoNormalizado] || 'bg-gray-100 text-gray-800';
+        }
+        
+        // Obtener puntito de color según tipo de evento
+        function getEventDot(tipo) {
+            const tipoNormalizado = (tipo || '').toLowerCase().replace(/[\s-]/g, '');
+            
+            const colores = {
+                'virtual': 'bg-blue-500',
+                'presencial': 'bg-green-500',
+                'reunion-virtual': 'bg-blue-500',
+                'reunion-presencial': 'bg-green-500',
+                'reunionvirtual': 'bg-blue-500',
+                'reunionpresencial': 'bg-green-500',
+                'inicioproyecto': 'bg-purple-500',
+                'inicio-proyecto': 'bg-purple-500',
+                'finproyecto': 'bg-red-500',
+                'finalizar-proyecto': 'bg-red-500',
+                'finalizarproyecto': 'bg-red-500',
+                'otros': 'bg-gray-500',
+                'importante': 'bg-red-500'
+            };
+            
+            return colores[tipoNormalizado] || 'bg-gray-500';
         }
 
         // Mostrar detalles de un evento
@@ -348,11 +498,13 @@
             // Obtener título
             const titulo = evento.title || evento.titulo || 'Sin título';
             
-            // Obtener hora
+            // Obtener hora desde extendedProps o start
             let hora = '';
-            if (evento.hora) {
-                hora = evento.hora;
-            } else if (evento.start) {
+            if (evento.extendedProps?.hora_inicio) {
+                const horaInicio = evento.extendedProps.hora_inicio.substring(0, 5);
+                const horaFin = evento.extendedProps?.hora_fin ? evento.extendedProps.hora_fin.substring(0, 5) : '';
+                hora = horaFin ? `${horaInicio} - ${horaFin}` : horaInicio;
+            } else if (evento.start && evento.start.includes('T')) {
                 const startDate = new Date(evento.start);
                 if (!isNaN(startDate.getTime())) {
                     hora = startDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
@@ -360,12 +512,24 @@
             }
             
             // Obtener descripción
-            const descripcion = evento.descripcion || evento.description || '';
+            const descripcion = evento.extendedProps?.descripcion || evento.descripcion || evento.description || '';
+            
+            // Obtener ubicación
+            const ubicacion = evento.extendedProps?.ubicacion || evento.ubicacion || evento.location || '';
+            
+            // Obtener tipo y estado
+            const tipo = evento.extendedProps?.tipo_evento || evento.tipo || 'otros';
+            const estado = evento.extendedProps?.estado || evento.estado || '';
             
             contenedor.innerHTML = `
                 <div class="space-y-4">
                     <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 rounded-lg">
-                        <h4 class="text-xl font-bold text-gray-800 mb-2">${titulo}</h4>
+                        <div class="flex items-start justify-between mb-2">
+                            <h4 class="text-xl font-bold text-gray-800">${titulo}</h4>
+                            <span class="px-3 py-1 ${getEventColor(tipo).replace('text-', 'bg-').split(' ')[0]} ${getEventColor(tipo).split(' ')[1]} text-xs font-semibold rounded-full capitalize">
+                                ${tipo.replace(/([A-Z])/g, ' $1').trim()}
+                            </span>
+                        </div>
                         <div class="flex items-center gap-2 text-sm text-gray-600">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -380,6 +544,14 @@
                             <span>${hora}</span>
                         </div>
                         ` : ''}
+                        ${estado ? `
+                        <div class="flex items-center gap-2 text-sm text-gray-600 mt-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="capitalize">${estado}</span>
+                        </div>
+                        ` : ''}
                     </div>
 
                     ${descripcion ? `
@@ -389,7 +561,7 @@
                     </div>
                     ` : ''}
 
-                    ${evento.ubicacion || evento.location ? `
+                    ${ubicacion ? `
                     <div class="bg-white border-2 border-gray-200 p-4 rounded-lg">
                         <p class="text-xs font-medium text-gray-500 uppercase mb-2">Ubicación</p>
                         <div class="flex items-center gap-2 text-sm text-gray-700">
@@ -397,7 +569,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
-                            <span>${evento.ubicacion || evento.location}</span>
+                            <span>${ubicacion}</span>
                         </div>
                     </div>
                     ` : ''}
@@ -420,19 +592,25 @@
                 day: 'numeric'
             });
             
-            let eventosHTML = eventosDelDia.map(evento => `
-                <div class="border-l-4 ${getBorderColor(evento.tipo)} bg-gray-50 p-4 rounded-r-lg mb-3 cursor-pointer hover:bg-gray-100 transition-colors" onclick='mostrarEvento(${JSON.stringify(evento)})'>
+            let eventosHTML = eventosDelDia.map((evento, index) => {
+                const tipo = evento.extendedProps?.tipo_evento || evento.tipo || 'otros';
+                const titulo = evento.title || evento.titulo || 'Sin título';
+                const hora = evento.extendedProps?.hora_inicio ? evento.extendedProps.hora_inicio.substring(0, 5) : '';
+                
+                return `
+                <div class="border-l-4 ${getBorderColor(tipo)} bg-gray-50 p-4 rounded-r-lg mb-3 cursor-pointer hover:bg-gray-100 transition-colors" onclick='mostrarEvento(eventos[${eventosDelDia.findIndex(e => e.id === evento.id)}])'>
                     <div class="flex justify-between items-start">
                         <div>
-                            <h5 class="font-semibold text-gray-800">${evento.title || evento.titulo}</h5>
-                            ${evento.hora ? `<p class="text-sm text-gray-600 mt-1">${evento.hora}</p>` : ''}
+                            <h5 class="font-semibold text-gray-800">${titulo}</h5>
+                            ${hora ? `<p class="text-sm text-gray-600 mt-1">${hora}</p>` : ''}
                         </div>
                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
             
             contenedor.innerHTML = `
                 <div>
@@ -449,13 +627,18 @@
         }
 
         function getBorderColor(tipo) {
+            const tipoNormalizado = (tipo || '').toLowerCase().replace(/[\s-]/g, '');
             const colores = {
-                'reunion': 'border-green-500',
-                'evento': 'border-blue-500',
-                'importante': 'border-red-500',
-                'actividad': 'border-purple-500'
+                'virtual': 'border-blue-500',
+                'presencial': 'border-green-500',
+                'reunionvirtual': 'border-blue-500',
+                'reunionpresencial': 'border-green-500',
+                'inicioproyecto': 'border-purple-500',
+                'finproyecto': 'border-red-500',
+                'finalizarproyecto': 'border-red-500',
+                'otros': 'border-gray-500'
             };
-            return colores[tipo] || 'border-gray-500';
+            return colores[tipoNormalizado] || 'border-gray-500';
         }
 
         function cerrarModalEvento() {
@@ -465,21 +648,43 @@
 
         // Navegación
         document.getElementById('prevMonth').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
+            if (currentView === 'month') {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            } else if (currentView === 'week') {
+                currentDate.setDate(currentDate.getDate() - 7);
+                renderWeekView();
+            } else if (currentView === 'day') {
+                currentDate.setDate(currentDate.getDate() - 1);
+                renderDayView();
+            }
         });
 
         document.getElementById('nextMonth').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
+            if (currentView === 'month') {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            } else if (currentView === 'week') {
+                currentDate.setDate(currentDate.getDate() + 7);
+                renderWeekView();
+            } else if (currentView === 'day') {
+                currentDate.setDate(currentDate.getDate() + 1);
+                renderDayView();
+            }
         });
 
         document.getElementById('todayBtn').addEventListener('click', () => {
             currentDate = new Date();
-            renderCalendar();
+            if (currentView === 'month') {
+                renderCalendar();
+            } else if (currentView === 'week') {
+                renderWeekView();
+            } else if (currentView === 'day') {
+                renderDayView();
+            }
         });
 
-        // Cambio de vista (preparado para futuras implementaciones)
+        // Cambio de vista
         document.getElementById('viewMonth').addEventListener('click', function() {
             currentView = 'month';
             updateViewButtons(this);
@@ -489,13 +694,13 @@
         document.getElementById('viewWeek').addEventListener('click', function() {
             currentView = 'week';
             updateViewButtons(this);
-            alert('Vista semanal próximamente');
+            renderWeekView();
         });
 
         document.getElementById('viewDay').addEventListener('click', function() {
             currentView = 'day';
             updateViewButtons(this);
-            alert('Vista diaria próximamente');
+            renderDayView();
         });
 
         function updateViewButtons(activeBtn) {
@@ -538,6 +743,14 @@
 
         #calendarDays > div:nth-last-child(-n+7) {
             border-bottom: none;
+        }
+        
+        .line-clamp-1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
 @endsection

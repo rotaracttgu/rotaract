@@ -11,6 +11,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     
     <style>
         :root {
@@ -666,6 +667,24 @@
         </div>
     </div>
 
+    <!-- Modal Ver Detalle Evento -->
+    <div class="modal fade" id="detalleEventoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detalle del Evento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detalle-evento-content">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-3">Cargando detalles...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
@@ -939,6 +958,13 @@
                                 beginAtZero: true,
                                 ticks: { stepSize: 1 }
                             }
+                        },
+                        onClick: function(evt, activeElements) {
+                            if (activeElements.length > 0) {
+                                const index = activeElements[0].index;
+                                const eventoId = todasAsistencias[index].calendario_id;
+                                verDetalleEvento(eventoId);
+                            }
                         }
                     }
                 });
@@ -998,30 +1024,377 @@
             });
         }
 
-        // [Resto de funciones JavaScript se mantienen igual...]
-        // Por brevedad, incluyo solo las firmas de las funciones principales
-
+        // ============================================================================
+        // FUNCIONES DE EXPORTACIÓN PDF
+        // ============================================================================
+        
         async function exportarReporteCompletoPDF() {
             showToast('📄 Generando reporte PDF completo...', 'info');
-            // [Implementación completa del documento original]
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const fecha = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const hora = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                
+                // Título
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.text('Reporte Completo de Eventos', 105, 20, { align: 'center' });
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Fecha de generación: ${fecha} ${hora}`, 14, 35);
+                
+                // Estadísticas generales
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text('Estadísticas Generales', 14, 50);
+                
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Total de Eventos: ${$('#total-eventos').text()}`, 14, 60);
+                doc.text(`Total de Asistencias: ${$('#total-asistencias').text()}`, 14, 67);
+                doc.text(`Tasa de Asistencia: ${$('#tasa-asistencia').text()}`, 14, 74);
+                
+                // Tabla de eventos
+                const tableData = eventosDetallados.map(evento => [
+                    evento.TituloEvento,
+                    obtenerNombreTipo(evento.TipoEvento),
+                    obtenerNombreEstado(evento.EstadoEvento),
+                    new Date(evento.FechaInicio).toLocaleDateString('es-ES'),
+                    evento.TotalAsistencias || 0,
+                    Math.round(parseFloat(evento.PorcentajeAsistencia) || 0) + '%'
+                ]);
+                
+                doc.autoTable({
+                    head: [['Título', 'Tipo', 'Estado', 'Fecha', 'Asistencias', '% Asist.']],
+                    body: tableData,
+                    startY: 85,
+                    styles: { fontSize: 8, cellPadding: 2 },
+                    headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
+                    alternateRowStyles: { fillColor: [245, 245, 245] },
+                    margin: { top: 85, left: 14, right: 14 }
+                });
+                
+                // Footer
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.setTextColor(128);
+                    doc.text(
+                        'Documento generado automáticamente por el Sistema de Gestión Rotaract',
+                        105,
+                        doc.internal.pageSize.height - 10,
+                        { align: 'center' }
+                    );
+                    doc.text(
+                        `Página ${i} de ${pageCount}`,
+                        105,
+                        doc.internal.pageSize.height - 5,
+                        { align: 'center' }
+                    );
+                }
+                
+                const fileName = `reporte_completo_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(fileName);
+                
+                showToast('✅ Reporte PDF descargado correctamente', 'success');
+                
+            } catch (error) {
+                console.error('Error al generar PDF:', error);
+                showToast('❌ Error al generar el PDF: ' + error.message, 'error');
+            }
         }
 
         async function exportarTablaPDF() {
             showToast('📄 Generando PDF de tabla de eventos...', 'info');
-            // [Implementación completa del documento original]
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const fecha = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const hora = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                
+                // Título
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.text('Tabla de Eventos Detallados', 105, 20, { align: 'center' });
+                
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Fecha de generación: ${fecha} ${hora}`, 14, 35);
+                doc.text(`Total de eventos: ${eventosDetallados.length}`, 14, 42);
+                
+                // Tabla de eventos
+                const tableData = eventosDetallados.map(evento => [
+                    evento.TituloEvento,
+                    obtenerNombreTipo(evento.TipoEvento),
+                    obtenerNombreEstado(evento.EstadoEvento),
+                    new Date(evento.FechaInicio).toLocaleDateString('es-ES'),
+                    evento.TotalAsistencias || 0,
+                    Math.round(parseFloat(evento.PorcentajeAsistencia) || 0) + '%'
+                ]);
+                
+                doc.autoTable({
+                    head: [['Título', 'Tipo', 'Estado', 'Fecha', 'Asistencias', '% Asist.']],
+                    body: tableData,
+                    startY: 55,
+                    styles: { fontSize: 9, cellPadding: 3 },
+                    headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
+                    alternateRowStyles: { fillColor: [245, 245, 245] },
+                    margin: { top: 55, left: 14, right: 14 },
+                    columnStyles: {
+                        0: { cellWidth: 60 },
+                        1: { cellWidth: 30 },
+                        2: { cellWidth: 25 },
+                        3: { cellWidth: 25 },
+                        4: { cellWidth: 25 },
+                        5: { cellWidth: 'auto' }
+                    }
+                });
+                
+                // Footer
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.setTextColor(128);
+                    doc.text(
+                        'Documento generado automáticamente por el Sistema de Gestión Rotaract',
+                        105,
+                        doc.internal.pageSize.height - 10,
+                        { align: 'center' }
+                    );
+                    doc.text(
+                        `Página ${i} de ${pageCount}`,
+                        105,
+                        doc.internal.pageSize.height - 5,
+                        { align: 'center' }
+                    );
+                }
+                
+                const fileName = `tabla_eventos_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(fileName);
+                
+                showToast('✅ Tabla PDF descargada correctamente', 'success');
+                
+            } catch (error) {
+                console.error('Error al generar PDF:', error);
+                showToast('❌ Error al generar el PDF: ' + error.message, 'error');
+            }
         }
 
-        function filtrarEventosPorEstado(estado) { /* ... */ }
-        function filtrarEventosPorTipo(tipo) { /* ... */ }
-        function filtrarEventosPorMes(mes) { /* ... */ }
-        function agregarBotonLimpiarFiltro() { /* ... */ }
-        function limpiarFiltro() { /* ... */ }
-        function verDetalleEvento(eventoId) { /* ... */ }
-        function mostrarModalDetalle(reporte) { /* ... */ }
-        function refreshData() { /* ... */ }
-        function obtenerNombreTipo(tipo) { /* ... */ }
-        function obtenerNombreEstado(estado) { /* ... */ }
-        function obtenerBadgeEstado(estado) { /* ... */ }
+        // ============================================================================
+        // FUNCIONES DE FILTRADO
+        // ============================================================================
+        
+        function filtrarEventosPorEstado(estado) {
+            console.log('🔍 Filtrando por estado:', estado);
+            const eventosFiltrados = eventosDetallados.filter(e => e.EstadoEvento === estado);
+            mostrarEventosDetallados(eventosFiltrados);
+            agregarBotonLimpiarFiltro(`Estado: ${obtenerNombreEstado(estado)}`);
+        }
+
+        function filtrarEventosPorTipo(tipo) {
+            console.log('🔍 Filtrando por tipo:', tipo);
+            const eventosFiltrados = eventosDetallados.filter(e => e.TipoEvento === tipo);
+            mostrarEventosDetallados(eventosFiltrados);
+            agregarBotonLimpiarFiltro(`Tipo: ${obtenerNombreTipo(tipo)}`);
+        }
+
+        function filtrarEventosPorMes(mes) {
+            console.log('🔍 Filtrando por mes:', mes);
+            const [year, month] = mes.split('-');
+            const eventosFiltrados = eventosDetallados.filter(e => {
+                const fechaEvento = new Date(e.FechaInicio);
+                return fechaEvento.getFullYear() == year && (fechaEvento.getMonth() + 1) == month;
+            });
+            
+            const fecha = new Date(year, month - 1);
+            const mesNombre = fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+            mostrarEventosDetallados(eventosFiltrados);
+            agregarBotonLimpiarFiltro(`Mes: ${mesNombre}`);
+        }
+
+        function agregarBotonLimpiarFiltro(texto) {
+            const badge = $('#filtro-activo-badge');
+            badge.html(`<i class="fas fa-filter me-1"></i>${texto} <button class="btn btn-sm btn-link text-white p-0 ms-2" onclick="limpiarFiltro()" style="text-decoration: none;"><i class="fas fa-times"></i></button>`);
+            badge.show();
+        }
+
+        function limpiarFiltro() {
+            $('#filtro-activo-badge').hide();
+            mostrarEventosDetallados(eventosDetallados);
+        }
+
+        // ============================================================================
+        // FUNCIÓN VER DETALLE DE EVENTO
+        // ============================================================================
+        
+        function verDetalleEvento(eventoId) {
+            console.log('👁️ Ver detalle evento:', eventoId);
+            
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('detalleEventoModal'));
+            modal.show();
+            
+            // Cargar detalles
+            $.ajax({
+                url: `/api/calendario/reportes/evento/${eventoId}`,
+                method: 'GET',
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function(response) {
+                    console.log('Respuesta del servidor:', response);
+                    if (response.success && response.reporte) {
+                        mostrarModalDetalle(response.reporte);
+                    } else {
+                        $('#detalle-evento-content').html(`
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                No se pudieron cargar los detalles del evento.
+                            </div>
+                        `);
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error cargando detalle:', xhr);
+                    $('#detalle-evento-content').html(`
+                        <div class="alert alert-danger">
+                            <i class="fas fa-times-circle me-2"></i>
+                            Error al cargar los detalles del evento: ${xhr.responseJSON?.mensaje || xhr.statusText}
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        function mostrarModalDetalle(evento) {
+            const fecha = new Date(evento.FechaInicio).toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+            
+            const horaInicio = evento.HoraInicio ? evento.HoraInicio.substring(0, 5) : 'N/A';
+            const horaFin = evento.HoraFin ? evento.HoraFin.substring(0, 5) : 'N/A';
+            
+            const porcentaje = Math.round(parseFloat(evento.PorcentajeAsistencia) || 0);
+            
+            const html = `
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4 class="text-primary mb-3">${evento.TituloEvento}</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong><i class="fas fa-calendar me-2"></i>Fecha:</strong> ${fecha}</p>
+                        <p><strong><i class="fas fa-clock me-2"></i>Horario:</strong> ${horaInicio} - ${horaFin}</p>
+                        <p><strong><i class="fas fa-map-marker-alt me-2"></i>Ubicación:</strong> ${evento.Ubicacion || 'No especificada'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong><i class="fas fa-tag me-2"></i>Tipo:</strong> ${obtenerNombreTipo(evento.TipoEvento)}</p>
+                        <p><strong><i class="fas fa-info-circle me-2"></i>Estado:</strong> ${obtenerBadgeEstado(evento.EstadoEvento)}</p>
+                        <p><strong><i class="fas fa-users me-2"></i>Total Asistencias:</strong> ${evento.TotalRegistros || evento.TotalAsistencias || 0}</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5>Estadísticas de Asistencia</h5>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                    <h4 class="mb-0">${evento.TotalPresentes || 0}</h4>
+                                    <small>Presentes</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3 bg-danger bg-opacity-10 rounded">
+                                    <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                                    <h4 class="mb-0">${evento.TotalAusentes || 0}</h4>
+                                    <small>Ausentes</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3 bg-info bg-opacity-10 rounded">
+                                    <i class="fas fa-exclamation-circle fa-2x text-info mb-2"></i>
+                                    <h4 class="mb-0">${evento.TotalJustificados || 0}</h4>
+                                    <small>Justificados</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <p class="mb-2"><strong>Porcentaje de Asistencia:</strong></p>
+                            <div class="progress" style="height: 30px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: ${porcentaje}%; font-size: 16px;">
+                                    ${porcentaje}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('#detalle-evento-content').html(html);
+        }
+
+        // ============================================================================
+        // FUNCIÓN ACTUALIZAR DATOS
+        // ============================================================================
+        
+        function refreshData() {
+            showToast('🔄 Actualizando datos...', 'info');
+            
+            // Limpiar filtros
+            $('#filtro-activo-badge').hide();
+            
+            // Recargar datos
+            cargarDatos();
+            
+            showToast('✅ Datos actualizados correctamente', 'success');
+        }
+
+        // ============================================================================
+        // FUNCIONES AUXILIARES
+        // ============================================================================
+        
+        function obtenerNombreTipo(tipo) {
+            const tipos = {
+                'Virtual': 'Virtual',
+                'Presencial': 'Presencial',
+                'InicioProyecto': 'Inicio de Proyecto',
+                'FinProyecto': 'Fin de Proyecto',
+                'Otros': 'Otros'
+            };
+            return tipos[tipo] || tipo;
+        }
+
+        function obtenerNombreEstado(estado) {
+            const estados = {
+                'Programado': 'Programado',
+                'EnCurso': 'En Curso',
+                'Completado': 'Completado',
+                'Cancelado': 'Cancelado'
+            };
+            return estados[estado] || estado;
+        }
+
+        function obtenerBadgeEstado(estado) {
+            const badges = {
+                'Programado': '<span class="badge bg-primary">Programado</span>',
+                'EnCurso': '<span class="badge bg-warning">En Curso</span>',
+                'Completado': '<span class="badge bg-success">Completado</span>',
+                'Cancelado': '<span class="badge bg-danger">Cancelado</span>'
+            };
+            return badges[estado] || `<span class="badge bg-secondary">${estado}</span>`;
+        }
         
         function showToast(message, type = 'info') {
             const Toast = Swal.mixin({

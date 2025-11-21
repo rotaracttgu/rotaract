@@ -689,15 +689,21 @@ class SecretariaController extends Controller
     {
         $this->authorize('documentos.crear');
         $request->validate([
-            'titulo' => 'required|string|max:255',
+            'titulo' => 'required|string|max:200',
             'tipo' => 'required|string|in:oficial,interno,comunicado,carta,informe,otro',
             'descripcion' => 'nullable|string|max:1000',
             'archivo' => 'required|file|mimes:pdf,doc,docx,xls,xlsx|max:10240',
             'categoria' => 'nullable|string|max:100',
         ]);
 
-        $data = $request->except('archivo');
-        $data['creado_por'] = Auth::id();
+        $data = [
+            'Titulo' => $request->titulo,  // Campo con mayúscula como está en la BD
+            'tipo' => $request->tipo,
+            'descripcion' => $request->descripcion,
+            'categoria' => $request->categoria,
+            'visible_para_todos' => $request->boolean('visible_para_todos', true),
+            'creado_por' => Auth::id(),
+        ];
 
         if ($request->hasFile('archivo')) {
             $originalName = $request->file('archivo')->getClientOriginalName();
@@ -730,7 +736,13 @@ class SecretariaController extends Controller
         ]);
 
         $documento = Documento::findOrFail($id);
-        $data = $request->except('archivo');
+        $data = [
+            'Titulo' => $request->titulo,  // Campo con mayúscula como está en la BD
+            'tipo' => $request->tipo,
+            'descripcion' => $request->descripcion,
+            'categoria' => $request->categoria,
+            'visible_para_todos' => $request->boolean('visible_para_todos', true),
+        ];
 
         if ($request->hasFile('archivo')) {
             // Eliminar archivo anterior si existe
