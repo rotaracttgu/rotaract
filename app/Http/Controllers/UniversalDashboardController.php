@@ -204,28 +204,50 @@ class UniversalDashboardController extends Controller
     }
     
     /**
-     * Obtener ruta del módulo
+     * Obtener ruta del módulo (basado en permisos, no en roles)
      */
     private function getModuleRoute($module)
     {
         $routes = [
-            'usuarios' => 'admin.usuarios.lista',
-            'miembros' => 'admin.usuarios.lista',  // Miembros redirige a usuarios
+            // Usuarios: usa ruta UNIVERSAL (funciona para todos los roles)
+            'usuarios' => 'universal.usuarios.lista',
+            'miembros' => 'universal.usuarios.lista',  // Miembros redirige a usuarios
+
+            // Proyectos
             'proyectos' => 'presidente.estado.proyectos',
-            'eventos' => '#',   // No hay ruta específica
-            'actas' => '#',     // No hay ruta específica
+
+            // Eventos y Calendario
+            'eventos' => 'presidente.dashboard',   // Dashboard tiene calendario
+
+            // Actas
+            'actas' => 'secretaria.dashboard',     // Secretaría maneja actas
+
+            // Finanzas
             'finanzas' => 'tesorero.dashboard',
+
+            // Comunicaciones y Cartas
             'comunicaciones' => 'presidente.cartas.formales',
+            'cartas' => 'presidente.cartas.formales',
+
+            // Roles y Permisos (solo Super Admin - mantener admin)
             'roles' => 'admin.configuracion.roles.ajax',
             'permisos' => 'admin.configuracion.permisos.ajax',
-            'asistencias' => '#',
-            'reportes' => '#',
             'configuracion' => 'admin.configuracion.roles.ajax',
+
+            // Asistencias
+            'asistencias' => 'vocero.dashboard',
+
+            // Reportes
+            'reportes' => 'presidente.dashboard',
+
+            // Backup y Bitácora (solo Super Admin - mantener admin)
             'backup' => 'admin.backup.index',
             'bitacora' => 'admin.bitacora.index',
+
+            // Dashboard
             'dashboard' => 'dashboard',
         ];
-        
+
         return $routes[$module] ?? '#';
     }
 }

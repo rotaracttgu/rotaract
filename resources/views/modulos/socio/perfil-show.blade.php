@@ -24,7 +24,7 @@
                     <h2 class="text-2xl font-bold text-gray-800">{{ Auth::user()->name }}</h2>
                     <p class="text-gray-500 text-sm mt-1">{{ $miembro->Rol }}</p>
                     <div class="mt-3">
-                        <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-semibold">Aspirante Activo</span>
+                        <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-semibold">Socio Activo</span>
                     </div>
                 </div>
 
@@ -109,7 +109,7 @@
                 <div class="space-y-2">
                     <p class="text-gray-700"><strong>Rol:</strong> {{ $miembro->Rol }}</p>
                     <p class="text-gray-700"><strong>Estado:</strong> <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-semibold">Activo</span></p>
-                    <p class="text-sm text-gray-600 mt-3">Como Aspirante, tienes acceso a todas las actividades del club. Participa activamente en proyectos y reuniones para avanzar en tu trayectoria.</p>
+                    <p class="text-sm text-gray-600 mt-3">Como Socio, tienes acceso a todas las actividades del club. Participa activamente en proyectos y reuniones para avanzar en tu trayectoria.</p>
                 </div>
             </div>
 

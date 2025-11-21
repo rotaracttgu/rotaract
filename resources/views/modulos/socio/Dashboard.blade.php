@@ -9,7 +9,7 @@
             @php $welcomeName = Auth::user()->username ?? Auth::user()->name; @endphp
             Bienvenido, <span class="text-yellow-300">{{ $welcomeName }}</span>
         </h1>
-        <p class="text-blue-100 mt-2">Panel de control del Aspirante - Aquí encontrarás toda tu información importante</p>
+        <p class="text-blue-100 mt-2">Panel de control del Socio - Aquí encontrarás toda tu información importante</p>
     </div>
 
     <!-- Tarjetas de Estadísticas con diseño mejorado -->

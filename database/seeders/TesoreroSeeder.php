@@ -29,7 +29,7 @@ class TesoreroSeeder extends Seeder
         $miembros = DB::table('users')
             ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
             ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->whereIn('roles.name', ['Miembro', 'Socio', 'Aspirante'])
+            ->whereIn('roles.name', ['Miembro', 'Socio'])
             ->pluck('users.id')
             ->toArray();
 

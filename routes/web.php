@@ -93,7 +93,7 @@ Route::get('/dashboard', function () {
         'Tesorero' => 'tesorero.dashboard',
         'Secretario' => 'secretaria.dashboard',
         'Vocero' => 'vocero.dashboard',
-        'Aspirante' => 'socio.dashboard',
+        'Socio' => 'socio.dashboard',
     ];
 
     // Verificar si tiene un rol con módulo específico
@@ -135,6 +135,20 @@ Route::middleware(['auth', 'check.first.login'])->group(function () {
 // ============================================================================
 Route::middleware(['auth', 'check.first.login'])->group(function () {
     Route::get('/mi-dashboard', [UniversalDashboardController::class, 'index'])->name('universal.dashboard');
+
+    // Módulos Universales - Acceso basado en permisos
+    Route::prefix('modulo')->name('universal.')->group(function () {
+        // Gestión Universal de Usuarios
+        Route::prefix('usuarios')->name('usuarios.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Universal\UniversalUsuariosController::class, 'index'])->name('lista');
+            Route::get('/crear', [\App\Http\Controllers\Universal\UniversalUsuariosController::class, 'create'])->name('crear');
+            Route::post('/', [\App\Http\Controllers\Universal\UniversalUsuariosController::class, 'store'])->name('guardar');
+            Route::get('/{usuario}', [\App\Http\Controllers\Universal\UniversalUsuariosController::class, 'show'])->name('ver');
+            Route::get('/{usuario}/editar', [\App\Http\Controllers\Universal\UniversalUsuariosController::class, 'edit'])->name('editar');
+            Route::put('/{usuario}', [\App\Http\Controllers\Universal\UniversalUsuariosController::class, 'update'])->name('actualizar');
+            Route::delete('/{usuario}', [\App\Http\Controllers\Universal\UniversalUsuariosController::class, 'destroy'])->name('eliminar');
+        });
+    });
 });
 
 // ============================================================================
@@ -268,9 +282,9 @@ Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware:
 });
 
 // ============================================================================
-// RUTAS DEL MÓDULO PRESIDENTE (Original - para usuarios con rol Presidente)
+// RUTAS DEL MÓDULO PRESIDENTE (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Presidente|Super Admin'])->name('presidente.')->group(function () {
+Route::prefix('presidente')->middleware(['auth', 'check.first.login'])->name('presidente.')->group(function () {
     Route::get('/dashboard', [PresidenteController::class, 'dashboard'])->name('dashboard');
     
     // Notificaciones
@@ -336,9 +350,9 @@ Route::prefix('presidente')->middleware(['auth', 'check.first.login', RoleMiddle
 });
 
 // ============================================================================
-// RUTAS API DEL CALENDARIO (PRESIDENTE) - Sistema Integrado
+// RUTAS API DEL CALENDARIO (PRESIDENTE) - Sistema Integrado (Acceso basado en permisos)
 // ============================================================================
-Route::prefix('api/presidente/calendario')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Presidente|Super Admin'])->group(function () {
+Route::prefix('api/presidente/calendario')->middleware(['auth', 'check.first.login'])->group(function () {
     Route::get('/eventos', [PresidenteController::class, 'obtenerEventos']);
     Route::post('/eventos', [PresidenteController::class, 'crearEvento']);
     Route::put('/eventos/{id}', [PresidenteController::class, 'actualizarEvento']);
@@ -352,9 +366,9 @@ Route::prefix('api/presidente/calendario')->middleware(['auth', 'check.first.log
 });
 
 // ============================================================================
-// RUTAS DEL MÓDULO VICEPRESIDENTE
+// RUTAS DEL MÓDULO VICEPRESIDENTE (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Vicepresidente|Presidente|Super Admin'])->name('vicepresidente.')->group(function () {
+Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login'])->name('vicepresidente.')->group(function () {
     Route::get('/dashboard', [VicepresidenteController::class, 'dashboard'])->name('dashboard');
     
     // Notificaciones
@@ -397,16 +411,19 @@ Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', RoleMi
     // Gestión de Usuarios
     Route::prefix('usuarios')->name('usuarios.')->group(function () {
         Route::get('/', [VicepresidenteController::class, 'usuariosLista'])->name('lista');
+        Route::get('/crear', [VicepresidenteController::class, 'usuariosCrear'])->name('crear');
+        Route::post('/', [VicepresidenteController::class, 'usuariosGuardar'])->name('guardar');
         Route::get('/{usuario}', [VicepresidenteController::class, 'usuariosVer'])->name('ver');
         Route::get('/{usuario}/editar', [VicepresidenteController::class, 'usuariosEditar'])->name('editar');
         Route::put('/{usuario}', [VicepresidenteController::class, 'usuariosActualizar'])->name('actualizar');
+        Route::delete('/{usuario}', [VicepresidenteController::class, 'usuariosEliminar'])->name('eliminar');
     });
 });
 
 // ============================================================================
-// RUTAS API DEL CALENDARIO (VICEPRESIDENTE) - Sistema Integrado
+// RUTAS API DEL CALENDARIO (VICEPRESIDENTE) - Sistema Integrado (Acceso basado en permisos)
 // ============================================================================
-Route::prefix('api/vicepresidente/calendario')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Vicepresidente|Presidente|Super Admin'])->group(function () {
+Route::prefix('api/vicepresidente/calendario')->middleware(['auth', 'check.first.login'])->group(function () {
     Route::get('/eventos', [VicepresidenteController::class, 'obtenerEventos']);
     Route::post('/eventos', [VicepresidenteController::class, 'crearEvento']);
     Route::put('/eventos/{id}', [VicepresidenteController::class, 'actualizarEvento']);
@@ -420,9 +437,9 @@ Route::prefix('api/vicepresidente/calendario')->middleware(['auth', 'check.first
 });
 
 // ============================================================================
-// RUTAS DEL MÓDULO TESORERO
+// RUTAS DEL MÓDULO TESORERO (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Tesorero|Presidente|Super Admin'])->name('tesorero.')->group(function () {
+Route::prefix('tesorero')->middleware(['auth', 'check.first.login'])->name('tesorero.')->group(function () {
     // Dashboard principal - ÚNICA RUTA
     Route::get('/dashboard', [TesoreroController::class, 'index'])->name('dashboard');
     Route::get('/calendario', [TesoreroController::class, 'calendario'])->name('calendario');
@@ -541,9 +558,9 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login', RoleMiddlewa
 });
 
 // ============================================================================
-// RUTAS DEL MÓDULO SECRETARÍA
+// RUTAS DEL MÓDULO SECRETARÍA (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Secretario|Presidente|Super Admin'])->group(function () {
+Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.first.login'])->group(function () {
     // Dashboard principal
     Route::get('/dashboard', [SecretariaController::class, 'dashboard'])->name('dashboard');
     Route::get('/calendario', [SecretariaController::class, 'calendario'])->name('calendario');
@@ -618,9 +635,9 @@ Route::prefix('api/secretaria/calendario')->middleware(['auth', 'check.first.log
 });
 
 // ============================================================================
-// RUTAS DEL MÓDULO VOCERO
+// RUTAS DEL MÓDULO VOCERO (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('vocero')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Vocero|Presidente|Super Admin'])->name('vocero.')->group(function () {
+Route::prefix('vocero')->middleware(['auth', 'check.first.login'])->name('vocero.')->group(function () {
     Route::get('/', [VoceroController::class, 'index'])->name('index');
     Route::get('/bienvenida', [VoceroController::class, 'welcome'])->name('bienvenida');
     Route::get('/calendario', [VoceroController::class, 'calendario'])->name('calendario');
@@ -658,9 +675,9 @@ Route::prefix('api/calendario')->middleware(['auth', 'check.first.login'])->grou
 });
 
 // ============================================================================
-// RUTAS DEL MÓDULO SOCIO/ASPIRANTE (CORREGIDO: RUTAS DE SECRETARÍA Y VOCERÍA)
+// RUTAS DEL MÓDULO SOCIO (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('socio')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Aspirante|Vocero|Secretario|Tesorero|Vicepresidente|Presidente|Super Admin'])->name('socio.')->group(function () {
+Route::prefix('socio')->middleware(['auth', 'check.first.login'])->name('socio.')->group(function () {
     
     // Dashboard principal
     Route::get('/dashboard', [SocioController::class, 'dashboard'])->name('dashboard');
@@ -711,7 +728,7 @@ Route::prefix('socio')->middleware(['auth', 'check.first.login', RoleMiddleware:
         Route::delete('/{id}', [SocioController::class, 'eliminarNota'])->name('eliminar');
     });
     
-    // Perfil del socio/aspirante
+    // Perfil del socio
     Route::get('/perfil', [SocioController::class, 'perfil'])->name('perfil');
     Route::put('/perfil', [SocioController::class, 'actualizarPerfil'])->name('perfil.actualizar');
 });

@@ -111,7 +111,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                @if(in_array($role->name, ['Super Admin', 'Presidente', 'Vicepresidente', 'Tesorero', 'Secretario', 'Vocero', 'Aspirante']))
+                                @if(in_array($role->name, ['Super Admin', 'Presidente', 'Vicepresidente', 'Tesorero', 'Secretario', 'Vocero', 'Socio']))
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-600 text-white">
                                         <i class="fas fa-check-circle mr-1"></i> Activo
                                     </span>
@@ -142,7 +142,7 @@
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         
-                                        @if(!in_array($role->name, ['Presidente', 'Vicepresidente', 'Tesorero', 'Secretario', 'Vocero', 'Aspirante']))
+                                        @if(!in_array($role->name, ['Presidente', 'Vicepresidente', 'Tesorero', 'Secretario', 'Vocero', 'Socio']))
                                             <button type="button" 
                                                     class="inline-flex items-center px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
                                                     title="Eliminar"
@@ -286,6 +286,10 @@ if (typeof cargarContenidoAjax === 'undefined') {
             },
             success: function(html) {
                 $(target).html(html);
+                // Reinicializar Alpine.js después de cargar contenido AJAX
+                if (window.Alpine) {
+                    Alpine.scan($(target)[0]);
+                }
             },
             error: function(xhr) {
                 $(target).html(`

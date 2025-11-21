@@ -17,7 +17,7 @@
                             {{ __('Dashboard') }}
                         </x-nav-link>
 
-                        @role('Super Admin|Presidente')
+                        @role('Super Admin')
                             <!-- Gestión de Usuarios -->
                             <x-nav-link :href="route('admin.usuarios.lista')" :active="request()->routeIs('admin.usuarios.*')">
                                 {{ __('Usuarios') }}
@@ -48,6 +48,13 @@
                                 Backup
                             </a>
                         @endrole
+
+                        @role('Presidente')
+                            <!-- Gestión de Usuarios para Presidente -->
+                            <x-nav-link :href="route('presidente.usuarios.lista')" :active="request()->routeIs('presidente.usuarios.*')">
+                                {{ __('Usuarios') }}
+                            </x-nav-link>
+                        @endrole
                     @endif
 
                     {{-- Menú de Vicepresidente ocultado - Ahora usa el sidebar lateral --}}
@@ -71,8 +78,8 @@
                         $notificacionesRoute = route('secretaria.notificaciones');
                     } elseif (auth()->user()->hasRole('Tesorero')) {
                         $notificacionesRoute = route('tesorero.notificaciones.index');
-                    } elseif (auth()->user()->hasRole('Aspirante')) {
-                        $notificacionesRoute = route('aspirante.notificaciones');
+                    } elseif (auth()->user()->hasRole('Socio')) {
+                        $notificacionesRoute = route('socio.notificaciones');
                     }
                     
                     // Contar notificaciones no leídas
@@ -201,7 +208,7 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
-            @role('Super Admin|Presidente')
+            @role('Super Admin')
                 <!-- Gestión de Usuarios (Mobile) -->
                 <x-responsive-nav-link :href="route('admin.usuarios.lista')" :active="request()->routeIs('admin.usuarios.*')">
                     {{ __('Usuarios') }}
@@ -231,6 +238,13 @@
                 <a class="block w-full ps-3 pe-4 py-2 border-l-4 {{ request()->routeIs('admin.backup.*') ? 'border-indigo-400' : 'border-transparent' }} text-start text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out" href="{{ route('admin.backup.index') }}">
                     Backup
                 </a>
+            @endrole
+
+            @role('Presidente')
+                <!-- Gestión de Usuarios para Presidente (Mobile) -->
+                <x-responsive-nav-link :href="route('presidente.usuarios.lista')" :active="request()->routeIs('presidente.usuarios.*')">
+                    {{ __('Usuarios') }}
+                </x-responsive-nav-link>
             @endrole
 
             @role('Vicepresidente')

@@ -567,23 +567,20 @@
             const form = document.getElementById(formId);
             const inputs = form.querySelectorAll('input[oninput*="validarCaracteresRepetidos"], textarea[oninput*="validarCaracteresRepetidos"]');
             let valido = true;
-            
+
             inputs.forEach(input => {
                 if (!validarCaracteresRepetidos(input)) {
                     valido = false;
                 }
             });
-            
+
             if (!valido) {
                 alert('Por favor, corrija los errores antes de continuar. No se permiten más de 2 caracteres repetidos consecutivos.');
                 return false;
             }
             return true;
         }
-        
-        // Definir ruta base según el módulo
-        const baseRoute = 'vicepresidente';
-        
+
         // Modal Nueva Carta
         window.abrirModalFormal = function() {
             document.getElementById('modalNuevaCartaFormal').classList.remove('hidden');
@@ -850,9 +847,8 @@
         }
 
         window.descargarCartaPDF = function(id) {
-            // TODO: Implementar en Fase 4
-            console.log('Descargar PDF carta:', id);
-            alert('Función de descarga PDF próximamente disponible');
+            // Redirigir a la ruta de descarga PDF
+            window.location.href = `/${baseRoute}/cartas/formales/${id}/pdf`;
         }
 
         // Filtros y búsqueda

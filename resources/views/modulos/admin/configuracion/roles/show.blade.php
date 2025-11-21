@@ -78,7 +78,7 @@ function editarRol(roleId) {
                         </div>
                     </div>
 
-                    @if(in_array($role->name, ['Super Admin', 'Presidente', 'Vicepresidente', 'Tesorero', 'Secretario', 'Vocero', 'Aspirante']))
+                    @if(in_array($role->name, ['Super Admin', 'Presidente', 'Vicepresidente', 'Tesorero', 'Secretario', 'Vocero', 'Socio']))
                     <div class="alert alert-info border-0 mb-0">
                         <i class="fas fa-lock mr-2"></i>
                         <strong>Rol del Sistema</strong><br>

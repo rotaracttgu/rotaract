@@ -82,10 +82,6 @@
 
             <!-- Vista Lista -->
             <div x-show="activeTab === 'list'" x-transition class="space-y-6">
-
-    <div class="tab-content" id="permissionTabsContent">
-        <!-- Vista Lista -->
-        <div class="tab-pane fade show active" id="list" role="tabpanel">
             <div class="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
                 <div class="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-4 border-b border-gray-700">
                     <h6 class="text-xl font-bold text-white flex items-center m-0">
@@ -170,9 +166,10 @@
                 </div>
                 @endif
             </div>
-        </div>
+            </div>
 
-            <div class="space-y-4">
+            <!-- Vista Agrupada -->
+            <div x-show="activeTab === 'group'" x-transition class="space-y-4">
                 @foreach($permissionsGrouped as $modulo => $perms)
                 <div x-data="{ open: false }" class="bg-gray-800/50 rounded-2xl border border-gray-700 overflow-hidden shadow-lg">
                     <button @click="open = !open" 
@@ -310,6 +307,45 @@ function eliminarPermiso(permId, permName, rolesCount) {
             });
         }
     });
+}
+
+// Función auxiliar para cargar contenido AJAX (si no existe globalmente)
+if (typeof cargarContenidoAjax === 'undefined') {
+    function cargarContenidoAjax(url, target) {
+        $(target).html(`
+            <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem; margin-bottom: 1rem;"></div>
+                    <p class="text-white">Cargando...</p>
+                </div>
+            </div>
+        `);
+        
+        $.ajax({
+            url: url,
+            method: 'GET',
+            headers: { 
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'text/html'
+            },
+            success: function(html) {
+                $(target).html(html);
+                // Reinicializar Alpine.js después de cargar contenido AJAX
+                if (window.Alpine) {
+                    Alpine.scan($(target)[0]);
+                }
+            },
+            error: function(xhr) {
+                $(target).html(`
+                    <div class="alert alert-danger p-4 text-center m-4">
+                        <i class="fas fa-exclamation-triangle me-2" style="font-size: 2rem;"></i>
+                        <h4 class="mt-3">Error al cargar el contenido</h4>
+                        <p class="mb-0">Estado: ${xhr.status}</p>
+                    </div>
+                `);
+            }
+        });
+    }
 }
 </script>
 @endpush

@@ -554,9 +554,6 @@
             return false;
         }
 
-        // Definir ruta base según el módulo
-        const baseRoute = 'vicepresidente';
-
         // Modal Nueva Carta
         window.abrirModalPatrocinio = function() {
             document.getElementById('modalNuevaCartaPatrocinio').classList.remove('hidden');
@@ -809,9 +806,8 @@
         }
 
         window.descargarPDF = function(id) {
-            // TODO: Implementar en Fase 4
-            console.log('Descargar PDF carta:', id);
-            alert('Función de descarga PDF próximamente disponible');
+            // Redirigir a la ruta de descarga PDF para carta de patrocinio
+            window.location.href = `/vicepresidente/cartas/patrocinio/${id}/pdf`;
         }
 
         // Filtros y búsqueda

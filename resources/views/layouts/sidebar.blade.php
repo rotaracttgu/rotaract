@@ -196,7 +196,7 @@
                 </div>
             </div>
 
-            <!-- 6. MÓDULO SOCIO/ASPIRANTE -->
+            <!-- 6. MÓDULO SOCIO -->
             <div x-data="{ open: false }" class="mb-2">
                 <button @click="open = !open" class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-cyan-700 transition-colors duration-200 group">
                     <div class="flex items-center gap-3">
