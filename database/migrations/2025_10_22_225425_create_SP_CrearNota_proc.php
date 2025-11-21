@@ -21,39 +21,47 @@ BEGIN
     WHERE user_id = p_user_id
     LIMIT 1;
     
-    -- Insertar la nota
-    INSERT INTO notas_personales (
-        MiembroID,
-        Titulo,
-        Contenido,
-        Categoria,
-        Visibilidad,
-        Etiquetas,
-        FechaRecordatorio,
-        FechaCreacion,
-        FechaActualizacion,
-        Estado
-    ) VALUES (
-        v_miembro_id,
-        p_titulo,
-        p_contenido,
-        p_categoria,
-        p_visibilidad,
-        p_etiquetas,
-        p_recordatorio,
-        NOW(),
-        NOW(),
-        'activa'
-    );
-    
-    -- Obtener el ID de la nota recién creada
-    SET v_nota_id = LAST_INSERT_ID();
-    
-    -- Retornar resultado
-    SELECT 
-        1 AS exito,
-        'Nota creada exitosamente' AS mensaje,
-        v_nota_id AS nota_id;
+    -- Validar que existe el miembro
+    IF v_miembro_id IS NULL THEN
+        SELECT 
+            0 AS exito,
+            'Error: Usuario no tiene registro de miembro asociado' AS mensaje,
+            NULL AS nota_id;
+    ELSE
+        -- Insertar la nota
+        INSERT INTO notas_personales (
+            MiembroID,
+            Titulo,
+            Contenido,
+            Categoria,
+            Visibilidad,
+            Etiquetas,
+            FechaRecordatorio,
+            FechaCreacion,
+            FechaActualizacion,
+            Estado
+        ) VALUES (
+            v_miembro_id,
+            p_titulo,
+            p_contenido,
+            p_categoria,
+            p_visibilidad,
+            p_etiquetas,
+            p_recordatorio,
+            NOW(),
+            NOW(),
+            'activa'
+        );
+        
+        -- Obtener el ID de la nota recién creada
+        SET v_nota_id = LAST_INSERT_ID();
+        
+        -- Retornar resultado
+        SELECT 
+            1 AS exito,
+            'Nota creada exitosamente' AS mensaje,
+            v_nota_id AS nota_id;
+    END IF;
 END");
     }
 
