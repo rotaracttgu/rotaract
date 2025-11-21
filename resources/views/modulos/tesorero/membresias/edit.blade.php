@@ -223,7 +223,7 @@
                 <select class="form-select" id="usuario_id" name="usuario_id" required>
                     @foreach($miembros as $miembro)
                         <option value="{{ $miembro->user_id }}" {{ $membresia->usuario_id == $miembro->user_id ? 'selected' : '' }}>
-                            {{ $miembro->Nombre }} - {{ $miembro->Correo }}
+                            {{ $miembro->user->name }} - {{ $miembro->user->email }}
                         </option>
                     @endforeach
                 </select>

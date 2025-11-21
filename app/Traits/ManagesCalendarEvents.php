@@ -86,15 +86,18 @@ trait ManagesCalendarEvents
     public function obtenerMiembros()
     {
         try {
-            $miembros = DB::select('
-                SELECT
-                    MiembroID,
-                    Nombre,
-                    Rol,
-                    CONCAT(Nombre, " - ", Rol) as NombreCompleto
-                FROM miembros
-                ORDER BY Nombre ASC
-            ');
+            $miembros = \App\Models\Miembro::with('user')
+                ->whereNotNull('user_id')
+                ->get()
+                ->map(function($miembro) {
+                    return [
+                        'MiembroID' => $miembro->MiembroID,
+                        'Nombre' => $miembro->user->name ?? 'N/A',
+                        'Rol' => $miembro->Rol,
+                        'NombreCompleto' => ($miembro->user->name ?? 'N/A') . ' - ' . $miembro->Rol
+                    ];
+                });
+            $miembros = $miembros->sortBy('Nombre')->values()->all();
 
             return response()->json([
                 'success' => true,

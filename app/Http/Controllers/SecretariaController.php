@@ -907,12 +907,13 @@ class SecretariaController extends Controller
         try {
             $miembros = DB::select('
                 SELECT 
-                    MiembroID, 
-                    Nombre, 
-                    Rol,
-                    CONCAT(Nombre, " - ", Rol) as NombreCompleto
-                FROM miembros 
-                ORDER BY Nombre ASC
+                    m.MiembroID, 
+                    u.name as Nombre, 
+                    m.Rol,
+                    CONCAT(u.name, " - ", m.Rol) as NombreCompleto
+                FROM miembros m
+                LEFT JOIN users u ON m.user_id = u.id
+                ORDER BY u.name ASC
             ');
             
             return response()->json([

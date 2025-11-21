@@ -36,7 +36,7 @@ trait ManagesProjects
             'cancelados' => 0,
         ];
 
-        $miembros = \App\Models\Miembro::orderBy('Nombre')->get();
+        $miembros = \App\Models\Miembro::with('user')->orderBy('user_id')->get();
 
         $vista = $this->getProjectsView();
         return view($vista, compact('proyectos', 'estadisticas', 'miembros'));

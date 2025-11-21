@@ -154,8 +154,8 @@ class AdminController extends Controller
                     ->orderBy('FechaInicio', 'desc')
                     ->get();
 
-        // Obtener lista de miembros para los dropdowns
-        $miembros = DB::table('miembros')->orderBy('Nombre')->get();
+        // Obtener lista de miembros para los dropdowns (con eager loading de user)
+        $miembros = \App\Models\Miembro::with('user')->orderBy('user_id')->get();
 
         $estadisticas = [
             'total' => Proyecto::count(),

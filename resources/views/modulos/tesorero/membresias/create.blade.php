@@ -298,7 +298,7 @@
                         <option value="">Seleccione un miembro...</option>
                         @foreach($miembros as $miembro)
                             <option value="{{ $miembro->user_id }}" {{ old('usuario_id') == $miembro->user_id ? 'selected' : '' }}>
-                                {{ $miembro->Nombre }} - {{ $miembro->Correo }}
+                                {{ $miembro->user->name }} - {{ $miembro->user->email }}
                             </option>
                         @endforeach
                     </select>

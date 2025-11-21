@@ -91,7 +91,7 @@
                 <div class="space-y-4">
                     <div>
                         <p class="text-sm text-gray-500 uppercase tracking-wide mb-1">DNI/Pasaporte</p>
-                        <p class="text-gray-800 font-semibold">{{ $miembro->DNI_Pasaporte }}</p>
+                        <p class="text-gray-800 font-semibold">{{ $miembro->user->dni ?? 'N/A' }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-500 uppercase tracking-wide mb-1">Estado en el Club</p>

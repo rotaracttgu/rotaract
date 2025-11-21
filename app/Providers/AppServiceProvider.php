@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Models\Notificacion;
+use App\Models\User;
+use App\Observers\UserObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Registrar observers
+        User::observe(UserObserver::class);
+        
         // Super Admin tiene acceso a todo - IMPORTANTE: debe estar ANTES de otros gates
         Gate::before(function ($user, $ability) {
             if ($user->hasRole('Super Admin')) {

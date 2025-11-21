@@ -26,10 +26,7 @@ class Miembro extends Model
      */
     protected $fillable = [
         'user_id',
-        'DNI_Pasaporte',
-        'Nombre',
         'Rol',
-        'Correo',
         'FechaIngreso',
         'Apuntes',
     ];
@@ -48,7 +45,7 @@ class Miembro extends Model
      * Campos sensibles que no deben registrarse en bitácora
      */
     protected $sensitiveAttributes = [
-        'DNI_Pasaporte', // Proteger datos personales sensibles
+        // Ya no hay campos sensibles duplicados
     ];
 
     /**
@@ -56,14 +53,15 @@ class Miembro extends Model
      */
     public function getActivityDescription($action)
     {
+        $nombreUsuario = $this->user ? $this->user->name : 'Unknown';
         $descriptions = [
-            'created' => "Nuevo miembro registrado: {$this->Nombre}",
-            'updated' => "Información de miembro actualizada: {$this->Nombre}",
-            'deleted' => "Miembro eliminado: {$this->Nombre}",
-            'restored' => "Miembro restaurado: {$this->Nombre}",
+            'created' => "Nuevo miembro registrado: {$nombreUsuario}",
+            'updated' => "Información de miembro actualizada: {$nombreUsuario}",
+            'deleted' => "Miembro eliminado: {$nombreUsuario}",
+            'restored' => "Miembro restaurado: {$nombreUsuario}",
         ];
 
-        return $descriptions[$action] ?? "Acción {$action} en miembro: {$this->Nombre}";
+        return $descriptions[$action] ?? "Acción {$action} en miembro: {$nombreUsuario}";
     }
 
     /**

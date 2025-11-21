@@ -1452,7 +1452,7 @@ class TesoreroController extends Controller
     {
         $this->authorize('finanzas.crear');
         // Solo mostrar miembros con user_id válido
-        $miembros = Miembro::whereNotNull('user_id')->get();
+        $miembros = Miembro::whereNotNull('user_id')->with('user')->get();
         $tipos_membresia = [
             'activo' => 'Activo',
             'honorario' => 'Honorario',
@@ -1525,7 +1525,7 @@ class TesoreroController extends Controller
         $this->authorize('finanzas.editar');
         $membresia = PagoMembresia::findOrFail($id);
         // Solo mostrar miembros con user_id válido
-        $miembros = Miembro::whereNotNull('user_id')->get();
+        $miembros = Miembro::whereNotNull('user_id')->with('user')->get();
         $tipos_membresia = [
             'activo' => 'Activo',
             'honorario' => 'Honorario',
