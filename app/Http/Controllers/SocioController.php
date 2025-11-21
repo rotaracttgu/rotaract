@@ -17,46 +17,19 @@ class SocioController extends Controller
     {
         $this->authorize('dashboard.ver');
         
-        try {
-            $userId = Auth::id();
-            
-            // Obtener todos los datos usando el SP
-            $pdo = DB::connection()->getPdo();
-            $stmt = $pdo->prepare('CALL SP_DashboardSocio(?)');
-            $stmt->execute([$userId]);
-            
-            // Result Set 1: Estadísticas de Proyectos
-            $statsProyectos = $stmt->fetchAll(\PDO::FETCH_OBJ);
-            $totalProyectos = $statsProyectos[0]->TotalProyectos ?? 0;
-            $proyectosActivos = $statsProyectos[0]->ProyectosActivos ?? 0;
-            $proyectosEnCurso = $statsProyectos[0]->ProyectosEnCurso ?? 0;
-            
-            // Result Set 2: Estadísticas de Reuniones
-            $stmt->nextRowset();
-            $statsReuniones = $stmt->fetchAll(\PDO::FETCH_OBJ);
-            $totalReuniones = $statsReuniones[0]->TotalReuniones ?? 0;
-            $reunionesProgramadas = $statsReuniones[0]->ReunionesProgramadas ?? 0;
-            
-            // Result Set 3: Estadísticas de Notas
-            $stmt->nextRowset();
-            $statsNotas = $stmt->fetchAll(\PDO::FETCH_OBJ);
-            $totalNotas = $statsNotas[0]->TotalNotas ?? 0;
-            $notasPrivadas = $statsNotas[0]->NotasPrivadas ?? 0;
-            $notasPublicas = $statsNotas[0]->NotasPublicas ?? 0;
-            
-            // Result Set 4: Estadísticas de Consultas
-            $stmt->nextRowset();
-            $statsConsultas = $stmt->fetchAll(\PDO::FETCH_OBJ);
-            $totalConsultas = $statsConsultas[0]->TotalConsultas ?? 0;
-            $consultasPendientes = $statsConsultas[0]->ConsultasPendientes ?? 0;
-            
-            // Result Set 5: Próximas Reuniones
-            $stmt->nextRowset();
-            $proximasReuniones = collect($stmt->fetchAll(\PDO::FETCH_OBJ));
-            
-            // Result Set 6: Proyectos Activos
-            $stmt->nextRowset();
-            $proyectosActivosLista = collect($stmt->fetchAll(\PDO::FETCH_OBJ));
+        // Datos iniciales vacíos para el dashboard
+        $proximasReuniones = collect([]);
+        $proyectosActivosLista = collect([]);
+        $totalProyectos = 0;
+        $proyectosActivos = 0;
+        $proyectosEnCurso = 0;
+        $totalReuniones = 0;
+        $reunionesProgramadas = 0;
+        $totalNotas = 0;
+        $notasPrivadas = 0;
+        $notasPublicas = 0;
+        $totalConsultas = 0;
+        $consultasPendientes = 0;
             
             return view('modulos.socio.dashboard', [
                 // Listas
@@ -86,26 +59,6 @@ class SocioController extends Controller
                 'consultasVoceriaPendientes' => 0,
                 'notasActivas' => $totalNotas
             ]);
-        } catch (\Exception $e) {
-            // Fallback con datos vacíos
-            return view('modulos.socio.dashboard', [
-                'proximasReuniones' => collect([]),
-                'proyectosActivos' => collect([]),
-                'totalProyectos' => 0,
-                'proyectosActivosCount' => 0,
-                'proyectosEnCurso' => 0,
-                'totalReuniones' => 0,
-                'reunionesProgramadas' => 0,
-                'totalNotas' => 0,
-                'notasPrivadas' => 0,
-                'notasPublicas' => 0,
-                'totalConsultas' => 0,
-                'consultasPendientes' => 0,
-                'consultasSecretariaPendientes' => 0,
-                'consultasVoceriaPendientes' => 0,
-                'notasActivas' => 0
-            ]);
-        }
     }
 
     public function calendario()
