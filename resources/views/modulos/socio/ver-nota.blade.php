@@ -240,7 +240,7 @@
                 <ul class="text-sm text-purple-800 space-y-1">
                     <li>• <strong>ID:</strong> #{{ $nota->NotaID }}</li>
                     <li>• <strong>Estado:</strong> {{ ucfirst($nota->Estado) }}</li>
-                    <li>• <strong>Autor:</strong> {{ $nota->NombreAutor ?? 'Tú' }}</li>
+                    <li>• <strong>Autor:</strong> {{ $nota->autor ?? 'Tú' }}</li>
                     @if($nota->Visibilidad === 'publica')
                         <li>• Esta nota es visible para todos los miembros del club</li>
                     @else

@@ -21,11 +21,24 @@
                     Filtrar por Estado
                 </label>
                 <select name="estado" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="todas" {{ $filtroEstado === 'todas' ? 'selected' : '' }}>Todas las Reuniones</option>
-                    <option value="Programada" {{ $filtroEstado === 'Programada' ? 'selected' : '' }}>Programadas</option>
-                    <option value="En Curso" {{ $filtroEstado === 'En Curso' ? 'selected' : '' }}>En Curso</option>
-                    <option value="Finalizada" {{ $filtroEstado === 'Finalizada' ? 'selected' : '' }}>Finalizadas</option>
-                    <option value="Cancelada" {{ $filtroEstado === 'Cancelada' ? 'selected' : '' }}>Canceladas</option>
+                    <option value="">Todas las Reuniones</option>
+                    <option value="Programado" {{ ($filtroEstado ?? '') === 'Programado' ? 'selected' : '' }}>Programadas</option>
+                    <option value="EnCurso" {{ ($filtroEstado ?? '') === 'EnCurso' ? 'selected' : '' }}>En Curso</option>
+                    <option value="Finalizado" {{ ($filtroEstado ?? '') === 'Finalizado' ? 'selected' : '' }}>Finalizadas</option>
+                    <option value="Cancelado" {{ ($filtroEstado ?? '') === 'Cancelado' ? 'selected' : '' }}>Canceladas</option>
+                </select>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-video mr-1"></i>
+                    Tipo de Evento
+                </label>
+                <select name="tipo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Todos los tipos</option>
+                    <option value="Virtual" {{ ($filtroTipo ?? '') === 'Virtual' ? 'selected' : '' }}>💻 Virtual</option>
+                    <option value="Presencial" {{ ($filtroTipo ?? '') === 'Presencial' ? 'selected' : '' }}>🏢 Presencial</option>
+                    <option value="InicioProyecto" {{ ($filtroTipo ?? '') === 'InicioProyecto' ? 'selected' : '' }}>🚀 Inicio Proyecto</option>
+                    <option value="FinProyecto" {{ ($filtroTipo ?? '') === 'FinProyecto' ? 'selected' : '' }}>🏁 Fin Proyecto</option>
                 </select>
             </div>
             <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
@@ -41,7 +54,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-1">Total</p>
-                    <h3 class="text-3xl font-bold text-gray-900">{{ count($reuniones ?? []) }}</h3>
+                    <h3 class="text-3xl font-bold text-gray-900">{{ $totalReuniones ?? 0 }}</h3>
                 </div>
                 <i class="fas fa-calendar text-blue-600 text-3xl"></i>
             </div>
@@ -51,9 +64,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-1">Programadas</p>
-                    <h3 class="text-3xl font-bold text-gray-900">
-                        {{ collect($reuniones ?? [])->where('estado', 'Programada')->count() }}
-                    </h3>
+                    <h3 class="text-3xl font-bold text-gray-900">{{ $reunionesProgramadas ?? 0 }}</h3>
                 </div>
                 <i class="fas fa-clock text-green-600 text-3xl"></i>
             </div>
@@ -63,9 +74,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-1">En Curso</p>
-                    <h3 class="text-3xl font-bold text-gray-900">
-                        {{ collect($reuniones ?? [])->where('estado', 'En Curso')->count() }}
-                    </h3>
+                    <h3 class="text-3xl font-bold text-gray-900">{{ $reunionesEnCurso ?? 0 }}</h3>
                 </div>
                 <i class="fas fa-spinner text-orange-600 text-3xl"></i>
             </div>
@@ -75,9 +84,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-1">Finalizadas</p>
-                    <h3 class="text-3xl font-bold text-gray-900">
-                        {{ collect($reuniones ?? [])->where('estado', 'Finalizada')->count() }}
-                    </h3>
+                    <h3 class="text-3xl font-bold text-gray-900">{{ $reunionesFinalizadas ?? 0 }}</h3>
                 </div>
                 <i class="fas fa-check-circle text-gray-600 text-3xl"></i>
             </div>
@@ -98,8 +105,8 @@
                 <div class="space-y-4">
                     @foreach($reuniones as $reunion)
                         @php
-                            $fechaReunion = isset($reunion->FechaHora) && $reunion->FechaHora 
-                                ? \Carbon\Carbon::parse($reunion->FechaHora) 
+                            $fechaReunion = isset($reunion->FechaInicio) && $reunion->FechaInicio 
+                                ? \Carbon\Carbon::parse($reunion->FechaInicio) 
                                 : null;
                             $esFutura = $fechaReunion ? $fechaReunion->isFuture() : false;
                             $esHoy = $fechaReunion ? $fechaReunion->isToday() : false;
@@ -125,7 +132,7 @@
                                             <div class="flex-1">
                                                 <!-- Título -->
                                                 <h3 class="text-xl font-bold text-gray-900 mb-2">
-                                                    {{ $reunion->titulo ?? 'Sin título' }}
+                                                    {{ $reunion->TituloEvento ?? 'Sin título' }}
                                                     @if($esHoy)
                                                         <span class="ml-2 inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full animate-pulse">
                                                             <i class="fas fa-star mr-1"></i>HOY
@@ -135,7 +142,7 @@
 
                                                 <!-- Descripción -->
                                                 <p class="text-gray-600 mb-4">
-                                                    {{ $reunion->descripcion ?? 'Sin descripción' }}
+                                                    {{ $reunion->Descripcion ?? 'Sin descripción' }}
                                                 </p>
 
                                                 <!-- Detalles -->
@@ -143,32 +150,34 @@
                                                     <!-- Hora -->
                                                     <div class="flex items-center">
                                                         <i class="fas fa-clock text-blue-500 mr-2"></i>
-                                                        <span class="text-gray-700 font-medium">{{ $fechaReunion->format('h:i A') }}</span>
+                                                        <span class="text-gray-700 font-medium">
+                                                            {{ $reunion->HoraInicio ? \Carbon\Carbon::parse($reunion->HoraInicio)->format('h:i A') : 'No especificada' }}
+                                                        </span>
                                                     </div>
 
                                                     <!-- Lugar -->
                                                     <div class="flex items-center">
                                                         <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                                                        <span class="text-gray-700">{{ $reunion->lugar ?? 'Sin ubicación' }}</span>
+                                                        <span class="text-gray-700">{{ $reunion->Ubicacion ?? 'Sin ubicación' }}</span>
                                                     </div>
 
                                                     <!-- Tipo -->
                                                     <div class="flex items-center">
                                                         <i class="fas fa-tag text-purple-500 mr-2"></i>
-                                                        <span class="text-gray-700">{{ $reunion->tipo ?? 'General' }}</span>
+                                                        <span class="text-gray-700">{{ $reunion->TipoEvento ?? 'General' }}</span>
                                                     </div>
                                                 </div>
 
                                                 <!-- Mi Asistencia -->
-                                                @if(isset($reunion->estado_asistencia))
+                                                @if(isset($reunion->EstadoAsistencia))
                                                     <div class="mt-4 flex items-center">
                                                         <span class="text-sm font-semibold text-gray-700 mr-2">Mi asistencia:</span>
                                                         <span class="px-3 py-1 text-xs font-semibold rounded-full
-                                                            {{ $reunion->estado_asistencia === 'Presente' ? 'bg-green-100 text-green-700' : '' }}
-                                                            {{ $reunion->estado_asistencia === 'Ausente' ? 'bg-red-100 text-red-700' : '' }}
-                                                            {{ $reunion->estado_asistencia === 'Justificado' ? 'bg-yellow-100 text-yellow-700' : '' }}
-                                                            {{ !in_array($reunion->estado_asistencia, ['Presente', 'Ausente', 'Justificado']) ? 'bg-gray-100 text-gray-700' : '' }}">
-                                                            {{ $reunion->estado_asistencia ?? 'Sin registrar' }}
+                                                            {{ $reunion->EstadoAsistencia === 'Presente' ? 'bg-green-100 text-green-700' : '' }}
+                                                            {{ $reunion->EstadoAsistencia === 'Ausente' ? 'bg-red-100 text-red-700' : '' }}
+                                                            {{ $reunion->EstadoAsistencia === 'Justificado' ? 'bg-yellow-100 text-yellow-700' : '' }}
+                                                            {{ !in_array($reunion->EstadoAsistencia, ['Presente', 'Ausente', 'Justificado']) ? 'bg-gray-100 text-gray-700' : '' }}">
+                                                            {{ $reunion->EstadoAsistencia ?? 'Sin registrar' }}
                                                         </span>
                                                     </div>
                                                 @endif
@@ -178,11 +187,11 @@
                                             <div class="mt-4 lg:mt-0 lg:ml-6 flex flex-col items-end gap-3">
                                                 <!-- Estado de la Reunión -->
                                                 <span class="px-4 py-2 text-sm font-semibold rounded-lg
-                                                    {{ $reunion->estado === 'Programada' ? 'bg-blue-100 text-blue-700' : '' }}
-                                                    {{ $reunion->estado === 'En Curso' ? 'bg-green-100 text-green-700' : '' }}
-                                                    {{ $reunion->estado === 'Finalizada' ? 'bg-gray-100 text-gray-700' : '' }}
-                                                    {{ $reunion->estado === 'Cancelada' ? 'bg-red-100 text-red-700' : '' }}">
-                                                    {{ $reunion->estado ?? 'Sin estado' }}
+                                                    {{ $reunion->EstadoEvento === 'Programado' ? 'bg-blue-100 text-blue-700' : '' }}
+                                                    {{ $reunion->EstadoEvento === 'EnCurso' ? 'bg-green-100 text-green-700' : '' }}
+                                                    {{ $reunion->EstadoEvento === 'Finalizado' ? 'bg-gray-100 text-gray-700' : '' }}
+                                                    {{ $reunion->EstadoEvento === 'Cancelado' ? 'bg-red-100 text-red-700' : '' }}">
+                                                    {{ $reunion->EstadoEvento ?? 'Sin estado' }}
                                                 </span>
 
                                                 <!-- Tiempo Restante o Pasado -->

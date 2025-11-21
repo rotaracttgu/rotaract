@@ -1,30 +1,38 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
+require __DIR__.'/vendor/autoload.php';
+$app = require_once __DIR__.'/bootstrap/app.php';
+$app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+
 use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        DB::unprepared("CREATE PROCEDURE `SP_MisNotas`(IN `p_user_id` BIGINT, IN `p_categoria` VARCHAR(50), IN `p_visibilidad` VARCHAR(20), IN `p_buscar` VARCHAR(255), IN `p_limite` INT, IN `p_offset` INT)
+echo "Recreando SP_MisNotas con collation corregida...\n";
+
+try {
+    DB::statement('DROP PROCEDURE IF EXISTS SP_MisNotas');
+    
+    DB::unprepared("CREATE PROCEDURE `SP_MisNotas`(
+        IN `p_user_id` BIGINT, 
+        IN `p_categoria` VARCHAR(50), 
+        IN `p_visibilidad` VARCHAR(20), 
+        IN `p_buscar` VARCHAR(255), 
+        IN `p_limite` INT, 
+        IN `p_offset` INT
+    )
 BEGIN
     DECLARE v_miembro_id INT;
     
-    -- Obtener MiembroID desde user_id
     SELECT MiembroID INTO v_miembro_id
     FROM miembros
     WHERE user_id = p_user_id
     LIMIT 1;
     
-    -- Si no existe el miembro, retornar vacío
     IF v_miembro_id IS NULL THEN
+        SELECT 
+            0 AS total_registros,
+            'Usuario no tiene miembro asociado' AS mensaje;
         SELECT * FROM notas_personales WHERE 1=0;
     ELSE
-        -- Obtener las notas con filtros (sin COUNT para evitar múltiples result sets)
         SELECT 
             n.NotaID,
             n.MiembroID,
@@ -51,13 +59,20 @@ BEGIN
         LIMIT p_limite OFFSET p_offset;
     END IF;
 END");
+    
+    echo "✓ SP_MisNotas recreado exitosamente\n";
+    
+    // Probar el SP
+    echo "\nProbando SP con usuario 5...\n";
+    $resultado = DB::select('CALL SP_MisNotas(?, ?, ?, ?, ?, ?)', [5, null, null, '', 50, 0]);
+    echo "Notas encontradas: " . count($resultado) . "\n";
+    
+    if (count($resultado) > 0) {
+        foreach ($resultado as $nota) {
+            echo "- {$nota->Titulo} (ID: {$nota->NotaID})\n";
+        }
     }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        DB::unprepared("DROP PROCEDURE IF EXISTS SP_MisNotas");
-    }
-};
+    
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage() . "\n";
+}

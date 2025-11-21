@@ -13,92 +13,95 @@ class SocioController extends Controller
 {
     public function dashboard()
     {
-        // Obtener datos reales de la BD con queries seguras
         try {
-            // Próximas reuniones (solo del usuario actual)
-            $proximasReuniones = DB::table('reunions')
-                ->where('estado', 'Programada')
-                ->orderBy('fecha_hora')
-                ->limit(5)
-                ->get(['ReunionID', 'titulo', 'descripcion', 'fecha_hora', 'lugar', 'tipo', 'estado']);
+            $userId = Auth::id();
             
-            if ($proximasReuniones->isEmpty()) {
-                $proximasReuniones = collect([
-                    (object)[
-                        'ReunionID' => 1,
-                        'titulo' => 'Reunión General del Club',
-                        'descripcion' => 'Revisión de proyectos y planificación mensual.',
-                        'fecha_hora' => '2025-11-10 18:00:00',
-                        'lugar' => 'Sala Principal',
-                        'tipo' => 'Ordinaria',
-                        'estado' => 'Programada'
-                    ]
-                ]);
-            }
-
-            // Proyectos activos donde participa el usuario
-            $proyectosActivos = DB::table('proyectos')
-                ->where('estado', 'Activo')
-                ->limit(3)
-                ->get(['ProyectoID', 'nombre as NombreProyecto', 'descripcion as DescripcionProyecto', 'tipo as TipoProyecto', 'estado as EstadoProyecto']);
+            // Obtener todos los datos usando el SP
+            $pdo = DB::connection()->getPdo();
+            $stmt = $pdo->prepare('CALL SP_DashboardSocio(?)');
+            $stmt->execute([$userId]);
             
-            if ($proyectosActivos->isEmpty()) {
-                $proyectosActivos = collect([
-                    (object)[
-                        'ProyectoID' => 1,
-                        'NombreProyecto' => 'Campaña de Donación',
-                        'DescripcionProyecto' => 'Recolección de alimentos para comunidades.',
-                        'TipoProyecto' => 'Social',
-                        'EstadoProyecto' => 'Activo'
-                    ]
-                ]);
-            }
-
-            // Contar consultas pendientes
-            $consultasSecretariaPendientes = DB::table('consultas')
-                ->where('estado', 'Pendiente')
-                ->where('usuario_id', Auth::id())
-                ->count();
+            // Result Set 1: Estadísticas de Proyectos
+            $statsProyectos = $stmt->fetchAll(\PDO::FETCH_OBJ);
+            $totalProyectos = $statsProyectos[0]->TotalProyectos ?? 0;
+            $proyectosActivos = $statsProyectos[0]->ProyectosActivos ?? 0;
+            $proyectosEnCurso = $statsProyectos[0]->ProyectosEnCurso ?? 0;
+            
+            // Result Set 2: Estadísticas de Reuniones
+            $stmt->nextRowset();
+            $statsReuniones = $stmt->fetchAll(\PDO::FETCH_OBJ);
+            $totalReuniones = $statsReuniones[0]->TotalReuniones ?? 0;
+            $reunionesProgramadas = $statsReuniones[0]->ReunionesProgramadas ?? 0;
+            
+            // Result Set 3: Estadísticas de Notas
+            $stmt->nextRowset();
+            $statsNotas = $stmt->fetchAll(\PDO::FETCH_OBJ);
+            $totalNotas = $statsNotas[0]->TotalNotas ?? 0;
+            $notasPrivadas = $statsNotas[0]->NotasPrivadas ?? 0;
+            $notasPublicas = $statsNotas[0]->NotasPublicas ?? 0;
+            
+            // Result Set 4: Estadísticas de Consultas
+            $stmt->nextRowset();
+            $statsConsultas = $stmt->fetchAll(\PDO::FETCH_OBJ);
+            $totalConsultas = $statsConsultas[0]->TotalConsultas ?? 0;
+            $consultasPendientes = $statsConsultas[0]->ConsultasPendientes ?? 0;
+            
+            // Result Set 5: Próximas Reuniones
+            $stmt->nextRowset();
+            $proximasReuniones = collect($stmt->fetchAll(\PDO::FETCH_OBJ));
+            
+            // Result Set 6: Proyectos Activos
+            $stmt->nextRowset();
+            $proyectosActivosLista = collect($stmt->fetchAll(\PDO::FETCH_OBJ));
+            
+            return view('modulos.socio.dashboard', [
+                // Listas
+                'proximasReuniones' => $proximasReuniones,
+                'proyectosActivos' => $proyectosActivosLista,
                 
-            $notasActivas = DB::table('notas')
-                ->where('usuario_id', Auth::id())
-                ->count();
-
+                // Estadísticas de Proyectos
+                'totalProyectos' => $totalProyectos,
+                'proyectosActivosCount' => $proyectosActivos,
+                'proyectosEnCurso' => $proyectosEnCurso,
+                
+                // Estadísticas de Reuniones
+                'totalReuniones' => $totalReuniones,
+                'reunionesProgramadas' => $reunionesProgramadas,
+                
+                // Estadísticas de Notas
+                'totalNotas' => $totalNotas,
+                'notasPrivadas' => $notasPrivadas,
+                'notasPublicas' => $notasPublicas,
+                
+                // Estadísticas de Consultas
+                'totalConsultas' => $totalConsultas,
+                'consultasPendientes' => $consultasPendientes,
+                
+                // Para compatibilidad
+                'consultasSecretariaPendientes' => $consultasPendientes,
+                'consultasVoceriaPendientes' => 0,
+                'notasActivas' => $totalNotas
+            ]);
         } catch (\Exception $e) {
-            // En caso de error, usar datos mock
-            $proximasReuniones = collect([
-                (object)[
-                    'ReunionID' => 1,
-                    'titulo' => 'Reunión General del Club',
-                    'descripcion' => 'Revisión de proyectos y planificación mensual.',
-                    'fecha_hora' => '2025-11-10 18:00:00',
-                    'lugar' => 'Sala Principal',
-                    'tipo' => 'Ordinaria',
-                    'estado' => 'Programada'
-                ]
+            // Fallback con datos vacíos
+            return view('modulos.socio.dashboard', [
+                'proximasReuniones' => collect([]),
+                'proyectosActivos' => collect([]),
+                'totalProyectos' => 0,
+                'proyectosActivosCount' => 0,
+                'proyectosEnCurso' => 0,
+                'totalReuniones' => 0,
+                'reunionesProgramadas' => 0,
+                'totalNotas' => 0,
+                'notasPrivadas' => 0,
+                'notasPublicas' => 0,
+                'totalConsultas' => 0,
+                'consultasPendientes' => 0,
+                'consultasSecretariaPendientes' => 0,
+                'consultasVoceriaPendientes' => 0,
+                'notasActivas' => 0
             ]);
-
-            $proyectosActivos = collect([
-                (object)[
-                    'ProyectoID' => 1,
-                    'NombreProyecto' => 'Campaña de Donación',
-                    'DescripcionProyecto' => 'Recolección de alimentos para comunidades.',
-                    'TipoProyecto' => 'Social',
-                    'EstadoProyecto' => 'Activo'
-                ]
-            ]);
-
-            $consultasSecretariaPendientes = 0;
-            $notasActivas = 0;
         }
-
-        return view('modulos.socio.dashboard', [
-            'proximasReuniones' => $proximasReuniones,
-            'proyectosActivos' => $proyectosActivos,
-            'consultasSecretariaPendientes' => $consultasSecretariaPendientes,
-            'consultasVoceriaPendientes' => 0,
-            'notasActivas' => $notasActivas
-        ]);
     }
 
     public function calendario()
@@ -168,100 +171,184 @@ class SocioController extends Controller
         }
     }
 
-    public function misProyectos()
+    public function misProyectos(Request $request)
     {
-        $proyectos = collect([
-            (object)[
-                'ProyectoID' => 1,
-                'NombreProyecto' => 'Campaña de Donación',
-                'DescripcionProyecto' => 'Recolección de alimentos.',
-                'TipoProyecto' => 'Social',
-                'EstadoProyecto' => 'Activo',
-                'FechaInicio' => '2025-11-01',
-                'FechaFin' => '2025-12-20',
-                'NombreResponsable' => 'Ana López',
-                'Presupuesto' => 25000.00,
-                'RolProyecto' => 'Líder'
-            ]
-        ]);
+        try {
+            $userId = Auth::id();
+            $filtroEstado = $request->get('estado');
+            $filtroTipo = $request->get('tipo');
+            $buscar = $request->get('buscar', '');
 
-        return view('modulos.socio.mis-proyectos', compact('proyectos'));
+            // Llamar al stored procedure SP_MisProyectos
+            $proyectos = DB::select('CALL SP_MisProyectos(?, ?, ?, ?)', [
+                $userId,
+                $filtroEstado,
+                $filtroTipo,
+                $buscar
+            ]);
+
+            $proyectos = collect($proyectos);
+
+            // Calcular estadísticas
+            $totalProyectos = $proyectos->count();
+            $proyectosActivos = $proyectos->where('Estatus', 'Activo')->count();
+            $proyectosEnProgreso = $proyectos->whereIn('Estatus', ['Activo', 'En Planificacion'])->count();
+
+            return view('modulos.socio.mis-proyectos', compact(
+                'proyectos',
+                'totalProyectos',
+                'proyectosActivos',
+                'proyectosEnProgreso'
+            ));
+        } catch (\Exception $e) {
+            $proyectos = collect([]);
+            return view('modulos.socio.mis-proyectos', [
+                'proyectos' => $proyectos,
+                'totalProyectos' => 0,
+                'proyectosActivos' => 0,
+                'proyectosEnProgreso' => 0
+            ]);
+        }
     }
 
     public function detalleProyecto($id)
     {
-        $proyecto = (object)[
-            'ProyectoID' => $id,
-            'NombreProyecto' => 'Campaña de Donación',
-            'DescripcionProyecto' => 'Recolección de alimentos para comunidades vulnerables.',
-            'TipoProyecto' => 'Social',
-            'EstadoProyecto' => 'Activo',
-            'FechaInicio' => '2025-11-01',
-            'FechaFin' => '2025-12-20',
-            'NombreResponsable' => 'Ana López',
-            'CorreoResponsable' => 'ana@club.com',
-            'Presupuesto' => 25000.00,
-            'RolProyecto' => 'Líder'
-        ];
-
-        $participantes = collect([
-            (object)['Nombre' => 'Lord Leo', 'Correo' => 'lord@gmail.com', 'RolProyecto' => 'Líder'],
-            (object)['Nombre' => 'María Pérez', 'Correo' => 'maria@club.com', 'RolProyecto' => 'Apoyo']
-        ]);
-
-        return view('modulos.socio.detalle-proyecto', compact('proyecto', 'participantes'));
+        try {
+            $userId = Auth::id();
+            
+            // Obtener proyecto desde SP
+            $proyectos = DB::select('CALL SP_MisProyectos(?, NULL, NULL, "")', [$userId]);
+            $proyectos = collect($proyectos);
+            
+            $proyecto = $proyectos->where('ProyectoID', $id)->first();
+            
+            if (!$proyecto) {
+                return redirect()->route('socio.proyectos')->with('error', 'Proyecto no encontrado');
+            }
+            
+            // Obtener participantes del proyecto
+            $participantes = DB::select(
+                "SELECT m.Nombre, u.email AS Correo, p.Rol AS RolProyecto
+                 FROM participaciones p
+                 INNER JOIN miembros m ON p.MiembroID = m.MiembroID
+                 INNER JOIN users u ON m.user_id = u.id
+                 WHERE p.ProyectoID = ?
+                 AND (p.EstadoParticipacion = 'Activo' OR p.EstadoParticipacion IS NULL)",
+                [$id]
+            );
+            $participantes = collect($participantes);
+            
+            return view('modulos.socio.detalle-proyecto', compact('proyecto', 'participantes'));
+        } catch (\Exception $e) {
+            return redirect()->route('socio.proyectos')->with('error', 'Error al cargar proyecto');
+        }
     }
 
     public function misReuniones(Request $request)
     {
-        $filtroEstado = $request->get('estado', 'todas');
+        try {
+            $userId = Auth::id();
+            $filtroEstado = $request->get('estado');
+            $filtroTipo = $request->get('tipo');
 
-        $reuniones = collect([
-            (object)[
-                'ReunionID' => 1,
-                'titulo' => 'Reunión General',
-                'descripcion' => 'Revisión mensual.',
-                'fecha_hora' => '2025-11-10 18:00:00',
-                'lugar' => 'Sala Principal',
-                'tipo' => 'Ordinaria',
-                'estado' => 'Programada'
-            ]
-        ]);
+            // Llamar al stored procedure SP_MisReuniones
+            $reuniones = DB::select('CALL SP_MisReuniones(?, ?, ?)', [
+                $userId,
+                $filtroEstado,
+                $filtroTipo
+            ]);
 
-        return view('modulos.socio.mis-reuniones', compact('reuniones', 'filtroEstado'));
+            $reuniones = collect($reuniones);
+
+            // Calcular estadísticas
+            $totalReuniones = $reuniones->count();
+            $reunionesProgramadas = $reuniones->where('EstadoEvento', 'Programado')->count();
+            $reunionesEnCurso = $reuniones->where('EstadoEvento', 'EnCurso')->count();
+            $reunionesFinalizadas = $reuniones->where('EstadoEvento', 'Finalizado')->count();
+
+            return view('modulos.socio.mis-reuniones', compact(
+                'reuniones',
+                'totalReuniones',
+                'reunionesProgramadas',
+                'reunionesEnCurso',
+                'reunionesFinalizadas',
+                'filtroEstado',
+                'filtroTipo'
+            ));
+        } catch (\Exception $e) {
+            $reuniones = collect([]);
+            return view('modulos.socio.mis-reuniones', [
+                'reuniones' => $reuniones,
+                'totalReuniones' => 0,
+                'reunionesProgramadas' => 0,
+                'reunionesEnCurso' => 0,
+                'reunionesFinalizadas' => 0,
+                'filtroEstado' => null,
+                'filtroTipo' => null
+            ]);
+        }
     }
 
     public function detalleReunion($id)
     {
-        $reunion = (object)[
-            'ReunionID' => $id,
-            'titulo' => 'Reunión General',
-            'descripcion' => 'Revisión mensual del club.',
-            'fecha_hora' => '2025-11-10 18:00:00',
-            'lugar' => 'Sala Principal',
-            'tipo' => 'Ordinaria',
-            'estado' => 'Programada',
-            'asistentes' => 25,
-            'confirmados' => 20
-        ];
-
-        return view('modulos.socio.detalle-reunion', compact('reunion'));
+        try {
+            $userId = Auth::id();
+            
+            // Obtener reunión desde SP
+            $reuniones = DB::select('CALL SP_MisReuniones(?, NULL, NULL)', [$userId]);
+            $reuniones = collect($reuniones);
+            
+            $reunion = $reuniones->where('CalendarioID', $id)->first();
+            
+            if (!$reunion) {
+                return redirect()->route('socio.reuniones')->with('error', 'Reunión no encontrada');
+            }
+            
+            return view('modulos.socio.detalle-reunion', compact('reunion'));
+        } catch (\Exception $e) {
+            return redirect()->route('socio.reuniones')->with('error', 'Error al cargar reunión');
+        }
     }
 
     // === COMUNICACIÓN SECRETARÍA ===
-    public function comunicacionSecretaria()
+    public function comunicacionSecretaria(Request $request)
     {
-        $consultas = collect([
-            (object)[
-                'ConsultaID' => 1,
-                'Asunto' => 'Solicitud de certificado',
-                'Categoria' => 'Documentacion',
-                'Estado' => 'Pendiente',
-                'FechaEnvio' => '07/11/2025 04:10 PM'
-            ]
-        ]);
-
-        return view('modulos.socio.comunicacion-secretaria', compact('consultas'));
+        try {
+            $userId = Auth::id();
+            $filtroEstado = $request->get('estado', null);
+            
+            // Obtener consultas del socio desde SP
+            $consultas = DB::select('CALL SP_MisConsultasSocio(?, ?)', [
+                $userId,
+                $filtroEstado
+            ]);
+            $consultas = collect($consultas);
+            
+            // Calcular estadísticas
+            $totalConsultas = $consultas->count();
+            $consultasPendientes = $consultas->where('Estado', 'pendiente')->count();
+            $consultasRespondidas = $consultas->where('Estado', 'respondida')->count();
+            $consultasCerradas = $consultas->where('Estado', 'cerrada')->count();
+            
+            return view('modulos.socio.comunicacion-secretaria', compact(
+                'consultas',
+                'totalConsultas',
+                'consultasPendientes',
+                'consultasRespondidas',
+                'consultasCerradas',
+                'filtroEstado'
+            ));
+        } catch (\Exception $e) {
+            $consultas = collect([]);
+            return view('modulos.socio.comunicacion-secretaria', [
+                'consultas' => $consultas,
+                'totalConsultas' => 0,
+                'consultasPendientes' => 0,
+                'consultasRespondidas' => 0,
+                'consultasCerradas' => 0,
+                'filtroEstado' => null
+            ]);
+        }
     }
 
     public function crearConsultaSecretaria()
@@ -341,20 +428,23 @@ class SocioController extends Controller
                 $comprobanteRuta = $archivo->storeAs('comprobantes', $nombreArchivo, 'public');
             }
 
-            // Aquí guardarías en la base de datos
-            // Ejemplo (ajusta según tu estructura de BD):
-            /*
-            DB::table('consultas')->insert([
-                'usuario_id' => Auth::id(),
-                'asunto' => $validated['asunto'],
-                'tipo' => $validated['tipo'],
-                'mensaje' => $validated['mensaje'],
-                'comprobante_ruta' => $comprobanteRuta,
-                'estado' => 'Pendiente',
-                'created_at' => now(),
-                'updated_at' => now(),
+            // Determinar prioridad según tipo
+            $prioridad = match($validated['tipo']) {
+                'Queja' => 'alta',
+                'Pago', 'Certificado', 'Constancia' => 'media',
+                default => 'baja'
+            };
+            
+            // Crear consulta usando SP
+            DB::statement('CALL SP_CrearConsulta(?, ?, ?, ?, ?, @consulta_id)', [
+                Auth::id(),
+                $validated['asunto'],
+                $validated['mensaje'],
+                $comprobanteRuta,
+                $prioridad
             ]);
-            */
+            
+            $resultado = DB::select('SELECT @consulta_id AS id')[0];
 
             return redirect()->route('socio.secretaria.index')
                 ->with('success', '¡Consulta enviada exitosamente! La Secretaría la revisará pronto.');
@@ -520,47 +610,66 @@ class SocioController extends Controller
     // === BLOG DE NOTAS ===
     public function blogNotas(Request $request)
     {
-        $filtroCategoria = $request->get('categoria', 'todas');
-        $filtroVisibilidad = $request->get('visibilidad', 'todas');
+        try {
+            $userId = Auth::id();
+            $filtroCategoria = $request->get('categoria', 'todas');
+            $filtroVisibilidad = $request->get('visibilidad', 'todas');
+            $buscar = $request->get('buscar', '');
+            $limite = 50;
+            $offset = 0;
 
-        $notas = collect([
-            (object)[
-                'NotaID' => 1,
-                'Titulo' => 'Idea para proyecto',
-                'Contenido' => 'Campaña de reciclaje en escuelas. Involucrar a estudiantes y padres.',
-                'Categoria' => 'idea',
-                'Visibilidad' => 'privada',
-                'FechaCreacion' => '2025-11-07 14:30:00',
-                'Etiquetas' => 'reciclaje,escuelas,medioambiente'
-            ],
-            (object)[
-                'NotaID' => 2,
-                'Titulo' => 'Apuntes reunión mensual',
-                'Contenido' => 'Se aprobó el presupuesto del proyecto social. Próxima reunión: 15/11. Responsable: Ana.',
-                'Categoria' => 'reunion',
-                'Visibilidad' => 'privada',
-                'FechaCreacion' => '2025-11-06 10:00:00',
-                'Etiquetas' => 'reunion,presupuesto,proyectos'
-            ],
-            (object)[
-                'NotaID' => 3,
-                'Titulo' => 'Capacitación en liderazgo',
-                'Contenido' => 'Taller con experto externo. Fecha: 20/11. Inscribirse antes del 18.',
-                'Categoria' => 'capacitacion',
-                'Visibilidad' => 'publica',
-                'FechaCreacion' => '2025-11-05 16:45:00',
-                'Etiquetas' => 'liderazgo,capacitacion'
-            ]
-        ]);
+            // Preparar parámetros para el SP
+            $categoriaParam = $filtroCategoria === 'todas' ? null : $filtroCategoria;
+            $visibilidadParam = $filtroVisibilidad === 'todas' ? null : $filtroVisibilidad;
 
-        if ($filtroCategoria !== 'todas') {
-            $notas = $notas->where('Categoria', $filtroCategoria);
+            // Llamar al stored procedure SP_MisNotas
+            $notas = DB::select('CALL SP_MisNotas(?, ?, ?, ?, ?, ?)', [
+                $userId,
+                $categoriaParam,
+                $visibilidadParam,
+                $buscar,
+                $limite,
+                $offset
+            ]);
+
+            $notas = collect($notas);
+
+            // Calcular estadísticas desde las notas obtenidas (sin filtros)
+            $todasLasNotas = DB::select('CALL SP_MisNotas(?, NULL, NULL, "", 1000, 0)', [$userId]);
+            $todasLasNotas = collect($todasLasNotas);
+            
+            $totalNotas = $todasLasNotas->count();
+            $notasPrivadas = $todasLasNotas->where('Visibilidad', 'privada')->count();
+            $notasPublicas = $todasLasNotas->where('Visibilidad', 'publica')->count();
+            
+            // Notas de este mes (noviembre 2025)
+            $mesActual = now()->format('Y-m');
+            $notasEsteMes = $todasLasNotas->filter(function($nota) use ($mesActual) {
+                return strpos($nota->FechaCreacion, $mesActual) === 0;
+            })->count();
+
+            return view('modulos.socio.blog-notas', compact(
+                'notas', 
+                'filtroCategoria', 
+                'filtroVisibilidad',
+                'totalNotas',
+                'notasPrivadas',
+                'notasPublicas',
+                'notasEsteMes'
+            ));
+        } catch (\Exception $e) {
+            // En caso de error, retornar colección vacía
+            $notas = collect([]);
+            return view('modulos.socio.blog-notas', [
+                'notas' => $notas,
+                'filtroCategoria' => $request->get('categoria', 'todas'),
+                'filtroVisibilidad' => $request->get('visibilidad', 'todas'),
+                'totalNotas' => 0,
+                'notasPrivadas' => 0,
+                'notasPublicas' => 0,
+                'notasEsteMes' => 0
+            ]);
         }
-        if ($filtroVisibilidad !== 'todas') {
-            $notas = $notas->where('Visibilidad', $filtroVisibilidad);
-        }
-
-        return view('modulos.socio.blog-notas', compact('notas', 'filtroCategoria', 'filtroVisibilidad'));
     }
 
     public function crearNota()
@@ -570,94 +679,67 @@ class SocioController extends Controller
 
     public function verNota($id)
     {
-        $datos = [
-            1 => [
-                'Titulo' => 'Idea para proyecto',
-                'Contenido' => 'Campaña de reciclaje en escuelas. Involucrar a estudiantes y padres. Presupuesto estimado: L. 15,000. Fecha tentativa: Marzo 2026.',
-                'Categoria' => 'idea',
-                'Visibilidad' => 'privada',
-                'FechaCreacion' => '2025-11-07 14:30:00',
-                'FechaActualizacion' => '2025-11-07 16:45:00',
-                'Etiquetas' => 'reciclaje, escuelas, medioambiente, comunidad'
-            ],
-            2 => [
-                'Titulo' => 'Apuntes reunión mensual',
-                'Contenido' => 'Se aprobó el presupuesto del proyecto social. Próxima reunión: 15/11. Responsable: Ana.',
-                'Categoria' => 'reunion',
-                'Visibilidad' => 'privada',
-                'FechaCreacion' => '2025-11-06 10:00:00',
-                'FechaActualizacion' => null,
-                'Etiquetas' => 'reunion, presupuesto, proyectos'
-            ],
-            3 => [
-                'Titulo' => 'Capacitación en liderazgo',
-                'Contenido' => 'Taller con experto externo. Fecha: 20/11. Inscribirse antes del 18.',
-                'Categoria' => 'capacitacion',
-                'Visibilidad' => 'publica',
-                'FechaCreacion' => '2025-11-05 16:45:00',
-                'FechaActualizacion' => '2025-11-06 09:20:00',
-                'Etiquetas' => 'liderazgo, capacitacion'
-            ]
-        ];
+        try {
+            $userId = Auth::id();
 
-        $data = $datos[$id] ?? $datos[1];
+            // Llamar al stored procedure SP_DetalleNota
+            $resultado = DB::select('CALL SP_DetalleNota(?, ?)', [$userId, $id]);
 
-        $nota = (object) array_merge([
-            'NotaID' => $id,
-            'Estado' => 'activa',
-            'NombreAutor' => 'Tú'
-        ], $data);
+            if (empty($resultado)) {
+                return redirect()->route('socio.notas.index')
+                    ->with('error', 'Nota no encontrada o no tienes permiso para verla.');
+            }
 
-        return view('modulos.socio.ver-nota', compact('nota'));
+            $nota = $resultado[0];
+
+            return view('modulos.socio.ver-nota', compact('nota'));
+        } catch (\Exception $e) {
+            return redirect()->route('socio.notas.index')
+                ->with('error', 'Error al cargar la nota: ' . $e->getMessage());
+        }
     }
 
     public function editarNota($id)
     {
-        $datos = [
-            1 => [
-                'Titulo' => 'Idea para proyecto',
-                'Contenido' => 'Campaña de reciclaje en escuelas. Involucrar a estudiantes y padres. Presupuesto estimado: L. 15,000. Fecha tentativa: Marzo 2026.',
-                'Categoria' => 'idea',
-                'Visibilidad' => 'privada',
-                'Etiquetas' => 'reciclaje, escuelas, medioambiente, comunidad',
-                'FechaCreacion' => '2025-11-07 14:30:00',
-                'FechaActualizacion' => '2025-11-07 16:45:00'
-            ],
-            2 => [
-                'Titulo' => 'Apuntes reunión mensual',
-                'Contenido' => 'Se aprobó el presupuesto del proyecto social. Próxima reunión: 15/11. Responsable: Ana.',
-                'Categoria' => 'reunion',
-                'Visibilidad' => 'privada',
-                'Etiquetas' => 'reunion, presupuesto, proyectos',
-                'FechaCreacion' => '2025-11-06 10:00:00',
-                'FechaActualizacion' => null
-            ],
-            3 => [
-                'Titulo' => 'Capacitación en liderazgo',
-                'Contenido' => 'Taller con experto externo. Fecha: 20/11. Inscribirse antes del 18.',
-                'Categoria' => 'capacitacion',
-                'Visibilidad' => 'publica',
-                'Etiquetas' => 'liderazgo, capacitacion',
-                'FechaCreacion' => '2025-11-05 16:45:00',
-                'FechaActualizacion' => '2025-11-06 09:20:00'
-            ]
-        ];
+        try {
+            $userId = Auth::id();
 
-        $data = $datos[$id] ?? $datos[1];
+            // Llamar al stored procedure SP_DetalleNota
+            $resultado = DB::select('CALL SP_DetalleNota(?, ?)', [$userId, $id]);
 
-        $nota = (object) array_merge([
-            'NotaID' => $id,
-            'Estado' => 'activa'
-        ], $data);
+            if (empty($resultado)) {
+                return redirect()->route('socio.notas.index')
+                    ->with('error', 'Nota no encontrada o no tienes permiso para editarla.');
+            }
 
-        return view('modulos.socio.editar-nota', compact('nota'));
+            $nota = $resultado[0];
+
+            return view('modulos.socio.editar-nota', compact('nota'));
+        } catch (\Exception $e) {
+            return redirect()->route('socio.notas.index')
+                ->with('error', 'Error al cargar la nota: ' . $e->getMessage());
+        }
     }
 
     public function eliminarNota($id)
     {
-        session()->flash('success', '¡Nota eliminada correctamente!');
+        try {
+            $userId = Auth::id();
 
-        return redirect()->route('socio.notas.index');
+            // Llamar al stored procedure SP_EliminarNota
+            $resultado = DB::select('CALL SP_EliminarNota(?, ?)', [$userId, $id]);
+
+            if (!empty($resultado) && isset($resultado[0]->exito) && $resultado[0]->exito == 1) {
+                return redirect()->route('socio.notas.index')
+                    ->with('success', $resultado[0]->mensaje ?? '¡Nota eliminada correctamente!');
+            } else {
+                return redirect()->route('socio.notas.index')
+                    ->with('error', $resultado[0]->mensaje ?? 'No se pudo eliminar la nota.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->route('socio.notas.index')
+                ->with('error', 'Error al eliminar la nota: ' . $e->getMessage());
+        }
     }
 
     public function storeNota(Request $request)
@@ -716,31 +798,33 @@ class SocioController extends Controller
         }
 
         try {
-            // Aquí guardarías en la base de datos
-            // Ejemplo:
-            /*
-            DB::table('notas')->insert([
-                'usuario_id' => Auth::id(),
-                'titulo' => $validated['titulo'],
-                'categoria' => $validated['categoria'],
-                'visibilidad' => $validated['visibilidad'],
-                'contenido' => $validated['contenido'],
-                'etiquetas' => $validated['etiquetas'],
-                'estado' => 'activa',
-                'created_at' => now(),
-                'updated_at' => now(),
+            $userId = Auth::id();
+
+            // Llamar al stored procedure SP_CrearNota
+            $resultado = DB::select('CALL SP_CrearNota(?, ?, ?, ?, ?, ?, ?)', [
+                $userId,
+                $validated['titulo'],
+                $validated['contenido'],
+                $validated['categoria'],
+                $validated['visibilidad'],
+                $validated['etiquetas'] ?? null,
+                null // fecha_recordatorio
             ]);
-            */
 
-            $id = rand(100, 999);
-
-            session()->flash('success', '¡Nota creada exitosamente!');
-
-            return redirect()->route('socio.notas.ver', $id);
+            if (!empty($resultado) && isset($resultado[0]->exito) && $resultado[0]->exito == 1) {
+                $notaId = $resultado[0]->nota_id;
+                
+                return redirect()->route('socio.notas.ver', $notaId)
+                    ->with('success', $resultado[0]->mensaje ?? '¡Nota creada exitosamente!');
+            } else {
+                return back()
+                    ->withErrors(['error' => $resultado[0]->mensaje ?? 'No se pudo crear la nota.'])
+                    ->withInput();
+            }
 
         } catch (\Exception $e) {
             return back()
-                ->withErrors(['error' => 'Ocurrió un error al crear la nota. Por favor, intenta nuevamente.'])
+                ->withErrors(['error' => 'Ocurrió un error al crear la nota: ' . $e->getMessage()])
                 ->withInput();
         }
     }
@@ -795,28 +879,32 @@ class SocioController extends Controller
         }
 
         try {
-            // Aquí actualizarías en la base de datos
-            /*
-            DB::table('notas')
-                ->where('NotaID', $id)
-                ->where('usuario_id', Auth::id())
-                ->update([
-                    'titulo' => $validated['titulo'],
-                    'categoria' => $validated['categoria'],
-                    'visibilidad' => $validated['visibilidad'],
-                    'contenido' => $validated['contenido'],
-                    'etiquetas' => $validated['etiquetas'],
-                    'updated_at' => now(),
-                ]);
-            */
+            $userId = Auth::id();
 
-            session()->flash('success', '¡Nota actualizada correctamente!');
+            // Llamar al stored procedure SP_ActualizarNota
+            $resultado = DB::select('CALL SP_ActualizarNota(?, ?, ?, ?, ?, ?, ?, ?)', [
+                $userId,
+                $id,
+                $validated['titulo'],
+                $validated['contenido'],
+                $validated['categoria'],
+                $validated['visibilidad'],
+                $validated['etiquetas'] ?? null,
+                null // fecha_recordatorio
+            ]);
 
-            return redirect()->route('socio.notas.ver', $id);
+            if (!empty($resultado) && isset($resultado[0]->exito) && $resultado[0]->exito == 1) {
+                return redirect()->route('socio.notas.ver', $id)
+                    ->with('success', $resultado[0]->mensaje ?? '¡Nota actualizada correctamente!');
+            } else {
+                return back()
+                    ->withErrors(['error' => $resultado[0]->mensaje ?? 'No se pudo actualizar la nota.'])
+                    ->withInput();
+            }
 
         } catch (\Exception $e) {
             return back()
-                ->withErrors(['error' => 'Ocurrió un error al actualizar la nota. Por favor, intenta nuevamente.'])
+                ->withErrors(['error' => 'Ocurrió un error al actualizar la nota: ' . $e->getMessage()])
                 ->withInput();
         }
     }

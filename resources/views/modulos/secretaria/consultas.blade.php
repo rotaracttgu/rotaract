@@ -52,26 +52,31 @@
     <div class="py-4">
         <div class="max-w-7xl mx-auto">
             <!-- Estadísticas -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
                 <div class="bg-gradient-to-br from-purple-500 to-purple-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstado('')">
                     <p class="text-sm text-purple-100">Total Consultas</p>
-                    <p class="text-3xl font-bold text-white">{{ $estadisticas['total'] ?? 0 }}</p>
+                    <p class="text-3xl font-bold text-white">{{ $totalConsultas ?? 0 }}</p>
                     <p class="text-xs text-purple-100 mt-1">Click para ver todas</p>
                 </div>
                 <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstado('pendiente')">
                     <p class="text-sm text-yellow-100">Pendientes</p>
-                    <p class="text-3xl font-bold text-white">{{ $estadisticas['pendientes'] ?? 0 }}</p>
+                    <p class="text-3xl font-bold text-white">{{ $consultasPendientes ?? 0 }}</p>
                     <p class="text-xs text-yellow-100 mt-1">Click para filtrar</p>
                 </div>
                 <div class="bg-gradient-to-br from-green-500 to-green-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorEstado('respondida')">
                     <p class="text-sm text-green-100">Respondidas</p>
-                    <p class="text-3xl font-bold text-white">{{ $estadisticas['respondidas'] ?? 0 }}</p>
+                    <p class="text-3xl font-bold text-white">{{ $consultasRespondidas ?? 0 }}</p>
                     <p class="text-xs text-green-100 mt-1">Click para filtrar</p>
                 </div>
-                <div class="bg-gradient-to-br from-blue-500 to-blue-600 overflow-hidden shadow-lg sm:rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:scale-105" onclick="filtrarPorFecha('hoy')">
+                <div class="bg-gradient-to-br from-gray-500 to-gray-600 overflow-hidden shadow-lg sm:rounded-lg p-4">
+                    <p class="text-sm text-gray-100">Cerradas</p>
+                    <p class="text-3xl font-bold text-white">{{ $consultasCerradas ?? 0 }}</p>
+                    <p class="text-xs text-gray-100 mt-1">Finalizadas</p>
+                </div>
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 overflow-hidden shadow-lg sm:rounded-lg p-4">
                     <p class="text-sm text-blue-100">Hoy</p>
-                    <p class="text-3xl font-bold text-white">{{ $estadisticas['hoy'] ?? 0 }}</p>
-                    <p class="text-xs text-blue-100 mt-1">Click para filtrar</p>
+                    <p class="text-3xl font-bold text-white">{{ $consultasHoy ?? 0 }}</p>
+                    <p class="text-xs text-blue-100 mt-1">Recibidas hoy</p>
                 </div>
             </div>
 
@@ -131,7 +136,8 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">ID</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Usuario</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Asunto</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Mensaje</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Prioridad</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Comprobante</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Estado</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Fecha</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Acciones</th>
@@ -140,25 +146,53 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($consultas as $consulta)
                                     <tr class="hover:bg-gray-50"
-                                        data-estado="{{ $consulta->estado }}"
-                                        data-fecha="{{ $consulta->created_at->format('Y-m-d') }}">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">#{{ $consulta->id }}</td>
+                                        data-estado="{{ $consulta->Estado }}"
+                                        data-fecha="{{ \Carbon\Carbon::parse($consulta->FechaEnvio)->format('Y-m-d') }}">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">#{{ $consulta->ConsultaID }}</td>
                                         <td class="px-6 py-4">
                                             <div>
-                                                <p class="font-medium text-gray-900">{{ $consulta->usuario->name ?? 'Usuario' }}</p>
-                                                <p class="text-xs text-gray-500">{{ $consulta->usuario->email ?? '' }}</p>
+                                                <p class="font-medium text-gray-900">{{ $consulta->NombreUsuario }}</p>
+                                                <p class="text-xs text-gray-500">{{ $consulta->EmailUsuario }}</p>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-900">
-                                            <div class="font-medium">{{ Str::limit($consulta->asunto ?? 'Sin asunto', 40) }}</div>
+                                            <div class="font-medium">{{ Str::limit($consulta->Asunto, 40) }}</div>
+                                            <p class="text-xs text-gray-500">{{ Str::limit($consulta->Mensaje, 50) }}</p>
                                         </td>
-                                        <td class="px-6 py-4 text-sm text-gray-500">{{ Str::limit($consulta->mensaje, 60) }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($consulta->estado == 'pendiente')
+                                            @if($consulta->Prioridad == 'alta')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                Alta
+                                            </span>
+                                            @elseif($consulta->Prioridad == 'media')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
+                                                Media
+                                            </span>
+                                            @else
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                Baja
+                                            </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if($consulta->ComprobanteRuta)
+                                                <a href="{{ asset('storage/' . $consulta->ComprobanteRuta) }}" target="_blank" 
+                                                   class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                                    </svg>
+                                                    Ver
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-gray-400">Sin comprobante</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if($consulta->Estado == 'pendiente')
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                                 Pendiente
                                             </span>
-                                            @elseif($consulta->estado == 'respondida')
+                                            @elseif($consulta->Estado == 'respondida')
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                 Respondida
                                             </span>
@@ -169,24 +203,24 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ \Carbon\Carbon::parse($consulta->created_at)->format('d/m/Y H:i') }}
+                                            {{ \Carbon\Carbon::parse($consulta->FechaEnvio)->format('d/m/Y H:i') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex gap-2">
-                                                <button class="text-purple-600 hover:text-purple-900" title="Ver consulta" onclick="verConsulta({{ $consulta->id }})">
+                                                <button class="text-purple-600 hover:text-purple-900" title="Ver consulta" onclick="verConsulta({{ $consulta->ConsultaID }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                                     </svg>
                                                 </button>
-                                                @if($consulta->estado == 'pendiente')
-                                                <button class="text-green-600 hover:text-green-900" title="Responder" onclick="responderConsulta({{ $consulta->id }})">
+                                                @if($consulta->Estado == 'pendiente')
+                                                <button class="text-green-600 hover:text-green-900" title="Responder" onclick="responderConsulta({{ $consulta->ConsultaID }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
                                                     </svg>
                                                 </button>
                                                 @endif
-                                                <button class="text-red-600 hover:text-red-900" title="Eliminar" onclick="eliminarConsulta({{ $consulta->id }})">
+                                                <button class="text-red-600 hover:text-red-900" title="Eliminar" onclick="eliminarConsulta({{ $consulta->ConsultaID }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                     </svg>
@@ -196,7 +230,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
                                             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
                                             </svg>
@@ -228,12 +262,8 @@
                     </div>
                     @endif
 
-                    <!-- Paginación -->
-                    @if($consultas->hasPages())
-                    <div class="mt-6">
-                        {{ $consultas->links() }}
-                    </div>
-                    @endif
+                    <!-- Paginación (deshabilitada por ahora - usando Collection) -->
+                    {{-- Si necesitas paginación, modifica el controlador para usar paginate() --}}
                 </div>
             </div>
         </div>

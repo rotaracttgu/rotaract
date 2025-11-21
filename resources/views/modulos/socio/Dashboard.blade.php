@@ -21,9 +21,10 @@
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">PROYECTOS ACTIVOS</p>
                     <div class="flex items-baseline">
-                        <h3 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">{{ count($proyectosActivos ?? []) }}</h3>
+                        <h3 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">{{ $proyectosActivosCount ?? 0 }}</h3>
+                        <span class="text-sm text-gray-500 ml-2">/ {{ $totalProyectos ?? 0 }} total</span>
                     </div>
-                    <p class="text-xs text-blue-600 mt-2">En los que participas</p>
+                    <p class="text-xs text-blue-600 mt-2">Proyectos activos disponibles</p>
                 </div>
                 <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-md">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,8 +39,8 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">PRÓXIMAS REUNIONES</p>
-                    <h3 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">{{ count($proximasReuniones ?? []) }}</h3>
-                    <p class="text-xs text-green-600 mt-2">Programadas</p>
+                    <h3 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">{{ $reunionesProgramadas ?? 0 }}</h3>
+                    <p class="text-xs text-green-600 mt-2">Programadas / {{ $totalReuniones ?? 0 }} total</p>
                 </div>
                 <div class="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-xl shadow-md">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,9 +56,10 @@
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">CONSULTAS PENDIENTES</p>
                     <div class="flex items-baseline">
-                        <h3 class="text-4xl font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">{{ ($consultasSecretariaPendientes ?? 0) + ($consultasVoceriaPendientes ?? 0) }}</h3>
+                        <h3 class="text-4xl font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">{{ $consultasPendientes ?? 0 }}</h3>
+                        <span class="text-sm text-gray-500 ml-2">/ {{ $totalConsultas ?? 0 }}</span>
                     </div>
-                    <p class="text-xs text-orange-600 mt-2">Secretaría</p>
+                    <p class="text-xs text-orange-600 mt-2">Esperando respuesta</p>
                 </div>
                 <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-3 rounded-xl shadow-md">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,8 +74,8 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">MIS NOTAS</p>
-                    <h3 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">{{ $notasActivas ?? 0 }}</h3>
-                    <p class="text-xs text-purple-600 mt-2">Notas activas</p>
+                    <h3 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">{{ $totalNotas ?? 0 }}</h3>
+                    <p class="text-xs text-purple-600 mt-2">{{ $notasPrivadas ?? 0 }} privadas, {{ $notasPublicas ?? 0 }} públicas</p>
                 </div>
                 <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-xl shadow-md">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,34 +114,34 @@
                 @if(isset($proximasReuniones) && count($proximasReuniones) > 0)
                     <div class="space-y-4">
                         @foreach($proximasReuniones as $reunion)
-                            @if($reunion->FechaHora ?? false)
+                            @if($reunion->FechaInicio ?? false)
                                 <div class="flex items-start p-4 bg-gradient-to-r from-blue-50 to-transparent rounded-lg border border-blue-100 hover:border-blue-300 transition-all">
                                     <div class="flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl px-4 py-3 text-center mr-4 shadow-md">
                                         <div class="text-xs font-bold uppercase">
-                                            {{ \Carbon\Carbon::parse($reunion->FechaHora)->format('M') }}
+                                            {{ \Carbon\Carbon::parse($reunion->FechaInicio)->format('M') }}
                                         </div>
                                         <div class="text-3xl font-bold">
-                                            {{ \Carbon\Carbon::parse($reunion->FechaHora)->format('d') }}
+                                            {{ \Carbon\Carbon::parse($reunion->FechaInicio)->format('d') }}
                                         </div>
                                     </div>
                                     <div class="flex-1">
-                                        <h3 class="font-bold text-gray-900 text-lg">{{ $reunion->titulo ?? 'Sin título' }}</h3>
-                                        <p class="text-sm text-gray-600 mt-1">{{ $reunion->descripcion ?? 'Sin descripción' }}</p>
+                                        <h3 class="font-bold text-gray-900 text-lg">{{ $reunion->TituloEvento ?? 'Sin título' }}</h3>
+                                        <p class="text-sm text-gray-600 mt-1">{{ $reunion->Descripcion ?? 'Sin descripción' }}</p>
                                         <div class="flex flex-wrap items-center gap-4 mt-3 text-xs text-gray-500">
                                             <span class="flex items-center">
                                                 <svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
-                                                {{ \Carbon\Carbon::parse($reunion->FechaHora)->format('h:i A') }}
+                                                {{ \Carbon\Carbon::parse($reunion->FechaInicio)->format('h:i A') }}
                                             </span>
                                             <span class="flex items-center">
                                                 <svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                                 </svg>
-                                                {{ $reunion->lugar ?? 'Sin lugar' }}
+                                                {{ $reunion->Ubicacion ?? 'Sin lugar' }}
                                             </span>
                                             <span class="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full font-medium">
-                                                {{ $reunion->tipo ?? 'General' }}
+                                                {{ $reunion->TipoEvento ?? 'General' }}
                                             </span>
                                         </div>
                                     </div>
@@ -198,7 +200,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <a href="{{ route('socio.proyectos.detalle', $proyecto->ID ?? '#') }}" 
+                                    <a href="{{ route('socio.proyectos.detalle', $proyecto->ProyectoID ?? '#') }}" 
                                        class="ml-4 text-blue-600 hover:text-blue-700">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -294,7 +296,7 @@
                             </svg>
                             <span class="font-medium">Secretaría</span>
                         </div>
-                        <span class="text-2xl font-bold">{{ $consultasSecretariaPendientes ?? 0 }}</span>
+                        <span class="text-2xl font-bold">{{ $consultasPendientes ?? 0 }}</span>
                     </div>
                 </div>
 

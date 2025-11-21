@@ -31,7 +31,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">TOTAL CONSULTAS</p>
-                    <h3 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">{{ count($consultas ?? []) }}</h3>
+                    <h3 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">{{ $totalConsultas ?? 0 }}</h3>
                 </div>
                 <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-md">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,9 +45,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">PENDIENTES</p>
-                    <h3 class="text-4xl font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">
-                        {{ collect($consultas ?? [])->whereIn('Estado', ['Pendiente', 'EnRevision'])->count() }}
-                    </h3>
+                    <h3 class="text-4xl font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">{{ $consultasPendientes ?? 0 }}</h3>
                 </div>
                 <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-3 rounded-xl shadow-md">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,9 +59,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">RESPONDIDAS</p>
-                    <h3 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">
-                        {{ collect($consultas ?? [])->where('Estado', 'Respondida')->count() }}
-                    </h3>
+                    <h3 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">{{ $consultasRespondidas ?? 0 }}</h3>
                 </div>
                 <div class="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-xl shadow-md">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,9 +73,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">CERRADAS</p>
-                    <h3 class="text-4xl font-bold bg-gradient-to-r from-gray-600 to-gray-800 bg-clip-text text-transparent">
-                        {{ collect($consultas ?? [])->where('Estado', 'Cerrada')->count() }}
-                    </h3>
+                    <h3 class="text-4xl font-bold bg-gradient-to-r from-gray-600 to-gray-800 bg-clip-text text-transparent">{{ $consultasCerradas ?? 0 }}</h3>
                 </div>
                 <div class="bg-gradient-to-br from-gray-500 to-gray-600 p-3 rounded-xl shadow-md">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,6 +95,19 @@
                 </div>
                 Mis Consultas
             </h2>
+            
+            <!-- Filtros -->
+            <form method="GET" action="{{ route('socio.secretaria.index') }}" class="flex gap-3">
+                <select name="estado" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente" {{ ($filtroEstado ?? '') === 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                    <option value="respondida" {{ ($filtroEstado ?? '') === 'respondida' ? 'selected' : '' }}>Respondida</option>
+                    <option value="cerrada" {{ ($filtroEstado ?? '') === 'cerrada' ? 'selected' : '' }}>Cerrada</option>
+                </select>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    Filtrar
+                </button>
+            </form>
         </div>
 
         @if(isset($consultas) && count($consultas) > 0)
@@ -114,59 +121,48 @@
                                     <!-- Encabezado con Estado -->
                                     <div class="flex items-start justify-between mb-3">
                                         <h3 class="text-xl font-bold text-gray-900">
-                                            {{ $consulta->Asunto ?? 'Sin asunto' }}
+                                            {{ $consulta->Asunto }}
                                         </h3>
                                         <span class="ml-4 px-4 py-1 text-sm font-semibold rounded-full whitespace-nowrap
-                                            {{ ($consulta->Estado ?? '') === 'Pendiente' ? 'bg-orange-100 text-orange-700' : '' }}
-                                            {{ ($consulta->Estado ?? '') === 'EnRevision' ? 'bg-blue-100 text-blue-700' : '' }}
-                                            {{ ($consulta->Estado ?? '') === 'Respondida' ? 'bg-green-100 text-green-700' : '' }}
-                                            {{ ($consulta->Estado ?? '') === 'Cerrada' ? 'bg-gray-100 text-gray-700' : '' }}">
-                                            {{ ($consulta->Estado ?? '') === 'EnRevision' ? 'En Revisión' : ($consulta->Estado ?? 'Sin estado') }}
+                                            {{ $consulta->Estado === 'pendiente' ? 'bg-orange-100 text-orange-700' : '' }}
+                                            {{ $consulta->Estado === 'respondida' ? 'bg-green-100 text-green-700' : '' }}
+                                            {{ $consulta->Estado === 'cerrada' ? 'bg-gray-100 text-gray-700' : '' }}">
+                                            {{ ucfirst($consulta->Estado) }}
                                         </span>
                                     </div>
 
                                     <!-- Mensaje -->
-                                    <p class="text-gray-700 mb-4 line-clamp-2">
-                                        {{ $consulta->Mensaje ?? 'Sin mensaje' }}
+                                    <p class="text-gray-700 mb-4">
+                                        {{ strlen($consulta->Mensaje) > 150 ? substr($consulta->Mensaje, 0, 150) . '...' : $consulta->Mensaje }}
                                     </p>
 
                                     <!-- Metadata -->
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                                         <!-- Fecha -->
                                         <div class="flex items-center text-gray-600">
                                             <svg class="w-4 h-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                             </svg>
                                             <span>
-                                                {{ isset($consulta->FechaConsulta) && $consulta->FechaConsulta 
-                                                    ? \Carbon\Carbon::parse($consulta->FechaConsulta)->format('d/m/Y H:i') 
-                                                    : 'Sin fecha' }}
+                                                {{ \Carbon\Carbon::parse($consulta->FechaEnvio)->format('d/m/Y H:i') }}
                                             </span>
-                                        </div>
-
-                                        <!-- Categoría -->
-                                        <div class="flex items-center text-gray-600">
-                                            <svg class="w-4 h-4 text-purple-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                                            </svg>
-                                            <span>{{ $consulta->Categoria ?? 'Sin categoría' }}</span>
                                         </div>
 
                                         <!-- Prioridad -->
                                         <div class="flex items-center">
                                             <svg class="w-4 h-4 mr-2
-                                                {{ ($consulta->Prioridad ?? '') === 'Alta' ? 'text-red-500' : '' }}
-                                                {{ ($consulta->Prioridad ?? '') === 'Media' ? 'text-orange-500' : '' }}
-                                                {{ ($consulta->Prioridad ?? '') === 'Baja' ? 'text-gray-500' : '' }}"
+                                                {{ $consulta->Prioridad === 'alta' ? 'text-red-500' : '' }}
+                                                {{ $consulta->Prioridad === 'media' ? 'text-orange-500' : '' }}
+                                                {{ $consulta->Prioridad === 'baja' ? 'text-gray-500' : '' }}"
                                                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
                                             </svg>
-                                            <span class="text-gray-600">Prioridad: {{ $consulta->Prioridad ?? 'Normal' }}</span>
+                                            <span class="text-gray-600">Prioridad: {{ ucfirst($consulta->Prioridad) }}</span>
                                         </div>
                                     </div>
 
                                     <!-- Respuesta (si existe) -->
-                                    @if(($consulta->Estado ?? '') === 'Respondida' && $consulta->Respuesta)
+                                    @if($consulta->Estado === 'respondida' && $consulta->Respuesta)
                                         <div class="mt-4 p-4 bg-green-50 border-l-4 border-green-500 rounded">
                                             <div class="flex items-start">
                                                 <svg class="w-5 h-5 text-green-600 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,8 +172,8 @@
                                                     <p class="text-sm font-semibold text-green-900 mb-1">
                                                         Respuesta de {{ $consulta->RespondidoPor ?? 'Secretaría' }}
                                                     </p>
-                                                    <p class="text-sm text-gray-700 line-clamp-2">{{ $consulta->Respuesta }}</p>
-                                                    @if(isset($consulta->FechaRespuesta) && $consulta->FechaRespuesta)
+                                                    <p class="text-sm text-gray-700">{{ strlen($consulta->Respuesta) > 100 ? substr($consulta->Respuesta, 0, 100) . '...' : $consulta->Respuesta }}</p>
+                                                    @if($consulta->FechaRespuesta)
                                                         <p class="text-xs text-gray-500 mt-1">
                                                             {{ \Carbon\Carbon::parse($consulta->FechaRespuesta)->format('d/m/Y H:i') }}
                                                         </p>
@@ -186,14 +182,13 @@
                                             </div>
                                         </div>
                                     @endif
-
-                                    <!-- Número de Mensajes -->
-                                    @if(isset($consulta->NumeroMensajes) && $consulta->NumeroMensajes > 1)
+                                    
+                                    @if($consulta->ComprobanteRuta)
                                         <div class="mt-3 flex items-center text-sm text-gray-600">
                                             <svg class="w-4 h-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                                             </svg>
-                                            <span>{{ $consulta->NumeroMensajes }} mensaje(s) en esta conversación</span>
+                                            <span>Con comprobante adjunto</span>
                                         </div>
                                     @endif
                                 </div>

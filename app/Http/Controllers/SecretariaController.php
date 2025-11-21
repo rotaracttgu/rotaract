@@ -126,22 +126,60 @@ class SecretariaController extends Controller
     /**
      * Mostrar lista de consultas
      */
-    public function consultas()
+    public function consultas(Request $request)
     {
         $this->authorize('actas.ver');
-        $consultas = Consulta::with('usuario')
-            ->latest()
-            ->paginate(15);
+        
+        try {
+            $filtroEstado = $request->get('estado', null);
+            $filtroPrioridad = $request->get('prioridad', null);
+            
+            // Obtener consultas usando SP
+            $consultas = DB::select('CALL SP_ConsultasSecretaria(?, ?)', [
+                $filtroEstado,
+                $filtroPrioridad
+            ]);
+            $consultas = collect($consultas)->map(function($consulta) {
+                // Agregar URL del comprobante si existe
+                if ($consulta->ComprobanteRuta) {
+                    $consulta->comprobante_url = asset('storage/' . $consulta->ComprobanteRuta);
+                    $extension = pathinfo($consulta->ComprobanteRuta, PATHINFO_EXTENSION);
+                    $consulta->comprobante_tipo = strtolower($extension) === 'pdf' ? 'pdf' : 'imagen';
+                }
+                return $consulta;
+            });
 
-        $estadisticas = [
-            'total' => Consulta::count(),
-            'pendientes' => Consulta::where('estado', 'pendiente')->count(),
-            'respondidas' => Consulta::where('estado', 'respondida')->count(),
-            'cerradas' => Consulta::where('estado', 'cerrada')->count(),
-            'hoy' => Consulta::whereDate('created_at', today())->count(),
-        ];
+            // Calcular estadísticas
+            $totalConsultas = $consultas->count();
+            $consultasPendientes = $consultas->where('Estado', 'pendiente')->count();
+            $consultasRespondidas = $consultas->where('Estado', 'respondida')->count();
+            $consultasCerradas = $consultas->where('Estado', 'cerrada')->count();
+            $consultasHoy = $consultas->where(function($c) {
+                return \Carbon\Carbon::parse($c->FechaEnvio)->isToday();
+            })->count();
 
-        return view('modulos.secretaria.consultas', compact('consultas', 'estadisticas'));
+            return view('modulos.secretaria.consultas', compact(
+                'consultas',
+                'totalConsultas',
+                'consultasPendientes',
+                'consultasRespondidas',
+                'consultasCerradas',
+                'consultasHoy',
+                'filtroEstado',
+                'filtroPrioridad'
+            ));
+        } catch (\Exception $e) {
+            return view('modulos.secretaria.consultas', [
+                'consultas' => collect([]),
+                'totalConsultas' => 0,
+                'consultasPendientes' => 0,
+                'consultasRespondidas' => 0,
+                'consultasCerradas' => 0,
+                'consultasHoy' => 0,
+                'filtroEstado' => null,
+                'filtroPrioridad' => null
+            ]);
+        }
     }
 
     /**
@@ -218,19 +256,24 @@ class SecretariaController extends Controller
             'respuesta' => 'required|string|max:1000',
         ]);
 
-        $consulta = Consulta::findOrFail($id);
-        $consulta->update([
-            'respuesta' => $request->respuesta,
-            'estado' => 'respondida',
-            'respondido_por' => Auth::id(),
-            'respondido_at' => now(),
-        ]);
+        try {
+            // Usar SP para responder
+            DB::statement('CALL SP_ResponderConsulta(?, ?, ?)', [
+                $id,
+                $request->respuesta,
+                Auth::id()
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Consulta respondida exitosamente',
-            'consulta' => $consulta
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Consulta respondida exitosamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al responder consulta: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
