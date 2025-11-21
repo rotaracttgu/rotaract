@@ -35,10 +35,12 @@
         }
 
         .main-content-wrapper {
-            margin-left: 280px;
+            margin-left: 320px; /* w-80 de Tailwind = 20rem = 320px */
             padding-top: 5rem;
             min-height: 100vh;
             transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 1;
         }
 
         @media (max-width: 1024px) {
@@ -58,9 +60,6 @@
         #config-content {
             width: 100%;
             min-height: auto;
-            padding: 0;
-            margin: 0;
-            overflow: visible;
         }
 
         /* Contenedor de página normal */
@@ -68,10 +67,55 @@
             width: 100%;
         }
 
-        /* Asegurar que ambos contenedores tengan el mismo comportamiento */
+        /* Asegurar que el main tenga el padding correcto */
+        .main-content-wrapper > main {
+            padding: 1.5rem;
+        }
+
+        /* IMPORTANTE: Asegurar que NADA corte el contenido */
+        .main-content-wrapper main,
         #config-content,
         #page-content {
-            box-sizing: border-box;
+            overflow: visible !important;
+            max-height: none !important;
+            clip: auto !important;
+            clip-path: none !important;
+        }
+
+        /* El wrapper principal puede tener overflow-x hidden para evitar scroll horizontal */
+        .main-content-wrapper {
+            overflow-x: hidden;
+            overflow-y: visible;
+        }
+
+        /* Cuando se muestra contenido AJAX */
+        #config-content.ajax-content-container {
+            display: block;
+        }
+
+        /* Asegurar que el contenido AJAX esté correctamente posicionado */
+        #config-content > *:first-child {
+            padding-top: 0;
+            margin-top: 0;
+            margin-left: 0;
+            position: relative;
+            left: 0;
+            top: 0;
+        }
+
+        /* Fix para elementos con rounded que pueden cortarse */
+        #config-content .rounded-xl,
+        #config-content .rounded-2xl {
+            overflow: visible;
+        }
+
+        /* Asegurar que el contenedor AJAX no tenga transformaciones raras */
+        #config-content {
+            transform: none !important;
+            margin: 0 !important;
+            position: relative !important;
+            left: 0 !important;
+            top: 0 !important;
         }
 
         .ajax-load {
@@ -112,7 +156,7 @@
             </header>
         @endisset
 
-        <main class="container-fluid px-4">
+        <main>
             <!-- ⭐ CONTENEDOR PARA CONTENIDO NORMAL DE LAS VISTAS -->
             <div id="page-content">
                 @isset($slot)
@@ -169,9 +213,16 @@
 
                 // ⭐ OCULTAR el contenido de la página y mostrar el contenedor AJAX
                 console.log('🔵 Ocultando #page-content, mostrando', target);
-                $('#page-content').hide();
-                $(target).show().html(`
-                    <div class="d-flex justify-content-center align-items-center" style="min-height: 500px;">
+                $('#page-content').css('display', 'none');
+
+                // ⭐ Limpiar completamente el contenedor antes de mostrar el spinner
+                $(target).empty().css({
+                    'display': 'block',
+                    'position': 'relative',
+                    'top': '0',
+                    'left': '0'
+                }).html(`
+                    <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
                         <div class="text-center">
                             <div class="spinner-border text-primary" style="width: 3rem; height: 3rem; margin-bottom: 1rem;">
                                 <span class="visually-hidden">Cargando...</span>
@@ -181,8 +232,11 @@
                     </div>
                 `);
 
-                // Scroll hacia arriba
-                $('html, body').scrollTop(0);
+                // Scroll hacia arriba - Forzar en todos los contenedores
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+                $('.main-content-wrapper').scrollTop(0);
 
                 $.ajax({
                     url: url,
@@ -201,10 +255,22 @@
                         $('#page-content').hide();
 
                         // ⭐ LIMPIAR completamente e insertar nuevo HTML
-                        $(target).empty().html(html).show();
+                        $(target).empty().html(html).css({
+                            'display': 'block',
+                            'visibility': 'visible',
+                            'opacity': '1',
+                            'position': 'relative',
+                            'top': '0',
+                            'left': '0',
+                            'transform': 'none'
+                        });
 
-                        // ⭐ Scroll arriba
-                        $('html, body').animate({ scrollTop: 0 }, 200);
+                        // ⭐ Scroll arriba - Forzar en todos los contenedores posibles
+                        window.scrollTo(0, 0);
+                        document.documentElement.scrollTop = 0;
+                        document.body.scrollTop = 0;
+                        $('.main-content-wrapper').scrollTop(0);
+                        $(target).scrollTop(0);
 
                         // Re-inicializar Alpine.js
                         setTimeout(function() {
