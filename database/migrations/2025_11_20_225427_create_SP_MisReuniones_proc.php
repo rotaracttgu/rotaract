@@ -66,9 +66,9 @@ BEGIN
             OR (p_tipo_filtro = 'proximas' AND c.FechaInicio >= CURRENT_DATE())
             OR (p_tipo_filtro = 'pasadas' AND c.FechaInicio < CURRENT_DATE())
             OR (p_tipo_filtro = 'mes_actual' AND MONTH(c.FechaInicio) = MONTH(CURRENT_DATE()) AND YEAR(c.FechaInicio) = YEAR(CURRENT_DATE()))
-            OR (CAST(p_tipo_filtro AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci) = CAST(c.EstadoEvento AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci))
+            OR (CAST(p_tipo_filtro AS CHAR) = CAST(c.EstadoEvento AS CHAR))
         )
-        AND (p_tipo_evento IS NULL OR c.TipoEvento = CAST(p_tipo_evento AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci))
+        AND (p_tipo_evento IS NULL OR c.TipoEvento = CAST(p_tipo_evento AS CHAR))
         ORDER BY 
             CASE 
                 WHEN p_tipo_filtro = 'proximas' OR p_tipo_filtro IS NULL THEN c.FechaInicio

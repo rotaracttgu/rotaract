@@ -44,9 +44,9 @@ BEGIN
         INNER JOIN users u ON u.id = m.user_id
         WHERE n.MiembroID = v_miembro_id
         AND n.Estado = 'activa'
-        AND (p_categoria IS NULL OR n.Categoria = CAST(p_categoria AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci))
-        AND (p_visibilidad IS NULL OR n.Visibilidad = CAST(p_visibilidad AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci))
-        AND (p_buscar IS NULL OR p_buscar = '' OR n.Titulo LIKE CONCAT('%', CAST(p_buscar AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci), '%') OR n.Contenido LIKE CONCAT('%', CAST(p_buscar AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci), '%') OR n.Etiquetas LIKE CONCAT('%', CAST(p_buscar AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci), '%'))
+        AND (p_categoria IS NULL OR n.Categoria = CAST(p_categoria AS CHAR))
+        AND (p_visibilidad IS NULL OR n.Visibilidad = CAST(p_visibilidad AS CHAR))
+        AND (p_buscar IS NULL OR p_buscar = '' OR n.Titulo LIKE CONCAT('%', CAST(p_buscar AS CHAR), '%') OR n.Contenido LIKE CONCAT('%', CAST(p_buscar AS CHAR), '%') OR n.Etiquetas LIKE CONCAT('%', CAST(p_buscar AS CHAR), '%'))
         ORDER BY n.FechaCreacion DESC
         LIMIT p_limite OFFSET p_offset;
     END IF;
