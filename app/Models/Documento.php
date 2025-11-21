@@ -15,6 +15,7 @@ class Documento extends Model
 
     protected $fillable = [
         'Titulo',
+        'TipoDocumento',
         'tipo',
         'descripcion',
         'archivo_path',
@@ -31,7 +32,7 @@ class Documento extends Model
     /**
      * Atributos que deben ser agregados al array/JSON
      */
-    protected $appends = ['archivo_url', 'titulo'];
+    protected $appends = ['archivo_url', 'titulo', 'id'];
 
     /**
      * Relación con el usuario que creó el documento
@@ -63,6 +64,14 @@ class Documento extends Model
     public function setTituloAttribute($value)
     {
         $this->attributes['Titulo'] = $value;
+    }
+    
+    /**
+     * Accessor para id (compatibilidad con JavaScript)
+     */
+    public function getIdAttribute()
+    {
+        return $this->DocumentoID;
     }
 }
 

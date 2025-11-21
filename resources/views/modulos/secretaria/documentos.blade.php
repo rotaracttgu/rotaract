@@ -86,7 +86,7 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($documentos as $documento)
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">#{{ $documento->id }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">#{{ $documento->DocumentoID }}</td>
                                         <td class="px-6 py-4">
                                             <div>
                                                 <p class="font-medium text-gray-900">{{ $documento->titulo }}</p>
@@ -120,21 +120,21 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex gap-2">
-                                                <button class="text-purple-600 hover:text-purple-900" title="Ver documento" onclick="verDocumento({{ $documento->id }})">
+                                                <button class="text-purple-600 hover:text-purple-900" title="Ver documento" onclick="verDocumento({{ $documento->DocumentoID }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                                     </svg>
                                                 </button>
                                                 @can('documentos.editar')
-                                                <button class="text-yellow-600 hover:text-yellow-900" title="Editar" onclick="editarDocumento({{ $documento->id }})">
+                                                <button class="text-yellow-600 hover:text-yellow-900" title="Editar" onclick="editarDocumento({{ $documento->DocumentoID }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                     </svg>
                                                 </button>
                                                 @endcan
                                                 @can('documentos.eliminar')
-                                                <button class="text-red-600 hover:text-red-900" title="Eliminar" onclick="eliminarDocumento({{ $documento->id }})">
+                                                <button class="text-red-600 hover:text-red-900" title="Eliminar" onclick="eliminarDocumento({{ $documento->DocumentoID }})">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                     </svg>
@@ -338,6 +338,15 @@
                 });
                 const doc = await response.json();
                 
+                // Usar nombres de campos que puedan venir de la BD
+                const titulo = doc.Titulo || doc.titulo || 'Sin título';
+                const tipo = doc.tipo || 'otro';
+                const categoria = doc.categoria || '';
+                const descripcion = doc.descripcion || '';
+                const archivoPath = doc.archivo_path || '';
+                const archivoNombre = doc.archivo_nombre || '';
+                const creador = doc.creador ? doc.creador.name : 'Sistema';
+                
                 const fechaCreacion = new Date(doc.created_at).toLocaleDateString('es-ES', {
                     year: 'numeric',
                     month: 'long',
@@ -345,8 +354,8 @@
                 });
                 
                 let iconoArchivo = 'fa-file';
-                if (doc.archivo_nombre) {
-                    const ext = doc.archivo_nombre.split('.').pop().toLowerCase();
+                if (archivoNombre) {
+                    const ext = archivoNombre.split('.').pop().toLowerCase();
                     if (ext === 'pdf') iconoArchivo = 'fa-file-pdf text-red-500';
                     else if (['doc', 'docx'].includes(ext)) iconoArchivo = 'fa-file-word text-blue-500';
                     else if (['xls', 'xlsx'].includes(ext)) iconoArchivo = 'fa-file-excel text-green-500';
@@ -359,25 +368,25 @@
                                 <!-- Título y Tipo -->
                                 <div class="md:col-span-2 bg-gradient-to-br from-green-50 to-lime-50 p-4 rounded-lg">
                                     <p class="text-xs font-medium text-gray-500 uppercase mb-1">Título del Documento</p>
-                                    <p class="text-lg font-bold text-gray-900">${doc.titulo}</p>
+                                    <p class="text-lg font-bold text-gray-900">${titulo}</p>
                                     <div class="mt-3 flex gap-2">
-                                        <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full capitalize">${doc.tipo}</span>
-                                        ${doc.categoria ? 
-                                            `<span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">${doc.categoria}</span>` : ''
+                                        <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full capitalize">${tipo}</span>
+                                        ${categoria ? 
+                                            `<span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">${categoria}</span>` : ''
                                         }
                                         <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full">${fechaCreacion}</span>
                                     </div>
                                 </div>
                                 
-                                ${doc.descripcion ? `
+                                ${descripcion ? `
                                 <div class="md:col-span-2 bg-white border-2 border-gray-200 p-4 rounded-lg">
                                     <p class="text-xs font-medium text-gray-500 uppercase mb-2">Descripción</p>
                                     <div class="text-sm text-gray-700 bg-gray-50 p-4 rounded">
-                                        ${doc.descripcion}
+                                        ${descripcion}
                                     </div>
                                 </div>` : ''}
                                 
-                                ${doc.archivo_path ? `
+                                ${archivoPath ? `
                                 <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg">
                                     <p class="text-xs font-medium text-gray-500 uppercase mb-3">Archivo</p>
                                     <div class="flex items-center gap-4">
@@ -385,10 +394,10 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                         </svg>
                                         <div class="flex-1">
-                                            <p class="font-semibold text-gray-800">${doc.archivo_nombre || 'Documento'}</p>
-                                            <p class="text-sm text-gray-500">Formato: ${doc.archivo_nombre ? doc.archivo_nombre.split('.').pop().toUpperCase() : 'Desconocido'}</p>
+                                            <p class="font-semibold text-gray-800">${archivoNombre || 'Documento'}</p>
+                                            <p class="text-sm text-gray-500">Formato: ${archivoNombre ? archivoNombre.split('.').pop().toUpperCase() : 'Desconocido'}</p>
                                         </div>
-                                        <a href="/storage/${doc.archivo_path}" target="_blank" download
+                                        <a href="/storage/${archivoPath}" target="_blank" download
                                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm inline-flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -401,7 +410,7 @@
                                 
                                 <!-- Metadata -->
                                 <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg text-sm text-gray-500 space-y-1">
-                                    <p><strong>Creado por:</strong> ${doc.creador?.name || 'Sistema'}</p>
+                                    <p><strong>Creado por:</strong> ${creador}</p>
                                     <p><strong>Fecha de creación:</strong> ${new Date(doc.created_at).toLocaleString('es-ES')}</p>
                                     <p><strong>Última actualización:</strong> ${new Date(doc.updated_at).toLocaleString('es-ES')}</p>
                                 </div>
@@ -435,9 +444,9 @@
                 });
                 const doc = await response.json();
                 
-                document.getElementById('documentoId').value = doc.id;
-                document.getElementById('titulo_doc').value = doc.titulo;
-                document.getElementById('tipo_doc').value = doc.tipo;
+                document.getElementById('documentoId').value = doc.DocumentoID || doc.id;
+                document.getElementById('titulo_doc').value = doc.Titulo || doc.titulo || '';
+                document.getElementById('tipo_doc').value = doc.tipo || '';
                 document.getElementById('categoria_doc').value = doc.categoria || '';
                 document.getElementById('descripcion_doc').value = doc.descripcion || '';
                 

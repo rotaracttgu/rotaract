@@ -293,6 +293,7 @@ class VoceroController extends Controller
             foreach ($reporteDetallado as $evento) {
                 if ($evento->TotalAsistencias > 0) {
                     $datosGraficos['asistencias'][] = [
+                        'calendario_id' => $evento->CalendarioID,
                         'titulo' => $evento->TituloEvento,
                         'presentes' => $evento->TotalPresentes ?? 0,
                         'ausentes' => $evento->TotalAusentes ?? 0,
