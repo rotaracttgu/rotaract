@@ -62,13 +62,16 @@
             margin: 0;
             overflow: visible;
         }
-        
-        #config-content.hidden {
-            display: none;
+
+        /* Contenedor de página normal */
+        #page-content {
+            width: 100%;
         }
-        
-        #config-content.visible {
-            display: block;
+
+        /* Asegurar que ambos contenedores tengan el mismo comportamiento */
+        #config-content,
+        #page-content {
+            box-sizing: border-box;
         }
 
         .ajax-load {
@@ -109,15 +112,18 @@
             </header>
         @endisset
 
-        <main class="container-fluid">
-            @isset($slot)
-                {{ $slot }}
-            @else
-                @yield('content')
-            @endisset
-            
-            <!-- ⭐ CONTENEDOR AJAX GLOBAL - Dentro del main para que tenga espacio completo -->
-            <div id="config-content" class="ajax-content-container hidden"></div>
+        <main class="container-fluid px-4">
+            <!-- ⭐ CONTENEDOR PARA CONTENIDO NORMAL DE LAS VISTAS -->
+            <div id="page-content">
+                @isset($slot)
+                    {{ $slot }}
+                @else
+                    @yield('content')
+                @endisset
+            </div>
+
+            <!-- ⭐ CONTENEDOR AJAX GLOBAL - Se muestra cuando se carga contenido AJAX -->
+            <div id="config-content" class="ajax-content-container" style="display: none;"></div>
         </main>
     </div>
 
@@ -143,44 +149,28 @@
     <script>
         $(document).ready(function() {
             console.log('✅ Sistema AJAX de Roles/Permisos inicializado');
-            console.log('🔵 jQuery versión:', $.fn.jquery);
-            console.log('🔵 Elementos .ajax-load encontrados:', $('.ajax-load').length);
-            
-            // Log al cargar la página
-            $('.ajax-load').each(function(index) {
-                console.log('🔵 Link #' + index + ':', $(this).attr('href'), 'Section:', $(this).data('section'));
-            });
-            
+
             // ⭐ BANDERA PARA EVITAR LOOP INFINITO
             let isAjaxLoading = false;
-            
-            // ⭐ AGREGAR LISTENER NATIVO DE JAVASCRIPT (NO JQUERY) PARA BYPASS ALPINE
-            document.addEventListener('click', function(e) {
-                const target = e.target.closest('.ajax-load');
-                if (target) {
-                    console.log('🟢 CLICK NATIVO DETECTADO en .ajax-load');
-                    console.log('🟢 Target:', target);
-                    console.log('🟢 Href:', target.getAttribute('href'));
-                }
-            }, true); // true = capture phase, se ejecuta ANTES que Alpine
 
             // Función GLOBAL para cargar contenido vía AJAX
             window.cargarContenidoAjax = function(url, target) {
+                console.log('🔵 cargarContenidoAjax llamada');
+                console.log('🔵 URL:', url);
+                console.log('🔵 Target:', target);
+                console.log('🔵 isAjaxLoading:', isAjaxLoading);
+
                 if (isAjaxLoading) {
                     console.log('⚠️ Ya hay una petición AJAX en curso, ignorando...');
                     return;
                 }
-                
-                isAjaxLoading = true;
-                console.log('🔵 cargarContenidoAjax INICIADO');
-                console.log('🔵 URL:', url);
-                console.log('🔵 Target:', target);
-                console.log('🔵 Target existe?:', $(target).length);
-                
-                // ⭐ LIMPIAR COMPLETAMENTE el contenedor y mostrar
-                $(target).empty().removeClass('hidden').addClass('visible');
 
-                $(target).html(`
+                isAjaxLoading = true;
+
+                // ⭐ OCULTAR el contenido de la página y mostrar el contenedor AJAX
+                console.log('🔵 Ocultando #page-content, mostrando', target);
+                $('#page-content').hide();
+                $(target).show().html(`
                     <div class="d-flex justify-content-center align-items-center" style="min-height: 500px;">
                         <div class="text-center">
                             <div class="spinner-border text-primary" style="width: 3rem; height: 3rem; margin-bottom: 1rem;">
@@ -190,8 +180,9 @@
                         </div>
                     </div>
                 `);
-                
-                console.log('🔵 Spinner mostrado, iniciando AJAX...');
+
+                // Scroll hacia arriba
+                $('html, body').scrollTop(0);
 
                 $.ajax({
                     url: url,
@@ -204,41 +195,27 @@
                         console.log('🔵 AJAX beforeSend - Enviando petición...');
                     },
                     success: function(html, textStatus, xhr) {
-                        console.log('✅ AJAX SUCCESS');
-                        console.log('✅ Response length:', html.length);
-                        console.log('✅ Status:', textStatus);
-                        console.log('✅ Headers:', xhr.getAllResponseHeaders());
-                        console.log('✅ HTML preview:', html.substring(0, 200));
-                        
-                        // ⭐ FORZAR contenedor visible antes de insertar HTML
-                        $(target).removeClass('hidden').addClass('visible');
-                        $(target).html(html);
-                        console.log('✅ HTML insertado en', target);
-                        console.log('✅ Contenedor clases:', $(target).attr('class'));
-                        console.log('✅ Contenedor display:', $(target).css('display'));
-                        
-                        // ⭐ Scroll suave al contenedor después de cargar
+                        console.log('✅ AJAX SUCCESS - length:', html.length);
+
+                        // ⭐ Asegurar que page-content está oculto
+                        $('#page-content').hide();
+
+                        // ⭐ LIMPIAR completamente e insertar nuevo HTML
+                        $(target).empty().html(html).show();
+
+                        // ⭐ Scroll arriba
+                        $('html, body').animate({ scrollTop: 0 }, 200);
+
+                        // Re-inicializar Alpine.js
                         setTimeout(function() {
-                            // Asegurar que sigue visible
-                            $(target).removeClass('hidden').addClass('visible');
-                            if ($(target).offset()) {
-                                $('html, body').animate({
-                                    scrollTop: $(target).offset().top - 100
-                                }, 300);
+                            if (window.Alpine) {
+                                try {
+                                    Alpine.initTree($(target)[0]);
+                                } catch (e) {
+                                    console.log('⚠️ Alpine init:', e);
+                                }
                             }
-                        }, 150);
-                        
-                        // Re-inicializar componentes de Bootstrap
-                        if (typeof bootstrap !== 'undefined') {
-                            // Tooltips
-                            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                                return new bootstrap.Tooltip(tooltipTriggerEl);
-                            });
-                            
-                            // Collapses - NO inicializar automáticamente, dejar que Bootstrap lo maneje
-                            console.log('✅ Componentes Bootstrap reinicializados');
-                        }
+                        }, 100);
                     },
                     error: function(xhr, status, error) {
                         console.error('❌ AJAX ERROR');
@@ -258,8 +235,8 @@
                         }
                         
                         // ⭐ Mantener visible en error
-                        $(target).removeClass('hidden').addClass('visible');
-                        $(target).html(`
+                        $('#page-content').hide();
+                        $(target).show().html(`
                             <div class="alert alert-danger p-4 text-center m-4">
                                 <i class="fas fa-exclamation-triangle me-2" style="font-size: 2rem;"></i>
                                 <h4 class="mt-3">${errorMessage}</h4>

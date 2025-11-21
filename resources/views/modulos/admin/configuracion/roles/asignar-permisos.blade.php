@@ -17,7 +17,10 @@
 
 <script>
 function volverARoles() {
-    $('#sidebar .ajax-load[data-section="roles"]').trigger('click');
+    // Usar la función global para recargar la vista de roles
+    if (typeof window.cargarContenidoAjax === 'function') {
+        window.cargarContenidoAjax('{{ route("admin.configuracion.roles.ajax") }}', '#config-content');
+    }
 }
 </script>
 
@@ -222,10 +225,9 @@ $(document).ready(function() {
                     color: '#fff',
                     confirmButtonColor: '#10b981'
                 }).then(() => {
-                    // Recargar la lista de roles vía AJAX
-                    const rolesLink = $('[data-section="roles"]');
-                    if (rolesLink.length) {
-                        rolesLink.trigger('click');
+                    // Recargar la lista de roles usando la función global
+                    if (typeof window.cargarContenidoAjax === 'function') {
+                        window.cargarContenidoAjax('{{ route("admin.configuracion.roles.ajax") }}', '#config-content');
                     }
                 });
             },

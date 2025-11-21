@@ -628,7 +628,9 @@
             $selector.append('<option value="">--- Selecciona un Participante ---</option>');
             
             miembrosData.forEach(miembro => {
-                $selector.append(`<option value="${miembro.MiembroID}">${miembro.Nombre} - ${miembro.Rol}</option>`);
+                const nombre = miembro.Nombre || 'Sin nombre';
+                const rol = miembro.Rol || 'Sin rol';
+                $selector.append(`<option value="${miembro.MiembroID}">${nombre} - ${rol}</option>`);
             });
         }
 

@@ -60,17 +60,15 @@ class DatosCompletosSeeder extends Seeder
         $juan = User::skip(4)->first() ?? User::first();
 
         // ============================================
-        // 3. MIEMBROS
+        // 3. MIEMBROS (Ahora solo user_id, Rol, FechaIngreso, Apuntes)
         // ============================================
         
         DB::table('miembros')->insertOrIgnore([
-            ['MiembroID' => 1, 'user_id' => $rodrigo->id ?? null, 'DNI_Pasaporte' => '0801-1990-12345', 'Nombre' => 'Rodrigo Palma', 'Rol' => 'Super Admin', 'Correo' => 'rodrigopalma7@gmail.com', 'FechaIngreso' => '2025-01-01', 'Apuntes' => 'Super Administrador del sistema'],
-            ['MiembroID' => 2, 'user_id' => $axel->id ?? null, 'DNI_Pasaporte' => '0801-1995-23456', 'Nombre' => 'Axel Cabrera', 'Rol' => 'Vocero', 'Correo' => 'yovani16cabrera20@gmail.com', 'FechaIngreso' => '2025-02-15', 'Apuntes' => 'Vocero del club'],
-            ['MiembroID' => 3, 'user_id' => $carlos->id ?? null, 'DNI_Pasaporte' => '0801-1992-34567', 'Nombre' => 'Carlos Interiano', 'Rol' => 'SuperAdmin', 'Correo' => 'cinteriano25@gmail.com', 'FechaIngreso' => '2025-02-20', 'Apuntes' => 'SuperAdmin'],
-            ['MiembroID' => 4, 'user_id' => $maria->id ?? null, 'DNI_Pasaporte' => '0801-1993-45678', 'Nombre' => 'Pedro Martínez', 'Rol' => 'Socio', 'Correo' => 'pfmartineza@gmail.com', 'FechaIngreso' => '2025-03-01', 'Apuntes' => 'Socio en proceso'],
-            ['MiembroID' => 5, 'user_id' => $juan->id ?? null, 'DNI_Pasaporte' => '0801-1994-56789', 'Nombre' => 'Leonel A.', 'Rol' => 'Socio', 'Correo' => 'lordleo7k@gmail.com', 'FechaIngreso' => '2025-03-10', 'Apuntes' => 'Nuevo socio'],
-            ['MiembroID' => 6, 'user_id' => null, 'DNI_Pasaporte' => null, 'Nombre' => 'Juan Pérez', 'Rol' => 'Socio', 'Correo' => 'juan@example.com', 'FechaIngreso' => '2025-01-01', 'Apuntes' => null],
-            ['MiembroID' => 7, 'user_id' => null, 'DNI_Pasaporte' => null, 'Nombre' => 'María García', 'Rol' => 'Socio', 'Correo' => 'maria@example.com', 'FechaIngreso' => '2025-01-01', 'Apuntes' => null],
+            ['MiembroID' => 1, 'user_id' => $rodrigo->id ?? null, 'Rol' => 'Super Admin', 'FechaIngreso' => '2025-01-01', 'Apuntes' => 'Super Administrador del sistema'],
+            ['MiembroID' => 2, 'user_id' => $axel->id ?? null, 'Rol' => 'Vocero', 'FechaIngreso' => '2025-02-15', 'Apuntes' => 'Vocero del club'],
+            ['MiembroID' => 3, 'user_id' => $carlos->id ?? null, 'Rol' => 'SuperAdmin', 'FechaIngreso' => '2025-02-20', 'Apuntes' => 'SuperAdmin'],
+            ['MiembroID' => 4, 'user_id' => $maria->id ?? null, 'Rol' => 'Socio', 'FechaIngreso' => '2025-03-01', 'Apuntes' => 'Socio en proceso'],
+            ['MiembroID' => 5, 'user_id' => $juan->id ?? null, 'Rol' => 'Socio', 'FechaIngreso' => '2025-03-10', 'Apuntes' => 'Nuevo socio'],
         ]);
 
         // ============================================

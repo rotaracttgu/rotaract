@@ -220,34 +220,44 @@
     </div>
 </div>
 
-@push('styles')
 <style>
     [x-cloak] { display: none !important; }
-    
+
     .pagination-wrapper .pagination {
         display: flex;
         gap: 0.5rem;
     }
-    
+
     .pagination-wrapper .page-link {
-        @apply px-3 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors;
+        padding: 0.5rem 0.75rem;
+        background-color: #374151;
+        color: #d1d5db;
+        border-radius: 0.5rem;
+        transition: background-color 0.2s;
     }
-    
+
+    .pagination-wrapper .page-link:hover {
+        background-color: #4b5563;
+    }
+
     .pagination-wrapper .page-item.active .page-link {
-        @apply bg-green-600 text-white;
+        background-color: #10b981;
+        color: white;
     }
 </style>
-@endpush
 
-@push('scripts')
 <script>
-// Funciones para manejar las acciones de permisos
+// Funciones para manejar las acciones de permisos - INLINE para AJAX
 function cargarFormularioCrearPermiso() {
-    cargarContenidoAjax('{{ route("admin.configuracion.permisos.create") }}', '#config-content');
+    if (typeof window.cargarContenidoAjax === 'function') {
+        window.cargarContenidoAjax('{{ route("admin.configuracion.permisos.create") }}', '#config-content');
+    }
 }
 
 function editarPermiso(permId) {
-    cargarContenidoAjax(`{{ url('admin/configuracion/permisos') }}/${permId}/edit`, '#config-content');
+    if (typeof window.cargarContenidoAjax === 'function') {
+        window.cargarContenidoAjax(`{{ url('admin/configuracion/permisos') }}/${permId}/edit`, '#config-content');
+    }
 }
 
 function eliminarPermiso(permId, permName, rolesCount) {
@@ -286,8 +296,10 @@ function eliminarPermiso(permId, permName, rolesCount) {
                         confirmButtonColor: '#10b981',
                         timer: 2000
                     }).then(() => {
-                        // Recargar la vista de permisos
-                        $('#sidebar .ajax-load[data-section="permisos"]').trigger('click');
+                        // Recargar la vista de permisos usando la función global
+                        if (typeof window.cargarContenidoAjax === 'function') {
+                            window.cargarContenidoAjax('{{ route("admin.configuracion.permisos.ajax") }}', '#config-content');
+                        }
                     });
                 },
                 error: function(xhr) {
@@ -308,47 +320,7 @@ function eliminarPermiso(permId, permName, rolesCount) {
         }
     });
 }
-
-// Función auxiliar para cargar contenido AJAX (si no existe globalmente)
-if (typeof cargarContenidoAjax === 'undefined') {
-    function cargarContenidoAjax(url, target) {
-        $(target).html(`
-            <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
-                <div class="text-center">
-                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem; margin-bottom: 1rem;"></div>
-                    <p class="text-white">Cargando...</p>
-                </div>
-            </div>
-        `);
-        
-        $.ajax({
-            url: url,
-            method: 'GET',
-            headers: { 
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'text/html'
-            },
-            success: function(html) {
-                $(target).html(html);
-                // Reinicializar Alpine.js después de cargar contenido AJAX
-                if (window.Alpine) {
-                    Alpine.scan($(target)[0]);
-                }
-            },
-            error: function(xhr) {
-                $(target).html(`
-                    <div class="alert alert-danger p-4 text-center m-4">
-                        <i class="fas fa-exclamation-triangle me-2" style="font-size: 2rem;"></i>
-                        <h4 class="mt-3">Error al cargar el contenido</h4>
-                        <p class="mb-0">Estado: ${xhr.status}</p>
-                    </div>
-                `);
-            }
-        });
-    }
-}
 </script>
-@endpush
 
 {{-- Cerrar section solo si no es AJAX --}}
 @if(!isset($isAjax) || !$isAjax)

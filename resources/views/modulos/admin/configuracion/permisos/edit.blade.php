@@ -200,7 +200,10 @@
 
 <script>
 function volverAPermisos() {
-    $('#sidebar .ajax-load[data-section="permisos"]').trigger('click');
+    // Usar la función global para recargar la vista de permisos
+    if (typeof window.cargarContenidoAjax === 'function') {
+        window.cargarContenidoAjax('{{ route("admin.configuracion.permisos.ajax") }}', '#config-content');
+    }
 }
 
 // Variable para el timeout de validación

@@ -192,7 +192,7 @@ class SocioController extends Controller
             
             // Obtener participantes del proyecto
             $participantes = DB::select(
-                "SELECT m.Nombre, u.email AS Correo, p.Rol AS RolProyecto
+                "SELECT u.name AS Nombre, u.email AS Correo, p.Rol AS RolProyecto
                  FROM participaciones p
                  INNER JOIN miembros m ON p.MiembroID = m.MiembroID
                  INNER JOIN users u ON m.user_id = u.id

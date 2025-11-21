@@ -256,7 +256,10 @@
 
 <script>
 function volverARoles() {
-    $('#sidebar .ajax-load[data-section="roles"]').trigger('click');
+    // Usar la función global para recargar la vista de roles
+    if (typeof window.cargarContenidoAjax === 'function') {
+        window.cargarContenidoAjax('{{ route("admin.configuracion.roles.ajax") }}', '#config-content');
+    }
 }
 
 $(document).ready(function() {

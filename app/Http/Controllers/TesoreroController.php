@@ -1516,7 +1516,12 @@ class TesoreroController extends Controller
     public function membresiasShow($id)
     {
         $this->authorize('finanzas.ver');
-        $membresia = PagoMembresia::findOrFail($id);
+        $membresia = PagoMembresia::with('usuario')->findOrFail($id);
+        
+        // Agregar nombre_miembro y email para la vista
+        $membresia->nombre_miembro = $membresia->usuario->name ?? 'Sin usuario';
+        $membresia->email = $membresia->usuario->email ?? 'N/A';
+        
         return view('modulos.tesorero.membresias.show', compact('membresia'));
     }
 

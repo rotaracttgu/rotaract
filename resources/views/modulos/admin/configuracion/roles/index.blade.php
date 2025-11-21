@@ -189,21 +189,29 @@
 </div>
 
 <script>
-// Funciones para manejar las acciones de roles
+// Funciones para manejar las acciones de roles - INLINE para AJAX
 function cargarFormularioCrear() {
-    cargarContenidoAjax('{{ route("admin.configuracion.roles.create") }}', '#config-content');
+    if (typeof window.cargarContenidoAjax === 'function') {
+        window.cargarContenidoAjax('{{ route("admin.configuracion.roles.create") }}', '#config-content');
+    }
 }
 
 function verDetallesRol(roleId) {
-    cargarContenidoAjax(`{{ url('admin/configuracion/roles') }}/${roleId}`, '#config-content');
+    if (typeof window.cargarContenidoAjax === 'function') {
+        window.cargarContenidoAjax(`{{ url('admin/configuracion/roles') }}/${roleId}`, '#config-content');
+    }
 }
 
 function editarRol(roleId) {
-    cargarContenidoAjax(`{{ url('admin/configuracion/roles') }}/${roleId}/edit`, '#config-content');
+    if (typeof window.cargarContenidoAjax === 'function') {
+        window.cargarContenidoAjax(`{{ url('admin/configuracion/roles') }}/${roleId}/edit`, '#config-content');
+    }
 }
 
 function asignarPermisos(roleId) {
-    cargarContenidoAjax(`{{ url('admin/configuracion/roles') }}/${roleId}/asignar-permisos`, '#config-content');
+    if (typeof window.cargarContenidoAjax === 'function') {
+        window.cargarContenidoAjax(`{{ url('admin/configuracion/roles') }}/${roleId}/asignar-permisos`, '#config-content');
+    }
 }
 
 function eliminarRol(roleId, roleName) {
@@ -242,8 +250,10 @@ function eliminarRol(roleId, roleName) {
                         confirmButtonColor: '#10b981',
                         timer: 2000
                     }).then(() => {
-                        // Recargar la vista de roles
-                        $('#sidebar .ajax-load[data-section="roles"]').trigger('click');
+                        // Recargar la vista de roles usando la función global
+                        if (typeof window.cargarContenidoAjax === 'function') {
+                            window.cargarContenidoAjax('{{ route("admin.configuracion.roles.ajax") }}', '#config-content');
+                        }
                     });
                 },
                 error: function(xhr) {
@@ -263,45 +273,6 @@ function eliminarRol(roleId, roleName) {
             });
         }
     });
-}
-
-// Función auxiliar para cargar contenido AJAX (si no existe globalmente)
-if (typeof cargarContenidoAjax === 'undefined') {
-    function cargarContenidoAjax(url, target) {
-        $(target).html(`
-            <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
-                <div class="text-center">
-                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem; margin-bottom: 1rem;"></div>
-                    <p class="text-white">Cargando...</p>
-                </div>
-            </div>
-        `);
-        
-        $.ajax({
-            url: url,
-            method: 'GET',
-            headers: { 
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'text/html'
-            },
-            success: function(html) {
-                $(target).html(html);
-                // Reinicializar Alpine.js después de cargar contenido AJAX
-                if (window.Alpine) {
-                    Alpine.scan($(target)[0]);
-                }
-            },
-            error: function(xhr) {
-                $(target).html(`
-                    <div class="alert alert-danger p-4 text-center m-4">
-                        <i class="fas fa-exclamation-triangle me-2" style="font-size: 2rem;"></i>
-                        <h4 class="mt-3">Error al cargar el contenido</h4>
-                        <p class="mb-0">Estado: ${xhr.status}</p>
-                    </div>
-                `);
-            }
-        });
-    }
 }
 </script>
 

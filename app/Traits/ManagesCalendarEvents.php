@@ -24,6 +24,7 @@ trait ManagesCalendarEvents
         try {
             $eventos = DB::table('calendarios as c')
                 ->leftJoin('miembros as m', 'c.OrganizadorID', '=', 'm.MiembroID')
+                ->leftJoin('users as u', 'm.user_id', '=', 'u.id')
                 ->leftJoin('proyectos as p', 'c.ProyectoID', '=', 'p.ProyectoID')
                 ->select(
                     'c.CalendarioID',
@@ -38,7 +39,7 @@ trait ManagesCalendarEvents
                     'c.Ubicacion',
                     'c.OrganizadorID',
                     'c.ProyectoID',
-                    DB::raw('COALESCE(m.Nombre, "Sin Organizador") as NombreOrganizador'),
+                    DB::raw('COALESCE(u.name, "Sin Organizador") as NombreOrganizador'),
                     'p.Nombre as NombreProyecto'
                 )
                 ->orderBy('c.FechaInicio', 'desc')

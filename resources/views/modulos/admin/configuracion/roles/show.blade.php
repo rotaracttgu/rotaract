@@ -32,11 +32,16 @@
 
 <script>
 function volverARoles() {
-    $('#sidebar .ajax-load[data-section="roles"]').trigger('click');
+    // Usar la función global para recargar la vista de roles
+    if (typeof window.cargarContenidoAjax === 'function') {
+        window.cargarContenidoAjax('{{ route("admin.configuracion.roles.ajax") }}', '#config-content');
+    }
 }
 
 function editarRol(roleId) {
-    window.cargarContenidoAjax(`{{ url('admin/configuracion/roles') }}/${roleId}/edit`, '#config-content');
+    if (typeof window.cargarContenidoAjax === 'function') {
+        window.cargarContenidoAjax(`{{ url('admin/configuracion/roles') }}/${roleId}/edit`, '#config-content');
+    }
 }
 </script>
 
@@ -245,36 +250,6 @@ function editarRol(roleId) {
 }
 </style>
 
-<script>
-// Función auxiliar para cargar contenido AJAX (ya está en app-admin.blade.php)
-function cargarContenidoAjax(url, target) {
-    $(target).html(`
-        <div class="d-flex justify-content-center align-items-center" style="min-height: 500px;">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-        </div>
-    `);
-
-    $.ajax({
-        url: url,
-        method: 'GET',
-        headers: { 
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'text/html'
-        },
-        success: function(html) {
-            $(target).html(html);
-        },
-        error: function(xhr) {
-            $(target).html(`
-                <div class="alert alert-danger p-4 text-center m-4">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Error al cargar el contenido
-                </div>
-            `);
-        }
-    });
-}
-</script>
 
 {{-- Cerrar section solo si no es AJAX --}}
 @if(!isset($isAjax) || !$isAjax)

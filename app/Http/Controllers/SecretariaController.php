@@ -1803,6 +1803,7 @@ class SecretariaController extends Controller
     {
         return DB::table('calendarios as c')
             ->leftJoin('miembros as m', 'c.OrganizadorID', '=', 'm.MiembroID')
+            ->leftJoin('users as u', 'm.user_id', '=', 'u.id')
             ->leftJoin('proyectos as p', 'c.ProyectoID', '=', 'p.ProyectoID')
             ->select(
                 'c.CalendarioID',
@@ -1816,8 +1817,8 @@ class SecretariaController extends Controller
                 'c.HoraFin',
                 'c.Ubicacion',
                 'c.OrganizadorID',
-                DB::raw('COALESCE(m.Nombre, "Sin Organizador") as NombreOrganizador'),
-                'm.Correo as CorreoOrganizador',
+                DB::raw('COALESCE(u.name, "Sin Organizador") as NombreOrganizador'),
+                'u.email as CorreoOrganizador',
                 'c.ProyectoID',
                 'p.Nombre as NombreProyecto',
                 'p.Descripcion as DescripcionProyecto'

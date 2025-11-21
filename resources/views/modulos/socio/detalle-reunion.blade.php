@@ -259,10 +259,10 @@
                         @foreach($participantes as $participante)
                             <div class="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
                                 <div class="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3 shadow-md">
-                                    {{ substr($participante->Nombre, 0, 1) }}
+                                    {{ isset($participante->user) ? substr($participante->user->name, 0, 1) : '?' }}
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-sm font-semibold text-gray-900">{{ $participante->Nombre }}</p>
+                                    <p class="text-sm font-semibold text-gray-900">{{ $participante->user->name ?? 'Sin nombre' }}</p>
                                 </div>
                                 @if(isset($participante->Asistencia))
                                     <svg class="w-5 h-5
