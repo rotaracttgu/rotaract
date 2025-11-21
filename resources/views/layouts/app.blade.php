@@ -5,7 +5,40 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'Rotaract Fuerza Tegucigalpa Sur') }}</title>
+        
+        <!-- Favicon -->
+        <link rel="icon" type="image/jpeg" href="{{ asset('images/Logo_barra_navegador.jpg') }}?v=2">
+        <link rel="shortcut icon" type="image/jpeg" href="{{ asset('images/Logo_barra_navegador.jpg') }}?v=2">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/Logo_barra_navegador.jpg') }}">
+        <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+        
+        <!-- Meta Tags para SEO -->
+        <meta name="description" content="Bienvenidos a la paguina de Rotaract Fuerza Tegucigalpa Sur"
+        <meta name="keywords" content="Rotaract, Fuerza Tegucigalpa Sur, Rotaract Fuerza, proyectos, voluntariado">
+        <meta name="author" content="Rotaract Fuerza Tegucigalpa Sur">
+        
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:site_name" content="Rotaract Fuerza Tegucigalpa Sur">
+        <meta property="og:title" content="{{ config('app.name', 'Rotaract Fuerza Tegucigalpa Sur') }}">
+        <meta property="og:description" content="Sistema de gestión del Rotaract Fuerza Tegucigalpa Sur - Proyectos, reuniones, finanzas y más">
+        <meta property="og:image" content="{{ asset('images/Logo_barra_navegador.jpg') }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:locale" content="es_HN">
+        
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:url" content="{{ url()->current() }}">
+        <meta name="twitter:title" content="{{ config('app.name', 'Rotaract Fuerza Tegucigalpa Sur') }}">
+        <meta name="twitter:description" content="Sistema de gestión del Rotaract Fuerza Tegucigalpa Sur">
+        <meta name="twitter:image" content="{{ asset('images/Logo_barra_navegador.jpg') }}">
+        
+        <!-- Theme Color -->
+        <meta name="theme-color" content="#0052A5">
+        <meta name="msapplication-TileColor" content="#0052A5">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />

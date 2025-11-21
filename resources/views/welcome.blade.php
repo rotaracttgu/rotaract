@@ -1,3 +1,15 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ config('app.name', 'Rotaract Fuerza Tegucigalpa Sur') }}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="{{ asset('images/Logo_barra_navegador.jpg') }}?v=2">
+    <link rel="shortcut icon" type="image/jpeg" href="{{ asset('images/Logo_barra_navegador.jpg') }}?v=2">
+    
 <style>
     /* 1. Reset y Contenedor Principal */
     body {
@@ -118,7 +130,8 @@
         }
     }
 </style>
-
+</head>
+<body>
 <div class="impact-hero-container">
     <div class="impact-card">
         <img src="{{ asset('images/LogoRotaract.png') }}" alt="Logo Rotaract Club" class="logo-impact">
@@ -130,3 +143,5 @@
         <a href="/login" class="btn-impact">ACCEDER A LA PLATAFORMA</a>
     </div>
 </div>
+</body>
+</html>
