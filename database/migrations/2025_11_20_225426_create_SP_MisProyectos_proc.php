@@ -67,12 +67,12 @@ BEGIN
             OR
             part.MiembroID = v_miembro_id
         )
-        AND (p_filtro_estado IS NULL OR p.Estatus = CAST(p_filtro_estado AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci))
-        AND (p_filtro_tipo IS NULL OR p.TipoProyecto = CAST(p_filtro_tipo AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci))
+        AND (p_filtro_estado IS NULL OR p.Estatus = CAST(p_filtro_estado AS CHAR))
+        AND (p_filtro_tipo IS NULL OR p.TipoProyecto = CAST(p_filtro_tipo AS CHAR))
         AND (
             p_buscar IS NULL OR p_buscar = '' 
-            OR p.Nombre LIKE CONCAT('%', CAST(p_buscar AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci), '%')
-            OR p.Descripcion LIKE CONCAT('%', CAST(p_buscar AS CHAR CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci), '%')
+            OR p.Nombre LIKE CONCAT('%', CAST(p_buscar AS CHAR), '%')
+            OR p.Descripcion LIKE CONCAT('%', CAST(p_buscar AS CHAR), '%')
         )
         ORDER BY 
             CASE p.Estatus
