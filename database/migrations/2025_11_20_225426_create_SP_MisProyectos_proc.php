@@ -34,9 +34,9 @@ BEGIN
             p.Presupuesto,
             p.TipoProyecto,
             p.ResponsableID,
-            m_resp.Nombre AS NombreResponsable,
+            u_resp.name AS NombreResponsable,
             u_resp.email AS CorreoResponsable,
-            part.Rol AS RolProyecto,
+            m_user.Rol AS RolProyecto,
             part.FechaIngreso AS FechaIngresoProyecto,
             part.EstadoParticipacion,
             CASE 
@@ -62,17 +62,18 @@ BEGIN
         LEFT JOIN participaciones part ON p.ProyectoID = part.ProyectoID AND part.MiembroID = v_miembro_id
         LEFT JOIN miembros m_resp ON p.ResponsableID = m_resp.MiembroID
         LEFT JOIN users u_resp ON m_resp.user_id = u_resp.id
+        LEFT JOIN miembros m_user ON m_user.MiembroID = v_miembro_id
         WHERE (
             p.ResponsableID = v_miembro_id
             OR
             part.MiembroID = v_miembro_id
         )
-        AND (p_filtro_estado IS NULL OR p.Estatus = CAST(p_filtro_estado AS CHAR))
-        AND (p_filtro_tipo IS NULL OR p.TipoProyecto = CAST(p_filtro_tipo AS CHAR))
+        AND (p_filtro_estado IS NULL OR p.Estatus = p_filtro_estado COLLATE utf8mb4_unicode_ci)
+        AND (p_filtro_tipo IS NULL OR p.TipoProyecto = p_filtro_tipo COLLATE utf8mb4_unicode_ci)
         AND (
             p_buscar IS NULL OR p_buscar = '' 
-            OR p.Nombre LIKE CONCAT('%', CAST(p_buscar AS CHAR), '%')
-            OR p.Descripcion LIKE CONCAT('%', CAST(p_buscar AS CHAR), '%')
+            OR p.Nombre LIKE CONCAT('%', p_buscar, '%')
+            OR p.Descripcion LIKE CONCAT('%', p_buscar, '%')
         )
         ORDER BY 
             CASE p.Estatus

@@ -58,10 +58,10 @@ BEGIN
         n.FechaCreacion,
         u.name AS autor,
         n.MiembroID
-    FROM notas n
+    FROM notas_personales n
     INNER JOIN miembros m ON n.MiembroID = m.MiembroID
     INNER JOIN users u ON m.user_id = u.id
-    WHERE n.Visibilidad = 'Publica'
+    WHERE n.Visibilidad = 'publica'
     ORDER BY n.FechaCreacion DESC
     LIMIT p_limite;
 END");
@@ -94,22 +94,25 @@ BEGIN
             n.Categoria,
             n.FechaCreacion,
             n.Visibilidad,
+            n.Etiquetas,
+            n.Estado,
             n.MiembroID,
             u.name AS AutorNombre,
             COALESCE((
                 SELECT COUNT(*) 
-                FROM notas n2 
+                FROM notas_personales n2 
                 WHERE n2.MiembroID = v_miembro_id
-                AND (p_categoria IS NULL OR n2.Categoria = p_categoria)
-                AND (p_visibilidad IS NULL OR n2.Visibilidad = p_visibilidad)
+                AND (p_categoria IS NULL OR n2.Categoria COLLATE utf8mb4_general_ci = p_categoria COLLATE utf8mb4_general_ci)
+                AND (p_visibilidad IS NULL OR n2.Visibilidad COLLATE utf8mb4_general_ci = p_visibilidad COLLATE utf8mb4_general_ci)
                 AND (p_buscar = '' OR n2.Titulo LIKE CONCAT('%', p_buscar, '%') OR n2.Contenido LIKE CONCAT('%', p_buscar, '%'))
             ), 0) AS total_resultados
-        FROM notas n
+        FROM notas_personales n
         INNER JOIN miembros m ON n.MiembroID = m.MiembroID
         INNER JOIN users u ON m.user_id = u.id
         WHERE n.MiembroID = v_miembro_id
-        AND (p_categoria IS NULL OR n.Categoria = p_categoria)
-        AND (p_visibilidad IS NULL OR n.Visibilidad = p_visibilidad)
+        AND n.Estado COLLATE utf8mb4_general_ci = 'activa'
+        AND (p_categoria IS NULL OR n.Categoria COLLATE utf8mb4_general_ci = p_categoria COLLATE utf8mb4_general_ci)
+        AND (p_visibilidad IS NULL OR n.Visibilidad COLLATE utf8mb4_general_ci = p_visibilidad COLLATE utf8mb4_general_ci)
         AND (p_buscar = '' OR n.Titulo LIKE CONCAT('%', p_buscar, '%') OR n.Contenido LIKE CONCAT('%', p_buscar, '%'))
         ORDER BY n.FechaCreacion DESC
         LIMIT p_limite OFFSET p_offset;
@@ -186,9 +189,9 @@ END");
         foreach ($eventosProcedures as $procName => $params) {
             DB::unprepared("DROP PROCEDURE IF EXISTS {$procName}");
             $paramsClause = $params ? "({$params})" : "()";
-            $whereClause = $params ? "WHERE e.Tipo = p_tipo" : "";
+            $whereClause = $params ? "WHERE e.Tipo COLLATE utf8mb4_general_ci = p_tipo COLLATE utf8mb4_general_ci" : "";
             if ($procName === 'sp_obtener_eventos_por_estado') {
-                $whereClause = "WHERE e.Estado = p_estado";
+                $whereClause = "WHERE e.Estado COLLATE utf8mb4_general_ci = p_estado COLLATE utf8mb4_general_ci";
             }
             
             DB::unprepared("CREATE PROCEDURE `{$procName}`{$paramsClause}

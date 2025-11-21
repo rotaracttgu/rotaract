@@ -31,7 +31,7 @@ BEGIN
             c.HoraFin,
             c.Ubicacion,
             c.OrganizadorID,
-            m_org.Nombre AS NombreOrganizador,
+            u_org.name AS NombreOrganizador,
             u_org.email AS EmailOrganizador,
             c.ProyectoID,
             p.Nombre AS NombreProyecto,
@@ -66,9 +66,9 @@ BEGIN
             OR (p_tipo_filtro = 'proximas' AND c.FechaInicio >= CURRENT_DATE())
             OR (p_tipo_filtro = 'pasadas' AND c.FechaInicio < CURRENT_DATE())
             OR (p_tipo_filtro = 'mes_actual' AND MONTH(c.FechaInicio) = MONTH(CURRENT_DATE()) AND YEAR(c.FechaInicio) = YEAR(CURRENT_DATE()))
-            OR (CAST(p_tipo_filtro AS CHAR) = CAST(c.EstadoEvento AS CHAR))
+            OR (p_tipo_filtro = c.EstadoEvento COLLATE utf8mb4_unicode_ci)
         )
-        AND (p_tipo_evento IS NULL OR c.TipoEvento = CAST(p_tipo_evento AS CHAR))
+        AND (p_tipo_evento IS NULL OR c.TipoEvento = p_tipo_evento COLLATE utf8mb4_unicode_ci)
         ORDER BY 
             CASE 
                 WHEN p_tipo_filtro = 'proximas' OR p_tipo_filtro IS NULL THEN c.FechaInicio

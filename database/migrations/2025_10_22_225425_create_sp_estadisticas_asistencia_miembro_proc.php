@@ -14,8 +14,8 @@ return new class extends Migration
 BEGIN
   SELECT 
     m.MiembroID,
-    m.Nombre,
-    m.Correo,
+    u.name AS Nombre,
+    u.email AS Correo,
     COUNT(a.AsistenciaID) AS TotalEventos,
     SUM(CASE WHEN a.EstadoAsistencia = 'Presente' THEN 1 ELSE 0 END) AS TotalPresente,
     SUM(CASE WHEN a.EstadoAsistencia = 'Ausente' THEN 1 ELSE 0 END) AS TotalAusente,
@@ -26,9 +26,10 @@ BEGIN
     ) AS PorcentajeAsistencia,
     SUM(COALESCE(a.MinutosTarde, 0)) AS TotalMinutosTarde
   FROM miembros m
+  INNER JOIN users u ON m.user_id = u.id
   LEFT JOIN asistencias a ON m.MiembroID = a.MiembroID
   WHERE m.MiembroID = p_miembro_id
-  GROUP BY m.MiembroID, m.Nombre, m.Correo;
+  GROUP BY m.MiembroID, u.name, u.email;
 END");
     }
 

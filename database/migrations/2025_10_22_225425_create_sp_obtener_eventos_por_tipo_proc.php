@@ -24,11 +24,12 @@ BEGIN
     c.HoraFin,
     c.Ubicacion,
     c.OrganizadorID,
-    COALESCE(m.Nombre, 'Sin Organizador') AS NombreOrganizador,
+    COALESCE(u.name, 'Sin Organizador') AS NombreOrganizador,
     c.ProyectoID,
     p.Nombre AS NombreProyecto
   FROM calendarios c
   LEFT JOIN miembros m ON c.OrganizadorID = m.MiembroID
+  LEFT JOIN users u ON m.user_id = u.id
   LEFT JOIN proyectos p ON c.ProyectoID = p.ProyectoID
   WHERE c.TipoEvento COLLATE utf8mb4_general_ci = p_tipo_evento COLLATE utf8mb4_general_ci
   ORDER BY c.FechaInicio DESC;

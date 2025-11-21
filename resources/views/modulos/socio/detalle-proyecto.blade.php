@@ -93,10 +93,10 @@
                         @foreach($participantes as $miembro)
                             <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                                 <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4 shadow-md">
-                                    {{ substr($miembro->user->name, 0, 1) }}
+                                    {{ substr($miembro->Nombre, 0, 1) }}
                                 </div>
                                 <div>
-                                    <p class="font-semibold text-gray-900">{{ $miembro->user->name }}</p>
+                                    <p class="font-semibold text-gray-900">{{ $miembro->Nombre }}</p>
                                     <p class="text-sm text-gray-600">{{ $miembro->RolProyecto ?? 'Colaborador' }}</p>
                                 </div>
                             </div>

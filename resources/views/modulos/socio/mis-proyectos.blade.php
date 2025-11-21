@@ -223,12 +223,12 @@
                             @endif
 
                             <!-- Mi Rol en el Proyecto -->
-                            @if(isset($proyecto->RolProyecto))
+                            @if(isset($proyecto->RolProyecto) && !empty($proyecto->RolProyecto))
                                 <div class="flex items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
                                     <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                     </svg>
-                                    <span class="text-sm font-semibold text-gray-700">Mi rol:</span>
+                                    <span class="text-sm font-semibold text-gray-700">Mi rol en el club:</span>
                                     <span class="ml-2 text-sm font-bold text-purple-700">{{ $proyecto->RolProyecto }}</span>
                                 </div>
                             @endif

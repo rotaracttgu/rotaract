@@ -459,49 +459,50 @@
                                 <!-- ID -->
                                 <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 rounded-lg">
                                     <p class="text-xs font-medium text-gray-500 uppercase mb-1">ID de Consulta</p>
-                                    <p class="text-lg font-bold text-gray-900">#${consulta.id}</p>
+                                    <p class="text-lg font-bold text-gray-900">#${consulta.ConsultaID}</p>
                                 </div>
                                 
                                 <!-- Estado -->
                                 <div class="bg-gradient-to-br from-teal-50 to-cyan-50 p-4 rounded-lg">
                                     <p class="text-xs font-medium text-gray-500 uppercase mb-1">Estado</p>
-                                    <span class="inline-flex px-3 py-1 rounded-full text-sm font-semibold shadow-sm ${estadoBadges[consulta.estado] || 'bg-gray-500 text-white'}">
-                                        ${consulta.estado}
+                                    <span class="inline-flex px-3 py-1 rounded-full text-sm font-semibold shadow-sm ${estadoBadges[consulta.Estado] || 'bg-gray-500 text-white'}">
+                                        ${consulta.Estado}
                                     </span>
                                 </div>
                                 
                                 <!-- Usuario -->
                                 <div class="md:col-span-2 bg-white border-2 border-gray-200 p-4 rounded-lg">
                                     <p class="text-xs font-medium text-gray-500 uppercase mb-1">Usuario</p>
-                                    <p class="text-base font-semibold text-gray-900">${consulta.usuario?.name || 'N/A'}</p>
-                                    <p class="text-sm text-gray-600">${consulta.usuario?.email || ''}</p>
+                                    <p class="text-base font-semibold text-gray-900">${consulta.NombreUsuario || 'N/A'}</p>
+                                    <p class="text-sm text-gray-600">${consulta.EmailUsuario || ''}</p>
                                 </div>
                                 
                                 <!-- Asunto -->
                                 <div class="md:col-span-2 bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
                                     <p class="text-xs font-medium text-purple-700 uppercase mb-1">Asunto</p>
-                                    <p class="text-base font-semibold text-gray-900">${consulta.asunto || 'Sin asunto'}</p>
+                                    <p class="text-base font-semibold text-gray-900">${consulta.Asunto || 'Sin asunto'}</p>
                                 </div>
                                 
                                 <!-- Mensaje -->
                                 <div class="md:col-span-2 bg-white border-2 border-gray-200 p-4 rounded-lg">
                                     <p class="text-xs font-medium text-gray-500 uppercase mb-2">Mensaje</p>
                                     <div class="text-sm text-gray-700 bg-gray-50 p-4 rounded border leading-relaxed max-h-64 overflow-y-auto">
-                                        ${consulta.mensaje ? consulta.mensaje.replace(/\n/g, '<br>') : '<span class="text-gray-400">Sin mensaje</span>'}
+                                        ${consulta.Mensaje ? consulta.Mensaje.replace(/\n/g, '<br>') : '<span class="text-gray-400">Sin mensaje</span>'}
                                     </div>
                                 </div>
                                 
-                                ${consulta.respuesta ? `
+                                ${consulta.Respuesta ? `
                                 <div class="md:col-span-2 bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
                                     <p class="text-xs font-medium text-green-700 uppercase mb-2">Respuesta</p>
-                                    <p class="text-sm text-gray-700">${consulta.respuesta}</p>
-                                    <p class="text-xs text-gray-500 mt-2">Respondida el: ${new Date(consulta.respondido_at).toLocaleString('es-ES')}</p>
+                                    <p class="text-sm text-gray-700">${consulta.Respuesta}</p>
+                                    <p class="text-xs text-gray-500 mt-2">Respondida el: ${new Date(consulta.FechaRespuesta).toLocaleString('es-ES')}</p>
+                                    <p class="text-xs text-gray-500">Por: ${consulta.respondido_por_nombre || 'Sistema'}</p>
                                 </div>` : ''}
                                 
                                 <!-- Fecha Creación -->
                                 <div class="md:col-span-2 bg-white border-2 border-gray-200 p-4 rounded-lg">
                                     <p class="text-xs font-medium text-gray-500 uppercase mb-1">Fecha de Creación</p>
-                                    <p class="text-base text-gray-900">${new Date(consulta.created_at).toLocaleString('es-ES')}</p>
+                                    <p class="text-base text-gray-900">${new Date(consulta.FechaEnvio).toLocaleString('es-ES')}</p>
                                 </div>
                             </div>
                         </div>
@@ -549,13 +550,15 @@
                 if (data.success) {
                     alert('Respuesta enviada exitosamente');
                     cerrarModal('modalResponderConsulta');
-                    window.location.reload();
+                    form.reset();
+                    // Recargar la lista de consultas
+                    location.reload();
                 } else {
-                    alert('Error al enviar respuesta');
+                    alert('Error: ' + data.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error de conexión');
+                alert('Error al enviar respuesta');
             }
         }
 

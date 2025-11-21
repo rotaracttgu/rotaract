@@ -22,7 +22,7 @@ BEGIN
         c.HoraInicio,
         c.HoraFin,
         c.Ubicacion,
-        m_org.Nombre AS organizador,
+        u_org.name AS organizador,
         p.Nombre AS proyecto,
         -- Indicador si es evento actual
         CASE 
@@ -32,6 +32,7 @@ BEGIN
         END AS estado_tiempo  -- 1: en curso, 0: próximo, -1: finalizado
     FROM calendarios c
     LEFT JOIN miembros m_org ON c.OrganizadorID = m_org.MiembroID
+    LEFT JOIN users u_org ON m_org.user_id = u_org.id
     LEFT JOIN proyectos p ON c.ProyectoID = p.ProyectoID
     WHERE DATE(c.FechaInicio) = p_fecha
     ORDER BY c.HoraInicio ASC;

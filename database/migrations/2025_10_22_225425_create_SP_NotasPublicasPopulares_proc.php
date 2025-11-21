@@ -18,7 +18,7 @@ BEGIN
         n.Contenido,
         n.Categoria,
         n.FechaCreacion,
-        m.Nombre AS autor,
+        u.name AS autor,
         -- Resumen
         CASE 
             WHEN LENGTH(n.Contenido) > 100 THEN CONCAT(SUBSTRING(n.Contenido, 1, 100), '...')
@@ -29,6 +29,7 @@ BEGIN
         0 AS total_comentarios
     FROM notas_personales n
     INNER JOIN miembros m ON n.MiembroID = m.MiembroID
+    INNER JOIN users u ON m.user_id = u.id
     WHERE n.Visibilidad = 'publica'
     AND n.Estado = 'activa'
     ORDER BY n.FechaCreacion DESC

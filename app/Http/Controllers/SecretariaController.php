@@ -232,18 +232,28 @@ class SecretariaController extends Controller
     public function getConsulta($id)
     {
         $this->authorize('actas.ver');
-        $consulta = Consulta::with('usuario')->findOrFail($id);
         
-        // Agregar URL del comprobante si existe
-        if ($consulta->comprobante_ruta) {
-            $consulta->comprobante_url = asset('storage/' . $consulta->comprobante_ruta);
+        try {
+            // Obtener desde el SP
+            $resultado = DB::select('CALL SP_ConsultasSecretaria(NULL, NULL)');
+            $consultas = collect($resultado);
+            $consulta = $consultas->firstWhere('ConsultaID', $id);
             
-            // Determinar tipo de archivo
-            $extension = pathinfo($consulta->comprobante_ruta, PATHINFO_EXTENSION);
-            $consulta->comprobante_tipo = strtolower($extension) === 'pdf' ? 'pdf' : 'imagen';
+            if (!$consulta) {
+                return response()->json(['error' => 'Consulta no encontrada'], 404);
+            }
+            
+            // Agregar URL del comprobante si existe
+            if ($consulta->ComprobanteRuta) {
+                $consulta->comprobante_url = asset('storage/' . $consulta->ComprobanteRuta);
+                $extension = pathinfo($consulta->ComprobanteRuta, PATHINFO_EXTENSION);
+                $consulta->comprobante_tipo = strtolower($extension) === 'pdf' ? 'pdf' : 'imagen';
+            }
+            
+            return response()->json($consulta);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-        
-        return response()->json($consulta);
     }
 
     /**
@@ -257,17 +267,25 @@ class SecretariaController extends Controller
         ]);
 
         try {
-            // Usar SP para responder
-            DB::statement('CALL SP_ResponderConsulta(?, ?, ?)', [
+            // Usar SP para responder (orden: consulta_id, respuesta, user_id)
+            $resultado = DB::select('CALL SP_ResponderConsulta(?, ?, ?)', [
                 $id,
                 $request->respuesta,
                 Auth::id()
             ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Consulta respondida exitosamente'
-            ]);
+            
+            if (count($resultado) > 0 && $resultado[0]->exito == 1) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Consulta respondida exitosamente',
+                    'consultaID' => $resultado[0]->ConsultaID
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al responder consulta'
+                ], 500);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

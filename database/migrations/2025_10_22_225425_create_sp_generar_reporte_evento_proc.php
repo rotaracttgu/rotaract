@@ -22,8 +22,8 @@ BEGIN
     c.HoraInicio,
     c.HoraFin,
     c.Ubicacion,
-    COALESCE(m.Nombre, 'Sin Organizador') AS Organizador,
-    m.Correo AS CorreoOrganizador,
+    COALESCE(u.name, 'Sin Organizador') AS Organizador,
+    u.email AS CorreoOrganizador,
     COUNT(DISTINCT a.AsistenciaID) AS TotalRegistros,
     SUM(CASE WHEN a.EstadoAsistencia = 'Presente' THEN 1 ELSE 0 END) AS TotalPresentes,
     SUM(CASE WHEN a.EstadoAsistencia = 'Ausente' THEN 1 ELSE 0 END) AS TotalAusentes,
@@ -34,11 +34,12 @@ BEGIN
     ) AS PorcentajeAsistencia
   FROM calendarios c
   LEFT JOIN miembros m ON c.OrganizadorID = m.MiembroID
+  LEFT JOIN users u ON m.user_id = u.id
   LEFT JOIN asistencias a ON c.CalendarioID = a.CalendarioID
   WHERE c.CalendarioID = p_calendario_id
   GROUP BY c.CalendarioID, c.TituloEvento, c.TipoEvento, c.EstadoEvento,
            c.FechaInicio, c.FechaFin, c.HoraInicio, c.HoraFin, c.Ubicacion, 
-           m.Nombre, m.Correo;
+           u.name, u.email;
 END");
     }
 

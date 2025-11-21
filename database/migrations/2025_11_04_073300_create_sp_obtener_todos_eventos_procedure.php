@@ -31,10 +31,11 @@ return new class extends Migration
                     c.Ubicacion,
                     c.OrganizadorID,
                     c.ProyectoID,
-                    m.Nombre AS NombreOrganizador,
+                    u.name AS NombreOrganizador,
                     p.Nombre AS NombreProyecto
                 FROM calendarios c
                 LEFT JOIN miembros m ON c.OrganizadorID = m.MiembroID
+                LEFT JOIN users u ON m.user_id = u.id
                 LEFT JOIN proyectos p ON c.ProyectoID = p.ProyectoID
                 ORDER BY c.FechaInicio DESC;
             END

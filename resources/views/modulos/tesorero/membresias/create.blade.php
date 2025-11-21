@@ -297,9 +297,11 @@
                             required>
                         <option value="">Seleccione un miembro...</option>
                         @foreach($miembros as $miembro)
-                            <option value="{{ $miembro->user_id }}" {{ old('usuario_id') == $miembro->user_id ? 'selected' : '' }}>
-                                {{ $miembro->user->name }} - {{ $miembro->user->email }}
-                            </option>
+                            @if($miembro->user)
+                                <option value="{{ $miembro->user_id }}" {{ old('usuario_id') == $miembro->user_id ? 'selected' : '' }}>
+                                    {{ $miembro->user->name }} - {{ $miembro->user->email }}
+                                </option>
+                            @endif
                         @endforeach
                     </select>
                     @error('usuario_id')

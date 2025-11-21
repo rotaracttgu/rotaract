@@ -380,7 +380,9 @@
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             <option value="">Sin asignar</option>
                             @foreach($miembros as $miembro)
-                                <option value="{{ $miembro->MiembroID }}">{{ $miembro->user->name }}</option>
+                                @if($miembro->user)
+                                    <option value="{{ $miembro->MiembroID }}">{{ $miembro->user->name }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
@@ -469,7 +471,9 @@
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
                             <option value="">Sin asignar</option>
                             @foreach($miembros as $miembro)
-                                <option value="{{ $miembro->MiembroID }}">{{ $miembro->user->name }}</option>
+                                @if($miembro->user)
+                                    <option value="{{ $miembro->MiembroID }}">{{ $miembro->user->name }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>

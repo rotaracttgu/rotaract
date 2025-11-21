@@ -23,9 +23,10 @@ BEGIN
     c.HoraInicio,
     c.HoraFin,
     c.Ubicacion,
-    COALESCE(m.Nombre, 'Sin Organizador') AS NombreOrganizador
+    COALESCE(u.name, 'Sin Organizador') AS NombreOrganizador
   FROM calendarios c
   LEFT JOIN miembros m ON c.OrganizadorID = m.MiembroID
+  LEFT JOIN users u ON m.user_id = u.id
   WHERE DATE(c.FechaInicio) BETWEEN p_fecha_inicio AND p_fecha_fin
   ORDER BY c.FechaInicio;
 END");

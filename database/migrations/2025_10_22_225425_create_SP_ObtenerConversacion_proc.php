@@ -36,17 +36,18 @@ BEGIN
             mc.Prioridad,
             mc.Estado,
             mc.FechaEnvio,
-            m_emisor.Nombre AS nombre_emisor,
-            m_emisor.Correo AS correo_emisor
+            u_emisor.name AS nombre_emisor,
+            u_emisor.email AS correo_emisor
         FROM mensajes_consultas mc
         INNER JOIN miembros m_emisor ON mc.MiembroID = m_emisor.MiembroID
+        INNER JOIN users u_emisor ON m_emisor.user_id = u_emisor.id
         WHERE mc.MensajeID = p_mensaje_id;
         
         -- Todos los mensajes de la conversación
         SELECT 
             cc.ConversacionID,
             cc.RemitenteID,
-            m.Nombre AS nombre_remitente,
+            u.name AS nombre_remitente,
             cc.EsRespuesta,
             cc.TextoMensaje,
             cc.FechaEnvio,
@@ -58,6 +59,7 @@ BEGIN
             END AS es_mi_mensaje
         FROM conversaciones_chat cc
         INNER JOIN miembros m ON cc.RemitenteID = m.MiembroID
+        INNER JOIN users u ON m.user_id = u.id
         WHERE cc.MensajeID = p_mensaje_id
         ORDER BY cc.FechaEnvio ASC;
         

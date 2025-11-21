@@ -37,7 +37,7 @@ BEGIN
             n.FechaCreacion,
             n.FechaActualizacion,
             n.Estado,
-            m.Nombre AS AutorNombre,
+            u.name AS AutorNombre,
             u.email AS AutorEmail
         FROM notas_personales n
         INNER JOIN miembros m ON m.MiembroID = n.MiembroID

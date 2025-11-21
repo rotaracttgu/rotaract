@@ -15,9 +15,9 @@ BEGIN
   SELECT 
     a.AsistenciaID,
     a.MiembroID,
-    m.Nombre AS NombreParticipante,
-    m.Correo AS Gmail,
-    m.DNI_Pasaporte,
+    u.name AS NombreParticipante,
+    u.email AS Gmail,
+    u.dni AS DNI_Pasaporte,
     a.EstadoAsistencia,
     a.HoraLlegada,
     a.MinutosTarde,
@@ -25,8 +25,9 @@ BEGIN
     a.FechaRegistro
   FROM asistencias a
   INNER JOIN miembros m ON a.MiembroID = m.MiembroID
+  INNER JOIN users u ON m.user_id = u.id
   WHERE a.CalendarioID = p_calendario_id
-  ORDER BY m.Nombre;
+  ORDER BY u.name;
 END");
     }
 

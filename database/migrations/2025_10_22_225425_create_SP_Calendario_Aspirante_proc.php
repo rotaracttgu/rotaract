@@ -31,7 +31,7 @@ BEGIN
         c.HoraFin,
         c.Ubicacion,
         c.OrganizadorID,
-        m_org.Nombre AS nombre_organizador,
+        u_org.name AS nombre_organizador,
         c.ProyectoID,
         p.Nombre AS nombre_proyecto,
         -- Información adicional
@@ -55,6 +55,7 @@ BEGIN
         END AS badge_estado
     FROM calendarios c
     LEFT JOIN miembros m_org ON c.OrganizadorID = m_org.MiembroID
+    LEFT JOIN users u_org ON m_org.user_id = u_org.id
     LEFT JOIN proyectos p ON c.ProyectoID = p.ProyectoID
     WHERE c.FechaInicio BETWEEN v_fecha_inicio AND v_fecha_fin
     AND (p_tipo_evento IS NULL OR c.TipoEvento = p_tipo_evento)

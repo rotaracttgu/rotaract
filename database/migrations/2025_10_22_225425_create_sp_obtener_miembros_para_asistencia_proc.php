@@ -15,17 +15,18 @@ BEGIN
   -- Obtener miembros que aún no tienen asistencia registrada para este evento
   SELECT 
     m.MiembroID,
-    m.Nombre,
-    m.Correo,
+    u.name AS Nombre,
+    u.email AS Correo,
     m.Rol,
-    m.DNI_Pasaporte
+    u.dni AS DNI_Pasaporte
   FROM miembros m
+  INNER JOIN users u ON m.user_id = u.id
   WHERE m.MiembroID NOT IN (
     SELECT a.MiembroID 
     FROM asistencias a 
     WHERE a.CalendarioID = p_calendario_id
   )
-  ORDER BY m.Nombre;
+  ORDER BY u.name;
 END");
     }
 

@@ -14,13 +14,14 @@ return new class extends Migration
 BEGIN
   SELECT 
     m.MiembroID,
-    m.Nombre,
-    m.Correo,
+    u.name AS Nombre,
+    u.email AS Correo,
     m.Rol,
-    m.DNI_Pasaporte,
+    u.dni AS DNI_Pasaporte,
     m.FechaIngreso
   FROM miembros m
-  ORDER BY m.Nombre;
+  INNER JOIN users u ON m.user_id = u.id
+  ORDER BY u.name;
 END");
     }
 

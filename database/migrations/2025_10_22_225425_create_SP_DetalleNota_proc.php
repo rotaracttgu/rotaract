@@ -29,9 +29,10 @@ BEGIN
         n.FechaActualizacion,
         n.FechaRecordatorio,
         n.Estado,
-        m.Nombre AS autor
+        u.name AS autor
     FROM notas_personales n
     INNER JOIN miembros m ON n.MiembroID = m.MiembroID
+    INNER JOIN users u ON m.user_id = u.id
     WHERE n.NotaID = p_nota_id
     AND (n.MiembroID = v_miembro_id OR n.Visibilidad = 'publica')
     AND n.Estado = 'activa';

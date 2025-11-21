@@ -222,9 +222,11 @@
                 <label for="usuario_id" class="form-label required-field">Miembro</label>
                 <select class="form-select" id="usuario_id" name="usuario_id" required>
                     @foreach($miembros as $miembro)
-                        <option value="{{ $miembro->user_id }}" {{ $membresia->usuario_id == $miembro->user_id ? 'selected' : '' }}>
-                            {{ $miembro->user->name }} - {{ $miembro->user->email }}
-                        </option>
+                        @if($miembro->user)
+                            <option value="{{ $miembro->user_id }}" {{ $membresia->usuario_id == $miembro->user_id ? 'selected' : '' }}>
+                                {{ $miembro->user->name }} - {{ $miembro->user->email }}
+                            </option>
+                        @endif
                     @endforeach
                 </select>
             </div>

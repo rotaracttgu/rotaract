@@ -10,17 +10,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::unprepared("CREATE PROCEDURE `SP_MisConsultas`(IN `p_user_id` BIGINT, IN `p_filtro_destinatario` VARCHAR(20), IN `p_filtro_estado` VARCHAR(20), IN `p_limite` INT)
+        DB::unprepared("DROP PROCEDURE IF EXISTS SP_ConsultasSecretaria");
+        
+        DB::unprepared("CREATE PROCEDURE `SP_ConsultasSecretaria`(IN `p_estado` VARCHAR(20), IN `p_prioridad` VARCHAR(20))
 BEGIN
-    DECLARE v_miembro_id INT;
-    
-    SELECT MiembroID INTO v_miembro_id
-    FROM miembros
-    WHERE user_id = p_user_id;
-    
     SELECT 
         mc.MensajeID,
         mc.MensajeID AS ConsultaID,
+        mc.MiembroID,
+        u.name AS NombreUsuario,
+        u.email AS EmailUsuario,
         mc.DestinatarioTipo,
         mc.TipoConsulta,
         mc.Asunto,
@@ -33,17 +32,18 @@ BEGIN
         mc.RespuestaMensaje AS Respuesta,
         mc.ArchivoAdjunto,
         mc.ArchivoAdjunto AS ComprobanteRuta,
+        mc.RespondidoPor,
         u_resp.name AS respondido_por_nombre,
         -- Contador de mensajes en la conversación
         (SELECT COUNT(*) 
          FROM conversaciones_chat 
          WHERE MensajeID = mc.MensajeID
         ) AS total_mensajes,
-        -- Mensajes no leídos
+        -- Mensajes no leídos por la secretaría
         (SELECT COUNT(*) 
          FROM conversaciones_chat 
          WHERE MensajeID = mc.MensajeID 
-         AND RemitenteID != v_miembro_id
+         AND RemitenteID = mc.MiembroID
          AND Leido = 0
         ) AS mensajes_no_leidos,
         -- Último mensaje
@@ -61,13 +61,18 @@ BEGIN
          LIMIT 1
         ) AS fecha_ultimo_mensaje
     FROM mensajes_consultas mc
+    INNER JOIN miembros m ON mc.MiembroID = m.MiembroID
+    INNER JOIN users u ON m.user_id = u.id
     LEFT JOIN miembros m_resp ON mc.RespondidoPor = m_resp.MiembroID
     LEFT JOIN users u_resp ON m_resp.user_id = u_resp.id
-    WHERE mc.MiembroID = v_miembro_id
-    AND (p_filtro_destinatario IS NULL OR mc.DestinatarioTipo = p_filtro_destinatario)
-    AND (p_filtro_estado IS NULL OR mc.Estado = p_filtro_estado)
-    ORDER BY mc.FechaEnvio DESC
-    LIMIT p_limite;
+    WHERE mc.DestinatarioTipo = 'secretaria'
+    AND (p_estado IS NULL OR mc.Estado = p_estado)
+    AND (p_prioridad IS NULL OR mc.Prioridad = p_prioridad)
+    ORDER BY 
+        FIELD(mc.Estado, 'pendiente', 'en_proceso', 'respondida', 'cerrada'),
+        FIELD(mc.Prioridad, 'urgente', 'alta', 'media', 'baja'),
+        mc.FechaEnvio DESC
+    LIMIT 100;
 END");
     }
 
@@ -76,6 +81,6 @@ END");
      */
     public function down(): void
     {
-        DB::unprepared("DROP PROCEDURE IF EXISTS SP_MisConsultas");
+        DB::unprepared("DROP PROCEDURE IF EXISTS SP_ConsultasSecretaria");
     }
 };

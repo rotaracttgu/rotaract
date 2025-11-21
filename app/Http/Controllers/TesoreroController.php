@@ -77,8 +77,9 @@ class TesoreroController extends Controller
             ->sum('monto_gastado') ?? 0;
         $presupuesto_disponible = max(0, $totalPresupuestado - $totalGastadoPresupuesto);
         
-        // Miembros activos (total de miembros)
-        $miembros_activos = Miembro::count();
+        // Miembros activos (solo miembros con user_id válido)
+        $miembros_activos = Miembro::whereNotNull('user_id')
+            ->count();
         
         // Alertas de presupuesto (vacío por ahora)
         $alertas_presupuesto = [];
@@ -1905,7 +1906,7 @@ class TesoreroController extends Controller
             $usuarioId = auth()->id();
             
             // Obtener membresías del usuario
-            $membresias = PagoMembresia::where('miembro_id', $usuarioId)
+            $membresias = PagoMembresia::where('usuario_id', $usuarioId)
                 ->orderBy('fecha_pago', 'desc')
                 ->get();
             
@@ -1979,7 +1980,8 @@ class TesoreroController extends Controller
             
             // Crear nuevo pago de membresía
             $pago = PagoMembresia::create([
-                'miembro_id' => auth()->id(),
+                'usuario_id' => auth()->id(),
+                'miembro_id' => auth()->id(),  // Mantener por compatibilidad
                 'monto' => $validated['monto'],
                 'metodo_pago' => $validated['metodo_pago'],
                 'fecha_pago' => $validated['fecha_pago'],
@@ -2016,7 +2018,7 @@ class TesoreroController extends Controller
             $usuarioId = auth()->id();
             
             // Obtener pagos de membresías del usuario
-            $membresias = PagoMembresia::where('miembro_id', $usuarioId)
+            $membresias = PagoMembresia::where('usuario_id', $usuarioId)
                 ->orderBy('fecha_pago', 'desc')
                 ->get();
             
@@ -2059,23 +2061,23 @@ class TesoreroController extends Controller
             $usuarioId = auth()->id();
             
             // Obtener pagos del año actual
-            $pagosAnio = PagoMembresia::where('miembro_id', $usuarioId)
+            $pagosAnio = PagoMembresia::where('usuario_id', $usuarioId)
                 ->whereYear('fecha_pago', now()->year)
                 ->get();
             
             // Pagos últimos 30 días
-            $pagosUltimos30 = PagoMembresia::where('miembro_id', $usuarioId)
+            $pagosUltimos30 = PagoMembresia::where('usuario_id', $usuarioId)
                 ->where('fecha_pago', '>=', now()->subDays(30))
                 ->count();
             
             // Próximo pago
-            $proximoPago = PagoMembresia::where('miembro_id', $usuarioId)
+            $proximoPago = PagoMembresia::where('usuario_id', $usuarioId)
                 ->where('fecha_vencimiento', '>', now())
                 ->orderBy('fecha_vencimiento', 'asc')
                 ->first();
             
             // Pagos por mes
-            $pagosPorMes = PagoMembresia::where('miembro_id', $usuarioId)
+            $pagosPorMes = PagoMembresia::where('usuario_id', $usuarioId)
                 ->whereYear('fecha_pago', now()->year)
                 ->selectRaw('MONTH(fecha_pago) as mes, COUNT(*) as cantidad, SUM(monto) as total')
                 ->groupBy('mes')

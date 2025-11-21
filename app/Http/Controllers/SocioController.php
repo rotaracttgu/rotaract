@@ -17,19 +17,47 @@ class SocioController extends Controller
     {
         $this->authorize('dashboard.ver');
         
-        // Datos iniciales vacíos para el dashboard
-        $proximasReuniones = collect([]);
-        $proyectosActivosLista = collect([]);
-        $totalProyectos = 0;
-        $proyectosActivos = 0;
-        $proyectosEnCurso = 0;
-        $totalReuniones = 0;
-        $reunionesProgramadas = 0;
-        $totalNotas = 0;
-        $notasPrivadas = 0;
-        $notasPublicas = 0;
-        $totalConsultas = 0;
-        $consultasPendientes = 0;
+        try {
+            $userId = Auth::id();
+            
+            // Obtener proyectos activos
+            $proyectosActivosLista = DB::select('CALL SP_MisProyectos(?, "Activo", NULL, "")', [$userId]);
+            $proyectosActivosLista = collect($proyectosActivosLista);
+            
+            // Obtener todas las reuniones para estadísticas
+            $todasReuniones = DB::select('CALL SP_MisReuniones(?, NULL, NULL)', [$userId]);
+            $todasReuniones = collect($todasReuniones);
+            
+            // Próximas reuniones (próximos 7 días)
+            $proximasReuniones = $todasReuniones->filter(function($r) {
+                $fecha = \Carbon\Carbon::parse($r->FechaEvento ?? $r->FechaInicio ?? null);
+                return $fecha && $fecha->isFuture() && $fecha->diffInDays(\Carbon\Carbon::now()) <= 7;
+            })->take(5);
+            
+            // Obtener todas las notas
+            $todasNotas = DB::select('CALL SP_MisNotas(?, NULL, NULL, "", 1000, 0)', [$userId]);
+            $todasNotas = collect($todasNotas);
+            
+            // Obtener todas las consultas
+            $todasConsultas = DB::select('CALL SP_MisConsultas(?, "secretaria", NULL, 100)', [$userId]);
+            $todasConsultas = collect($todasConsultas);
+            
+            // Calcular estadísticas
+            $totalProyectos = DB::select('CALL SP_MisProyectos(?, NULL, NULL, "")', [$userId]);
+            $totalProyectos = collect($totalProyectos)->count();
+            
+            $proyectosActivos = $proyectosActivosLista->count();
+            $proyectosEnCurso = $todasReuniones->whereIn('EstadoEvento', ['Activo', 'En Progreso'])->count();
+            
+            $totalReuniones = $todasReuniones->count();
+            $reunionesProgramadas = $todasReuniones->where('EstadoEvento', 'Programado')->count();
+            
+            $totalNotas = $todasNotas->count();
+            $notasPrivadas = $todasNotas->where('Visibilidad', 'privada')->count();
+            $notasPublicas = $todasNotas->where('Visibilidad', 'publica')->count();
+            
+            $totalConsultas = $todasConsultas->count();
+            $consultasPendientes = $todasConsultas->where('Estado', 'pendiente')->count();
             
             return view('modulos.socio.dashboard', [
                 // Listas
@@ -59,6 +87,26 @@ class SocioController extends Controller
                 'consultasVoceriaPendientes' => 0,
                 'notasActivas' => $totalNotas
             ]);
+        } catch (\Exception $e) {
+            // Retornar dashboard vacío si hay error
+            return view('modulos.socio.dashboard', [
+                'proximasReuniones' => collect([]),
+                'proyectosActivos' => collect([]),
+                'totalProyectos' => 0,
+                'proyectosActivosCount' => 0,
+                'proyectosEnCurso' => 0,
+                'totalReuniones' => 0,
+                'reunionesProgramadas' => 0,
+                'totalNotas' => 0,
+                'notasPrivadas' => 0,
+                'notasPublicas' => 0,
+                'totalConsultas' => 0,
+                'consultasPendientes' => 0,
+                'consultasSecretariaPendientes' => 0,
+                'consultasVoceriaPendientes' => 0,
+                'notasActivas' => 0
+            ]);
+        }
     }
 
     public function calendario()
@@ -288,9 +336,11 @@ class SocioController extends Controller
             $filtroEstado = $request->get('estado', null);
             
             // Obtener consultas del socio desde SP
-            $consultas = DB::select('CALL SP_MisConsultasSocio(?, ?)', [
+            $consultas = DB::select('CALL SP_MisConsultas(?, ?, ?, ?)', [
                 $userId,
-                $filtroEstado
+                'secretaria',
+                $filtroEstado,
+                100
             ]);
             $consultas = collect($consultas);
             
@@ -409,18 +459,30 @@ class SocioController extends Controller
             };
             
             // Crear consulta usando SP
-            DB::statement('CALL SP_CrearConsulta(?, ?, ?, ?, ?, @consulta_id)', [
+            $resultado = DB::select('CALL SP_EnviarConsulta(?, ?, ?, ?, ?, ?)', [
                 Auth::id(),
+                'secretaria',
+                $validated['tipo'],
                 $validated['asunto'],
                 $validated['mensaje'],
-                $comprobanteRuta,
                 $prioridad
             ]);
-            
-            $resultado = DB::select('SELECT @consulta_id AS id')[0];
 
-            return redirect()->route('socio.secretaria.index')
-                ->with('success', '¡Consulta enviada exitosamente! La Secretaría la revisará pronto.');
+            if (!empty($resultado) && isset($resultado[0]->exito) && $resultado[0]->exito == 1) {
+                $mensajeId = $resultado[0]->MensajeID;
+                
+                // Si hay comprobante, actualizarlo en la tabla
+                if ($comprobanteRuta) {
+                    DB::table('mensajes_consultas')
+                        ->where('MensajeID', $mensajeId)
+                        ->update(['ArchivoAdjunto' => $comprobanteRuta]);
+                }
+                
+                return redirect()->route('socio.secretaria.index')
+                    ->with('success', '¡Consulta enviada exitosamente! La Secretaría la revisará pronto.');
+            } else {
+                throw new \Exception('No se pudo crear la consulta');
+            }
 
         } catch (\Exception $e) {
             // Si hubo error y se subió archivo, eliminarlo

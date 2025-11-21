@@ -24,13 +24,14 @@ BEGIN
     c.HoraFin,
     c.Ubicacion,
     c.OrganizadorID,
-    COALESCE(m.Nombre, 'Sin Organizador') AS NombreOrganizador,
-    m.Correo AS CorreoOrganizador,
+    COALESCE(u.name, 'Sin Organizador') AS NombreOrganizador,
+    u.email AS CorreoOrganizador,
     c.ProyectoID,
     p.Nombre AS NombreProyecto,
     p.Descripcion AS DescripcionProyecto
   FROM calendarios c
   LEFT JOIN miembros m ON c.OrganizadorID = m.MiembroID
+  LEFT JOIN users u ON m.user_id = u.id
   LEFT JOIN proyectos p ON c.ProyectoID = p.ProyectoID
   WHERE c.CalendarioID = p_calendario_id;
 END");
