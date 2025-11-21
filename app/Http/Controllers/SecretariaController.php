@@ -804,6 +804,8 @@ class SecretariaController extends Controller
      */
     public function marcarNotificacionLeida($id)
     {
+        $this->authorize('actas.ver');
+        
         $notificacionService = app(NotificacionService::class);
         $notificacionService->marcarComoLeida($id);
         
@@ -815,6 +817,8 @@ class SecretariaController extends Controller
      */
     public function marcarTodasNotificacionesLeidas()
     {
+        $this->authorize('actas.ver');
+        
         $notificacionService = app(NotificacionService::class);
         $notificacionService->marcarTodasComoLeidas(auth()->id());
         
@@ -898,6 +902,8 @@ class SecretariaController extends Controller
      */
     public function obtenerMiembros()
     {
+        $this->authorize('actas.ver');
+        
         try {
             $miembros = DB::select('
                 SELECT 
@@ -1742,6 +1748,8 @@ class SecretariaController extends Controller
      */
     public function verificarActualizaciones()
     {
+        $this->authorize('actas.ver');
+        
         $userId = Auth::id();
         
         // Obtener notificaciones no leídas

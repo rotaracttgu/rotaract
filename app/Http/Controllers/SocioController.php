@@ -8,11 +8,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Services\NotificacionService;
 use App\Models\Notificacion;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class SocioController extends Controller
 {
+    use AuthorizesRequests;
     public function dashboard()
     {
+        $this->authorize('dashboard.ver');
+        
         try {
             $userId = Auth::id();
             
@@ -106,11 +110,14 @@ class SocioController extends Controller
 
     public function calendario()
     {
+        $this->authorize('calendario.ver');
         return view('modulos.socio.calendario-consulta');
     }
 
     public function obtenerEventosCalendario($year, $month)
     {
+        $this->authorize('calendario.ver');
+        
         try {
             // Obtener eventos reales de la BD - usando nombres correctos de columnas
             $eventos = DB::table('calendarios')
@@ -173,6 +180,8 @@ class SocioController extends Controller
 
     public function misProyectos(Request $request)
     {
+        $this->authorize('proyectos.ver');
+        
         try {
             $userId = Auth::id();
             $filtroEstado = $request->get('estado');
@@ -213,6 +222,8 @@ class SocioController extends Controller
 
     public function detalleProyecto($id)
     {
+        $this->authorize('proyectos.ver');
+        
         try {
             $userId = Auth::id();
             
@@ -246,6 +257,8 @@ class SocioController extends Controller
 
     public function misReuniones(Request $request)
     {
+        $this->authorize('reuniones.ver');
+        
         try {
             $userId = Auth::id();
             $filtroEstado = $request->get('estado');
@@ -291,6 +304,8 @@ class SocioController extends Controller
 
     public function detalleReunion($id)
     {
+        $this->authorize('reuniones.ver');
+        
         try {
             $userId = Auth::id();
             
@@ -313,6 +328,8 @@ class SocioController extends Controller
     // === COMUNICACIÓN SECRETARÍA ===
     public function comunicacionSecretaria(Request $request)
     {
+        $this->authorize('consultas.ver');
+        
         try {
             $userId = Auth::id();
             $filtroEstado = $request->get('estado', null);
@@ -353,11 +370,14 @@ class SocioController extends Controller
 
     public function crearConsultaSecretaria()
     {
+        $this->authorize('consultas.crear');
         return view('modulos.socio.crear-consulta-secretaria');
     }
 
     public function storeConsultaSecretaria(Request $request)
     {
+        $this->authorize('consultas.crear');
+        
         // Validar datos básicos
         $validated = $request->validate([
             'asunto' => 'required|string|min:5|max:200',
@@ -503,6 +523,8 @@ class SocioController extends Controller
 
     public function verConsultaSecretaria($id)
     {
+        $this->authorize('consultas.ver');
+        
         // Mock consulta: provide the fields expected by the Blade view to avoid undefined/null parsing errors
         $consulta = (object)[
             'ConsultaID' => $id,
@@ -528,6 +550,8 @@ class SocioController extends Controller
 
     public function responderConsultaSecretaria(Request $request, $id)
     {
+        $this->authorize('consultas.crear');
+        
         $request->validate([
             'respuesta' => 'required|string|max:1000'
         ]);
@@ -541,6 +565,8 @@ class SocioController extends Controller
     // === COMUNICACIÓN VOCERÍA ===
     public function comunicacionVoceria()
     {
+        $this->authorize('consultas.ver');
+        
         $consultas = collect([
             (object)[
                 'ConsultaID' => 1,
@@ -556,17 +582,21 @@ class SocioController extends Controller
 
     public function crearConsultaVoceria()
     {
+        $this->authorize('consultas.crear');
         return view('modulos.socio.crear-consulta-voceria');
     }
 
     public function storeConsultaVoceria(Request $request)
     {
+        $this->authorize('consultas.crear');
         return redirect()->route('socio.voceria.index')
             ->with('success', 'Solicitud enviada (modo demo)');
     }
 
     public function verConsultaVoceria($id)
     {
+        $this->authorize('consultas.ver');
+        
         $datos = [
             1 => [
                 'Titulo' => 'Consulta sobre presupuesto anual',
@@ -610,6 +640,8 @@ class SocioController extends Controller
     // === BLOG DE NOTAS ===
     public function blogNotas(Request $request)
     {
+        $this->authorize('notas.ver');
+        
         try {
             $userId = Auth::id();
             $filtroCategoria = $request->get('categoria', 'todas');
@@ -674,11 +706,14 @@ class SocioController extends Controller
 
     public function crearNota()
     {
+        $this->authorize('notas.crear');
         return view('modulos.socio.crear-nota');
     }
 
     public function verNota($id)
     {
+        $this->authorize('notas.ver');
+        
         try {
             $userId = Auth::id();
 
@@ -701,6 +736,8 @@ class SocioController extends Controller
 
     public function editarNota($id)
     {
+        $this->authorize('notas.editar');
+        
         try {
             $userId = Auth::id();
 
@@ -723,6 +760,8 @@ class SocioController extends Controller
 
     public function eliminarNota($id)
     {
+        $this->authorize('notas.eliminar');
+        
         try {
             $userId = Auth::id();
 
@@ -744,6 +783,8 @@ class SocioController extends Controller
 
     public function storeNota(Request $request)
     {
+        $this->authorize('notas.crear');
+        
         // Validar datos básicos
         $validated = $request->validate([
             'titulo' => 'required|string|min:5|max:200',
@@ -831,6 +872,8 @@ class SocioController extends Controller
 
     public function updateNota(Request $request, $id)
     {
+        $this->authorize('notas.editar');
+        
         // Validar datos básicos
         $validated = $request->validate([
             'titulo' => 'required|string|min:5|max:200',
@@ -912,6 +955,8 @@ class SocioController extends Controller
     // === PERFIL ===
     public function perfil()
     {
+        $this->authorize('perfil.ver');
+        
         $miembro = (object)[
             'Nombre' => Auth::user()->name,
             'Correo' => Auth::user()->email,
@@ -928,11 +973,14 @@ class SocioController extends Controller
 
     public function perfilEditar()
     {
+        $this->authorize('perfil.editar');
         return view('modulos.socio.perfil-editar');
     }
 
     public function actualizarPerfil(Request $request)
     {
+        $this->authorize('perfil.editar');
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . Auth::id(),
@@ -957,6 +1005,8 @@ class SocioController extends Controller
     // === NOTIFICACIONES EN TIEMPO REAL ===
     public function notificaciones()
     {
+        $this->authorize('notificaciones.ver');
+        
         // Auto-marcar todas las notificaciones como leídas al entrar
         Notificacion::where('usuario_id', Auth::id())
             ->where('leida', false)
@@ -971,6 +1021,8 @@ class SocioController extends Controller
 
     public function marcarNotificacionLeida($id)
     {
+        $this->authorize('notificaciones.ver');
+        
         try {
             $notificacion = Notificacion::where('id', $id)
                 ->where('usuario_id', Auth::id())
@@ -992,6 +1044,8 @@ class SocioController extends Controller
 
     public function marcarTodasNotificacionesLeidas()
     {
+        $this->authorize('notificaciones.ver');
+        
         try {
             Notificacion::where('usuario_id', Auth::id())
                 ->where('leida', false)
@@ -1011,6 +1065,8 @@ class SocioController extends Controller
 
     public function verificarActualizaciones()
     {
+        $this->authorize('notificaciones.ver');
+        
         try {
             // Obtener notificaciones no leídas del usuario
             $notificaciones = Notificacion::where('usuario_id', Auth::id())

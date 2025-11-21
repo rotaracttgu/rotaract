@@ -164,6 +164,47 @@ class PermissionsSeeder extends Seeder
                 'exportar' => 'Exportar registros de bitácora',
             ],
 
+            // Módulo de Calendario
+            'calendario' => [
+                'ver' => 'Ver calendario y eventos',
+            ],
+
+            // Módulo de Reuniones
+            'reuniones' => [
+                'ver' => 'Ver reuniones',
+                'crear' => 'Crear reuniones',
+                'editar' => 'Editar reuniones',
+                'eliminar' => 'Eliminar reuniones',
+            ],
+
+            // Módulo de Consultas
+            'consultas' => [
+                'ver' => 'Ver consultas',
+                'crear' => 'Crear consultas',
+                'editar' => 'Editar consultas',
+                'eliminar' => 'Eliminar consultas',
+            ],
+
+            // Módulo de Notas
+            'notas' => [
+                'ver' => 'Ver notas',
+                'crear' => 'Crear notas',
+                'editar' => 'Editar notas',
+                'eliminar' => 'Eliminar notas',
+            ],
+
+            // Módulo de Perfil
+            'perfil' => [
+                'ver' => 'Ver perfil propio',
+                'editar' => 'Editar perfil propio',
+            ],
+
+            // Módulo de Notificaciones
+            'notificaciones' => [
+                'ver' => 'Ver notificaciones',
+                'eliminar' => 'Eliminar notificaciones',
+            ],
+
             // Dashboard
             'dashboard' => [
                 'ver' => 'Ver dashboard',
@@ -242,8 +283,8 @@ class PermissionsSeeder extends Seeder
         $vicepresidente = Role::where('name', 'Vicepresidente')->first();
         if ($vicepresidente) {
             $vicepresidente->syncPermissions([
-                // Usuarios - Solo ver y editar
-                'usuarios.ver', 'usuarios.editar',
+                // Usuarios - Gestión completa (crear, ver, editar, eliminar)
+                'usuarios.ver', 'usuarios.crear', 'usuarios.editar', 'usuarios.eliminar',
                 'miembros.ver', 'miembros.crear', 'miembros.editar',
                 // Proyectos - Todos excepto aprobar
                 'proyectos.ver', 'proyectos.crear', 'proyectos.editar', 'proyectos.eliminar',
@@ -307,16 +348,35 @@ class PermissionsSeeder extends Seeder
             $this->command->info("✓ Permisos asignados a Vocero");
         }
 
-        // ASPIRANTE - Permisos limitados, solo visualización
-        $aspirante = Role::where('name', 'Aspirante')->first();
-        if ($aspirante) {
-            $aspirante->syncPermissions([
-                'miembros.ver',
-                'proyectos.ver',
-                'eventos.ver',
+        // SOCIO - Permisos para acceder a su módulo
+        $socio = Role::where('name', 'Socio')->first();
+        if ($socio) {
+            $socio->syncPermissions([
+                // Dashboard
                 'dashboard.ver',
+                // Calendario
+                'calendario.ver',
+                // Proyectos (ver sus proyectos)
+                'proyectos.ver',
+                // Reuniones (ver sus reuniones)
+                'reuniones.ver',
+                // Consultas (comunicación con secretaría y vocería)
+                'consultas.ver',
+                'consultas.crear',
+                // Notas (blog personal)
+                'notas.ver',
+                'notas.crear',
+                'notas.editar',
+                'notas.eliminar',
+                // Perfil
+                'perfil.ver',
+                'perfil.editar',
+                // Notificaciones
+                'notificaciones.ver',
+                // Ver miembros (para contexto)
+                'miembros.ver',
             ]);
-            $this->command->info("✓ Permisos asignados a Aspirante");
+            $this->command->info("✓ Permisos asignados a Socio");
         }
     }
 }
