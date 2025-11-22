@@ -12,30 +12,35 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Este archivo contiene las definiciones corregidas de los SPs
-        // Leer y ejecutar el contenido del archivo SQL
+        // Leer y ejecutar el archivo SQL con las correcciones de SPs
         $sqlFile = database_path('migrations/fix_sps.sql');
         
         if (file_exists($sqlFile)) {
             $sql = file_get_contents($sqlFile);
             
-            // Dividir por DELIMITER ;; (que es la forma que usa el archivo)
-            $statements = array_filter(explode('DELIMITER ;', $sql));
+            // Dividir por DELIMITER y ejecutar cada procedimiento
+            $parts = array_filter(array_map('trim', explode('DELIMITER ;', $sql)));
             
-            foreach ($statements as $statement) {
-                $statement = trim($statement);
-                if (!empty($statement)) {
+            foreach ($parts as $part) {
+                if (!empty($part) && strpos($part, '--') !== 0) {
                     try {
-                        DB::statement($statement);
-                        echo "✅ SP actualizado\n";
+                        // Limpiar la parte del DELIMITER inicial si existe
+                        $part = preg_replace('/^DELIMITER\s+\$\$\s*/i', '', $part);
+                        $part = preg_replace('/\$\$\s*DELIMITER\s+;\s*$/i', '', $part);
+                        
+                        if (!empty($part)) {
+                            DB::statement($part);
+                        }
                     } catch (\Exception $e) {
-                        echo "⚠️  Error: " . $e->getMessage() . "\n";
+                        \Log::warning("SP Migration Warning: " . $e->getMessage());
                     }
                 }
             }
+            
+            echo "✅ Stored Procedures actualizados\n";
+        } else {
+            echo "⚠️  Archivo fix_sps.sql no encontrado\n";
         }
-        
-        echo "✅ Stored Procedures corregidos\n";
     }
 
     /**

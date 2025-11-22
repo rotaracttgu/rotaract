@@ -12,21 +12,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Cambiar collation de la base de datos
-        DB::statement('ALTER DATABASE rotaract COLLATE utf8mb4_general_ci');
+        // Las collations ya fueron corregidas manualmente en el servidor
+        // Esta migración solo documenta el cambio: utf8mb4_0900_ai_ci -> utf8mb4_general_ci
         
-        // Cambiar collation de las tablas principales
-        $tables = ['calendarios', 'notas_personales', 'miembros', 'usuarios', 'proyectos', 'reuniones'];
-        
+        // Si necesitas cambiar collations localmente, descomenta lo siguiente:
+        /*
+        DB::statement('ALTER DATABASE gestiones_clubrotario COLLATE utf8mb4_general_ci');
+        $tables = ['calendarios', 'notas_personales', 'miembros', 'users', 'proyectos', 'reunions'];
         foreach ($tables as $table) {
             try {
                 DB::statement("ALTER TABLE {$table} COLLATE utf8mb4_general_ci");
             } catch (\Exception $e) {
-                // Log silenciosamente si la tabla no existe
+                // Ignorar si la tabla no existe
             }
         }
+        */
         
-        echo "✅ Collations corregidas a utf8mb4_general_ci\n";
+        echo "✅ Collations ya están corregidas en utf8mb4_general_ci\n";
     }
 
     /**
