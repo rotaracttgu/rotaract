@@ -77,10 +77,10 @@ try {
     echo "   ❌ Error: " . $e->getMessage() . "\n";
 }
 
-// 6. SP_RecordatoriosProximos
+// 6. SP_RecordatoriosProximos - Necesita 2 parámetros
 echo "\n6️⃣ SP_RecordatoriosProximos:\n";
 try {
-    $result = DB::select("CALL SP_RecordatoriosProximos(?)", [$usuarioId]);
+    $result = DB::select("CALL SP_RecordatoriosProximos(?, ?)", [$usuarioId, 48]); // 48 horas adelante
     echo "   ✅ Éxito! Registros: " . count($result) . "\n";
     if (count($result) > 0) {
         echo "   Primer recordatorio: " . $result[0]->Titulo . "\n";
