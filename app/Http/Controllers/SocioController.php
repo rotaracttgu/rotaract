@@ -972,16 +972,24 @@ class SocioController extends Controller
     {
         $this->authorize('perfil.ver');
         
-        $miembro = (object)[
-            'Nombre' => Auth::user()->name,
-            'Correo' => Auth::user()->email,
-            'Rol' => 'Socio',
-            'DNI_Pasaporte' => '0801-2001-14521',
-            'Apuntes' => 'Aspirante activo'
-        ];
+        $user = Auth::user();
+        $miembro = DB::table('miembros')
+            ->join('users', 'miembros.user_id', '=', 'users.id')
+            ->where('users.id', $user->id)
+            ->select('miembros.*', 'users.name', 'users.email', 'users.dni')
+            ->first();
+        
+        if (!$miembro) {
+            return back()->with('error', 'No se encontró información del miembro');
+        }
 
-        $proyectosActivos = 5;
-        $reunionesAsistidas = 12;
+        $proyectosActivos = DB::table('participaciones')
+            ->where('MiembroID', $miembro->MiembroID)
+            ->count();
+            
+        $reunionesAsistidas = DB::table('asistencias')
+            ->where('MiembroID', $miembro->MiembroID)
+            ->count();
 
         return view('modulos.socio.perfil-show', compact('miembro', 'proyectosActivos', 'reunionesAsistidas'));
     }
