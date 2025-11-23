@@ -544,27 +544,48 @@ class SocioController extends Controller
     {
         $this->authorize('consultas.ver');
         
-        // Mock consulta: provide the fields expected by the Blade view to avoid undefined/null parsing errors
-        $consulta = (object)[
-            'ConsultaID' => $id,
-            'Asunto' => 'Solicitud de certificado',
-            'Mensaje' => 'Necesito un certificado de membresía para presentar en mi empresa. ¿Pueden emitirlo con fecha de este mes?',
-            'Categoria' => 'Documentacion',
-            'Estado' => 'Pendiente',
-            // Blade expects FechaConsulta (used with Carbon::parse)
-            'FechaConsulta' => '2025-11-07 16:10:00',
-            // Prioridad (Alta/Media/Baja) - view shows badges
-            'Prioridad' => 'Media',
-            // When answered these will be filled; keep null for demo
-            'FechaRespuesta' => null,
-            'RespondidoPor' => null,
-            'Respuesta' => null,
-            'comprobante_ruta' => null, // Ruta del comprobante si existe
-        ];
+        try {
+            // Obtener la consulta de la base de datos
+            $consulta = DB::table('consultas')
+                ->where('id', $id)
+                ->where('usuario_id', Auth::id()) // Verificar que pertenece al usuario actual
+                ->first();
+            
+            if (!$consulta) {
+                return redirect()->route('socio.secretaria.index')
+                    ->with('error', 'Consulta no encontrada');
+            }
+            
+            // Obtener información del usuario que respondió (si aplica)
+            $respondidoPor = null;
+            if ($consulta->respondido_por) {
+                $respondidoPor = DB::table('users')
+                    ->where('id', $consulta->respondido_por)
+                    ->select('name', 'email')
+                    ->first();
+            }
+            
+            // Preparar la consulta con los datos correctos
+            $consulta = (object)[
+                'ConsultaID' => $consulta->id,
+                'Asunto' => $consulta->asunto,
+                'Mensaje' => $consulta->mensaje,
+                'Estado' => ucfirst($consulta->estado),
+                'FechaConsulta' => $consulta->created_at,
+                'Prioridad' => ucfirst($consulta->prioridad),
+                'FechaRespuesta' => $consulta->respondido_at,
+                'RespondidoPor' => $respondidoPor?->name,
+                'Respuesta' => $consulta->respuesta,
+                'comprobante_ruta' => $consulta->comprobante_ruta,
+            ];
+            
+            $historial = collect([]); // Sin historial de conversación por ahora
 
-        $historial = collect([]); // empty conversation for demo
-
-        return view('modulos.socio.ver-consulta-secretaria', compact('consulta', 'historial'));
+            return view('modulos.socio.ver-consulta-secretaria', compact('consulta', 'historial'));
+        } catch (\Exception $e) {
+            return redirect()->route('socio.secretaria.index')
+                ->with('error', 'Error al cargar la consulta');
+        }
     }
 
     public function responderConsultaSecretaria(Request $request, $id)
