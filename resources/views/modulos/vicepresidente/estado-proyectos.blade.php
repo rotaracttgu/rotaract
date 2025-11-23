@@ -170,6 +170,11 @@
                                         <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $estadoClass }}">{{ $estado }}</span>
                                     </div>
                                     <div class="flex gap-2">
+                                        <button onclick="abrirModalParticipantes({{ $proyecto->ProyectoID }})" class="text-blue-600 hover:text-blue-800 p-1" title="Participantes">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 12H9m6 0a4 4 0 11-8 0m8 0H9m0 0V8m0 4v4m0 0a4 4 0 11-8 0m8 0H9"></path>
+                                            </svg>
+                                        </button>
                                         @can('proyectos.editar')
                                         <button onclick="editarProyecto({{ $proyecto->ProyectoID }})" class="text-blue-600 hover:text-blue-800 p-1" title="Editar">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -743,6 +748,112 @@
             document.getElementById('formEditarProyecto').reset();
         }
 
+        function abrirModalParticipantes(proyectoId) {
+            document.getElementById('modalParticipantes').classList.remove('hidden');
+            document.getElementById('proyectoId').value = proyectoId;
+            cargarParticipantes(proyectoId);
+        }
+
+        function cerrarModalParticipantes() {
+            document.getElementById('modalParticipantes').classList.add('hidden');
+            document.getElementById('formAgregarParticipante').reset();
+        }
+
+        async function cargarParticipantes(proyectoId) {
+            try {
+                const response = await fetch(`/${baseRoute}/proyectos/${proyectoId}/participantes`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const participantes = await response.json();
+                
+                const tbody = document.getElementById('participantesList');
+                
+                if (!participantes || participantes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="px-4 py-3 text-center text-gray-500">No hay participantes</td></tr>';
+                } else {
+                    tbody.innerHTML = participantes.map(p => `
+                        <tr>
+                            <td class="px-4 py-3 text-sm text-gray-900">${p.miembro_nombre}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">${p.rol_perfil || p.rol_participacion}</td>
+                            <td class="px-4 py-3 text-center">
+                                <button type="button" onclick="eliminarParticipante(${proyectoId}, ${p.participacion_id})" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                    Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error al cargar participantes:', error);
+                const tbody = document.getElementById('participantesList');
+                tbody.innerHTML = `<tr><td colspan="3" class="px-4 py-3 text-center text-red-500">Error: ${error.message}</td></tr>`;
+            }
+        }
+
+        async function agregarParticipante(event) {
+            event.preventDefault();
+            
+            const proyectoId = document.getElementById('proyectoId').value;
+            const miembroId = document.getElementById('miembroId').value;
+            const rol = document.getElementById('rol').value;
+            
+            if (!miembroId) {
+                alert('Por favor selecciona un miembro');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/${baseRoute}/proyectos/${proyectoId}/participantes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        miembro_id: miembroId,
+                        rol: rol
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Participante agregado correctamente');
+                    document.getElementById('formAgregarParticipante').reset();
+                    cargarParticipantes(proyectoId);
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.error || 'No se pudo agregar el participante'));
+                }
+            } catch (error) {
+                alert('Error al agregar participante: ' + error.message);
+            }
+        }
+
+        async function eliminarParticipante(proyectoId, participacionId) {
+            if (!confirm('¿Estás seguro de que deseas eliminar este participante?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/${baseRoute}/proyectos/${proyectoId}/participantes/${participacionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                if (response.ok) {
+                    cargarParticipantes(proyectoId);
+                } else {
+                    alert('Error al eliminar el participante');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
         async function eliminarProyecto(id) {
             if (!confirm('¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.')) {
                 return;
@@ -956,6 +1067,84 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Agregar/Ver Participantes -->
+    <div id="modalParticipantes" class="fixed inset-0 bg-black bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-0 border-0 w-11/12 md:w-3/4 lg:w-2/3 shadow-2xl rounded-xl bg-white">
+            <div class="bg-blue-600 px-6 py-4 rounded-t-xl flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">Participantes del Proyecto</h3>
+                <button onclick="cerrarModalParticipantes()" class="text-white hover:text-gray-200">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <!-- Tabla de participantes actuales -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Participantes Actuales</h4>
+                    <div id="participantesTableContainer" class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 border border-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Miembro</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Rol Perfil</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="participantesList" class="divide-y divide-gray-200">
+                                <tr><td colspan="3" class="px-4 py-3 text-center text-gray-500">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Formulario para agregar participante -->
+                <div class="border-t pt-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Agregar Participante</h4>
+                    <form id="formAgregarParticipante" onsubmit="agregarParticipante(event)" class="space-y-4">
+                        @csrf
+                        <input type="hidden" id="proyectoId" name="proyecto_id">
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Miembro</label>
+                            <select id="miembroId" name="miembro_id" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">Seleccionar miembro...</option>
+                                @foreach($miembros as $miembro)
+                                    @if($miembro->user)
+                                        <option value="{{ $miembro->MiembroID }}">{{ $miembro->user->name }} {{ $miembro->user->apellidos ?? '' }} - {{ $miembro->Rol ?? 'N/A' }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Rol en el Proyecto</label>
+                                <select id="rol" name="rol" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="Responsable">Responsable</option>
+                                    <option value="Participante" selected>Participante</option>
+                                    <option value="Colaborador">Colaborador</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-4 border-t">
+                            <button type="button" onclick="cerrarModalParticipantes()"
+                                    class="px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                    class="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-md hover:shadow-lg">
+                                Agregar Participante
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
