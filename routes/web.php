@@ -716,7 +716,9 @@ Route::prefix('socio')->middleware(['auth', 'check.first.login'])->name('socio.'
         Route::get('/crear', [SocioController::class, 'crearConsultaSecretaria'])->name('crear');
         Route::post('/store', [SocioController::class, 'storeConsultaSecretaria'])->name('store');
         Route::get('/{id}', [SocioController::class, 'verConsultaSecretaria'])->name('ver');
+        Route::patch('/{id}', [SocioController::class, 'actualizarConsultaSecretaria'])->name('actualizar');
         Route::post('/{id}/responder', [SocioController::class, 'responderConsultaSecretaria'])->name('responder');
+        Route::delete('/{id}', [SocioController::class, 'eliminarConsultaSecretaria'])->name('eliminar');
     });
     
     // Comunicación con Vocalía

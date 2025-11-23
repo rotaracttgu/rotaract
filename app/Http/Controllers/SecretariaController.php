@@ -231,7 +231,7 @@ class SecretariaController extends Controller
      */
     public function getConsulta($id)
     {
-        $this->authorize('actas.ver');
+        $this->authorize('consultas.ver');
         
         try {
             // Obtener desde el SP
@@ -261,7 +261,7 @@ class SecretariaController extends Controller
      */
     public function responderConsulta(Request $request, $id)
     {
-        $this->authorize('actas.editar');
+        $this->authorize('consultas.editar');
         $request->validate([
             'respuesta' => 'required|string|max:1000',
         ]);
@@ -299,7 +299,7 @@ class SecretariaController extends Controller
      */
     public function eliminarConsulta($id)
     {
-        $this->authorize('actas.eliminar');
+        $this->authorize('consultas.eliminar');
         $consulta = Consulta::findOrFail($id);
         
         // Eliminar comprobante si existe

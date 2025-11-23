@@ -334,6 +334,31 @@
         </div>
     @endif
 
+    <!-- Acciones -->
+    <div class="mt-8 flex gap-4">
+        @can('consultas.editar')
+            @if($consulta->Estado === 'Pendiente' || $consulta->Estado === 'EnRevision')
+                <button onclick="abrirModalEditar({{ $consulta->ConsultaID }})" 
+                        class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg font-semibold">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Editar Consulta
+                </button>
+            @endif
+        @endcan
+
+        @can('consultas.eliminar')
+            <button onclick="eliminarConsulta({{ $consulta->ConsultaID }})" 
+                    class="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md hover:shadow-lg font-semibold">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Eliminar Consulta
+            </button>
+        @endcan
+    </div>
+
 @endsection
 
 @push('scripts')
@@ -343,6 +368,156 @@
         const lastMessage = document.querySelector('.space-y-4 > div:last-child');
         if (lastMessage) {
             lastMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    });
+
+    // Abrir modal para editar
+    function abrirModalEditar(consultaId) {
+        const asunto = '{{ addslashes($consulta->Asunto) }}';
+        const mensaje = '{{ addslashes($consulta->Mensaje) }}';
+        const prioridad = '{{ $consulta->Prioridad }}';
+
+        const html = `
+            <div id="modalEditar" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                    <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 flex items-center justify-between">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Editar Consulta
+                        </h3>
+                        <button onclick="cerrarModalEditar()" class="text-white hover:text-gray-200">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form id="formEditar" onsubmit="guardarEdicion(event, ${consultaId})" class="p-6 space-y-4">
+                        <!-- Asunto -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Asunto</label>
+                            <input type="text" id="editAsunto" name="asunto" value="${asunto}" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   required>
+                        </div>
+
+                        <!-- Mensaje -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Mensaje</label>
+                            <textarea id="editMensaje" name="mensaje" rows="6"
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                      required>${mensaje}</textarea>
+                        </div>
+
+                        <!-- Prioridad -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Prioridad</label>
+                            <select id="editPrioridad" name="prioridad" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="baja" ${prioridad === 'Baja' ? 'selected' : ''}>Baja</option>
+                                <option value="media" ${prioridad === 'Media' ? 'selected' : ''}>Media</option>
+                                <option value="alta" ${prioridad === 'Alta' ? 'selected' : ''}>Alta</option>
+                            </select>
+                        </div>
+
+                        <div class="flex gap-3 pt-4">
+                            <button type="submit" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
+                                Guardar Cambios
+                            </button>
+                            <button type="button" onclick="cerrarModalEditar()" class="flex-1 px-4 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition font-semibold">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', html);
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Cerrar modal
+    function cerrarModalEditar() {
+        const modal = document.getElementById('modalEditar');
+        if (modal) {
+            modal.remove();
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    // Guardar edición
+    async function guardarEdicion(event, consultaId) {
+        event.preventDefault();
+
+        const asunto = document.getElementById('editAsunto').value;
+        const mensaje = document.getElementById('editMensaje').value;
+        const prioridad = document.getElementById('editPrioridad').value;
+
+        try {
+            const response = await fetch(`/socio/secretaria/${consultaId}`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    asunto: asunto,
+                    mensaje: mensaje,
+                    prioridad: prioridad
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success || response.ok) {
+                alert('Consulta actualizada exitosamente');
+                location.reload();
+            } else {
+                alert('Error: ' + (data.message || 'Error al actualizar'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error de conexión');
+        }
+    }
+
+    // Eliminar consulta
+    function eliminarConsulta(consultaId) {
+        if (!confirm('¿Estás seguro de eliminar esta consulta? Esta acción no se puede deshacer.')) {
+            return;
+        }
+
+        fetch(`/socio/secretaria/${consultaId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success || data.message) {
+                alert('Consulta eliminada exitosamente');
+                window.location.href = '{{ route("socio.secretaria.index") }}';
+            } else {
+                alert('Error al eliminar consulta');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error de conexión');
+        });
+    }
+
+    // Cerrar modal al hacer clic fuera
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('modalEditar');
+        if (modal && event.target === modal) {
+            cerrarModalEditar();
         }
     });
 </script>
