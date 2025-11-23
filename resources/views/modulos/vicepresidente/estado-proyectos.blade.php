@@ -956,7 +956,12 @@
                             <option value="">Sin asignar</option>
                             @foreach($miembros as $miembro)
                                 @if($miembro->user)
-                                    <option value="{{ $miembro->MiembroID }}">{{ $miembro->user->name }}</option>
+                                    @php
+                                        $nombreCompleto = trim($miembro->user->name . ' ' . ($miembro->user->apellidos ?? ''));
+                                        $rol = $miembro->user->roles->first()?->name ?? 'Sin rol';
+                                        $display = $nombreCompleto . ' - ' . $rol;
+                                    @endphp
+                                    <option value="{{ $miembro->MiembroID }}">{{ $display }}</option>
                                 @endif
                             @endforeach
                         </select>
