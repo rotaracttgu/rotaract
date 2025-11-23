@@ -973,7 +973,10 @@
                                 @if($miembro->user)
                                     @php
                                         $nombreCompleto = trim($miembro->user->name . ' ' . ($miembro->user->apellidos ?? ''));
-                                        $rol = $miembro->user->roles->first()?->name ?? 'Sin rol';
+                                        $rol = 'Sin rol';
+                                        if($miembro->user->roles && $miembro->user->roles->count() > 0) {
+                                            $rol = $miembro->user->roles->first()->name;
+                                        }
                                         $display = $nombreCompleto . ' - ' . $rol;
                                     @endphp
                                     <option value="{{ $miembro->MiembroID }}">{{ $display }}</option>
