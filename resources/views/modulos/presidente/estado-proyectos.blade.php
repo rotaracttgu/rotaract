@@ -823,7 +823,7 @@
                     tbody.innerHTML = participantes.map(p => `
                         <tr>
                             <td class="px-4 py-3 text-sm text-gray-900">${p.miembro_nombre}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">${p.rol}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">${p.rol_perfil || p.rol_participacion}</td>
                             <td class="px-4 py-3 text-center">
                                 <button type="button" onclick="eliminarParticipante(${proyectoId}, ${p.participacion_id})" class="text-red-600 hover:text-red-800 text-sm font-medium">
                                     Eliminar
@@ -1116,7 +1116,7 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Miembro</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Rol</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Rol Perfil</th>
                                     <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase">Acciones</th>
                                 </tr>
                             </thead>

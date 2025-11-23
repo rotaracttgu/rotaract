@@ -232,9 +232,9 @@ trait ManagesProjects
             ->where('participaciones.ProyectoID', $id)
             ->select(
                 'participaciones.ParticipacionID as participacion_id',
-                'users.name as miembro_nombre',
-                'participaciones.Rol as rol',
-                DB::raw('0 as horas_dedicadas')
+                DB::raw("CONCAT(users.name, ' ', COALESCE(users.apellidos, '')) as miembro_nombre"),
+                'miembros.Rol as rol_perfil',
+                'participaciones.Rol as rol_participacion'
             )
             ->get();
 
