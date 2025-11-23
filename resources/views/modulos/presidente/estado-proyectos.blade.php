@@ -847,7 +847,6 @@
             const proyectoId = document.getElementById('proyectoId').value;
             const miembroId = document.getElementById('miembroId').value;
             const rol = document.getElementById('rol').value;
-            const horas = document.getElementById('horas').value;
             
             if (!miembroId) {
                 alert('Por favor selecciona un miembro');
@@ -863,8 +862,7 @@
                     },
                     body: JSON.stringify({
                         miembro_id: miembroId,
-                        rol: rol,
-                        horas_dedicadas: horas || 0
+                        rol: rol
                     })
                 });
 
@@ -1159,13 +1157,6 @@
                                     <option value="Participante" selected>Participante</option>
                                     <option value="Colaborador">Colaborador</option>
                                 </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Horas Dedicadas</label>
-                                <input type="number" id="horas" name="horas_dedicadas" min="0" step="0.5" 
-                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                       placeholder="0">
                             </div>
                         </div>
 

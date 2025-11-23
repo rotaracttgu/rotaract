@@ -234,7 +234,7 @@ trait ManagesProjects
                 'participaciones.ParticipacionID as participacion_id',
                 'users.name as miembro_nombre',
                 'participaciones.Rol as rol',
-                'participaciones.horasDedicadas as horas_dedicadas'
+                DB::raw('0 as horas_dedicadas')
             )
             ->get();
 
@@ -251,7 +251,6 @@ trait ManagesProjects
         $validated = $request->validate([
             'miembro_id' => 'required|exists:miembros,MiembroID',
             'rol' => 'required|string|max:50',
-            'horas_dedicadas' => 'nullable|numeric|min:0',
         ]);
 
         // Verificar que el proyecto existe
@@ -272,7 +271,7 @@ trait ManagesProjects
             'ProyectoID' => $id,
             'MiembroID' => $validated['miembro_id'],
             'Rol' => $validated['rol'],
-            'horasDedicadas' => $validated['horas_dedicadas'] ?? 0,
+            'FechaIngreso' => now()->toDateString(),
         ]);
 
         return response()->json(['success' => true]);
