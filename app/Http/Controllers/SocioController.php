@@ -469,26 +469,19 @@ class SocioController extends Controller
                 default => 'baja'
             };
             
-            // Crear consulta usando SP
-            $resultado = DB::select('CALL SP_EnviarConsulta(?, ?, ?, ?, ?, ?)', [
-                Auth::id(),
-                'secretaria',
-                $validated['tipo'],
-                $validated['asunto'],
-                $validated['mensaje'],
-                $prioridad
+            // Crear consulta en la tabla consultas
+            $consultaId = DB::table('consultas')->insertGetId([
+                'usuario_id' => Auth::id(),
+                'asunto' => $validated['asunto'],
+                'mensaje' => $validated['mensaje'],
+                'comprobante_ruta' => $comprobanteRuta,
+                'estado' => 'pendiente',
+                'prioridad' => $prioridad,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            if (!empty($resultado) && isset($resultado[0]->exito) && $resultado[0]->exito == 1) {
-                $mensajeId = $resultado[0]->MensajeID;
-                
-                // Si hay comprobante, actualizarlo en la tabla
-                if ($comprobanteRuta) {
-                    DB::table('mensajes_consultas')
-                        ->where('MensajeID', $mensajeId)
-                        ->update(['ArchivoAdjunto' => $comprobanteRuta]);
-                }
-                
+            if ($consultaId) {
                 return redirect()->route('socio.secretaria.index')
                     ->with('success', '¡Consulta enviada exitosamente! La Secretaría la revisará pronto.');
             } else {
