@@ -234,41 +234,28 @@ class SecretariaController extends Controller
         $this->authorize('consultas.ver');
         
         try {
-            // Obtener desde la BD directamente
-            $consulta = DB::table('consultas')
-                ->where('ConsultaID', $id)
-                ->orWhere('id', $id)
-                ->first();
+            // Obtener desde el SP que ya retorna los datos completos
+            $resultado = DB::select('CALL SP_ConsultasSecretaria(NULL, NULL)');
+            $consultas = collect($resultado);
+            $consulta = $consultas->firstWhere('ConsultaID', $id);
             
             if (!$consulta) {
                 return response()->json(['error' => 'Consulta no encontrada'], 404);
             }
             
-            // Mapear los campos esperados por el frontend
-            $consultaJSON = [
-                'ConsultaID' => $consulta->ConsultaID ?? $consulta->id,
-                'NombreUsuario' => $consulta->NombreUsuario ?? ($consulta->usuario_nombre ?? 'N/A'),
-                'EmailUsuario' => $consulta->EmailUsuario ?? ($consulta->usuario_email ?? ''),
-                'Asunto' => $consulta->Asunto ?? $consulta->asunto,
-                'Mensaje' => $consulta->Mensaje ?? $consulta->mensaje,
-                'Estado' => $consulta->Estado ?? $consulta->estado,
-                'Respuesta' => $consulta->Respuesta ?? $consulta->respuesta,
-                'FechaRespuesta' => $consulta->FechaRespuesta ?? $consulta->respondido_at,
-                'respondido_por_nombre' => 'Sistema',
-                'ComprobanteRuta' => $consulta->ComprobanteRuta ?? null,
-                'created_at' => $consulta->created_at,
-                'updated_at' => $consulta->updated_at
-            ];
+            // Convertir stdClass a array para poder retornarla como JSON
+            $consultaArray = (array) $consulta;
             
             // Agregar URL del comprobante si existe
-            if ($consultaJSON['ComprobanteRuta']) {
-                $consultaJSON['comprobante_url'] = asset('storage/' . $consultaJSON['ComprobanteRuta']);
-                $extension = pathinfo($consultaJSON['ComprobanteRuta'], PATHINFO_EXTENSION);
-                $consultaJSON['comprobante_tipo'] = strtolower($extension) === 'pdf' ? 'pdf' : 'imagen';
+            if (!empty($consultaArray['ComprobanteRuta'])) {
+                $consultaArray['comprobante_url'] = asset('storage/' . $consultaArray['ComprobanteRuta']);
+                $extension = pathinfo($consultaArray['ComprobanteRuta'], PATHINFO_EXTENSION);
+                $consultaArray['comprobante_tipo'] = strtolower($extension) === 'pdf' ? 'pdf' : 'imagen';
             }
             
-            return response()->json($consultaJSON);
+            return response()->json($consultaArray);
         } catch (\Exception $e) {
+            \Log::error('Error en getConsulta: ' . $e->getMessage());
             return response()->json(['error' => 'Error al obtener consulta: ' . $e->getMessage()], 500);
         }
     }
@@ -278,36 +265,34 @@ class SecretariaController extends Controller
      */
     public function responderConsulta(Request $request, $id)
     {
-        // Permitir a usuarios con permiso de editar consultas
-        try {
-            $this->authorize('consultas.editar');
-        } catch (\AuthorizationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No tienes permiso para responder consultas'
-            ], 403);
-        }
+        $this->authorize('consultas.editar');
         
         $request->validate([
             'respuesta' => 'required|string|max:1000',
         ]);
 
         try {
-            $consulta = Consulta::findOrFail($id);
-            
-            // Actualizar la consulta directamente
-            $consulta->update([
-                'Respuesta' => $request->respuesta,
-                'Estado' => 'respondida',
-                'FechaRespuesta' => now()
+            // Usar SP para responder (orden: consulta_id, respuesta, user_id)
+            $resultado = DB::select('CALL SP_ResponderConsulta(?, ?, ?)', [
+                $id,
+                $request->respuesta,
+                Auth::id()
             ]);
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Consulta respondida exitosamente',
-                'consultaID' => $consulta->ConsultaID
-            ]);
+            if (count($resultado) > 0 && $resultado[0]->exito == 1) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Consulta respondida exitosamente',
+                    'consultaID' => $resultado[0]->ConsultaID
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al responder consulta'
+                ], 500);
+            }
         } catch (\Exception $e) {
+            \Log::error('Error en responderConsulta: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error al responder consulta: ' . $e->getMessage()

@@ -327,6 +327,7 @@ class PermissionsSeeder extends Seeder
                 'diplomas.ver', 'diplomas.crear', 'diplomas.editar', 'diplomas.eliminar', 'diplomas.enviar', 'diplomas.exportar',
                 'documentos.ver', 'documentos.crear', 'documentos.editar', 'documentos.eliminar',
                 'comunicaciones.ver', 'comunicaciones.enviar',
+                'consultas.ver', 'consultas.crear', 'consultas.editar', 'consultas.eliminar',
                 'reportes.ver', 'reportes.exportar',
                 'dashboard.ver',
             ]);
