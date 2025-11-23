@@ -279,16 +279,27 @@ class SecretariaController extends Controller
                 Auth::id()
             ]);
             
-            if (count($resultado) > 0 && $resultado[0]->exito == 1) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Consulta respondida exitosamente',
-                    'consultaID' => $resultado[0]->ConsultaID
-                ]);
+            if (count($resultado) > 0) {
+                $row = $resultado[0];
+                // Convertir propiedades a tipo correcto
+                $exito = isset($row->exito) ? (int)$row->exito : (isset($row->success) ? (int)$row->success : 0);
+                
+                if ($exito == 1) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => $row->mensaje ?? 'Consulta respondida exitosamente',
+                        'consultaID' => $row->ConsultaID ?? $id
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $row->mensaje ?? 'Error al responder consulta'
+                    ], 500);
+                }
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al responder consulta'
+                    'message' => 'Sin respuesta del servidor'
                 ], 500);
             }
         } catch (\Exception $e) {
