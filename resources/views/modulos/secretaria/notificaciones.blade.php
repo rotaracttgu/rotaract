@@ -38,6 +38,9 @@
                     <button onclick="filterNotifications('proyecto_finalizado')" class="px-4 py-2 rounded-lg font-medium transition filter-btn bg-gray-100 text-gray-700 hover:bg-gray-200" data-filter="proyecto_finalizado">
                         Proyectos Finalizados
                     </button>
+                    <button onclick="filterNotifications('consulta_nueva')" class="px-4 py-2 rounded-lg font-medium transition filter-btn bg-gray-100 text-gray-700 hover:bg-gray-200" data-filter="consulta_nueva">
+                        Consultas
+                    </button>
                 </div>
                 <button onclick="markAllAsRead()" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition font-medium shadow-md hover:shadow-lg">
                     Marcar todas como leídas
@@ -107,6 +110,12 @@
                                         <div class="w-10 h-10 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center">
                                             <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+                                    @elseif(str_contains($notificacion->tipo, 'consulta'))
+                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                                             </svg>
                                         </div>
                                     @else
