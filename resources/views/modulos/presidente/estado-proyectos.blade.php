@@ -220,6 +220,13 @@
                                     </button>
                                     @endcan
                                     @can('proyectos.editar')
+                                    <button class="text-sm text-blue-600 hover:text-blue-800 font-medium border border-blue-200 rounded px-3 py-2 hover:bg-blue-50 transition" onclick="abrirModalParticipantes({{ $proyecto->ProyectoID }})" title="Participantes">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20a9 9 0 0118 0v2h-2v-2a7 7 0 00-14 0v2H6v-2z"></path>
+                                        </svg>
+                                    </button>
+                                    @endcan
+                                    @can('proyectos.editar')
                                     <button class="text-sm text-yellow-600 hover:text-yellow-800 font-medium border border-yellow-200 rounded px-3 py-2 hover:bg-yellow-50 transition" onclick="editarProyecto({{ $proyecto->ProyectoID }})" title="Editar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -781,6 +788,113 @@
                 form.submit();
             }
         }
+
+        // ============ PARTICIPANTES ============
+
+        function abrirModalParticipantes(proyectoId) {
+            document.getElementById('proyectoId').value = proyectoId;
+            document.getElementById('modalParticipantes').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // Cargar participantes actuales
+            cargarParticipantes(proyectoId);
+        }
+
+        function cerrarModalParticipantes() {
+            document.getElementById('modalParticipantes').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('formAgregarParticipante').reset();
+        }
+
+        async function cargarParticipantes(proyectoId) {
+            try {
+                const response = await fetch(`/${baseRoute}/proyectos/${proyectoId}/participantes`);
+                const participantes = await response.json();
+                
+                const tbody = document.getElementById('participantesList');
+                
+                if (participantes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-3 text-center text-gray-500">No hay participantes</td></tr>';
+                } else {
+                    tbody.innerHTML = participantes.map(p => `
+                        <tr>
+                            <td class="px-4 py-3 text-sm text-gray-900">${p.miembro_nombre}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">${p.rol}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">${p.horas_dedicadas || 0}</td>
+                            <td class="px-4 py-3 text-center">
+                                <button type="button" onclick="eliminarParticipante(${proyectoId}, ${p.participacion_id})" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                    Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar participantes');
+            }
+        }
+
+        async function agregarParticipante(event) {
+            event.preventDefault();
+            
+            const proyectoId = document.getElementById('proyectoId').value;
+            const miembroId = document.getElementById('miembroId').value;
+            const rol = document.getElementById('rol').value;
+            const horas = document.getElementById('horas').value;
+            
+            if (!miembroId) {
+                alert('Por favor selecciona un miembro');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/${baseRoute}/proyectos/${proyectoId}/participantes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        miembro_id: miembroId,
+                        rol: rol,
+                        horas_dedicadas: horas || 0
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Participante agregado correctamente');
+                    document.getElementById('formAgregarParticipante').reset();
+                    cargarParticipantes(proyectoId);
+                } else {
+                    alert('Error al agregar participante');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error en la solicitud');
+            }
+        }
+
+        async function eliminarParticipante(proyectoId, participacionId) {
+            if (!confirm('¿Eliminar este participante?')) return;
+
+            try {
+                const response = await fetch(`/${baseRoute}/proyectos/${proyectoId}/participantes/${participacionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                if (response.ok) {
+                    cargarParticipantes(proyectoId);
+                } else {
+                    alert('Error al eliminar participante');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
     </script>
     
     <!-- Modal Nuevo Proyecto -->
@@ -976,6 +1090,92 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Agregar/Ver Participantes -->
+    <div id="modalParticipantes" class="fixed inset-0 bg-black bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-0 border-0 w-11/12 md:w-3/4 lg:w-2/3 shadow-2xl rounded-xl bg-white">
+            <div class="bg-blue-600 px-6 py-4 rounded-t-xl flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">Participantes del Proyecto</h3>
+                <button onclick="cerrarModalParticipantes()" class="text-white hover:text-gray-200">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <!-- Tabla de participantes actuales -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Participantes Actuales</h4>
+                    <div id="participantesTableContainer" class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 border border-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Miembro</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Rol</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Horas</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="participantesList" class="divide-y divide-gray-200">
+                                <tr><td colspan="4" class="px-4 py-3 text-center text-gray-500">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Formulario para agregar participante -->
+                <div class="border-t pt-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Agregar Participante</h4>
+                    <form id="formAgregarParticipante" onsubmit="agregarParticipante(event)" class="space-y-4">
+                        @csrf
+                        <input type="hidden" id="proyectoId" name="proyecto_id">
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Miembro</label>
+                            <select id="miembroId" name="miembro_id" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">Seleccionar miembro...</option>
+                                @foreach($miembros as $miembro)
+                                    @if($miembro->user)
+                                        <option value="{{ $miembro->MiembroID }}">{{ $miembro->user->name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Rol en el Proyecto</label>
+                                <select id="rol" name="rol" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="Responsable">Responsable</option>
+                                    <option value="Participante" selected>Participante</option>
+                                    <option value="Colaborador">Colaborador</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Horas Dedicadas</label>
+                                <input type="number" id="horas" name="horas_dedicadas" min="0" step="0.5" 
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-4 border-t">
+                            <button type="button" onclick="cerrarModalParticipantes()"
+                                    class="px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                    class="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-md hover:shadow-lg">
+                                Agregar Participante
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

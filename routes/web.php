@@ -321,6 +321,11 @@ Route::prefix('presidente')->middleware(['auth', 'check.first.login'])->name('pr
     Route::delete('/proyectos/{id}', [PresidenteController::class, 'destroyProyecto'])->name('proyectos.destroy');
     Route::get('/proyectos/exportar', [PresidenteController::class, 'exportarProyectos'])->name('proyectos.exportar');
     
+    // Participantes de Proyectos
+    Route::get('/proyectos/{id}/participantes', [PresidenteController::class, 'getParticipantes'])->name('proyectos.participantes.get');
+    Route::post('/proyectos/{id}/participantes', [PresidenteController::class, 'addParticipante'])->name('proyectos.participantes.add');
+    Route::delete('/proyectos/{id}/participantes/{participacionId}', [PresidenteController::class, 'removeParticipante'])->name('proyectos.participantes.remove');
+    
     Route::get('/reportes/dashboard', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
     Route::get('/reportes/mensuales', [ReporteController::class, 'mensuales'])->name('reportes.mensuales');
     

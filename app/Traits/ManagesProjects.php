@@ -5,6 +5,7 @@ namespace App\Traits;
 use Illuminate\Http\Request;
 use App\Models\Proyecto;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Trait ManagesProjects
@@ -218,6 +219,90 @@ trait ManagesProjects
         return response($content)
             ->header('Content-Type', 'text/csv')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Obtener participantes de un proyecto
+     */
+    public function getParticipantes($id)
+    {
+        $participantes = DB::table('participaciones')
+            ->join('miembros', 'participaciones.MiembroID', '=', 'miembros.MiembroID')
+            ->join('users', 'miembros.user_id', '=', 'users.id')
+            ->where('participaciones.ProyectoID', $id)
+            ->select(
+                'participaciones.ParticipacionID as participacion_id',
+                'users.name as miembro_nombre',
+                'participaciones.Rol as rol',
+                'participaciones.horasDedicadas as horas_dedicadas'
+            )
+            ->get();
+
+        return response()->json($participantes);
+    }
+
+    /**
+     * Agregar participante a un proyecto
+     */
+    public function addParticipante(Request $request, $id)
+    {
+        $this->authorize('proyectos.editar');
+
+        $validated = $request->validate([
+            'miembro_id' => 'required|exists:miembros,MiembroID',
+            'rol' => 'required|string|max:50',
+            'horas_dedicadas' => 'nullable|numeric|min:0',
+        ]);
+
+        // Verificar que el proyecto existe
+        $proyecto = Proyecto::findOrFail($id);
+
+        // Verificar que el miembro no esté ya en el proyecto
+        $existe = DB::table('participaciones')
+            ->where('ProyectoID', $id)
+            ->where('MiembroID', $validated['miembro_id'])
+            ->exists();
+
+        if ($existe) {
+            return response()->json(['error' => 'Este miembro ya está en el proyecto'], 409);
+        }
+
+        // Crear participación
+        DB::table('participaciones')->insert([
+            'ProyectoID' => $id,
+            'MiembroID' => $validated['miembro_id'],
+            'Rol' => $validated['rol'],
+            'horasDedicadas' => $validated['horas_dedicadas'] ?? 0,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Eliminar participante de un proyecto
+     */
+    public function removeParticipante($id, $participacionId)
+    {
+        $this->authorize('proyectos.editar');
+
+        // Verificar que el proyecto existe
+        Proyecto::findOrFail($id);
+
+        // Verificar que la participación pertenece a este proyecto
+        $participacion = DB::table('participaciones')
+            ->where('ParticipacionID', $participacionId)
+            ->where('ProyectoID', $id)
+            ->first();
+
+        if (!$participacion) {
+            return response()->json(['error' => 'Participación no encontrada'], 404);
+        }
+
+        DB::table('participaciones')
+            ->where('ParticipacionID', $participacionId)
+            ->delete();
+
+        return response()->json(['success' => true]);
     }
 
     // Métodos abstractos

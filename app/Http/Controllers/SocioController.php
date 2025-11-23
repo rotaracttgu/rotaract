@@ -189,6 +189,12 @@ class SocioController extends Controller
             $filtroTipo = $request->get('tipo');
             $buscar = $request->get('buscar', '');
 
+            // Obtener rol de perfil del usuario
+            $miembro = DB::table('miembros')
+                ->where('user_id', $userId)
+                ->first();
+            $rolPerfil = $miembro->Rol ?? 'Socio';
+
             // Llamar al stored procedure SP_MisProyectos
             $proyectos = DB::select('CALL SP_MisProyectos(?, ?, ?, ?)', [
                 $userId,
@@ -197,7 +203,11 @@ class SocioController extends Controller
                 $buscar
             ]);
 
-            $proyectos = collect($proyectos);
+            $proyectos = collect($proyectos)->map(function($p) use ($rolPerfil) {
+                // Agregar rol de perfil a cada proyecto
+                $p->RolPerfil = $rolPerfil;
+                return $p;
+            });
 
             // Calcular estadísticas
             $totalProyectos = $proyectos->count();
@@ -208,7 +218,8 @@ class SocioController extends Controller
                 'proyectos',
                 'totalProyectos',
                 'proyectosActivos',
-                'proyectosEnProgreso'
+                'proyectosEnProgreso',
+                'rolPerfil'
             ));
         } catch (\Exception $e) {
             $proyectos = collect([]);
