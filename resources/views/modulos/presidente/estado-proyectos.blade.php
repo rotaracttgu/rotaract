@@ -809,11 +809,16 @@
         async function cargarParticipantes(proyectoId) {
             try {
                 const response = await fetch(`/${baseRoute}/proyectos/${proyectoId}/participantes`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const participantes = await response.json();
                 
                 const tbody = document.getElementById('participantesList');
                 
-                if (participantes.length === 0) {
+                if (!participantes || participantes.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-3 text-center text-gray-500">No hay participantes</td></tr>';
                 } else {
                     tbody.innerHTML = participantes.map(p => `
@@ -830,8 +835,9 @@
                     `).join('');
                 }
             } catch (error) {
-                console.error('Error:', error);
-                alert('Error al cargar participantes');
+                console.error('Error al cargar participantes:', error);
+                const tbody = document.getElementById('participantesList');
+                tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-center text-red-500">Error: ${error.message}</td></tr>`;
             }
         }
 
