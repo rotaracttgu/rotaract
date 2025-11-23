@@ -87,7 +87,6 @@
             margin: 0 auto;
             transition: all 0.3s ease;
             filter: 
-                brightness(0) 
                 saturate(100%) 
                 invert(24%) 
                 sepia(98%) 

@@ -34,7 +34,6 @@
             width: 100%;
             height: auto;
             filter: 
-                brightness(0) 
                 saturate(100%) 
                 invert(24%) 
                 sepia(98%) 

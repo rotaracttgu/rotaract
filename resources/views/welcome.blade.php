@@ -69,7 +69,6 @@
         margin: 0 auto 25px auto;
         display: block;
         filter: 
-            brightness(0) 
             invert(1);
     }
 
