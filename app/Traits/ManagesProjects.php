@@ -23,7 +23,7 @@ trait ManagesProjects
 
         foreach ($proyectos as $proyecto) {
             $proyecto->total_participantes = $proyecto->participaciones->count();
-            $proyecto->horas_totales = $proyecto->participaciones->sum('horas_dedicadas');
+            $proyecto->horas_totales = 0; // Column horas_dedicadas doesn't exist in participaciones table
             $proyecto->monto_patrocinio = $proyecto->cartasPatrocinio()
                                                    ->where('estado', 'Aprobada')
                                                    ->sum('monto_solicitado');
@@ -137,7 +137,7 @@ trait ManagesProjects
         ])->findOrFail($id);
 
         $proyecto->total_participantes = $proyecto->participaciones->count();
-        $proyecto->horas_totales = $proyecto->participaciones->sum('horas_dedicadas');
+        $proyecto->horas_totales = 0; // Column horas_dedicadas doesn't exist in participaciones table
         $proyecto->monto_patrocinio = $proyecto->cartasPatrocinio()
                                                ->where('estado', 'Aprobada')
                                                ->sum('monto_solicitado');
