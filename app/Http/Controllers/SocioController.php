@@ -481,6 +481,14 @@ class SocioController extends Controller
             ]);
 
             if ($consultaId) {
+                // 📢 Notificar a Secretarios sobre la nueva consulta
+                $consulta = new \stdClass();
+                $consulta->ConsultaID = $consultaId;
+                $consulta->Asunto = $validated['asunto'];
+                
+                $notificacionService = app(\App\Services\NotificacionService::class);
+                $notificacionService->notificarConsultaNueva($consulta);
+                
                 return redirect()->route('socio.secretaria.index')
                     ->with('success', '¡Consulta enviada exitosamente! La Secretaría la revisará pronto.');
             } else {

@@ -87,6 +87,26 @@ class NotificacionService
     }
 
     /**
+     * Notificar nueva consulta
+     */
+    public function notificarConsultaNueva($consulta, array $usuariosIds = []): void
+    {
+        if (empty($usuariosIds)) {
+            $usuariosIds = User::role(['Secretario', 'Presidente'])->pluck('id')->toArray();
+        }
+
+        $this->crearParaMultiples(
+            $usuariosIds,
+            'consulta_nueva',
+            'Nueva Consulta Recibida',
+            "Se ha recibido una nueva consulta: {$consulta->Asunto}",
+            route('secretaria.consultas'),
+            $consulta->ConsultaID,
+            'consulta'
+        );
+    }
+
+    /**
      * Notificar cambio de fechas de evento (arrastrar en calendario)
      */
     public function notificarEventoRescheduleado($evento, $fechaAnterior, $fechaNueva): void
@@ -247,6 +267,10 @@ class NotificacionService
             'carta_pendiente' => [
                 'icono' => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
                 'color' => 'orange',
+            ],
+            'consulta_nueva' => [
+                'icono' => 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
+                'color' => 'blue',
             ],
             'default' => [
                 'icono' => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',

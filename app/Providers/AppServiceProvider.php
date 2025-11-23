@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\Notificacion;
 use App\Models\User;
 use App\Models\Proyecto;
+use App\Models\Reunion;
 use App\Observers\UserObserver;
 use App\Observers\ProyectoObserver;
+use App\Observers\ReunionObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         // Registrar observers
         User::observe(UserObserver::class);
         Proyecto::observe(ProyectoObserver::class);
+        Reunion::observe(ReunionObserver::class);
         
         // Super Admin tiene acceso a todo - IMPORTANTE: debe estar ANTES de otros gates
         Gate::before(function ($user, $ability) {

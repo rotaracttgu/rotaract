@@ -3,16 +3,24 @@
 namespace App\Observers;
 
 use App\Models\Proyecto;
+use App\Services\NotificacionService;
 use Illuminate\Support\Facades\DB;
 
 /**
  * ProyectoObserver
  *
  * Observa eventos del modelo Proyecto para automatizar tareas
- * como la creación de eventos en calendarios
+ * como la creación de eventos en calendarios y notificaciones
  */
 class ProyectoObserver
 {
+    protected $notificacionService;
+
+    public function __construct(NotificacionService $notificacionService)
+    {
+        $this->notificacionService = $notificacionService;
+    }
+
     /**
      * Handle the Proyecto "created" event.
      *
@@ -35,6 +43,9 @@ class ProyectoObserver
                 'ProyectoID' => $proyecto->ProyectoID,
             ]);
         }
+
+        // 📢 Notificar sobre nuevo proyecto
+        $this->notificacionService->notificarProyectoCreado($proyecto);
     }
 
     /**
