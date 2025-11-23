@@ -1140,7 +1140,7 @@
                                 <option value="">Seleccionar miembro...</option>
                                 @foreach($miembros as $miembro)
                                     @if($miembro->user)
-                                        <option value="{{ $miembro->MiembroID }}">{{ $miembro->user->name }}</option>
+                                        <option value="{{ $miembro->MiembroID }}">{{ $miembro->user->name }} {{ $miembro->user->apellidos ?? '' }} - {{ $miembro->Rol ?? 'N/A' }}</option>
                                     @endif
                                 @endforeach
                             </select>
