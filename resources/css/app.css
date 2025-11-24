@@ -1,3 +1,166 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ========================================
+   UTILIDADES RESPONSIVE GLOBALES
+   ======================================== */
+
+@layer components {
+    /* Contenedores responsive estándar */
+    .container-responsive {
+        @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    }
+
+    /* Tarjetas estadísticas responsive */
+    .stat-card-responsive {
+        @apply bg-white rounded-xl shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow duration-300;
+    }
+
+    /* Headers responsive */
+    .header-responsive {
+        @apply rounded-xl p-4 sm:p-6 lg:p-8 shadow-lg;
+    }
+
+    /* Grid responsive común (1-2-4 columnas) */
+    .grid-responsive {
+        @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6;
+    }
+
+    /* Grid responsive alternativo (1-2-3 columnas) */
+    .grid-responsive-3 {
+        @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+    }
+
+    /* Texto responsive para títulos */
+    .text-responsive-xl {
+        @apply text-xl sm:text-2xl lg:text-3xl xl:text-4xl;
+    }
+
+    .text-responsive-lg {
+        @apply text-lg sm:text-xl lg:text-2xl;
+    }
+
+    .text-responsive-md {
+        @apply text-base sm:text-lg lg:text-xl;
+    }
+
+    /* Iconos responsive */
+    .icon-responsive {
+        @apply w-5 h-5 sm:w-6 sm:h-6;
+    }
+
+    .icon-responsive-lg {
+        @apply w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10;
+    }
+
+    /* Sidebar responsive */
+    .sidebar-responsive {
+        @apply fixed top-0 left-0 h-full transition-transform duration-300 z-40 
+               -translate-x-full lg:translate-x-0;
+    }
+
+    .sidebar-responsive.active {
+        @apply translate-x-0;
+    }
+
+    /* Overlay para sidebars en móvil */
+    .sidebar-overlay {
+        @apply fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden;
+    }
+
+    /* Contenido principal con offset para sidebar */
+    .main-content-responsive {
+        @apply w-full lg:ml-64 xl:ml-80 transition-all duration-300;
+    }
+
+    /* Botón hamburguesa responsive */
+    .hamburger-btn {
+        @apply lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 focus:outline-none;
+    }
+
+    /* Tablas responsive */
+    .table-responsive {
+        @apply w-full overflow-x-auto;
+    }
+
+    .table-responsive table {
+        @apply min-w-full divide-y divide-gray-200;
+    }
+
+    /* Formularios responsive */
+    .form-group-responsive {
+        @apply mb-4 sm:mb-6;
+    }
+
+    .form-label-responsive {
+        @apply block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2;
+    }
+
+    /* Botones responsive */
+    .btn-responsive {
+        @apply px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base rounded-lg transition-all;
+    }
+
+    /* Espaciado responsive */
+    .section-spacing {
+        @apply mb-6 sm:mb-8 lg:mb-10;
+    }
+
+    /* Cards con flexbox responsive */
+    .card-flex-responsive {
+        @apply flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4;
+    }
+}
+
+@layer utilities {
+    /* Prevención de overflow en textos */
+    .text-safe {
+        @apply min-w-0 truncate;
+    }
+
+    /* Flex que no se encoge */
+    .flex-no-shrink {
+        @apply flex-shrink-0;
+    }
+
+    /* Scrollbar personalizado */
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        @apply bg-gray-100;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        @apply bg-gray-400 rounded-full hover:bg-gray-500;
+    }
+
+    /* Animaciones suaves */
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Ocultar scrollbar pero mantener funcionalidad */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+}

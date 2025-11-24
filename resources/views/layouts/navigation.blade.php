@@ -124,21 +124,21 @@
                 @if(!request()->routeIs('perfil.editar'))
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button class="inline-flex items-center gap-3 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 shadow-sm">
+                            <button class="inline-flex items-center gap-2 sm:gap-3 px-2 sm:px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-150 shadow-sm">
                                 <!-- Avatar con iniciales (usa username si existe) -->
                                 @php $displayName = Auth::user()->username ?? Auth::user()->name; @endphp
-                                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white font-semibold text-sm">
+                                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white font-semibold text-sm flex-shrink-0">
                                     {{ strtoupper(substr($displayName, 0, 1)) }}
                                 </div>
                                 
-                                <!-- Nombre de usuario y Rol -->
-                                <div class="flex flex-col items-start">
-                                    <span class="font-semibold text-gray-900">{{ $displayName }}</span>
-                                    <span class="text-xs text-gray-500">{{ Auth::user()->getRoleNames()->first() }}</span>
+                                <!-- Nombre de usuario y Rol - Oculto en móvil pequeño -->
+                                <div class="hidden md:flex flex-col items-start min-w-0">
+                                    <span class="font-semibold text-gray-900 truncate max-w-[150px]">{{ $displayName }}</span>
+                                    <span class="text-xs text-gray-500 truncate max-w-[150px]">{{ Auth::user()->getRoleNames()->first() }}</span>
                                 </div>
 
                                 <!-- Icono flecha -->
-                                <svg class="fill-current h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <svg class="fill-current h-4 w-4 text-gray-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
                             </button>

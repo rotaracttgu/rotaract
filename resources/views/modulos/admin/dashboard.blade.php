@@ -36,102 +36,106 @@
 <div class="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
-        <div class="mb-8 bg-gradient-to-r from-red-600 via-pink-600 to-purple-700 rounded-2xl p-8 shadow-2xl text-white animate-fade-in">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-4xl font-bold flex items-center">
-                        <i class="fas fa-crown mr-3 text-yellow-300"></i>Panel de Administración
+        <div class="mb-8 bg-gradient-to-r from-red-600 via-pink-600 to-purple-700 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-2xl text-white animate-fade-in">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex-1">
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold flex items-center flex-wrap gap-2">
+                        <i class="fas fa-crown text-yellow-300 text-xl sm:text-2xl lg:text-3xl"></i>
+                        <span>Panel de Administración</span>
                     </h1>
-                    <p class="text-red-100 mt-3 text-lg">Bienvenido al panel de control del Super Admin</p>
-                    <p class="text-sm text-red-200 mt-2 flex items-center gap-4">
+                    <p class="text-red-100 mt-2 sm:mt-3 text-sm sm:text-base lg:text-lg">Bienvenido al panel de control del Super Admin</p>
+                    <p class="text-xs sm:text-sm text-red-200 mt-2 flex flex-wrap items-center gap-2 sm:gap-4">
                         <span><i class="far fa-calendar-alt mr-1"></i>{{ now()->format('d/m/Y') }}</span>
                         <span><i class="far fa-clock mr-1"></i>{{ now()->format('H:i') }}</span>
                     </p>
                 </div>
-                <div class="bg-white/20 rounded-full p-4 backdrop-blur-sm">
-                    <i class="fas fa-chart-line text-6xl text-white"></i>
+                <div class="hidden sm:flex bg-white/20 rounded-full p-3 sm:p-4 backdrop-blur-sm">
+                    <i class="fas fa-chart-line text-4xl sm:text-5xl lg:text-6xl text-white"></i>
                 </div>
             </div>
         </div>
 
         <!-- Estadísticas de Usuarios -->
         <div class="mb-8">
-            <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-                <i class="fas fa-users mr-3 text-blue-400"></i>Estadísticas de Usuarios
+            <h2 class="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center">
+                <i class="fas fa-users mr-2 sm:mr-3 text-blue-400 text-lg sm:text-xl"></i>
+                <span>Estadísticas de Usuarios</span>
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <!-- Total Usuarios -->
-                <div class="stat-card bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl shadow-xl p-6 text-white">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-blue-200 text-xs uppercase tracking-wide mb-2 font-semibold">Total Usuarios</p>
-                            <h3 class="text-5xl font-bold">{{ $totalUsuarios }}</h3>
-                            <p class="text-xs text-blue-200 mt-3 flex items-center">
-                                <i class="fas fa-chart-line text-green-300 mr-1"></i>
-                                {{ $rolesActivos }} roles activos
+                <div class="stat-card bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl shadow-xl p-4 sm:p-6 text-white">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-blue-200 text-xs uppercase tracking-wide mb-2 font-semibold truncate">Total Usuarios</p>
+                            <h3 class="text-3xl sm:text-4xl lg:text-5xl font-bold">{{ $totalUsuarios }}</h3>
+                            <p class="text-xs text-blue-200 mt-2 sm:mt-3 flex items-center">
+                                <i class="fas fa-chart-line text-green-300 mr-1 flex-shrink-0"></i>
+                                <span class="truncate">{{ $rolesActivos }} roles activos</span>
                             </p>
                         </div>
-                        <div class="bg-white/20 p-4 rounded-xl shadow-md backdrop-blur-sm">
-                            <i class="fas fa-users text-3xl"></i>
+                        <div class="bg-white/20 p-2 sm:p-3 lg:p-4 rounded-xl shadow-md backdrop-blur-sm flex-shrink-0">
+                            <i class="fas fa-users text-2xl sm:text-3xl"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- Usuarios Verificados -->
-                <div class="stat-card bg-gradient-to-br from-green-600 via-emerald-700 to-teal-800 rounded-2xl shadow-xl p-6 text-white">
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                            <p class="text-green-200 text-xs uppercase tracking-wide mb-2 font-semibold">Verificados</p>
-                            <h3 class="text-5xl font-bold">{{ $usuariosVerificados }}</h3>
-                            <div class="mt-3">
+                <div class="stat-card bg-gradient-to-br from-green-600 via-emerald-700 to-teal-800 rounded-2xl shadow-xl p-4 sm:p-6 text-white">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-green-200 text-xs uppercase tracking-wide mb-2 font-semibold truncate">Verificados</p>
+                            <h3 class="text-3xl sm:text-4xl lg:text-5xl font-bold">{{ $usuariosVerificados }}</h3>
+                            <div class="mt-2 sm:mt-3">
                                 <div class="flex items-center justify-between text-xs mb-1.5">
                                     <span class="text-green-200">Progreso</span>
                                     <span class="font-bold text-white">{{ $porcentajeVerificados }}%</span>
                                 </div>
-                                <div class="w-full bg-white/20 rounded-full h-2.5 overflow-hidden">
-                                    <div class="bg-white h-2.5 rounded-full transition-all duration-500" style="width: {{ $porcentajeVerificados }}%"></div>
+                                <div class="w-full bg-white/20 rounded-full h-2 sm:h-2.5 overflow-hidden">
+                                    <div class="bg-white h-full rounded-full transition-all duration-500" style="width: {{ $porcentajeVerificados }}%"></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-white/20 p-4 rounded-xl shadow-md backdrop-blur-sm">
-                            <i class="fas fa-user-check text-3xl"></i>
+                        <div class="bg-white/20 p-2 sm:p-3 lg:p-4 rounded-xl shadow-md backdrop-blur-sm flex-shrink-0">
+                            <i class="fas fa-user-check text-2xl sm:text-3xl"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- Usuarios Pendientes -->
-                <div class="stat-card bg-gradient-to-br from-orange-600 via-orange-700 to-red-800 rounded-2xl shadow-xl p-6 text-white">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-orange-200 text-xs uppercase tracking-wide mb-2 font-semibold">Pendientes</p>
-                            <h3 class="text-5xl font-bold">{{ $usuariosPendientes }}</h3>
-                            <p class="text-xs text-orange-200 mt-3 flex items-center">
+                <div class="stat-card bg-gradient-to-br from-orange-600 via-orange-700 to-red-800 rounded-2xl shadow-xl p-4 sm:p-6 text-white">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-orange-200 text-xs uppercase tracking-wide mb-2 font-semibold truncate">Pendientes</p>
+                            <h3 class="text-3xl sm:text-4xl lg:text-5xl font-bold">{{ $usuariosPendientes }}</h3>
+                            <p class="text-xs text-orange-200 mt-2 sm:mt-3 flex items-center">
                                 @if($usuariosPendientes > 0)
-                                    <i class="fas fa-exclamation-circle text-yellow-300 mr-1"></i> Requieren verificación
+                                    <i class="fas fa-exclamation-circle text-yellow-300 mr-1 flex-shrink-0"></i> 
+                                    <span class="truncate">Requieren verificación</span>
                                 @else
-                                    <i class="fas fa-check-circle text-green-300 mr-1"></i> Todos verificados
+                                    <i class="fas fa-check-circle text-green-300 mr-1 flex-shrink-0"></i> 
+                                    <span class="truncate">Todos verificados</span>
                                 @endif
                             </p>
                         </div>
-                        <div class="bg-white/20 p-4 rounded-xl shadow-md backdrop-blur-sm">
-                            <i class="fas fa-user-clock text-3xl"></i>
+                        <div class="bg-white/20 p-2 sm:p-3 lg:p-4 rounded-xl shadow-md backdrop-blur-sm flex-shrink-0">
+                            <i class="fas fa-user-clock text-2xl sm:text-3xl"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- Usuarios Nuevos -->
-                <div class="stat-card bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 rounded-2xl shadow-xl p-6 text-white">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-purple-200 text-xs uppercase tracking-wide mb-2 font-semibold">Nuevos Este Mes</p>
-                            <h3 class="text-5xl font-bold">{{ $usuariosNuevos }}</h3>
-                            <p class="text-xs text-purple-200 mt-3 flex items-center">
-                                <i class="fas fa-calendar-alt text-purple-300 mr-1"></i>
-                                {{ now()->format('F Y') }}
+                <div class="stat-card bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 rounded-2xl shadow-xl p-4 sm:p-6 text-white">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-purple-200 text-xs uppercase tracking-wide mb-2 font-semibold truncate">Nuevos Este Mes</p>
+                            <h3 class="text-3xl sm:text-4xl lg:text-5xl font-bold">{{ $usuariosNuevos }}</h3>
+                            <p class="text-xs text-purple-200 mt-2 sm:mt-3 flex items-center">
+                                <i class="fas fa-calendar-alt text-purple-300 mr-1 flex-shrink-0"></i>
+                                <span class="truncate">{{ now()->format('F Y') }}</span>
                             </p>
                         </div>
-                        <div class="bg-white/20 p-4 rounded-xl shadow-md backdrop-blur-sm">
-                            <i class="fas fa-user-plus text-3xl"></i>
+                        <div class="bg-white/20 p-2 sm:p-3 lg:p-4 rounded-xl shadow-md backdrop-blur-sm flex-shrink-0">
+                            <i class="fas fa-user-plus text-2xl sm:text-3xl"></i>
                         </div>
                     </div>
                 </div>
@@ -140,64 +144,69 @@
 
         <!-- Estadísticas de Bitácora -->
         <div class="mb-8">
-            <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-                <i class="fas fa-history mr-3 text-indigo-400"></i>Actividad del Sistema
+            <h2 class="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center">
+                <i class="fas fa-history mr-2 sm:mr-3 text-indigo-400 text-lg sm:text-xl"></i>
+                <span>Actividad del Sistema</span>
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <!-- Eventos Hoy -->
-                <div class="stat-card bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 rounded-2xl shadow-xl p-6 text-white">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-indigo-200 text-xs uppercase tracking-wide mb-2 font-semibold">Eventos Hoy</p>
-                            <h3 class="text-5xl font-bold">{{ $bitacoraStats['eventos_hoy'] }}</h3>
-                            <p class="text-xs text-indigo-200 mt-3 flex items-center">
-                                <i class="fas fa-clock text-indigo-300 mr-1"></i> Últimas 24h
+                <div class="stat-card bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 rounded-2xl shadow-xl p-4 sm:p-6 text-white">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-indigo-200 text-xs uppercase tracking-wide mb-2 font-semibold truncate">Eventos Hoy</p>
+                            <h3 class="text-3xl sm:text-4xl lg:text-5xl font-bold">{{ $bitacoraStats['eventos_hoy'] }}</h3>
+                            <p class="text-xs text-indigo-200 mt-2 sm:mt-3 flex items-center">
+                                <i class="fas fa-clock text-indigo-300 mr-1 flex-shrink-0"></i>
+                                <span class="truncate">Últimas 24h</span>
                             </p>
                         </div>
-                        <div class="bg-white/20 p-4 rounded-xl shadow-md backdrop-blur-sm">
-                            <i class="fas fa-chart-line text-3xl"></i>
+                        <div class="bg-white/20 p-2 sm:p-3 lg:p-4 rounded-xl shadow-md backdrop-blur-sm flex-shrink-0">
+                            <i class="fas fa-chart-line text-2xl sm:text-3xl"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- Logins Hoy -->
-                <div class="stat-card bg-gradient-to-br from-cyan-600 via-cyan-700 to-blue-800 rounded-2xl shadow-xl p-6 text-white">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-cyan-200 text-xs uppercase tracking-wide mb-2 font-semibold">Logins Hoy</p>
-                            <h3 class="text-5xl font-bold">{{ $bitacoraStats['logins_hoy'] }}</h3>
-                            <p class="text-xs text-cyan-200 mt-3 flex items-center">
-                                <i class="fas fa-sign-in-alt text-cyan-300 mr-1"></i> Accesos exitosos
+                <div class="stat-card bg-gradient-to-br from-cyan-600 via-cyan-700 to-blue-800 rounded-2xl shadow-xl p-4 sm:p-6 text-white">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-cyan-200 text-xs uppercase tracking-wide mb-2 font-semibold truncate">Logins Hoy</p>
+                            <h3 class="text-3xl sm:text-4xl lg:text-5xl font-bold">{{ $bitacoraStats['logins_hoy'] }}</h3>
+                            <p class="text-xs text-cyan-200 mt-2 sm:mt-3 flex items-center">
+                                <i class="fas fa-sign-in-alt text-cyan-300 mr-1 flex-shrink-0"></i>
+                                <span class="truncate">Accesos exitosos</span>
                             </p>
                         </div>
-                        <div class="bg-white/20 p-4 rounded-xl shadow-md backdrop-blur-sm">
-                            <i class="fas fa-door-open text-3xl"></i>
+                        <div class="bg-white/20 p-2 sm:p-3 lg:p-4 rounded-xl shadow-md backdrop-blur-sm flex-shrink-0">
+                            <i class="fas fa-door-open text-2xl sm:text-3xl"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- Errores Hoy -->
-                <div class="stat-card bg-gradient-to-br from-red-600 via-red-700 to-pink-800 rounded-2xl shadow-xl p-6 text-white">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p class="text-red-200 text-xs uppercase tracking-wide mb-2 font-semibold">Errores Hoy</p>
-                            <h3 class="text-5xl font-bold">{{ $bitacoraStats['errores_hoy'] }}</h3>
-                            <p class="text-xs text-red-200 mt-3 flex items-center">
+                <div class="stat-card bg-gradient-to-br from-red-600 via-red-700 to-pink-800 rounded-2xl shadow-xl p-4 sm:p-6 text-white">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-red-200 text-xs uppercase tracking-wide mb-2 font-semibold truncate">Errores Hoy</p>
+                            <h3 class="text-3xl sm:text-4xl lg:text-5xl font-bold">{{ $bitacoraStats['errores_hoy'] }}</h3>
+                            <p class="text-xs text-red-200 mt-2 sm:mt-3 flex items-center">
                                 @if($bitacoraStats['errores_hoy'] > 0)
-                                    <i class="fas fa-exclamation-triangle text-yellow-300 mr-1"></i> Requieren atención
+                                    <i class="fas fa-exclamation-triangle text-yellow-300 mr-1 flex-shrink-0"></i>
+                                    <span class="truncate">Requieren atención</span>
                                 @else
-                                    <i class="fas fa-check-circle text-green-300 mr-1"></i> Sin problemas
+                                    <i class="fas fa-check-circle text-green-300 mr-1 flex-shrink-0"></i>
+                                    <span class="truncate">Sin problemas</span>
                                 @endif
                             </p>
                         </div>
-                        <div class="bg-white/20 p-4 rounded-xl shadow-md backdrop-blur-sm">
-                            <i class="fas fa-exclamation-circle text-3xl"></i>
+                        <div class="bg-white/20 p-2 sm:p-3 lg:p-4 rounded-xl shadow-md backdrop-blur-sm flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-2xl sm:text-3xl"></i>
                         </div>
                     </div>
                 </div>
 
                 <!-- Total Eventos -->
-                <div class="stat-card bg-gradient-to-br from-gray-600 via-gray-700 to-slate-800 rounded-2xl shadow-xl p-6 text-white">
+                <div class="stat-card bg-gradient-to-br from-gray-600 via-gray-700 to-slate-800 rounded-2xl shadow-xl p-4 sm:p-6 text-white">
                     <div class="flex items-start justify-between">
                         <div>
                             <p class="text-gray-200 text-xs uppercase tracking-wide mb-2 font-semibold">Total Eventos</p>

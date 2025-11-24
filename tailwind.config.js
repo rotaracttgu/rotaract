@@ -14,6 +14,24 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            // Breakpoints personalizados para mejor control responsive
+            screens: {
+                'xs': '475px',
+                ...defaultTheme.screens,
+            },
+            // Espaciado adicional para componentes responsive
+            spacing: {
+                '18': '4.5rem',
+                '88': '22rem',
+                '100': '25rem',
+                '112': '28rem',
+                '128': '32rem',
+            },
+            // Animaciones suaves para transiciones responsive
+            transitionProperty: {
+                'width': 'width',
+                'spacing': 'margin, padding',
+            },
         },
     },
 

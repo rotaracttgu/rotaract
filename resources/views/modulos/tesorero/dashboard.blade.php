@@ -14,28 +14,28 @@
 
 @section('content')
     <!-- Header con gradiente mejorado -->
-    <div class="mb-6 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-xl p-6 shadow-lg text-white">
-        <h1 class="text-2xl font-bold">
+    <div class="mb-6 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-xl p-4 sm:p-6 shadow-lg text-white">
+        <h1 class="text-xl sm:text-2xl font-bold">
             Panel de Control <span class="text-yellow-300">Financiero</span>
         </h1>
-        <p class="text-emerald-100 mt-2">Bienvenido al módulo de Tesorería</p>
+        <p class="text-emerald-100 mt-2 text-sm sm:text-base">Bienvenido al módulo de Tesorería</p>
     </div>
 
     <!-- Tarjetas de Estadísticas con diseño mejorado -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         <!-- Balance Total -->
-        <div class="stat-card bg-white rounded-xl shadow-lg p-6 border-l-4 border-emerald-500">
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">BALANCE TOTAL</p>
+        <div class="stat-card bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4 border-emerald-500">
+            <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs sm:text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold truncate">BALANCE TOTAL</p>
                     <div class="flex items-baseline">
-                        <h3 class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent">
+                        <h3 class="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent truncate">
                             L. {{ number_format($balanceTotal ?? 0, 2) }}
                         </h3>
                     </div>
                 </div>
-                <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-3 rounded-xl shadow-md">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 sm:p-3 rounded-xl shadow-md flex-shrink-0">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
@@ -43,11 +43,11 @@
         </div>
 
         <!-- Total Ingresos -->
-        <div class="stat-card bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold">TOTAL INGRESOS</p>
-                    <h3 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">
+        <div class="stat-card bg-white rounded-xl shadow-lg p-4 sm:p-6 border-l-4 border-green-500">
+            <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs sm:text-sm text-gray-500 uppercase tracking-wide mb-2 font-semibold truncate">TOTAL INGRESOS</p>
+                    <h3 class="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent truncate">
                         L. {{ number_format($totalIngresos ?? 0, 2) }}
                     </h3>
                 </div>

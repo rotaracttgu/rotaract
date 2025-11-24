@@ -316,11 +316,37 @@
             display: none !important;
         }
 
-        /* Media Query: Importante para móviles */
-        @media (max-width: 768px) {
-            .sidebar-vocero { position: relative; width: 100%; height: auto; padding-top: 0; }
-            .main-content-vocero { margin-left: 0; padding-top: 0; }
-            nav.bg-white { margin-left: 0; width: 100%; }
+        /* Media Query: Responsive para móviles y tablets */
+        @media (max-width: 1024px) {
+            .sidebar-vocero { 
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+            }
+            .sidebar-vocero.active {
+                transform: translateX(0);
+            }
+            .main-content-vocero { 
+                margin-left: 0; 
+                padding-top: 64px;
+                width: 100%;
+            }
+            nav.bg-white { 
+                margin-left: 0; 
+                width: 100%; 
+            }
+            .stats-card {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .sidebar-brand h4 {
+                font-size: 1.25rem;
+            }
+            .content-wrapper {
+                padding: 1rem !important;
+            }
         }
 
         /* Spinner de carga */
