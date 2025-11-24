@@ -20,13 +20,6 @@ class AdminController extends Controller
 
     public function __construct()
     {
-        $this->middleware(function ($request, $next) {
-            // Solo Super Admin y Presidente pueden acceder al AdminController
-            if (!auth()->check() || (!auth()->user()->hasRole('Super Admin') && !auth()->user()->hasRole('Presidente'))) {
-                abort(403, 'No tienes permisos para acceder a este módulo');
-            }
-            return $next($request);
-        });
         $this->presidenteController = new PresidenteController();
     }
 
