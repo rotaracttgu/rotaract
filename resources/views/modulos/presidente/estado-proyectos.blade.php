@@ -136,26 +136,33 @@
                     <div id="gridView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         @forelse($proyectos as $proyecto)
                             @php
-                                // Determinar estado del proyecto
-                                if($proyecto->FechaFin) {
-                                    $estado = 'Finalizado';
-                                    $estadoClass = 'bg-green-100 text-green-800';
-                                    $progressColor = 'bg-green-600';
-                                    $progreso = 100;
-                                } elseif($proyecto->FechaInicio) {
-                                    $estado = 'EnEjecucion';
+                                // Determinar estado del proyecto basado en el campo Estatus
+                                $estatus = trim($proyecto->Estatus ?? 'En Planificacion');
+                                
+                                if($estatus === 'Activo') {
+                                    $estado = 'En Ejecución';
                                     $estadoClass = 'bg-blue-100 text-blue-800';
                                     $progressColor = 'bg-blue-600';
                                     // Calcular progreso basado en fechas
-                                    if($proyecto->FechaFin) {
+                                    if($proyecto->FechaInicio && $proyecto->FechaFin) {
                                         $total = \Carbon\Carbon::parse($proyecto->FechaInicio)->diffInDays($proyecto->FechaFin);
                                         $transcurrido = \Carbon\Carbon::parse($proyecto->FechaInicio)->diffInDays(now());
                                         $progreso = $total > 0 ? min(100, round(($transcurrido / $total) * 100)) : 50;
                                     } else {
                                         $progreso = 50;
                                     }
+                                } elseif($estatus === 'Completado') {
+                                    $estado = 'Finalizado';
+                                    $estadoClass = 'bg-green-100 text-green-800';
+                                    $progressColor = 'bg-green-600';
+                                    $progreso = 100;
+                                } elseif($estatus === 'Inactivo') {
+                                    $estado = 'Inactivo';
+                                    $estadoClass = 'bg-gray-100 text-gray-800';
+                                    $progressColor = 'bg-gray-500';
+                                    $progreso = 0;
                                 } else {
-                                    $estado = 'Planificacion';
+                                    $estado = 'En Planificación';
                                     $estadoClass = 'bg-yellow-100 text-yellow-800';
                                     $progressColor = 'bg-yellow-500';
                                     $progreso = 10;
@@ -269,25 +276,32 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($proyectos as $proyecto)
                                     @php
-                                        // Determinar estado del proyecto (igual que arriba)
-                                        if($proyecto->FechaFin) {
-                                            $estadoTabla = 'Finalizado';
-                                            $estadoClass = 'bg-green-100 text-green-800';
-                                            $progressColor = 'bg-green-600';
-                                            $progreso = 100;
-                                        } elseif($proyecto->FechaInicio) {
-                                            $estadoTabla = 'EnEjecucion';
+                                        // Determinar estado del proyecto basado en el campo Estatus
+                                        $estatus = trim($proyecto->Estatus ?? 'En Planificacion');
+                                        
+                                        if($estatus === 'Activo') {
+                                            $estadoTabla = 'En Ejecución';
                                             $estadoClass = 'bg-blue-100 text-blue-800';
                                             $progressColor = 'bg-blue-600';
-                                            if($proyecto->FechaFin) {
+                                            if($proyecto->FechaInicio && $proyecto->FechaFin) {
                                                 $total = \Carbon\Carbon::parse($proyecto->FechaInicio)->diffInDays($proyecto->FechaFin);
                                                 $transcurrido = \Carbon\Carbon::parse($proyecto->FechaInicio)->diffInDays(now());
                                                 $progreso = $total > 0 ? min(100, round(($transcurrido / $total) * 100)) : 50;
                                             } else {
                                                 $progreso = 50;
                                             }
+                                        } elseif($estatus === 'Completado') {
+                                            $estadoTabla = 'Finalizado';
+                                            $estadoClass = 'bg-green-100 text-green-800';
+                                            $progressColor = 'bg-green-600';
+                                            $progreso = 100;
+                                        } elseif($estatus === 'Inactivo') {
+                                            $estadoTabla = 'Inactivo';
+                                            $estadoClass = 'bg-gray-100 text-gray-800';
+                                            $progressColor = 'bg-gray-500';
+                                            $progreso = 0;
                                         } else {
-                                            $estadoTabla = 'Planificacion';
+                                            $estadoTabla = 'En Planificación';
                                             $estadoClass = 'bg-yellow-100 text-yellow-800';
                                             $progressColor = 'bg-yellow-500';
                                             $progreso = 10;
@@ -1072,7 +1086,15 @@
                             <option value="">Sin asignar</option>
                             @foreach($miembros as $miembro)
                                 @if($miembro->user)
-                                    <option value="{{ $miembro->MiembroID }}">{{ $miembro->user->name }}</option>
+                                    @php
+                                        $nombreCompleto = trim($miembro->user->name . ' ' . ($miembro->user->apellidos ?? ''));
+                                        $rol = 'Sin rol';
+                                        if($miembro->user->roles && $miembro->user->roles->count() > 0) {
+                                            $rol = $miembro->user->roles->first()->name;
+                                        }
+                                        $display = $nombreCompleto . ' - ' . $rol;
+                                    @endphp
+                                    <option value="{{ $miembro->MiembroID }}">{{ $display }}</option>
                                 @endif
                             @endforeach
                         </select>
