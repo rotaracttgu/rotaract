@@ -308,7 +308,7 @@ class PermissionsSeeder extends Seeder
             $tesorero->syncPermissions([
                 'miembros.ver',
                 'proyectos.ver',
-                'finanzas.ver', 'finanzas.crear', 'finanzas.editar', 'finanzas.exportar',
+                'finanzas.ver', 'finanzas.crear', 'finanzas.editar', 'finanzas.aprobar', 'finanzas.eliminar', 'finanzas.exportar',
                 'eventos.ver',
                 'reportes.ver', 'reportes.exportar',
                 'dashboard.ver',
