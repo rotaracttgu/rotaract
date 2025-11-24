@@ -335,7 +335,7 @@ class RoleController extends Controller
             'vicepresidente' => 'Vicepresidente',
             'tesorero' => 'Tesorero',
             'secretaria' => 'Secretaría',
-            'vocero' => 'Vocero',
+            'vocero' => 'Macero',
             'socio' => 'Socio',
             'finanzas' => 'Finanzas',
             'eventos' => 'Eventos',

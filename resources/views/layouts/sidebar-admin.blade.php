@@ -132,25 +132,25 @@
                 </div>
             </div>
 
-            <!-- 5. MÓDULO VOCERO/MACERO -->
-            <div x-data="{ open: false }" class="mb-2">
-                <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-3 rounded-lg hover:bg-orange-700/30 transition-all duration-200 group hover:shadow-lg hover:shadow-orange-500/20">
+            <!-- 5. MÓDULO MACERO -->
+            <div x-data="{ open: false }" class="mb-1 group">
+                <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-3 rounded-lg hover:bg-pink-700/30 transition-all duration-200 group hover:shadow-lg hover:shadow-pink-500/20">
                     <div class="flex items-center gap-3 flex-1 min-w-0">
-                        <i class="fas fa-megaphone text-orange-400 flex-shrink-0 group-hover:text-orange-300"></i>
-                        <span class="font-semibold text-sm truncate">Vocero</span>
+                        <i class="fas fa-bullhorn text-pink-400 flex-shrink-0 group-hover:text-pink-300"></i>
+                        <span class="font-semibold text-sm truncate">Macero</span>
                     </div>
                     <i class="fas fa-chevron-down text-xs flex-shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                 </button>
-                <div x-show="open" x-collapse class="mt-1 ml-3 space-y-1 border-l-2 border-orange-500/50 pl-2">
-                    <a href="{{ route('vocero.dashboard') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors text-xs truncate {{ request()->routeIs('vocero.dashboard') ? 'bg-orange-600/30 text-orange-300' : 'text-gray-300' }}">
+                <div x-show="open" x-transition x-collapse class="mt-1 ml-2 space-y-0.5 border-l border-pink-700/30 pl-3">
+                    <a href="{{ route('vocero.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-pink-700/40 transition-all text-xs {{ request()->routeIs('vocero.dashboard') ? 'bg-pink-600/50 text-pink-200' : 'text-gray-300 hover:text-white' }}">
                         <i class="fas fa-chart-bar text-xs flex-shrink-0"></i>
                         <span class="truncate">Dashboard</span>
                     </a>
-                    <a href="{{ route('vocero.eventos') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors text-xs truncate {{ request()->routeIs('vocero.eventos') ? 'bg-orange-600/30 text-orange-300' : 'text-gray-300' }}">
+                    <a href="{{ route('vocero.eventos') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-pink-700/40 transition-all text-xs {{ request()->routeIs('vocero.eventos') ? 'bg-pink-600/50 text-pink-200' : 'text-gray-300 hover:text-white' }}">
                         <i class="fas fa-calendar text-xs flex-shrink-0"></i>
                         <span class="truncate">Eventos</span>
                     </a>
-                    <a href="{{ route('vocero.asistencias') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors text-xs truncate {{ request()->routeIs('vocero.asistencias') ? 'bg-orange-600/30 text-orange-300' : 'text-gray-300' }}">
+                    <a href="{{ route('vocero.asistencias') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-pink-700/40 transition-all text-xs {{ request()->routeIs('vocero.asistencias') ? 'bg-pink-600/50 text-pink-200' : 'text-gray-300 hover:text-white' }}">
                         <i class="fas fa-user-check text-xs flex-shrink-0"></i>
                         <span class="truncate">Asistencias</span>
                     </a>

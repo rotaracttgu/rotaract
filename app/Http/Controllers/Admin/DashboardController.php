@@ -205,8 +205,8 @@ class DashboardController extends Controller
                 'colorBarra' => 'bg-purple-500'
             ],
             'Vocero' => [
-                'color' => 'bg-amber-500',
-                'colorBarra' => 'bg-amber-500'
+                'color' => 'bg-pink-500',
+                'colorBarra' => 'bg-pink-500'
             ],
             'Aspirante' => [
                 'color' => 'bg-gray-500',

@@ -163,7 +163,7 @@
                 </div>
             </div>
 
-            <!-- 5. MÓDULO VOCERO/MACERO -->
+            <!-- 5. MÓDULO MACERO -->
             <div x-data="{ open: false }" class="mb-2">
                 <button @click="open = !open" class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-orange-700 transition-colors duration-200 group">
                     <div class="flex items-center gap-3">

@@ -75,7 +75,7 @@
                         <option value="Vicepresidente">Vicepresidente</option>
                         <option value="Secretario">Secretario</option>
                         <option value="Tesorero">Tesorero</option>
-                        <option value="Vocero">Vocero</option>
+                        <option value="Vocero">Macero</option>
                     </select>
                 </div>
             </div>
@@ -135,10 +135,11 @@
                                         'Vocero' => 'from-pink-500 to-rose-600'
                                     ];
                                     $roleName = $usuario->roles->first()->name ?? 'Sin rol';
+                                    $displayName = $roleName === 'Vocero' ? 'Macero' : $roleName;
                                     $colorClass = $roleColors[$roleName] ?? 'from-gray-500 to-gray-600';
                                 @endphp
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gradient-to-r {{ $colorClass }} text-white">
-                                    {{ $roleName }}
+                                    {{ $displayName }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
