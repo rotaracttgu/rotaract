@@ -29,23 +29,35 @@ class ProyectoObserver
      */
     public function created(Proyecto $proyecto): void
     {
+        \Log::info("ProyectoObserver.created - Proyecto: {$proyecto->Nombre} (ID: {$proyecto->ProyectoID})");
+        
         // Si el proyecto tiene una fecha de inicio, crear un evento en calendarios
         if ($proyecto->FechaInicio) {
-            DB::table('calendarios')->insert([
-                'TituloEvento' => $proyecto->Nombre,
-                'Descripcion' => $proyecto->Descripcion ?? null,
-                'TipoEvento' => 'InicioProyecto',
-                'EstadoEvento' => 'Programado',
-                'FechaInicio' => $proyecto->FechaInicio,
-                'FechaFin' => $proyecto->FechaFin ?? $proyecto->FechaInicio,
-                'HoraInicio' => '08:00:00',
-                'HoraFin' => '17:00:00',
-                'ProyectoID' => $proyecto->ProyectoID,
-            ]);
+            try {
+                DB::table('calendarios')->insert([
+                    'TituloEvento' => $proyecto->Nombre,
+                    'Descripcion' => $proyecto->Descripcion ?? null,
+                    'TipoEvento' => 'InicioProyecto',
+                    'EstadoEvento' => 'Programado',
+                    'FechaInicio' => $proyecto->FechaInicio,
+                    'FechaFin' => $proyecto->FechaFin ?? $proyecto->FechaInicio,
+                    'HoraInicio' => '08:00:00',
+                    'HoraFin' => '17:00:00',
+                    'ProyectoID' => $proyecto->ProyectoID,
+                ]);
+                \Log::info("Evento en calendario creado para proyecto {$proyecto->ProyectoID}");
+            } catch (\Exception $e) {
+                \Log::error("Error al crear evento en calendario: " . $e->getMessage());
+            }
         }
 
         // 📢 Notificar sobre nuevo proyecto
-        $this->notificacionService->notificarProyectoCreado($proyecto);
+        try {
+            $this->notificacionService->notificarProyectoCreado($proyecto);
+            \Log::info("Notificación de proyecto creado enviada para {$proyecto->ProyectoID}");
+        } catch (\Exception $e) {
+            \Log::error("Error al notificar proyecto creado: " . $e->getMessage());
+        }
     }
 
     /**
