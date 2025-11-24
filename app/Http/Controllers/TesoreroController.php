@@ -50,7 +50,7 @@ class TesoreroController extends Controller
         
         // Calcular datos generales (totales todos los tiempos)
         $total_ingresos = Ingreso::sum('monto') ?? 0;
-        $total_gastos = Egreso::sum('monto') ?? 0;
+        $total_gastos = Egreso::whereRaw('LOWER(estado) = ?', ['aprobado'])->sum('monto') ?? 0;
         $balance_neto = $total_ingresos - $total_gastos;
         $cantidad_ingresos = Ingreso::count();
         $cantidad_gastos = Egreso::count();
@@ -249,7 +249,7 @@ class TesoreroController extends Controller
         $this->authorize('finanzas.ver');
         // Calcular datos de ingresos y gastos
         $total_ingresos = Ingreso::sum('monto') ?? 0;
-        $total_gastos = Egreso::sum('monto') ?? 0;
+        $total_gastos = Egreso::whereRaw('LOWER(estado) = ?', ['aprobado'])->sum('monto') ?? 0;
         $balance_neto = $total_ingresos - $total_gastos;
         $cantidad_ingresos = Ingreso::count();
         $cantidad_gastos = Egreso::count();
@@ -1196,9 +1196,13 @@ class TesoreroController extends Controller
             ->count();
 
         // Calcular monto total y total comisiones (usar columnas reales cuando existan)
-        $totalMonto = Egreso::where('tipo', 'transferencia')->sum('monto');
+        $totalMonto = Egreso::whereRaw('LOWER(estado) = ?', ['aprobado'])
+            ->where('tipo', 'transferencia')
+            ->sum('monto');
 
-        $allTransferencias = Egreso::where('tipo', 'transferencia')->get();
+        $allTransferencias = Egreso::whereRaw('LOWER(estado) = ?', ['aprobado'])
+            ->where('tipo', 'transferencia')
+            ->get();
         $totalComisiones = $allTransferencias->sum(function($t) {
             return floatval($t->comision ?? $t->comision_bancaria ?? 0);
         });
@@ -1740,7 +1744,7 @@ class TesoreroController extends Controller
         $this->authorize('finanzas.ver');
         // Datos generales
         $totalIngresos = Ingreso::sum('monto') ?? 0;
-        $totalGastos = Egreso::sum('monto') ?? 0;
+        $totalGastos = Egreso::whereRaw('LOWER(estado) = ?', ['aprobado'])->sum('monto') ?? 0;
         $balance = $totalIngresos - $totalGastos;
         
         // Datos del mes actual
@@ -1751,7 +1755,8 @@ class TesoreroController extends Controller
             ->whereYear('fecha', $anioActual)
             ->sum('monto') ?? 0;
             
-        $gastosDelMes = Egreso::whereMonth('fecha', $mesActual)
+        $gastosDelMes = Egreso::whereRaw('LOWER(estado) = ?', ['aprobado'])
+            ->whereMonth('fecha', $mesActual)
             ->whereYear('fecha', $anioActual)
             ->sum('monto') ?? 0;
         
@@ -1777,7 +1782,9 @@ class TesoreroController extends Controller
         $fechaFin = $request->fecha_fin ? \Carbon\Carbon::parse($request->fecha_fin) : now();
         
         $ingresos = Ingreso::whereBetween('fecha', [$fechaInicio, $fechaFin])->get();
-        $gastos = Egreso::whereBetween('fecha', [$fechaInicio, $fechaFin])->get();
+        $gastos = Egreso::whereRaw('LOWER(estado) = ?', ['aprobado'])
+            ->whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->get();
         
         $totalIngresos = $ingresos->sum('monto');
         $totalGastos = $gastos->sum('monto');
@@ -1808,7 +1815,8 @@ class TesoreroController extends Controller
             ->whereYear('fecha', $anio)
             ->get();
             
-        $gastos = Egreso::whereMonth('fecha', $mes)
+        $gastos = Egreso::whereRaw('LOWER(estado) = ?', ['aprobado'])
+            ->whereMonth('fecha', $mes)
             ->whereYear('fecha', $anio)
             ->get();
         
@@ -1836,7 +1844,9 @@ class TesoreroController extends Controller
         $anio = $request->anio ?? now()->year;
         
         $ingresos = Ingreso::whereYear('fecha', $anio)->get();
-        $gastos = Egreso::whereYear('fecha', $anio)->get();
+        $gastos = Egreso::whereRaw('LOWER(estado) = ?', ['aprobado'])
+            ->whereYear('fecha', $anio)
+            ->get();
         
         $totalIngresos = $ingresos->sum('monto');
         $totalGastos = $gastos->sum('monto');
@@ -1849,7 +1859,8 @@ class TesoreroController extends Controller
             ->pluck('total', 'mes')
             ->toArray();
             
-        $gastosPorMes = Egreso::whereYear('fecha', $anio)
+        $gastosPorMes = Egreso::whereRaw('LOWER(estado) = ?', ['aprobado'])
+            ->whereYear('fecha', $anio)
             ->selectRaw('MONTH(fecha) as mes, SUM(monto) as total')
             ->groupBy('mes')
             ->pluck('total', 'mes')
