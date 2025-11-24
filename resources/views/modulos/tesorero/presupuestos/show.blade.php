@@ -2,77 +2,160 @@
 
 @section('title', 'Detalle de Presupuesto')
 
-@section('content')
-<!-- Estilos v2.0 - Mejorado fondo oscuro -->
+@push('styles')
 <style>
+    /* Fondo claro */
     body {
-        background-color: #1e2836 !important;
+        background-color: #f8f9fa !important;
     }
 
+    /* Header elegante estilo presupuestos */
     .detail-header {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
-    }
-
-    .detail-card {
-        background-color: #2a3544 !important;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        padding: 2rem;
+        padding: 1.5rem 2rem;
+        border-radius: 16px;
         margin-bottom: 1.5rem;
-        border-left: 4px solid #f59e0b !important;
-        border-right: 1px solid #3d4757;
-        border-top: 1px solid #3d4757;
-        border-bottom: 1px solid #3d4757;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    .detail-card h5 {
-        color: #f59e0b !important;
+    .detail-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .detail-header-content h1 {
+        font-size: 1.5rem;
         font-weight: 700;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid #3d4757;
-    }
-
-    .detail-card .card-body {
-        background-color: #2a3544 !important;
-    }
-
-    .detail-card > * {
-        background-color: transparent !important;
-    }
-
-    .stat-box {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        margin: 0;
         color: white;
-        border-radius: 15px;
-        padding: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .detail-header-content p {
+        margin: 0.25rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
+        color: white;
+    }
+
+    .btn-back {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        color: white;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-header {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        color: white;
+        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-header:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-header-primary {
+        background: white;
+        border: 2px solid white;
+        color: #2563eb;
+    }
+
+    .btn-header-primary:hover {
+        background: #f3f4f6;
+        color: #1d4ed8;
+    }
+
+    /* Stat Box */
+    .stat-box {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
         text-align: center;
         margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25);
+    }
+
+    .stat-box p {
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 0.5rem;
+        font-weight: 500;
     }
 
     .stat-box h2 {
-        font-size: 3rem;
+        font-size: 2.25rem;
         font-weight: 700;
-        margin: 1rem 0;
+        margin: 0;
+        color: white;
     }
 
-    .progress-circular {
-        width: 200px;
-        height: 200px;
-        margin: 0 auto 2rem;
-        position: relative;
+    /* Detail Card */
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.75rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        border: 1px solid #e5e7eb;
+        border-left: 4px solid #3b82f6;
     }
 
+    .detail-card h5 {
+        color: #2563eb;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e5e7eb;
+        font-size: 1rem;
+    }
+
+    .detail-card h5 i {
+        color: #3b82f6;
+    }
+
+    /* Info Row */
     .info-row {
         display: flex;
         justify-content: space-between;
-        padding: 1rem 0;
-        border-bottom: 1px solid #3d4757;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f3f4f6;
     }
 
     .info-row:last-child {
@@ -80,226 +163,250 @@
     }
 
     .info-label {
-        font-weight: 600;
-        color: #9ca3af !important;
+        font-weight: 500;
+        color: #6b7280;
     }
 
     .info-value {
-        font-weight: 700;
-        color: #ffffff !important;
+        font-weight: 600;
+        color: #1f2937;
     }
 
+    /* Badges */
     .badge-status {
-        padding: 0.5rem 1.5rem;
+        padding: 0.5rem 1rem;
         border-radius: 20px;
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 0.85rem;
     }
 
-    .btn-purple {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    /* Progress Chart Container */
+    .progress-chart-container {
+        max-width: 180px;
+        margin: 0 auto 1.5rem;
+    }
+
+    /* Buttons */
+    .btn-action {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         border: none;
         color: white;
-        padding: 0.75rem 1.5rem;
+        padding: 0.75rem 1.25rem;
         border-radius: 10px;
         font-weight: 600;
         transition: all 0.3s ease;
+        width: 100%;
+        margin-bottom: 0.75rem;
     }
 
-    .btn-purple:hover {
+    .btn-action:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
         color: white;
     }
 
-    .movimiento-item {
-        padding: 1rem;
-        border-left: 4px solid #f59e0b;
-        background: rgba(42, 53, 68, 0.5) !important;
+    .btn-outline-action {
+        background: white;
+        border: 2px solid #3b82f6;
+        color: #3b82f6;
+        padding: 0.75rem 1.25rem;
         border-radius: 10px;
-        margin-bottom: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .movimiento-item:hover {
-        background: #3d4757 !important;
-        transform: translateX(5px);
-    }
-
-    .movimiento-item * {
-        color: #ffffff !important;
-    }
-
-    /* Textos generales en cards */
-    .detail-card p,
-    .detail-card span:not(.badge),
-    .detail-card small {
-        color: #e5e7eb !important;
-    }
-
-    /* Ajustar color de texto muted */
-    .text-muted {
-        color: #9ca3af !important;
-    }
-
-    /* Asegurar que los badges se vean bien */
-    .badge {
         font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-bottom: 0.75rem;
     }
 
-    /* Estilos para tablas dentro de cards */
+    .btn-outline-action:hover {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .btn-outline-danger {
+        background: white;
+        border: 2px solid #ef4444;
+        color: #ef4444;
+    }
+
+    .btn-outline-danger:hover {
+        background: #ef4444;
+        color: white;
+    }
+
+    /* Table Styles */
     .detail-card .table-responsive {
-        background-color: #2a3544 !important;
         border-radius: 10px;
-        padding: 0;
-        border: 1px solid #3d4757;
         overflow: hidden;
+        border: 1px solid #e5e7eb;
     }
 
     .detail-card .table {
-        color: #ffffff !important;
-        background-color: #2a3544 !important;
-        margin-bottom: 0 !important;
+        margin-bottom: 0;
     }
 
     .detail-card .table thead {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     }
 
     .detail-card .table thead th {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        border: none !important;
-        padding: 1rem !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
-        background: transparent !important;
-    }
-
-    .detail-card .table tbody {
-        background-color: #2a3544 !important;
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 1rem;
     }
 
     .detail-card .table tbody tr {
-        border-bottom: 1px solid #3d4757 !important;
-        background-color: #2a3544 !important;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .detail-card .table tbody tr:hover {
+        background-color: #f9fafb;
     }
 
     .detail-card .table tbody td {
-        color: #ffffff !important;
-        border-color: #3d4757 !important;
-        padding: 1rem !important;
-        vertical-align: middle !important;
-        background-color: #2a3544 !important;
+        padding: 1rem;
+        vertical-align: middle;
+        color: #1f2937;
     }
 
     .detail-card .table tbody td strong {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        font-size: 0.95rem !important;
+        color: #1f2937;
     }
 
     .detail-card .table tbody td small {
-        color: #9ca3af !important;
-        display: block !important;
-        margin-top: 0.25rem !important;
+        color: #6b7280;
     }
 
     .detail-card .table tbody td i {
-        color: #f59e0b !important;
-    }
-
-    .detail-card .table-hover tbody tr:hover {
-        background-color: #3d4757 !important;
-    }
-
-    .detail-card .table-hover tbody tr:hover td {
-        background-color: #3d4757 !important;
+        color: #3b82f6;
     }
 
     .detail-card .table tfoot {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     }
 
-    .detail-card .table tfoot td,
-    .detail-card .table tfoot th {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        border: none !important;
-        padding: 1rem !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
-        background: transparent !important;
+    .detail-card .table tfoot td {
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 1rem;
     }
 
-    /* Asegurar que todos los badges en la tabla se vean */
-    .detail-card .table .badge {
-        padding: 0.5rem 1rem !important;
-        font-size: 0.85rem !important;
-        font-weight: 600 !important;
+    /* Badges in table */
+    .table .badge {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: 6px;
     }
 
-    .table .badge-danger {
-        background-color: #dc2626 !important;
-        color: #ffffff !important;
+    /* Text Colors */
+    .text-muted {
+        color: #6b7280 !important;
     }
 
-    .table .badge-success {
-        background-color: #059669 !important;
-        color: #ffffff !important;
+    .text-danger {
+        color: #ef4444 !important;
     }
 
-    .table .badge-info {
-        background-color: #0891b2 !important;
-        color: #ffffff !important;
+    .text-success {
+        color: #10b981 !important;
     }
 
-    .table .badge-warning {
-        background-color: #d97706 !important;
-        color: #ffffff !important;
+    .text-warning {
+        color: #f59e0b !important;
     }
 
-    /* Cambiar colores primary a ámbar */
     .text-primary {
-        color: #f59e0b !important;
+        color: #3b82f6 !important;
     }
 
-    .bg-primary {
-        background-color: #f59e0b !important;
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
     }
 
-    .border-primary {
-        border-color: #f59e0b !important;
+    .empty-state i {
+        color: #d1d5db;
     }
 
-    /* Ajustar colores de iconos y encabezados */
-    h5 .text-primary,
-    .detail-card h5 i {
-        color: #f59e0b !important;
+    .empty-state p {
+        color: #6b7280;
+    }
+
+    /* Modal */
+    .modal-content {
+        border-radius: 12px;
+        border: none;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-radius: 12px 12px 0 0;
+        padding: 1rem 1.5rem;
+    }
+
+    .modal-header .modal-title {
+        font-weight: 600;
+    }
+
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-body .form-label {
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .modal-body .form-select {
+        background-color: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+    }
+
+    .modal-body .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .modal-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e5e7eb;
     }
 </style>
+@endpush
 
-<div class="container-fluid py-4">
+@section('content')
+<div class="container-fluid px-4 py-4">
     <!-- Header -->
     <div class="detail-header">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="mb-2">
-                    <i class="fas fa-chart-pie me-2"></i>
+        <div class="detail-header-content">
+            <a href="{{ route('tesorero.presupuestos.index') }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h1>
+                    <i class="fas fa-chart-pie"></i>
                     Detalle de Presupuesto
                 </h1>
-                <p class="mb-0 opacity-75">{{ $presupuesto->categoria }}</p>
+                <p>{{ $presupuesto->categoria }}</p>
             </div>
-            <div class="col-md-4 text-md-end">
-                <a href="{{ route('tesorero.presupuestos.index') }}" class="btn btn-light me-2">
-                    <i class="fas fa-arrow-left me-2"></i>
-                    Volver
-                </a>
-                @can('finanzas.editar')
-                <a href="{{ route('tesorero.presupuestos.edit', $presupuesto->id) }}" class="btn btn-warning">
-                    <i class="fas fa-edit me-2"></i>
-                    Editar
-                </a>
-                @endcan
-            </div>
+        </div>
+        <div class="header-actions">
+            @can('finanzas.editar')
+            <a href="{{ route('tesorero.presupuestos.edit', $presupuesto->id) }}" class="btn-header">
+                <i class="fas fa-edit"></i>
+                Editar
+            </a>
+            @endcan
         </div>
     </div>
 
@@ -308,23 +415,26 @@
         <div class="col-lg-4">
             <!-- Presupuesto -->
             <div class="stat-box">
-                <i class="fas fa-wallet fa-2x mb-3 opacity-75"></i>
-                <p class="mb-1 opacity-75">Presupuesto Mensual</p>
-                <h2 class="mb-0">L. {{ number_format($presupuesto->presupuesto_mensual, 2) }}</h2>
+                <i class="fas fa-wallet fa-2x mb-2 opacity-75"></i>
+                <p class="mb-1">Presupuesto Mensual</p>
+                <h2>L. {{ number_format($presupuesto->presupuesto_mensual, 2) }}</h2>
             </div>
 
             <!-- Progreso Circular -->
             <div class="detail-card text-center">
-                <h5 class="mb-4 fw-bold">Progreso de Uso</h5>
-                <div style="max-width: 200px; margin: 0 auto;">
+                <h5 class="mb-4 fw-bold">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Progreso de Uso
+                </h5>
+                <div class="progress-chart-container">
                     <canvas id="progressChart"></canvas>
                 </div>
-                <h3 class="mt-4 mb-2 fw-bold {{ $presupuesto->porcentaje_usado >= 90 ? 'text-danger' : ($presupuesto->porcentaje_usado >= 75 ? 'text-warning' : 'text-success') }}">
+                <h3 class="mt-3 mb-2 fw-bold {{ $presupuesto->porcentaje_usado >= 90 ? 'text-danger' : ($presupuesto->porcentaje_usado >= 75 ? 'text-warning' : 'text-success') }}">
                     {{ number_format($presupuesto->porcentaje_usado, 1) }}%
                 </h3>
-                <p class="text-muted mb-0">Porcentaje Utilizado</p>
+                <p class="text-muted mb-3">Porcentaje Utilizado</p>
 
-                <div class="mt-4">
+                <div>
                     @if($presupuesto->porcentaje_usado >= 90)
                         <span class="badge badge-status bg-danger">
                             <i class="fas fa-exclamation-triangle me-2"></i>
@@ -347,7 +457,7 @@
             <!-- Resumen -->
             <div class="detail-card">
                 <h5 class="mb-3 fw-bold">
-                    <i class="fas fa-chart-line me-2 text-primary"></i>
+                    <i class="fas fa-chart-line me-2"></i>
                     Resumen Financiero
                 </h5>
                 <div class="info-row">
@@ -375,18 +485,18 @@
             <!-- Acciones -->
             <div class="detail-card">
                 <h5 class="mb-3 fw-bold">
-                    <i class="fas fa-cog me-2 text-primary"></i>
+                    <i class="fas fa-cog me-2"></i>
                     Acciones
                 </h5>
                 <div class="d-grid gap-2">
                     @can('finanzas.crear')
-                    <button class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#modalDuplicar">
+                    <button class="btn btn-action" data-bs-toggle="modal" data-bs-target="#modalDuplicar">
                         <i class="fas fa-copy me-2"></i>
                         Duplicar a otro período
                     </button>
                     @endcan
                     @can('finanzas.editar')
-                    <a href="{{ route('tesorero.presupuestos.edit', $presupuesto->id) }}" class="btn btn-outline-primary">
+                    <a href="{{ route('tesorero.presupuestos.edit', $presupuesto->id) }}" class="btn btn-outline-action">
                         <i class="fas fa-edit me-2"></i>
                         Editar Presupuesto
                     </a>
@@ -395,7 +505,7 @@
                     <form action="{{ route('tesorero.presupuestos.destroy', $presupuesto->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este presupuesto?')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-outline-danger w-100">
+                        <button type="submit" class="btn btn-outline-action btn-outline-danger w-100">
                             <i class="fas fa-trash me-2"></i>
                             Eliminar Presupuesto
                         </button>
@@ -410,7 +520,7 @@
             <!-- Información del Presupuesto -->
             <div class="detail-card">
                 <h5 class="mb-3 fw-bold">
-                    <i class="fas fa-info-circle me-2 text-primary"></i>
+                    <i class="fas fa-info-circle me-2"></i>
                     Información del Presupuesto
                 </h5>
                 <div class="row">
@@ -420,8 +530,8 @@
                             <span class="info-label">
                                 <i class="fas fa-hashtag me-2"></i>Referencia:
                             </span>
-                            <span class="info-value">
-                                <strong class="text-primary">{{ $presupuesto->numero_referencia }}</strong>
+                            <span class="info-value text-primary">
+                                <strong>{{ $presupuesto->numero_referencia }}</strong>
                             </span>
                         </div>
                         @endif
@@ -470,18 +580,18 @@
 
                 @if($presupuesto->descripcion)
                 <div class="mt-3 pt-3 border-top">
-                    <strong class="d-block mb-2">
-                        <i class="fas fa-file-alt me-2"></i>Descripción:
+                    <strong class="d-block mb-2" style="color: #374151;">
+                        <i class="fas fa-file-alt me-2 text-primary"></i>Descripción:
                     </strong>
                     <p class="text-muted mb-0">{{ $presupuesto->descripcion }}</p>
                 </div>
                 @endif
             </div>
 
-            <!-- MovimientoL.Gastos de esta categoría -->
+            <!-- Movimientos de esta categoría -->
             <div class="detail-card">
                 <h5 class="mb-3 fw-bold">
-                    <i class="fas fa-list me-2 text-primary"></i>
+                    <i class="fas fa-list me-2"></i>
                     Movimientos de esta Categoría ({{ $movimientos->count() }})
                 </h5>
 
@@ -500,16 +610,16 @@
                                 @foreach($movimientos as $mov)
                                 <tr>
                                     <td>
-                                        <i class="fas fa-calendar me-2 text-muted"></i>
+                                        <i class="fas fa-calendar me-2"></i>
                                         {{ \Carbon\Carbon::parse($mov->fecha)->format('d/m/Y') }}
                                     </td>
                                     <td>
                                         <strong>{{ $mov->descripcion }}</strong>
                                         @if($mov->proveedor)
-                                            <br><small class="text-muted">Proveedor: {{ $mov->proveedor }}</small>
+                                            <br><small>Proveedor: {{ $mov->proveedor }}</small>
                                         @endif
                                         @if($mov->comprobante)
-                                            <br><small class="text-muted">Comprobante: {{ $mov->comprobante }}</small>
+                                            <br><small>Comprobante: {{ $mov->comprobante }}</small>
                                         @endif
                                     </td>
                                     <td class="text-end">
@@ -532,18 +642,18 @@
                                 @endforeach
                             </tbody>
                             <tfoot>
-                                <tr class="fw-bold">
-                                    <td colspan="2">Total Gastado:</td>
-                                    <td class="text-end text-danger">L. {{ number_format($presupuesto->gasto_real, 2) }}</td>
+                                <tr>
+                                    <td colspan="2"><strong>Total Gastado:</strong></td>
+                                    <td class="text-end"><strong>L. {{ number_format($presupuesto->gasto_real, 2) }}</strong></td>
                                     <td></td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
                 @else
-                    <div class="text-center py-5">
-                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">No hay movimientos registrados para esta categoría en este período</p>
+                    <div class="empty-state">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No hay movimientos registrados para esta categoría en este período</p>
                     </div>
                 @endif
             </div>
@@ -566,7 +676,7 @@
                 @csrf
                 <div class="modal-body">
                     <p class="text-muted">Duplica este presupuesto a otro mes y año</p>
-                    
+
                     <div class="mb-3">
                         <label class="form-label fw-bold">Mes Destino</label>
                         <select name="mes_destino" class="form-select" required>
@@ -587,7 +697,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-purple">
+                    <button type="submit" class="btn btn-action" style="width: auto;">
                         <i class="fas fa-copy me-2"></i>
                         Duplicar
                     </button>
@@ -596,69 +706,69 @@
         </div>
     </div>
 </div>
+@endsection
 
-@if(session('success'))
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: '¡Éxito!',
-            text: '{{ session('success') }}',
-            timer: 3000,
-            showConfirmButton: false
-        });
-    </script>
-@endif
-
-@if(session('error'))
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: '{{ session('error') }}',
-            confirmButtonColor: '#f59e0b'
-        });
-    </script>
-@endif
-
+@push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Gráfico circular de progreso
-    const ctx = document.getElementById('progressChart').getContext('2d');
-    const porcentaje = {{ $presupuesto->porcentaje_usado }};
-    const restante = Math.max(0, 100 - porcentaje);
-    
-    let color = '#28a745'; // verde
-    if (porcentaje >= 90) {
-        color = '#dc3545'; // rojo
-    } else if (porcentaje >= 75) {
-        color = '#ffc107'; // amarillo
-    }
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Usado', 'Disponible'],
-            datasets: [{
-                data: [Math.min(porcentaje, 100), restante],
-                backgroundColor: [color, '#e9ecef'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            cutout: '70%',
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ': ' + context.parsed.toFixed(1) + '%';
-                        }
+<script>
+// Gráfico circular de progreso
+const ctx = document.getElementById('progressChart').getContext('2d');
+const porcentaje = {{ $presupuesto->porcentaje_usado }};
+const restante = Math.max(0, 100 - porcentaje);
+
+let color = '#10b981'; // verde
+if (porcentaje >= 90) {
+    color = '#ef4444'; // rojo
+} else if (porcentaje >= 75) {
+    color = '#f59e0b'; // amarillo
+}
+
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Usado', 'Disponible'],
+        datasets: [{
+            data: [Math.min(porcentaje, 100), restante],
+            backgroundColor: [color, '#e5e7eb'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        cutout: '70%',
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.label + ': ' + context.parsed.toFixed(1) + '%';
                     }
                 }
             }
         }
+    }
+});
+
+@if(session('success'))
+    Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: '{{ session('success') }}',
+        timer: 3000,
+        showConfirmButton: false
     });
+@endif
+
+@if(session('error'))
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: '{{ session('error') }}',
+        confirmButtonColor: '#3b82f6'
+    });
+@endif
 </script>
-@endsection
+@endpush

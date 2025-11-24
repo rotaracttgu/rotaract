@@ -218,8 +218,9 @@ class TesoreroController extends Controller
             ];
         });
         
-        // Presupuestos activos
+        // Presupuestos activos (solo los que tienen monto presupuestado > 0)
         $presupuestosActivos = Presupuesto::where('estado', 'activa')
+            ->where('monto_presupuestado', '>', 0)
             ->get()
             ->map(function($presupuesto) {
                 return (object)[

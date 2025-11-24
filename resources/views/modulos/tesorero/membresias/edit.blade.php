@@ -4,174 +4,245 @@
 
 @push('styles')
 <style>
+    /* Fondo claro */
     body {
-        background-color: #1e2836 !important;
+        background-color: #f8f9fa !important;
     }
 
+    /* Header elegante estilo membresías */
     .edit-header {
-        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
-        color: white !important;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
+        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
         box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
-    
-    .edit-header h1, .edit-header h2, .edit-header p {
-        color: #ffffff !important;
-        opacity: 1 !important;
+
+    .edit-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
     }
-    
-    .edit-header .btn-light {
-        background: rgba(255,255,255,0.2) !important;
-        border: none;
-        color: #ffffff !important;
+
+    .edit-header-content h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
-    
-    .edit-header .btn-light:hover {
-        background: rgba(255,255,255,0.3) !important;
-        color: #ffffff !important;
+
+    .edit-header-content p {
+        margin: 0.25rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
+        color: white;
     }
-    
+
+    .btn-back {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        color: white;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Secciones del formulario */
     .form-section {
-        background: #2a3544 !important;
+        background: white;
         border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
         border-left: 4px solid #a855f7;
     }
-    
+
     .form-section h5 {
-        color: #a855f7 !important;
+        color: #7c3aed;
         font-weight: 700;
         margin-bottom: 1.5rem;
         padding-bottom: 0.75rem;
-        border-bottom: 2px solid #3d4757;
-        opacity: 1 !important;
+        border-bottom: 2px solid #e5e7eb;
+        font-size: 1rem;
     }
-    
+
     .form-label {
         font-weight: 600;
-        color: #e5e7eb !important;
-        opacity: 1 !important;
+        color: #374151;
+        margin-bottom: 0.5rem;
     }
-    
+
     .required-field::after {
         content: " *";
         color: #ef4444;
     }
-    
+
     .form-control, .form-select {
-        background-color: rgba(42, 53, 68, 0.8) !important;
-        color: #ffffff !important;
-        border: 2px solid #3d4757;
-        border-radius: 8px;
-        padding: 0.75rem;
+        background-color: #f9fafb;
+        color: #1f2937;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
         transition: all 0.3s ease;
+        font-size: 0.95rem;
     }
-    
+
     .form-control:focus, .form-select:focus {
-        background-color: rgba(42, 53, 68, 0.9) !important;
-        color: #ffffff !important;
+        background-color: white;
+        color: #1f2937;
         border-color: #a855f7;
-        box-shadow: 0 0 0 0.2rem rgba(168, 85, 247, 0.25);
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+        outline: none;
     }
-    
+
     .form-control::placeholder {
-        color: #9ca3af !important;
-        opacity: 0.7;
+        color: #9ca3af;
     }
-    
+
     .form-select option {
-        background-color: #2a3544;
-        color: #ffffff;
+        background-color: white;
+        color: #1f2937;
     }
-    
+
+    /* Input group */
+    .input-group-text {
+        background-color: #f3f4f6;
+        border: 2px solid #e5e7eb;
+        border-right: none;
+        color: #6b7280;
+        border-radius: 10px 0 0 10px;
+    }
+
+    .input-group .form-control {
+        border-radius: 0 10px 10px 0;
+    }
+
+    /* Botones */
     .btn-submit {
-        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
+        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
         border: none;
-        padding: 0.875rem 2.5rem;
-        border-radius: 8px;
+        padding: 0.75rem 2rem;
+        border-radius: 10px;
         font-weight: 600;
-        color: white !important;
+        color: white;
         transition: all 0.3s ease;
     }
-    
+
     .btn-submit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 15px rgba(168, 85, 247, 0.3);
-        color: white !important;
+        box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
+        color: white;
     }
-    
+
     .btn-cancel {
-        background: #6c757d !important;
-        border: none;
-        padding: 0.875rem 2.5rem;
-        border-radius: 8px;
+        background: white;
+        border: 2px solid #e5e7eb;
+        padding: 0.75rem 2rem;
+        border-radius: 10px;
         font-weight: 600;
-        color: white !important;
+        color: #6b7280;
         transition: all 0.3s ease;
     }
-    
+
     .btn-cancel:hover {
-        background: #5a6268 !important;
-        color: white !important;
+        background: #f3f4f6;
+        border-color: #d1d5db;
+        color: #374151;
     }
-    
+
+    /* Warning box */
     .warning-box {
-        background: rgba(245, 158, 11, 0.15) !important;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
         border-left: 4px solid #f59e0b;
-        padding: 1rem;
-        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        border-radius: 10px;
         margin-bottom: 1.5rem;
-        color: #fbbf24 !important;
+        color: #92400e;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
-    
-    .warning-box * {
-        color: #fbbf24 !important;
-        opacity: 1 !important;
+
+    .warning-box i {
+        color: #d97706;
     }
-    
+
+    .warning-box strong {
+        color: #92400e;
+    }
+
+    /* Alertas */
     .alert-danger {
-        background-color: rgba(239, 68, 68, 0.15) !important;
-        border: 1px solid #ef4444;
-        color: #fca5a5 !important;
+        background-color: rgba(239, 68, 68, 0.1);
+        border: 1px solid #fca5a5;
+        color: #dc2626;
+        border-radius: 10px;
     }
-    
-    .alert-danger * {
-        color: #fca5a5 !important;
-        opacity: 1 !important;
+
+    .alert-danger h6 {
+        color: #dc2626;
     }
-    
-    /* Texto general visible */
-    p, span, label, div, small, h1, h2, h3, h4, h5, h6 {
-        opacity: 1 !important;
-    }
-    
-    .text-muted {
-        color: #9ca3af !important;
-        opacity: 1 !important;
-    }
-    
-    /* Breadcrumb oscuro */
-    .breadcrumb {
-        background-color: #2a3544 !important;
-        padding: 0.75rem 1rem;
+
+    .alert-info {
+        background-color: rgba(168, 85, 247, 0.1);
+        border: 1px solid #c4b5fd;
+        color: #7c3aed;
         border-radius: 8px;
     }
-    
-    .breadcrumb-item, .breadcrumb-item a {
-        color: #e5e7eb !important;
-        opacity: 1 !important;
+
+    .alert-info a {
+        color: #7c3aed;
+        font-weight: 600;
     }
-    
-    .breadcrumb-item.active {
-        color: #a855f7 !important;
+
+    /* Texto */
+    .text-muted {
+        color: #6b7280 !important;
     }
-    
-    .breadcrumb-item + .breadcrumb-item::before {
-        color: #9ca3af !important;
+
+    /* Textarea */
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    /* File input */
+    input[type="file"].form-control {
+        padding: 0.5rem;
+    }
+
+    input[type="file"].form-control::file-selector-button {
+        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        margin-right: 1rem;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    input[type="file"].form-control::file-selector-button:hover {
+        background: linear-gradient(135deg, #9333ea 0%, #6d28d9 100%);
     }
 </style>
 @endpush
@@ -180,16 +251,16 @@
 <div class="container-fluid px-4 py-4">
     
     <div class="edit-header">
-        <div class="d-flex align-items-center">
-            <a href="{{ route('tesorero.membresias.index') }}" class="btn btn-light me-3">
+        <div class="edit-header-content">
+            <a href="{{ route('tesorero.membresias.index') }}" class="btn-back">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <div>
-                <h1 class="mb-2">
-                    <i class="fas fa-edit me-2"></i>
+                <h1>
+                    <i class="fas fa-edit"></i>
                     Editar Membresía
                 </h1>
-                <p class="mb-0 opacity-90">Modifique los datos de la membresía</p>
+                <p>Modifique los datos de la membresía</p>
             </div>
         </div>
     </div>
@@ -235,7 +306,7 @@
         <div class="form-section">
             <h5><i class="fas fa-id-badge me-2"></i>Datos de la Membresía</h5>
             <div class="row">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label required-field">Tipo</label>
                     <select class="form-select" name="tipo_membresia" required>
                         @foreach($tipos_membresia as $key => $val)
@@ -243,7 +314,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label required-field">Estado</label>
                     <select class="form-select" name="estado" required>
                         @foreach($estados as $key => $val)
@@ -251,13 +322,11 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label required-field">Monto (L.)</label>
                     <input type="number" class="form-control" name="monto" value="{{ $membresia->monto }}" step="0.01" required>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label required-field">Periodo de Pago</label>
                     <select class="form-select" id="tipo_pago" name="tipo_pago" required>
                         <option value="mensual" {{ $membresia->tipo_pago == 'mensual' ? 'selected' : '' }}>Mensual</option>
@@ -333,19 +402,22 @@
 
         <div class="form-section">
             <h5><i class="fas fa-clipboard me-2"></i>Información Adicional</h5>
-            <div class="mb-3">
-                <label class="form-label">Notas</label>
-                <textarea class="form-control" name="notas" rows="3">{{ $membresia->notas }}</textarea>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Nuevo Comprobante</label>
-                @if($membresia->comprobante_ruta)
-                    <div class="alert alert-info">
-                        <i class="fas fa-file me-2"></i>
-                        <a href="{{ Storage::url($membresia->comprobante_ruta) }}" target="_blank">Ver comprobante actual</a>
-                    </div>
-                @endif
-                <input type="file" class="form-control" name="comprobante" accept=".pdf,.jpg,.jpeg,.png">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Notas</label>
+                    <textarea class="form-control" name="notas" rows="4" placeholder="Observaciones o notas adicionales...">{{ $membresia->notas }}</textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Comprobante</label>
+                    @if($membresia->comprobante_ruta)
+                        <div class="alert alert-info mb-2">
+                            <i class="fas fa-file me-2"></i>
+                            <a href="{{ Storage::url($membresia->comprobante_ruta) }}" target="_blank">Ver comprobante actual</a>
+                        </div>
+                    @endif
+                    <input type="file" class="form-control" name="comprobante" accept=".pdf,.jpg,.jpeg,.png">
+                    <small class="text-muted">Formatos: PDF, JPG, PNG</small>
+                </div>
             </div>
         </div>
 

@@ -241,7 +241,7 @@
                 $.ajax({
                     url: url,
                     method: 'GET',
-                    headers: { 
+                    headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'text/html'
                     },
@@ -289,9 +289,9 @@
                         console.error('❌ Status:', status);
                         console.error('❌ Error:', error);
                         console.error('❌ Response:', xhr.responseText);
-                        
+
                         let errorMessage = 'Error al cargar el contenido.';
-                        
+
                         if (xhr.status === 404) {
                             errorMessage = 'Página no encontrada (404).';
                         } else if (xhr.status === 500) {
@@ -299,7 +299,7 @@
                         } else if (xhr.status === 0) {
                             errorMessage = 'No se pudo conectar al servidor.';
                         }
-                        
+
                         // ⭐ Mantener visible en error
                         $('#page-content').hide();
                         $(target).show().html(`
@@ -326,7 +326,7 @@
                 console.log('🔵🔵🔵 CLICK DETECTADO EN .ajax-load 🔵🔵🔵');
                 e.preventDefault();
                 e.stopPropagation(); // ⭐ Detener la propagación
-                
+
                 console.log('🔵 CLICK en .ajax-load detectado');
                 console.log('🔵 Elemento:', this);
                 console.log('🔵 Elemento HTML:', this.outerHTML);
@@ -334,7 +334,7 @@
                 const url = $(this).attr('href');
                 const target = $(this).data('target') || '#config-content';
                 const section = $(this).data('section') || '';
-                
+
                 console.log('🔵 URL extraída:', url);
                 console.log('🔵 Target extraído:', target);
                 console.log('🔵 Section extraída:', section);
@@ -351,21 +351,21 @@
                     });
                     return false; // ⭐ Detener ejecución
                 }
-                
+
                 console.log('✅ Contenedor existe, continuando...');
 
                 // Activar botón
                 $('#sidebar .ajax-load').removeClass('active');
                 $(this).addClass('active');
-                
+
                 console.log('🔵 Llamando a cargarContenidoAjax...');
                 window.cargarContenidoAjax(url, target);
-                
+
                 if (section) {
                     history.pushState({ section }, '', url);
                     console.log('🔵 History pushState:', section, url);
                 }
-                
+
                 return false; // ⭐ Prevenir cualquier acción adicional
             });
 
@@ -373,15 +373,15 @@
             $(document).on('click', '#config-content .pagination a', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 const href = $(this).attr('href');
                 console.log('📄 Click en paginación detectado:', href);
-                
+
                 if (href && !$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')) {
                     console.log('📄 Cargando página vía AJAX...');
                     window.cargarContenidoAjax(href, '#config-content');
                 }
-                
+
                 return false;
             });
 

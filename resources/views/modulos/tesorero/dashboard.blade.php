@@ -222,15 +222,6 @@
                         <span class="font-bold">Registrar Gasto</span>
                     </a>
 
-                    <a href="{{ route('tesorero.transferencias.create') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 shadow-sm hover:shadow-md group">
-                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl mr-3 group-hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                            </svg>
-                        </div>
-                        <span class="font-bold">Nueva Transferencia</span>
-                    </a>
-
                     <a href="{{ route('tesorero.reportes.index') }}" class="flex items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-700 rounded-xl hover:from-purple-100 hover:to-purple-200 transition-all duration-300 shadow-sm hover:shadow-md group">
                         <div class="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-xl mr-3 group-hover:scale-110 transition-transform">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

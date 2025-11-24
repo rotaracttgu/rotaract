@@ -9,62 +9,194 @@
         background-color: #f8f9fa !important;
     }
 
-    /* Header Purple */
+    /* Header Purple - Estilo Elegante */
     .membresias-header {
-        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
-        color: white !important;
-        padding: 2.5rem;
-        border-radius: 15px;
-        margin-bottom: 2.5rem;
-        box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2);
+        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
-    
-    .membresias-header h1, .membresias-header p {
-        color: #ffffff !important;
-        opacity: 1 !important;
+
+    .membresias-header-content h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
-    
-    .membresias-header .btn-light {
-        background: rgba(255,255,255,0.2) !important;
-        border: 2px solid rgba(255,255,255,0.5) !important;
-        color: #ffffff !important;
+
+    .membresias-header-content h1 i {
+        font-size: 1.5rem;
+    }
+
+    .membresias-header-content p {
+        opacity: 0.9;
+        font-size: 0.9rem;
+        margin: 0.25rem 0 0 0;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .btn-header {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        color: white;
+        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
         font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-header:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.6);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-header-primary {
+        background: white;
+        border: 2px solid white;
+        color: #7c3aed;
+    }
+
+    .btn-header-primary:hover {
+        background: #f3f4f6;
+        border-color: #f3f4f6;
+        color: #6d28d9;
     }
     
-    .membresias-header .btn-light:hover {
-        background: rgba(255,255,255,0.3) !important;
-        color: #ffffff !important;
-    }
-    
-    /* Stats Cards */
+    /* Stats Cards - Estilo Dashboard */
     .stats-card {
         background: white !important;
         border-radius: 12px;
-        padding: 2rem;
+        padding: 1.5rem;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
-        border-left: 5px solid #a855f7;
+        border-left: 4px solid;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
-    
+
     .stats-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.15);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
-    
+
+    .stats-card.card-purple {
+        border-left-color: #a855f7;
+    }
+
+    .stats-card.card-green {
+        border-left-color: #10b981;
+    }
+
+    .stats-card.card-orange {
+        border-left-color: #f59e0b;
+    }
+
+    .stats-card.card-pink {
+        border-left-color: #ec4899;
+    }
+
     .stats-card h3 {
         color: #1f2937 !important;
         opacity: 1 !important;
         font-weight: 700;
+        font-size: 2rem;
+        margin: 0;
     }
-    
+
     .stats-card p {
         color: #6b7280 !important;
         opacity: 1 !important;
-        font-size: 0.95rem;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
     }
-    
+
     .stats-card .text-muted {
         color: #9ca3af !important;
+    }
+
+    .stats-card .icon-box {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .stats-card .icon-box.bg-purple {
+        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
+    }
+
+    .stats-card .icon-box.bg-green {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .stats-card .icon-box.bg-orange {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .stats-card .icon-box.bg-pink {
+        background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    }
+
+    .stats-card .stats-value {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .stats-card .stats-value.text-purple {
+        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stats-card .stats-value.text-green {
+        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stats-card .stats-value.text-orange {
+        background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stats-card .stats-value.text-pink {
+        background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
     /* Tabla */
@@ -407,28 +539,24 @@
     
     <!-- Header -->
     <div class="membresias-header">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h1 class="mb-2">
-                    <i class="fas fa-id-card me-2"></i>
-                    Membresías
-                </h1>
-                <p class="mb-0 opacity-90">Gestión de pagos de membresías de miembros</p>
-            </div>
-            <div class="col-md-6 text-md-end">
-                <div class="d-flex gap-2 justify-content-md-end">
-                    <a href="{{ route('tesorero.dashboard') }}" class="btn btn-light btn-lg">
-                        <i class="fas fa-home me-2"></i>
-                        Dashboard Principal
-                    </a>
-                    @can('finanzas.crear')
-                    <a href="{{ route('tesorero.membresias.create') }}" class="btn btn-light btn-lg">
-                        <i class="fas fa-plus-circle me-2"></i>
-                        Registrar Pago de Membresía
-                    </a>
-                    @endcan
-                </div>
-            </div>
+        <div class="membresias-header-content">
+            <h1>
+                <i class="fas fa-id-card"></i>
+                Membresías
+            </h1>
+            <p>Gestión de pagos de membresías de miembros</p>
+        </div>
+        <div class="header-actions">
+            <a href="{{ route('tesorero.dashboard') }}" class="btn-header">
+                <i class="fas fa-home"></i>
+                Dashboard
+            </a>
+            @can('finanzas.crear')
+            <a href="{{ route('tesorero.membresias.create') }}" class="btn-header btn-header-primary">
+                <i class="fas fa-plus-circle"></i>
+                Registrar Pago
+            </a>
+            @endcan
         </div>
     </div>
 
@@ -450,56 +578,48 @@
     @endif
 
     <!-- Estadísticas -->
-    <div class="row mb-4">
+    <div class="row mb-4 g-4">
         <div class="col-md-3">
-            <div class="stats-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-muted mb-1">Total Membresías</p>
-                        <h3 class="mb-0">{{ $membresias->total() }}</h3>
-                    </div>
-                    <div class="text-primary" style="font-size: 2.5rem;">
-                        <i class="fas fa-users"></i>
-                    </div>
+            <div class="stats-card card-purple">
+                <div>
+                    <p class="text-muted mb-1">Total Membresías</p>
+                    <h3 class="stats-value text-purple">{{ $membresias->total() }}</h3>
+                </div>
+                <div class="icon-box bg-purple">
+                    <i class="fas fa-users"></i>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stats-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-muted mb-1">Pagadas</p>
-                        <h3 class="mb-0 text-success">{{ $totalPagadas ?? 0 }}</h3>
-                    </div>
-                    <div class="text-success" style="font-size: 2.5rem;">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
+            <div class="stats-card card-green">
+                <div>
+                    <p class="text-muted mb-1">Pagadas</p>
+                    <h3 class="stats-value text-green">{{ $totalPagadas ?? 0 }}</h3>
+                </div>
+                <div class="icon-box bg-green">
+                    <i class="fas fa-check-circle"></i>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stats-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-muted mb-1">Pendientes</p>
-                        <h3 class="mb-0 text-warning">{{ $totalPendientes ?? 0 }}</h3>
-                    </div>
-                    <div class="text-warning" style="font-size: 2.5rem;">
-                        <i class="fas fa-clock"></i>
-                    </div>
+            <div class="stats-card card-orange">
+                <div>
+                    <p class="text-muted mb-1">Pendientes</p>
+                    <h3 class="stats-value text-orange">{{ $totalPendientes ?? 0 }}</h3>
+                </div>
+                <div class="icon-box bg-orange">
+                    <i class="fas fa-clock"></i>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stats-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-muted mb-1">Total Recaudado</p>
-                        <h3 class="mb-0">L. {{ number_format($totalRecaudado ?? 0, 2) }}</h3>
-                    </div>
-                    <div style="font-size: 2.5rem; color: #f093fb;">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
+            <div class="stats-card card-pink">
+                <div>
+                    <p class="text-muted mb-1">Total Recaudado</p>
+                    <h3 class="stats-value text-pink">L. {{ number_format($totalRecaudado ?? 0, 2) }}</h3>
+                </div>
+                <div class="icon-box bg-pink">
+                    <i class="fas fa-dollar-sign"></i>
                 </div>
             </div>
         </div>

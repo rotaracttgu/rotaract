@@ -4,143 +4,95 @@
 
 @push('styles')
 <style>
+    /* Fondo claro */
     body {
-        background-color: #1e2836 !important;
+        background-color: #f8f9fa !important;
     }
 
+    /* Header elegante estilo presupuestos */
     .create-header {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-        color: white !important;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
         box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    .create-header h1, .create-header p {
-        color: #ffffff !important;
-        opacity: 1 !important;
+    .create-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
     }
 
-    .create-header .btn-light {
-        background: rgba(255,255,255,0.2) !important;
-        border: none;
-        color: #ffffff !important;
+    .create-header-content h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
 
-    .create-header .btn-light:hover {
-        background: rgba(255,255,255,0.3) !important;
-        color: #ffffff !important;
+    .create-header-content p {
+        margin: 0.25rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
+        color: white;
     }
 
-    .form-card {
-        background: #2a3544 !important;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        padding: 2rem;
+    .btn-back {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        color: white;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
     }
 
-    .section-title {
-        color: #3b82f6 !important;
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Form Section */
+    .form-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        border-left: 4px solid #3b82f6;
+    }
+
+    .form-section h4 {
+        color: #2563eb;
         font-weight: 700;
         margin-bottom: 1.5rem;
         padding-bottom: 0.75rem;
-        border-bottom: 3px solid #3b82f6;
-        opacity: 1 !important;
+        border-bottom: 2px solid #e5e7eb;
+        font-size: 1rem;
+    }
+
+    .form-section h4 i {
+        color: #3b82f6;
     }
 
     .form-label {
         font-weight: 600;
-        color: #e5e7eb !important;
+        color: #374151;
         margin-bottom: 0.5rem;
-        opacity: 1 !important;
-    }
-
-    .form-control, .form-select {
-        background-color: rgba(42, 53, 68, 0.8) !important;
-        color: #ffffff !important;
-        border-radius: 10px;
-        border: 2px solid #3d4757;
-        padding: 0.75rem 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus, .form-select:focus {
-        background-color: rgba(42, 53, 68, 0.9) !important;
-        color: #ffffff !important;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
-    }
-
-    .form-control::placeholder {
-        color: #9ca3af !important;
-        opacity: 0.7;
-    }
-
-    .form-select option {
-        background-color: #2a3544;
-        color: #ffffff;
-    }
-
-    .input-group-text {
-        background-color: rgba(42, 53, 68, 0.8) !important;
-        color: #3b82f6 !important;
-        border: 2px solid #3d4757;
-        border-right: none;
-    }
-
-    .btn-purple {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-        border: none;
-        color: white !important;
-        padding: 0.75rem 2rem;
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-purple:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
-        color: white !important;
-    }
-
-    .btn-secondary {
-        background: #6c757d !important;
-        border: none;
-        color: white !important;
-    }
-
-    .btn-secondary:hover {
-        background: #5a6268 !important;
-        color: white !important;
-    }
-
-    .info-box {
-        background: rgba(59, 130, 246, 0.15) !important;
-        border-left: 4px solid #3b82f6;
-        padding: 1rem;
-        border-radius: 10px;
-        margin-bottom: 1.5rem;
-        color: #60a5fa !important;
-    }
-
-    .info-box * {
-        color: #60a5fa !important;
-        opacity: 1 !important;
-    }
-
-    .preview-box {
-        background: rgba(42, 53, 68, 0.8) !important;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-top: 2rem;
-        border: 1px solid #3d4757;
-    }
-
-    .preview-box * {
-        color: #e5e7eb !important;
-        opacity: 1 !important;
     }
 
     .required-field::after {
@@ -148,52 +100,204 @@
         color: #ef4444;
     }
 
-    .text-danger {
-        color: #fca5a5 !important;
+    .form-control, .form-select {
+        background-color: #f9fafb;
+        color: #1f2937;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
     }
 
+    .form-control:focus, .form-select:focus {
+        background-color: white;
+        color: #1f2937;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: #9ca3af;
+    }
+
+    .form-select option {
+        background-color: white;
+        color: #1f2937;
+    }
+
+    /* Input group */
+    .input-group-text {
+        background-color: #f3f4f6;
+        border: 2px solid #e5e7eb;
+        border-right: none;
+        color: #3b82f6;
+        border-radius: 10px 0 0 10px;
+        font-weight: 600;
+    }
+
+    .input-group .form-control,
+    .input-group .form-select {
+        border-radius: 0 10px 10px 0;
+    }
+
+    /* Botones */
+    .btn-submit {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+
+    .btn-cancel {
+        background: white;
+        border: 2px solid #e5e7eb;
+        padding: 0.75rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        color: #6b7280;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+        color: #374151;
+    }
+
+    /* Info Box */
+    .info-box {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-left: 4px solid #3b82f6;
+        padding: 1.25rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        color: #1e40af;
+    }
+
+    .info-box h5 {
+        color: #1e40af;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+    }
+
+    .info-box ul {
+        color: #1e40af;
+        margin-bottom: 0;
+        padding-left: 1.25rem;
+    }
+
+    .info-box li {
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    /* Preview Box */
+    .preview-box {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        border-left: 4px solid #10b981;
+    }
+
+    .preview-box h5 {
+        color: #047857;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+
+    .preview-box .preview-item {
+        margin-bottom: 0.75rem;
+    }
+
+    .preview-box strong {
+        color: #374151;
+    }
+
+    .preview-box span {
+        color: #6b7280;
+    }
+
+    .preview-box .text-primary {
+        color: #3b82f6 !important;
+        font-weight: 700;
+    }
+
+    /* Warning Card */
+    .warning-card {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-radius: 12px;
+        padding: 1.25rem;
+        border-left: 4px solid #f59e0b;
+    }
+
+    .warning-card h6 {
+        color: #92400e;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .warning-card p {
+        color: #92400e;
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    /* Textarea */
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    /* Text colors */
+    .text-muted {
+        color: #6b7280 !important;
+    }
+
+    .text-danger {
+        color: #ef4444 !important;
+    }
+
+    /* Error state */
     .is-invalid {
         border-color: #ef4444 !important;
     }
 
-    /* Texto general visible */
-    p, span, label, div, small, h1, h2, h3, h4, h5, h6 {
-        opacity: 1 !important;
-    }
-
-    .text-muted {
-        color: #9ca3af !important;
-    }
-
-    /* Alertas */
-    .alert {
-        background-color: #2a3544 !important;
-        border: 1px solid #3d4757;
-        color: #e5e7eb !important;
-    }
-
-    .alert * {
-        color: #e5e7eb !important;
+    .invalid-feedback {
+        color: #ef4444;
+        font-size: 0.85rem;
     }
 </style>
 @endpush
 
 @section('content')
+<div class="container-fluid px-4 py-4">
     <!-- Header -->
     <div class="create-header">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="mb-2">
-                    <i class="fas fa-plus-circle me-2"></i>
+        <div class="create-header-content">
+            <a href="{{ route('tesorero.presupuestos.index') }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h1>
+                    <i class="fas fa-plus-circle"></i>
                     Crear Nuevo Presupuesto
                 </h1>
-                <p class="mb-0 opacity-75">Define el presupuesto para una categoría y período</p>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <a href="{{ route('tesorero.presupuestos.index') }}" class="btn btn-light">
-                    <i class="fas fa-arrow-left me-2"></i>
-                    Volver
-                </a>
+                <p>Define el presupuesto para una categoría y período</p>
             </div>
         </div>
     </div>
@@ -201,19 +305,19 @@
     <div class="row">
         <div class="col-lg-8">
             <!-- Formulario -->
-            <div class="form-card">
+            <div class="form-section">
                 @can('finanzas.crear')
                 <form action="{{ route('tesorero.presupuestos.store') }}" method="POST" id="formPresupuesto">
                     @csrf
 
                     <!-- Información del Presupuesto -->
-                    <h4 class="section-title">
+                    <h4>
                         <i class="fas fa-info-circle me-2"></i>
                         Información del Presupuesto
                     </h4>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
                             <label for="categoria" class="form-label required-field">Categoría</label>
                             <div class="input-group">
                                 <span class="input-group-text">
@@ -232,29 +336,26 @@
                             @error('categoria')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
-                            
+
                             <!-- Input para nueva categoría (oculto por defecto) -->
                             <div id="nuevaCategoriaDiv" style="display: none;" class="mt-2">
                                 <input type="text" id="nuevaCategoria" class="form-control" placeholder="Escribe el nombre de la categoría">
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-3">
                             <label for="monto_presupuestado" class="form-label required-field">Presupuesto Mensual</label>
                             <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-dollar-sign"></i>
-                                </span>
-                                <input type="number" 
-                                       name="monto_presupuestado" 
-                                       id="monto_presupuestado" 
-                                       class="form-control @error('monto_presupuestado') is-invalid @enderror" 
-                                       step="0.01" 
-                                       min="0" 
+                                <span class="input-group-text">L.</span>
+                                <input type="number"
+                                       name="monto_presupuestado"
+                                       id="monto_presupuestado"
+                                       class="form-control @error('monto_presupuestado') is-invalid @enderror"
+                                       step="0.01"
+                                       min="0"
                                        value="{{ old('monto_presupuestado') }}"
                                        placeholder="0.00"
                                        required>
-                                <span class="input-group-text">L.</span>
                             </div>
                             @error('monto_presupuestado')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
@@ -263,13 +364,13 @@
                     </div>
 
                     <!-- Período -->
-                    <h4 class="section-title mt-4">
+                    <h4>
                         <i class="fas fa-calendar-alt me-2"></i>
                         Período
                     </h4>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
                             <label for="mes" class="form-label required-field">Mes</label>
                             <div class="input-group">
                                 <span class="input-group-text">
@@ -289,7 +390,7 @@
                             @enderror
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-3">
                             <label for="anio" class="form-label required-field">Año</label>
                             <div class="input-group">
                                 <span class="input-group-text">
@@ -310,52 +411,49 @@
                     </div>
 
                     <!-- Detalles Adicionales -->
-                    <h4 class="section-title mt-4">
+                    <h4>
                         <i class="fas fa-file-alt me-2"></i>
                         Detalles Adicionales
                     </h4>
 
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea name="descripcion" 
-                                  id="descripcion" 
-                                  class="form-control @error('descripcion') is-invalid @enderror" 
-                                  rows="4"
-                                  placeholder="Describe el propósito de este presupuesto, objetivos, consideraciones especiales...">{{ old('descripcion') }}</textarea>
-                        @error('descripcion')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <textarea name="descripcion"
+                                      id="descripcion"
+                                      class="form-control @error('descripcion') is-invalid @enderror"
+                                      rows="4"
+                                      placeholder="Describe el propósito de este presupuesto, objetivos, consideraciones especiales...">{{ old('descripcion') }}</textarea>
+                            @error('descripcion')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">
-                            <i class="fas fa-toggle-on me-1"></i>
-                            Estado del Presupuesto
-                        </label>
-                        <select class="form-select @error('estado') is-invalid @enderror" 
-                                name="estado" 
-                                id="estado" 
-                                required>
-                            <option value="activa" {{ old('estado', 'activa') == 'activa' ? 'selected' : '' }}>Activa</option>
-                            <option value="inactiva" {{ old('estado') == 'inactiva' ? 'selected' : '' }}>Inactiva</option>
-                            <option value="pausada" {{ old('estado') == 'pausada' ? 'selected' : '' }}>Pausada</option>
-                            <option value="archivada" {{ old('estado') == 'archivada' ? 'selected' : '' }}>Archivada</option>
-                        </select>
-                        @error('estado')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="text-muted">Los presupuestos inactivos no se consideran en los reportes</small>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label required-field">Estado del Presupuesto</label>
+                            <select class="form-select @error('estado') is-invalid @enderror"
+                                    name="estado"
+                                    id="estado"
+                                    required>
+                                <option value="activa" {{ old('estado', 'activa') == 'activa' ? 'selected' : '' }}>Activa</option>
+                                <option value="inactiva" {{ old('estado') == 'inactiva' ? 'selected' : '' }}>Inactiva</option>
+                                <option value="pausada" {{ old('estado') == 'pausada' ? 'selected' : '' }}>Pausada</option>
+                                <option value="archivada" {{ old('estado') == 'archivada' ? 'selected' : '' }}>Archivada</option>
+                            </select>
+                            @error('estado')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Los presupuestos inactivos no se consideran en los reportes</small>
+                        </div>
                     </div>
 
                     <!-- Botones -->
                     <div class="d-flex justify-content-between mt-4 pt-4 border-top">
-                        <a href="{{ route('tesorero.presupuestos.index') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-times me-2"></i>
-                            Cancelar
+                        <a href="{{ route('tesorero.presupuestos.index') }}" class="btn btn-cancel">
+                            <i class="fas fa-times me-2"></i>Cancelar
                         </a>
-                        <button type="button" class="btn btn-purple btn-lg" id="btnCrear">
-                            <i class="fas fa-save me-2"></i>
-                            Crear Presupuesto
+                        <button type="button" class="btn btn-submit" id="btnCrear">
+                            <i class="fas fa-save me-2"></i>Crear Presupuesto
                         </button>
                     </div>
                 </form>
@@ -367,210 +465,207 @@
         <div class="col-lg-4">
             <!-- Información -->
             <div class="info-box">
-                <h5 class="fw-bold mb-3">
+                <h5>
                     <i class="fas fa-lightbulb me-2"></i>
                     Consejos
                 </h5>
-                <ul class="mb-0 ps-3">
-                    <li class="mb-2">Define presupuestos realistas basados en gastos históricos</li>
-                    <li class="mb-2">Considera un margen de seguridad del 10-15%</li>
-                    <li class="mb-2">Revisa y ajusta mensualmente según necesidades</li>
-                    <li class="mb-2">Las alertas te ayudarán a mantener el control</li>
+                <ul>
+                    <li>Define presupuestos realistas basados en gastos históricos</li>
+                    <li>Considera un margen de seguridad del 10-15%</li>
+                    <li>Revisa y ajusta mensualmente según necesidades</li>
+                    <li>Las alertas te ayudarán a mantener el control</li>
                 </ul>
             </div>
 
             <!-- Vista Previa -->
             <div class="preview-box" id="previewBox" style="display: none;">
-                <h5 class="fw-bold mb-3">
+                <h5>
                     <i class="fas fa-eye me-2"></i>
                     Vista Previa
                 </h5>
-                <div class="mb-2">
+                <div class="preview-item">
                     <strong>Categoría:</strong>
-                    <span id="previewCategoria" class="text-muted">-</span>
+                    <span id="previewCategoria">-</span>
                 </div>
-                <div class="mb-2">
+                <div class="preview-item">
                     <strong>Presupuesto:</strong>
-                    <span id="previewMonto" class="text-primary fw-bold">S/ 0.00</span>
+                    <span id="previewMonto" class="text-primary">L. 0.00</span>
                 </div>
-                <div class="mb-2">
+                <div class="preview-item">
                     <strong>Período:</strong>
-                    <span id="previewPeriodo" class="text-muted">-</span>
+                    <span id="previewPeriodo">-</span>
                 </div>
             </div>
 
             <!-- Guía Rápida -->
-            <div class="card mt-3 border-0" style="background: #fff3cd;">
-                <div class="card-body">
-                    <h6 class="fw-bold text-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Importante
-                    </h6>
-                    <p class="small mb-0">
-                        No puedes crear dos presupuestos para la misma categoría en el mismo período. 
-                        Si necesitas modificar uno existente, usa la opción de editar.
-                    </p>
-                </div>
+            <div class="warning-card mt-3">
+                <h6>
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Importante
+                </h6>
+                <p>No puedes crear dos presupuestos para la misma categoría en el mismo período. Si necesitas modificar uno existente, usa la opción de editar.</p>
             </div>
         </div>
     </div>
 </div>
+@endsection
 
-@if(session('error'))
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: '{{ session('error') }}',
-            confirmButtonColor: '#667eea'
-        });
-    </script>
-@endif
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    // Manejo de nueva categoría
-    document.getElementById('categoria').addEventListener('change', function() {
-        const nuevaCategoriaDiv = document.getElementById('nuevaCategoriaDiv');
-        const nuevaCategoriaInput = document.getElementById('nuevaCategoria');
-        
-        if (this.value === '__nueva__') {
-            nuevaCategoriaDiv.style.display = 'block';
-            nuevaCategoriaInput.required = true;
-        } else {
-            nuevaCategoriaDiv.style.display = 'none';
-            nuevaCategoriaInput.required = false;
-        }
-        
-        actualizarPreview();
-    });
+// Manejo de nueva categoría
+document.getElementById('categoria').addEventListener('change', function() {
+    const nuevaCategoriaDiv = document.getElementById('nuevaCategoriaDiv');
+    const nuevaCategoriaInput = document.getElementById('nuevaCategoria');
 
-    // Si se escribe una nueva categoría, actualizar el valor del select
-    document.getElementById('nuevaCategoria').addEventListener('input', function() {
-        const selectCategoria = document.getElementById('categoria');
-        
-        if (this.value.trim() !== '') {
-            // Crear/actualizar la opción personalizada
-            let optionPersonalizada = selectCategoria.querySelector('option[value="' + this.value + '"]');
-            if (!optionPersonalizada) {
-                optionPersonalizada = document.createElement('option');
-                selectCategoria.insertBefore(optionPersonalizada, selectCategoria.querySelector('option[value="__nueva__"]'));
-            }
-            optionPersonalizada.value = this.value;
-            optionPersonalizada.textContent = this.value;
-            optionPersonalizada.selected = true;
-        }
-        
-        actualizarPreview();
-    });
-
-    // Vista previa en tiempo real
-    const inputs = ['categoria', 'monto_presupuestado', 'mes', 'anio'];
-    inputs.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.addEventListener('change', actualizarPreview);
-            element.addEventListener('input', actualizarPreview);
-        }
-    });
-
-    function actualizarPreview() {
-        const categoria = document.getElementById('categoria').value === '__nueva__' 
-            ? document.getElementById('nuevaCategoria').value 
-            : document.getElementById('categoria').options[document.getElementById('categoria').selectedIndex]?.text;
-        const monto = document.getElementById('monto_presupuestado').value;
-        const mes = document.getElementById('mes').options[document.getElementById('mes').selectedIndex]?.text;
-        const anio = document.getElementById('anio').value;
-
-        const previewBox = document.getElementById('previewBox');
-        
-        if (categoria && monto && mes && anio) {
-            previewBox.style.display = 'block';
-            document.getElementById('previewCategoria').textContent = categoria || '-';
-            document.getElementById('previewMonto').textContent = 'L. ' + parseFloat(monto || 0).toFixed(2);
-            document.getElementById('previewPeriodo').textContent = mes + ' ' + anio;
-        } else {
-            previewBox.style.display = 'none';
-        }
+    if (this.value === '__nueva__') {
+        nuevaCategoriaDiv.style.display = 'block';
+        nuevaCategoriaInput.required = true;
+    } else {
+        nuevaCategoriaDiv.style.display = 'none';
+        nuevaCategoriaInput.required = false;
     }
 
-    // Validación antes de enviar
-    document.getElementById('formPresupuesto').addEventListener('submit', function(e) {
-        const categoria = document.getElementById('categoria').value;
-        
-        if (categoria === '__nueva__') {
-            const nuevaCategoria = document.getElementById('nuevaCategoria').value.trim();
-            if (nuevaCategoria === '') {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Categoría requerida',
-                    text: 'Por favor escribe el nombre de la nueva categoría',
-                    confirmButtonColor: '#667eea'
-                });
-                return false;
-            }
-            // Actualizar el valor del select con la nueva categoría
-            document.getElementById('categoria').value = nuevaCategoria;
-        }
-    });
+    actualizarPreview();
+});
 
-    // Confirmación antes de crear
-    document.getElementById('btnCrear').addEventListener('click', function() {
-        const form = document.getElementById('formPresupuesto');
-        const categoriaSelect = document.querySelector('#categoria');
-        const categoria = categoriaSelect.value === '__nueva__' 
-            ? document.getElementById('nuevaCategoria').value
-            : categoriaSelect.options[categoriaSelect.selectedIndex].text;
-        const monto = document.querySelector('[name="monto_presupuestado"]').value;
-        const mes = document.querySelector('#mes option:checked').text;
-        const anio = document.querySelector('#anio').value;
-        
-        if (!form.checkValidity()) {
-            form.reportValidity();
+// Si se escribe una nueva categoría, actualizar el valor del select
+document.getElementById('nuevaCategoria').addEventListener('input', function() {
+    const selectCategoria = document.getElementById('categoria');
+
+    if (this.value.trim() !== '') {
+        // Crear/actualizar la opción personalizada
+        let optionPersonalizada = selectCategoria.querySelector('option[value="' + this.value + '"]');
+        if (!optionPersonalizada) {
+            optionPersonalizada = document.createElement('option');
+            selectCategoria.insertBefore(optionPersonalizada, selectCategoria.querySelector('option[value="__nueva__"]'));
+        }
+        optionPersonalizada.value = this.value;
+        optionPersonalizada.textContent = this.value;
+        optionPersonalizada.selected = true;
+    }
+
+    actualizarPreview();
+});
+
+// Vista previa en tiempo real
+const inputs = ['categoria', 'monto_presupuestado', 'mes', 'anio'];
+inputs.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+        element.addEventListener('change', actualizarPreview);
+        element.addEventListener('input', actualizarPreview);
+    }
+});
+
+function actualizarPreview() {
+    const categoria = document.getElementById('categoria').value === '__nueva__'
+        ? document.getElementById('nuevaCategoria').value
+        : document.getElementById('categoria').options[document.getElementById('categoria').selectedIndex]?.text;
+    const monto = document.getElementById('monto_presupuestado').value;
+    const mes = document.getElementById('mes').options[document.getElementById('mes').selectedIndex]?.text;
+    const anio = document.getElementById('anio').value;
+
+    const previewBox = document.getElementById('previewBox');
+
+    if (categoria && monto && mes && anio) {
+        previewBox.style.display = 'block';
+        document.getElementById('previewCategoria').textContent = categoria || '-';
+        document.getElementById('previewMonto').textContent = 'L. ' + parseFloat(monto || 0).toFixed(2);
+        document.getElementById('previewPeriodo').textContent = mes + ' ' + anio;
+    } else {
+        previewBox.style.display = 'none';
+    }
+}
+
+// Validación antes de enviar
+document.getElementById('formPresupuesto').addEventListener('submit', function(e) {
+    const categoria = document.getElementById('categoria').value;
+
+    if (categoria === '__nueva__') {
+        const nuevaCategoria = document.getElementById('nuevaCategoria').value.trim();
+        if (nuevaCategoria === '') {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Categoría requerida',
+                text: 'Por favor escribe el nombre de la nueva categoría',
+                confirmButtonColor: '#3b82f6'
+            });
+            return false;
+        }
+        // Actualizar el valor del select con la nueva categoría
+        document.getElementById('categoria').value = nuevaCategoria;
+    }
+});
+
+// Confirmación antes de crear
+document.getElementById('btnCrear').addEventListener('click', function() {
+    const form = document.getElementById('formPresupuesto');
+    const categoriaSelect = document.querySelector('#categoria');
+    const categoria = categoriaSelect.value === '__nueva__'
+        ? document.getElementById('nuevaCategoria').value
+        : categoriaSelect.options[categoriaSelect.selectedIndex].text;
+    const monto = document.querySelector('[name="monto_presupuestado"]').value;
+    const mes = document.querySelector('#mes option:checked').text;
+    const anio = document.querySelector('#anio').value;
+
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    // Si es nueva categoría, actualizar el campo antes de enviar
+    if (categoriaSelect.value === '__nueva__') {
+        const nuevaCategoria = document.getElementById('nuevaCategoria').value.trim();
+        if (nuevaCategoria === '') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Categoría requerida',
+                text: 'Por favor escribe el nombre de la nueva categoría',
+                confirmButtonColor: '#3b82f6'
+            });
             return;
         }
+        categoriaSelect.value = nuevaCategoria;
+    }
 
-        // Si es nueva categoría, actualizar el campo antes de enviar
-        if (categoriaSelect.value === '__nueva__') {
-            const nuevaCategoria = document.getElementById('nuevaCategoria').value.trim();
-            if (nuevaCategoria === '') {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Categoría requerida',
-                    text: 'Por favor escribe el nombre de la nueva categoría',
-                    confirmButtonColor: '#667eea'
-                });
-                return;
-            }
-            categoriaSelect.value = nuevaCategoria;
+    Swal.fire({
+        title: '¿Crear presupuesto?',
+        html: `
+            <div class="text-start">
+                <p><strong>Categoría:</strong> ${categoria}</p>
+                <p><strong>Presupuesto:</strong> L. ${parseFloat(monto).toFixed(2)}</p>
+                <p><strong>Período:</strong> ${mes} ${anio}</p>
+                <hr>
+                <p class="mb-0" style="color: #3b82f6;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Se creará un nuevo presupuesto para esta categoría
+                </p>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '<i class="fas fa-check me-2"></i>Sí, crear',
+        cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
         }
-
-        Swal.fire({
-            title: '¿Crear presupuesto?',
-            html: `
-                <div class="text-start">
-                    <p><strong>Categoría:</strong> ${categoria}</p>
-                    <p><strong>Presupuesto:</strong> L. ${parseFloat(monto).toFixed(2)}</p>
-                    <p><strong>Período:</strong> ${mes} ${anio}</p>
-                    <hr>
-                    <p class="text-info mb-0">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Se creará un nuevo presupuesto para esta categoría
-                    </p>
-                </div>
-            `,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#667eea',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="fas fa-check me-2"></i>Sí, crear',
-            cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                form.submit();
-            }
-        });
     });
+});
+
+@if(session('error'))
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: '{{ session('error') }}',
+        confirmButtonColor: '#3b82f6'
+    });
+@endif
 </script>
-@endsection
+@endpush

@@ -41,7 +41,10 @@ class RoleController extends Controller
             \Log::info('🔵 HTML generado - longitud: ' . strlen($html));
             return response($html)
                 ->header('Content-Type', 'text/html; charset=UTF-8')
-                ->header('X-AJAX-Response', 'true');
+                ->header('X-AJAX-Response', 'true')
+                ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0, proxy-revalidate')
+                ->header('Pragma', 'no-cache')
+                ->header('Expires', '0');
         }
         
         // Si no es AJAX, devolver vista completa con layout

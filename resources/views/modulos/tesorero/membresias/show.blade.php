@@ -4,259 +4,381 @@
 
 @push('styles')
 <style>
+    /* Fondo claro */
     body {
-        background-color: #1e2836 !important;
+        background-color: #f8f9fa !important;
     }
 
+    /* Header elegante estilo membresías */
     .detail-header {
-        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
-        color: white !important;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
-    }
-    
-    .detail-header h1, .detail-header p {
-        color: #ffffff !important;
-        opacity: 1 !important;
-    }
-    
-    .detail-header .btn-light {
-        background: rgba(255,255,255,0.2) !important;
-        border: none;
-        color: #ffffff !important;
-    }
-    
-    .detail-header .btn-light:hover {
-        background: rgba(255,255,255,0.3) !important;
-        color: #ffffff !important;
-    }
-    
-    .info-card {
-        background: #2a3544 !important;
-        border-radius: 12px;
-        padding: 2rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 16px;
         margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
-    
+
+    .detail-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .detail-header-content h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .detail-header-content p {
+        margin: 0.25rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
+        color: white;
+    }
+
+    .btn-back {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        color: white;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-header {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        color: white;
+        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-header:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-header-primary {
+        background: white;
+        border: 2px solid white;
+        color: #7c3aed;
+    }
+
+    .btn-header-primary:hover {
+        background: #f3f4f6;
+        color: #6d28d9;
+    }
+
+    /* Cards de información */
+    .info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.75rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        border: 1px solid #e5e7eb;
+    }
+
     .info-section {
-        margin-bottom: 2rem;
+        margin-bottom: 1.75rem;
     }
-    
+
+    .info-section:last-child {
+        margin-bottom: 0;
+    }
+
     .info-section h6 {
-        color: #a855f7 !important;
+        color: #7c3aed;
         font-weight: 700;
         margin-bottom: 1rem;
         padding-bottom: 0.5rem;
-        border-bottom: 2px solid #3d4757;
-        opacity: 1 !important;
+        border-bottom: 2px solid #e5e7eb;
+        font-size: 0.95rem;
     }
-    
+
     .info-row {
         display: flex;
         justify-content: space-between;
         padding: 0.75rem 0;
-        border-bottom: 1px solid #3d4757;
+        border-bottom: 1px solid #f3f4f6;
     }
-    
+
     .info-row:last-child {
         border-bottom: none;
     }
-    
+
     .info-label {
-        font-weight: 600;
-        color: #9ca3af !important;
-        opacity: 1 !important;
+        font-weight: 500;
+        color: #6b7280;
     }
-    
+
     .info-value {
-        color: #ffffff !important;
+        color: #1f2937;
         font-weight: 600;
-        opacity: 1 !important;
     }
-    
+
+    /* Perfil del miembro */
     .member-profile {
         text-align: center;
-        padding: 2rem;
-        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
-        color: white !important;
+        padding: 1.75rem;
+        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+        color: white;
         border-radius: 12px;
         margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
     }
-    
-    .member-profile * {
-        color: #ffffff !important;
-        opacity: 1 !important;
+
+    .member-profile h5 {
+        color: white;
+        margin-bottom: 0.25rem;
+        font-weight: 600;
     }
-    
+
+    .member-profile p {
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
     .member-avatar {
-        width: 80px;
-        height: 80px;
+        width: 70px;
+        height: 70px;
         border-radius: 50%;
-        background: rgba(255,255,255,0.2) !important;
-        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 2rem;
+        font-size: 1.75rem;
         font-weight: bold;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
+        border: 3px solid rgba(255, 255, 255, 0.3);
     }
-    
+
+    /* Badges de estado */
     .badge-status {
         padding: 0.5rem 1rem;
         border-radius: 20px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 600;
-        opacity: 1 !important;
     }
-    
-    .badge-pagado { 
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-        color: white !important;
+
+    .badge-pagado {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
     }
-    
-    .badge-pendiente { 
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-        color: white !important;
+
+    .badge-pendiente {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
     }
-    
-    .badge-vencido { 
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-        color: white !important;
+
+    .badge-vencido {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
     }
-    
-    .badge-cancelado { 
-        background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
-        color: white !important;
+
+    .badge-cancelado {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
     }
-    
+
+    /* Badges de tipo */
     .badge-tipo {
         padding: 0.4rem 0.8rem;
-        border-radius: 15px;
-        font-size: 0.85rem;
-        opacity: 1 !important;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
     }
-    
-    .badge-mensual { 
-        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
-        color: white !important;
+
+    .badge-mensual {
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        color: white;
     }
-    
-    .badge-trimestral { 
-        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
-        color: white !important;
+
+    .badge-trimestral {
+        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%);
+        color: white;
     }
-    
-    .badge-semestral { 
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-        color: white !important;
+
+    .badge-semestral {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
     }
-    
-    .badge-anual { 
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-        color: white !important;
+
+    .badge-anual {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
     }
-    
+
+    /* Display de monto */
     .amount-display {
-        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
-        color: white !important;
+        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+        color: white;
         padding: 1.5rem;
         border-radius: 12px;
         text-align: center;
         margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
     }
-    
-    .amount-display * {
-        color: #ffffff !important;
-        opacity: 1 !important;
-    }
-    
-    .amount-display .amount {
-        font-size: 2.5rem;
-        font-weight: 700;
-    }
-    
-    .period-display {
-        background: rgba(42, 53, 68, 0.8) !important;
-        padding: 1rem;
-        border-radius: 8px;
-        text-align: center;
-        margin: 1rem 0;
-        border: 1px solid #3d4757;
-    }
-    
-    .period-display * {
-        color: #e5e7eb !important;
-        opacity: 1 !important;
-    }
-    
-    .period-arrow {
-        color: #a855f7 !important;
-        font-size: 1.5rem;
-        margin: 0 1rem;
-    }
-    
-    .action-buttons .btn {
-        margin: 0.25rem;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
+
+    .amount-display .small {
+        color: rgba(255, 255, 255, 0.9);
         font-weight: 600;
     }
-    
-    .btn-edit {
-        background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
-        border: none;
-        color: white !important;
+
+    .amount-display .amount {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: white;
     }
-    
+
+    /* Display de período */
+    .period-display {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        margin: 1rem 0;
+        border: 2px solid #e5e7eb;
+    }
+
+    .period-display strong {
+        color: #1f2937;
+        font-size: 1rem;
+    }
+
+    .period-display .text-muted small {
+        color: #6b7280;
+    }
+
+    .period-arrow {
+        color: #a855f7;
+        font-size: 1.25rem;
+        margin: 0 0.75rem;
+    }
+
+    /* Botones de acción */
+    .btn-edit {
+        background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+        border: none;
+        color: white;
+        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
     .btn-edit:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 15px rgba(168, 85, 247, 0.4);
-        color: white !important;
+        color: white;
     }
-    
+
     .btn-print {
-        background: #6c757d !important;
+        background: #64748b;
         border: none;
-        color: white !important;
+        color: white;
+        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
     }
-    
+
     .btn-print:hover {
-        background: #5a6268 !important;
-        color: white !important;
+        background: #475569;
+        color: white;
+        transform: translateY(-2px);
     }
-    
+
+    .btn-outline-secondary {
+        border: 2px solid #e5e7eb;
+        color: #6b7280;
+        background: white;
+        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+        color: #374151;
+    }
+
+    /* Caja de metadata */
     .metadata-box {
-        background: rgba(42, 53, 68, 0.8) !important;
+        background: #f8f9fa;
         padding: 1rem;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 0.85rem;
-        color: #9ca3af !important;
-        border: 1px solid #3d4757;
+        color: #6b7280;
+        border: 1px solid #e5e7eb;
     }
-    
-    .metadata-box * {
-        color: #9ca3af !important;
-        opacity: 1 !important;
+
+    .metadata-box strong {
+        color: #374151;
     }
-    
-    /* Texto general visible */
-    p, span, label, div, small, h1, h2, h3, h4, h5, h6 {
-        opacity: 1 !important;
+
+    .metadata-box i {
+        color: #a855f7;
     }
-    
+
+    /* Texto */
     .text-muted {
-        color: #9ca3af !important;
+        color: #6b7280 !important;
     }
-    
+
+    .info-card h6.text-muted {
+        color: #6b7280 !important;
+        font-weight: 600;
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
     /* Alertas */
     .alert-success {
-        background-color: rgba(16, 185, 129, 0.15) !important;
+        background-color: rgba(16, 185, 129, 0.1);
         border: 1px solid #10b981;
-        color: #6ee7b7 !important;
+        color: #047857;
+    }
+
+    .alert-success * {
+        color: #047857;
     }
 
     /* ===== ESTILOS PARA IMPRESIÓN ===== */
@@ -441,27 +563,27 @@
 <div class="container-fluid px-4 py-4">
     
     <div class="detail-header no-print">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-                <a href="{{ route('tesorero.membresias.index') }}" class="btn btn-light me-3">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
-                <div>
-                    <h1 class="mb-2">
-                        <i class="fas fa-id-card me-2"></i>
-                        Detalle de Membresía
-                    </h1>
-                    <p class="mb-0 opacity-90">Recibo: {{ $membresia->numero_recibo ?? 'Sin número' }}</p>
-                </div>
+        <div class="detail-header-content">
+            <a href="{{ route('tesorero.membresias.index') }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h1>
+                    <i class="fas fa-id-card"></i>
+                    Detalle de Membresía
+                </h1>
+                <p>Recibo: {{ $membresia->numero_recibo ?? 'Sin número' }}</p>
             </div>
-            <div class="action-buttons">
-                <a href="{{ route('tesorero.membresias.edit', $membresia->id) }}" class="btn btn-edit">
-                    <i class="fas fa-edit me-2"></i>Editar
-                </a>
-                <button onclick="window.print()" class="btn btn-print">
-                    <i class="fas fa-print me-2"></i>Imprimir
-                </button>
-            </div>
+        </div>
+        <div class="header-actions">
+            <a href="{{ route('tesorero.membresias.edit', $membresia->id) }}" class="btn-header">
+                <i class="fas fa-edit"></i>
+                Editar
+            </a>
+            <button onclick="window.print()" class="btn-header btn-header-primary">
+                <i class="fas fa-print"></i>
+                Imprimir
+            </button>
         </div>
     </div>
 
