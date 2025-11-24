@@ -177,37 +177,42 @@
     }
 
     .btn-action {
-        padding: 8px 10px !important;
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
         border: none !important;
-        border-radius: 6px !important;
-        font-size: 0.85rem !important;
+        border-radius: 50% !important;
+        font-size: 16px !important;
         font-weight: 600 !important;
         transition: all 0.3s ease !important;
         cursor: pointer !important;
         display: inline-flex !important;
         align-items: center !important;
-        gap: 0.3rem !important;
+        justify-content: center !important;
+        gap: 0 !important;
         text-decoration: none !important;
         color: white !important;
-        margin: 0 2px !important;
-        min-width: 35px !important;
+        margin: 0 4px !important;
     }
 
     .btn-view {
-        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
+        background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%) !important;
+        border: 2px solid #0284C7 !important;
     }
 
     .btn-edit {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
+        border: 2px solid #D97706 !important;
     }
 
     .btn-delete {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%) !important;
+        border: 2px solid #DC2626 !important;
     }
 
     .btn-action:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        transform: scale(1.1) !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
         color: white !important;
     }
 

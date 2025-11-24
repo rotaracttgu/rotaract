@@ -210,28 +210,40 @@
     }
 
     .btn-action-modern {
-        width: 36px !important;
-        height: 36px !important;
+        width: 40px !important;
+        height: 40px !important;
         padding: 0 !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        border-radius: 8px !important;
-        background: #F1F5F9 !important;
-        color: #64748B !important;
-        border: none !important;
-        transition: all 0.2s ease !important;
+        border-radius: 50% !important;
+        background: #E8F4F8 !important;
+        color: #0EA5E9 !important;
+        border: 2px solid #0EA5E9 !important;
+        transition: all 0.3s ease !important;
         text-decoration: none !important;
         opacity: 1 !important;
         visibility: visible !important;
         z-index: 100 !important;
         pointer-events: auto !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
     }
 
     .btn-action-modern:hover {
-        background: #3B82F6 !important;
+        background: #0EA5E9 !important;
         color: white !important;
-        transform: scale(1.05) !important;
+        transform: scale(1.1) !important;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4) !important;
+    }
+    
+    .btn-action-modern i {
+        display: inline-block !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
     .btn-white {

@@ -344,6 +344,51 @@
         border-color: #a855f7 !important;
         color: white !important;
     }
+    
+    /* Button styles for actions */
+    .btn-info, .btn-warning, .btn-danger {
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 16px !important;
+        border: 2px solid !important;
+        transition: all 0.3s ease !important;
+        margin: 0 4px !important;
+    }
+    
+    .btn-info {
+        background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%) !important;
+        border-color: #0284C7 !important;
+    }
+    
+    .btn-info:hover {
+        transform: scale(1.1) !important;
+        box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4) !important;
+    }
+    
+    .btn-warning {
+        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
+        border-color: #D97706 !important;
+    }
+    
+    .btn-warning:hover {
+        transform: scale(1.1) !important;
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4) !important;
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%) !important;
+        border-color: #DC2626 !important;
+    }
+    
+    .btn-danger:hover {
+        transform: scale(1.1) !important;
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4) !important;
+    }
 </style>
 @endpush
 
