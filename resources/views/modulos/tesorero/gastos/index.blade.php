@@ -177,43 +177,40 @@
     }
 
     .btn-action {
-        width: 40px !important;
-        height: 40px !important;
+        width: auto !important;
+        height: auto !important;
         padding: 0 !important;
         border: none !important;
-        border-radius: 50% !important;
-        font-size: 16px !important;
+        border-radius: 0 !important;
+        font-size: 18px !important;
         font-weight: 600 !important;
-        transition: all 0.3s ease !important;
+        transition: all 0.2s ease !important;
         cursor: pointer !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
         gap: 0 !important;
         text-decoration: none !important;
-        color: white !important;
-        margin: 0 4px !important;
+        background: transparent !important;
+        margin: 0 6px !important;
     }
 
     .btn-view {
-        background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%) !important;
-        border: 2px solid #0284C7 !important;
+        color: #0EA5E9 !important;
     }
 
     .btn-edit {
-        background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
-        border: 2px solid #D97706 !important;
+        color: #F59E0B !important;
     }
 
     .btn-delete {
-        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%) !important;
-        border: 2px solid #DC2626 !important;
+        color: #EF4444 !important;
     }
 
     .btn-action:hover {
-        transform: scale(1.1) !important;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
-        color: white !important;
+        transform: scale(1.2) !important;
+        box-shadow: none !important;
+        opacity: 0.8 !important;
     }
 
     .pagination {
