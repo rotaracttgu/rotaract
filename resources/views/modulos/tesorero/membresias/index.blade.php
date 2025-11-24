@@ -4,17 +4,19 @@
 
 @push('styles')
 <style>
+    /* Fondo blanco limpio */
     body {
-        background-color: #1e2836 !important;
+        background-color: #f8f9fa !important;
     }
 
+    /* Header Purple */
     .membresias-header {
         background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
         color: white !important;
-        padding: 2rem;
+        padding: 2.5rem;
         border-radius: 15px;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+        margin-bottom: 2.5rem;
+        box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2);
     }
     
     .membresias-header h1, .membresias-header p {
@@ -24,8 +26,9 @@
     
     .membresias-header .btn-light {
         background: rgba(255,255,255,0.2) !important;
-        border: none;
+        border: 2px solid rgba(255,255,255,0.5) !important;
         color: #ffffff !important;
+        font-weight: 600;
     }
     
     .membresias-header .btn-light:hover {
@@ -33,44 +36,48 @@
         color: #ffffff !important;
     }
     
+    /* Stats Cards */
     .stats-card {
-        background: #2a3544 !important;
+        background: white !important;
         border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
-        border-left: 4px solid #a855f7;
+        border-left: 5px solid #a855f7;
     }
     
     .stats-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
+        box-shadow: 0 8px 25px rgba(168, 85, 247, 0.15);
     }
     
     .stats-card h3 {
-        color: #ffffff !important;
+        color: #1f2937 !important;
         opacity: 1 !important;
+        font-weight: 700;
     }
     
     .stats-card p {
-        color: #e5e7eb !important;
+        color: #6b7280 !important;
         opacity: 1 !important;
+        font-size: 0.95rem;
     }
     
     .stats-card .text-muted {
         color: #9ca3af !important;
     }
     
+    /* Tabla */
     .table-membresias {
-        background: #2a3544 !important;
+        background: white !important;
         border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     }
     
     .table {
-        color: #ffffff !important;
-        background-color: #2a3544 !important;
+        color: #1f2937 !important;
+        background-color: white !important;
         margin-bottom: 0;
     }
     
@@ -84,8 +91,7 @@
         border: none !important;
         font-weight: 700 !important;
         opacity: 1 !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
-        padding: 1rem !important;
+        padding: 1.25rem !important;
     }
     
     .table thead tr {
@@ -98,24 +104,26 @@
     }
     
     .table tbody {
-        background-color: #2a3544 !important;
+        background-color: white !important;
     }
     
     .table tbody tr {
-        background-color: #2a3544 !important;
-        border-color: rgba(74, 85, 104, 0.5) !important;
+        background-color: white !important;
+        border-color: #e5e7eb !important;
+        transition: all 0.2s ease;
     }
     
     .table tbody tr:hover {
-        background-color: #3d4757 !important;
+        background-color: #f9fafb !important;
     }
     
     .table tbody td {
-        color: #ffffff !important;
-        background-color: #2a3544 !important;
-        border-color: rgba(74, 85, 104, 0.5) !important;
-        font-weight: 600 !important;
+        color: #374151 !important;
+        background-color: white !important;
+        border-color: #e5e7eb !important;
+        font-weight: 500 !important;
         opacity: 1 !important;
+        padding: 1rem !important;
     }
     
     table td, table th {
@@ -126,44 +134,77 @@
         opacity: 1 !important;
     }
     
+    /* Badges */
     .badge-pendiente {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
         color: white !important;
+        padding: 0.5rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
     }
     
     .badge-pagado {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
         color: white !important;
+        padding: 0.5rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
     }
     
     .badge-vencido {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
         color: white !important;
+        padding: 0.5rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
     }
     
     .badge-cancelado {
         background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
         color: white !important;
+        padding: 0.5rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
     }
     
     .badge-mensual {
         background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
         color: white !important;
+        padding: 0.4rem 0.6rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.8rem;
     }
     
     .badge-trimestral {
         background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%) !important;
         color: white !important;
+        padding: 0.4rem 0.6rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.8rem;
     }
     
     .badge-semestral {
         background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
         color: white !important;
+        padding: 0.4rem 0.6rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.8rem;
     }
     
     .badge-anual {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
         color: white !important;
+        padding: 0.4rem 0.6rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.8rem;
     }
     
     .badge {
@@ -194,29 +235,32 @@
         opacity: 1 !important;
     }
     
+    /* Search Box */
     .search-box {
-        background: #2a3544 !important;
-        border-radius: 10px;
-        padding: 1.5rem;
+        background: white !important;
+        border-radius: 12px;
+        padding: 2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     }
     
     .form-label {
-        color: #e5e7eb !important;
+        color: #374151 !important;
         opacity: 1 !important;
+        font-weight: 600;
+        font-size: 0.95rem;
     }
     
     .form-control, .form-select {
-        background-color: rgba(42, 53, 68, 0.8) !important;
-        color: #ffffff !important;
-        border: 2px solid #3d4757;
+        background-color: #f9fafb !important;
+        color: #1f2937 !important;
+        border: 2px solid #e5e7eb;
         border-radius: 8px;
     }
     
     .form-control:focus, .form-select:focus {
-        background-color: rgba(42, 53, 68, 0.9) !important;
-        color: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #1f2937 !important;
         border-color: #a855f7;
         box-shadow: 0 0 0 0.2rem rgba(168, 85, 247, 0.25);
     }
@@ -227,8 +271,8 @@
     }
     
     .form-select option {
-        background-color: #2a3544;
-        color: #ffffff;
+        background-color: white;
+        color: #1f2937;
     }
     
     .member-info {
@@ -252,100 +296,26 @@
     }
     
     .alert-success {
-        background-color: rgba(16, 185, 129, 0.15) !important;
+        background-color: rgba(16, 185, 129, 0.1) !important;
         border: 1px solid #10b981;
-        color: #6ee7b7 !important;
+        color: #047857 !important;
     }
     
     .alert-success * {
-        color: #6ee7b7 !important;
+        color: #047857 !important;
     }
     
     .alert-danger {
-        background-color: rgba(239, 68, 68, 0.15) !important;
+        background-color: rgba(239, 68, 68, 0.1) !important;
         border: 1px solid #ef4444;
-        color: #fca5a5 !important;
+        color: #dc2626 !important;
     }
     
     .alert-danger * {
-        color: #fca5a5 !important;
+        color: #dc2626 !important;
     }
     
-    /* Botones de acción */
-    .btn-info {
-        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
-        border: none;
-        color: white !important;
-    }
-    
-    .btn-warning {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-        border: none;
-        color: white !important;
-    }
-    
-    .btn-danger {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-        border: none;
-        color: white !important;
-    }
-    
-    .btn-outline-secondary {
-        border-color: #6c757d !important;
-        color: #e5e7eb !important;
-    }
-    
-    .btn-outline-secondary:hover {
-        background: #6c757d !important;
-        color: white !important;
-    }
-    
-    /* Texto general visible */
-    p, span, label, div, small {
-        opacity: 1 !important;
-    }
-    
-    .text-muted {
-        color: #9ca3af !important;
-        opacity: 1 !important;
-    }
-    
-    .text-success {
-        color: #10b981 !important;
-    }
-    
-    .text-warning {
-        color: #f59e0b !important;
-    }
-    
-    .text-primary {
-        color: #a855f7 !important;
-    }
-    
-    /* Paginación */
-    .pagination {
-        margin-top: 1rem;
-    }
-    
-    .pagination .page-link {
-        background-color: #2a3544 !important;
-        border-color: #3d4757 !important;
-        color: #e5e7eb !important;
-    }
-    
-    .pagination .page-link:hover {
-        background-color: #a855f7 !important;
-        border-color: #a855f7 !important;
-        color: white !important;
-    }
-    
-    .pagination .page-item.active .page-link {
-        background-color: #a855f7 !important;
-        border-color: #a855f7 !important;
-        color: white !important;
-    }
-    
-    /* Button styles for actions */
+    /* Botones de acción - solo iconos */
     .btn-info, .btn-warning, .btn-danger {
         display: inline-block !important;
         padding: 8px 12px !important;
@@ -383,6 +353,51 @@
     .btn-danger:hover {
         transform: scale(1.2) !important;
         opacity: 0.8 !important;
+    }
+    
+    /* Paginación */
+    .pagination {
+        margin-top: 1rem;
+    }
+    
+    .pagination .page-link {
+        background-color: white !important;
+        border-color: #e5e7eb !important;
+        color: #374151 !important;
+    }
+    
+    .pagination .page-link:hover {
+        background-color: #a855f7 !important;
+        border-color: #a855f7 !important;
+        color: white !important;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: #a855f7 !important;
+        border-color: #a855f7 !important;
+        color: white !important;
+    }
+    
+    /* Texto general */
+    p, span, label, div, small {
+        opacity: 1 !important;
+    }
+    
+    .text-muted {
+        color: #6b7280 !important;
+        opacity: 1 !important;
+    }
+    
+    .text-success {
+        color: #10b981 !important;
+    }
+    
+    .text-warning {
+        color: #f59e0b !important;
+    }
+    
+    .text-primary {
+        color: #a855f7 !important;
     }
 </style>
 @endpush
