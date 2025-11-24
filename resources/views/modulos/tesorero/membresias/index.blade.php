@@ -347,18 +347,15 @@
     
     /* Button styles for actions */
     .btn-info, .btn-warning, .btn-danger {
-        width: auto !important;
-        height: auto !important;
-        padding: 0 !important;
+        display: inline-block !important;
+        padding: 8px 12px !important;
         border-radius: 0 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
         font-size: 18px !important;
         border: none !important;
         transition: all 0.2s ease !important;
-        margin: 0 6px !important;
+        margin: 0 4px !important;
         background: transparent !important;
+        cursor: pointer !important;
     }
     
     .btn-info {

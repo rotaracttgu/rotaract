@@ -210,25 +210,21 @@
     }
 
     .btn-action-modern {
-        width: auto !important;
-        height: auto !important;
-        padding: 0 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        display: inline-block !important;
+        padding: 8px 12px !important;
+        border: none !important;
         border-radius: 0 !important;
         background: transparent !important;
         color: #0EA5E9 !important;
-        border: none !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
         transition: all 0.2s ease !important;
         text-decoration: none !important;
         opacity: 1 !important;
         visibility: visible !important;
         z-index: 100 !important;
         pointer-events: auto !important;
-        font-size: 18px !important;
-        cursor: pointer !important;
-        margin: 0 6px !important;
+        margin: 0 4px !important;
     }
 
     .btn-action-modern:hover {
@@ -236,10 +232,6 @@
         color: #0284C7 !important;
         transform: scale(1.2) !important;
         box-shadow: none !important;
-    }
-    
-    .btn-action-modern i {
-        display: inline-block !important;
     }
 
     .btn-white {

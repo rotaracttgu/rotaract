@@ -216,22 +216,17 @@
     }
 
     .btn-action {
-        width: auto !important;
-        height: auto !important;
-        padding: 0 !important;
+        display: inline-block !important;
+        padding: 8px 12px !important;
         border: none !important;
         border-radius: 0 !important;
         font-size: 18px !important;
         font-weight: 600 !important;
         transition: all 0.2s ease !important;
         cursor: pointer !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 0 !important;
         text-decoration: none !important;
         background: transparent !important;
-        margin: 0 6px !important;
+        margin: 0 4px !important;
     }
 
     .btn-view {
