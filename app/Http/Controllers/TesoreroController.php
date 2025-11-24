@@ -85,7 +85,7 @@ class TesoreroController extends Controller
         $alertas_presupuesto = [];
         
         // Gastos pendientes con información adicional
-        $gastos_pendientes = Egreso::where('estado', 'pendiente')
+        $gastos_pendientes = Egreso::whereRaw('LOWER(estado) = ?', ['pendiente'])
             ->with('usuarioRegistro')
             ->orderBy('fecha', 'desc')
             ->get()
@@ -275,7 +275,7 @@ class TesoreroController extends Controller
         $alertas_presupuesto = [];
         
         // Gastos pendientes
-        $gastos_pendientes = Egreso::where('estado', 'pendiente')->get();
+        $gastos_pendientes = Egreso::whereRaw('LOWER(estado) = ?', ['pendiente'])->get();
         
         // Control de presupuesto por categoría
         $control_presupuesto = Egreso::selectRaw('categoria, SUM(monto) as gasto_real')
@@ -1060,12 +1060,17 @@ class TesoreroController extends Controller
                 ], 400);
             }
             
-            $gasto->estado = 'confirmado';
+            $gasto->estado = 'aprobado';
             $gasto->usuario_aprobacion_id = auth()->id();
             $gasto->save();
             
             // Actualizar presupuesto de la categoría si existe
-            $this->actualizarPresupuestoCategoria($gasto->categoria, $gasto->monto);
+            try {
+                $this->actualizarPresupuestoCategoria($gasto->categoria, $gasto->monto);
+            } catch (\Exception $budgetEx) {
+                // Log silencioso si falla actualización de presupuesto
+                \Log::warning('Error actualizando presupuesto: ' . $budgetEx->getMessage());
+            }
             
             return response()->json([
                 'success' => true,
