@@ -173,6 +173,26 @@
         box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
     }
 
+    .btn-approve {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+    }
+
+    .btn-approve:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-reject {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        color: white;
+    }
+
+    .btn-reject:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(249, 115, 22, 0.3);
+    }
+
     @media print {
         .btn-action-group, .show-header, nav, footer {
             display: none !important;
@@ -399,6 +419,19 @@
                 <i class="fas fa-print"></i> Imprimir
             </button>
             @endcan
+            @can('finanzas.aprobar')
+                @php
+                    $estadoGasto = strtolower($gasto->estado ?? 'pendiente');
+                @endphp
+                @if($estadoGasto === 'pendiente')
+                <button type="button" class="btn-modern btn-approve" onclick="aprobarGasto({{ $gasto->id }})">
+                    <i class="fas fa-check-circle"></i> Aprobar
+                </button>
+                <button type="button" class="btn-modern btn-reject" onclick="mostrarModalRechazar({{ $gasto->id }})">
+                    <i class="fas fa-times-circle"></i> Rechazar
+                </button>
+                @endif
+            @endcan
             @can('finanzas.eliminar')
             <button type="button" class="btn-modern btn-delete btn-delete-gasto"
                     data-descripcion="{{ $gasto->descripcion ?? $gasto->concepto }}"
@@ -457,6 +490,112 @@
             });
         }
     });
+
+    // Función para aprobar gasto
+    function aprobarGasto(id) {
+        Swal.fire({
+            title: '¿Aprobar este gasto?',
+            text: 'Una vez aprobado, el gasto será confirmado.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#22c55e',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: '<i class="fas fa-check me-2"></i>Sí, aprobar',
+            cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/tesorero/gastos/${id}/aprobar`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: '¡Éxito!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonColor: '#22c55e'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'Error al aprobar el gasto: ' + error.message, 'error');
+                });
+            }
+        });
+    }
+
+    // Función para mostrar modal de rechazo
+    function mostrarModalRechazar(id) {
+        Swal.fire({
+            title: '¿Rechazar este gasto?',
+            input: 'textarea',
+            inputLabel: 'Motivo del rechazo',
+            inputPlaceholder: 'Escriba el motivo...',
+            inputAttributes: {
+                'aria-label': 'Motivo del rechazo',
+                'class': 'form-control'
+            },
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f97316',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: '<i class="fas fa-times-circle me-2"></i>Sí, rechazar',
+            cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
+            reverseButtons: true,
+            didOpen: () => {
+                const input = Swal.getInput();
+                input.classList.add('form-control');
+                input.style.minHeight = '100px';
+            },
+            preConfirm: (motivo) => {
+                if (!motivo) {
+                    Swal.showValidationMessage('Por favor, ingrese un motivo');
+                    return false;
+                }
+                return motivo;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/tesorero/gastos/${id}/rechazar`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ motivo: result.value })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: '¡Éxito!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonColor: '#f97316'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'Error al rechazar el gasto: ' + error.message, 'error');
+                });
+            }
+        });
+    }
 </script>
 @endpush
 @endsection
