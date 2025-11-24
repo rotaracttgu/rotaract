@@ -177,36 +177,38 @@
     }
 
     .btn-action {
-        padding: 0.4rem 0.7rem;
-        border: none;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        text-decoration: none;
-        color: white;
-        margin: 0 2px;
+        padding: 8px 10px !important;
+        border: none !important;
+        border-radius: 6px !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.3rem !important;
+        text-decoration: none !important;
+        color: white !important;
+        margin: 0 2px !important;
+        min-width: 35px !important;
     }
 
     .btn-view {
-        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
     }
 
     .btn-edit {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
     }
 
     .btn-delete {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
     }
 
     .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        color: white !important;
     }
 
     .pagination {

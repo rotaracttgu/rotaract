@@ -117,7 +117,8 @@
                     <div class="notificacion-item border-bottom p-3" 
                          data-id="{{ $notificacion->id }}" 
                          data-leida="{{ $notificacion->leida ? 'leidas' : 'no-leidas' }}"
-                         data-tipo="{{ $notificacion->tipo ?? 'sistema' }}">
+                         data-tipo="{{ $notificacion->tipo ?? 'sistema' }}"
+                         data-url="{{ $notificacion->url }}">
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 @if (!$notificacion->leida)
@@ -265,6 +266,14 @@ function marcarLeida(id) {
                 elemento.querySelector('.badge').classList.add('bg-secondary');
                 elemento.querySelector('button:first-child').remove();
                 mostrarToastNotificacion('Notificación marcada como leída', 'success');
+                
+                // Navegar a la URL si existe
+                const url = elemento.dataset.url;
+                if (url && url.trim() !== '') {
+                    setTimeout(() => {
+                        window.location.href = url;
+                    }, 500);
+                }
             }
             verificarActualizaciones();
         }

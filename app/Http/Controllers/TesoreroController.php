@@ -1053,14 +1053,14 @@ class TesoreroController extends Controller
         try {
             $gasto = Egreso::findOrFail($id);
             
-            if ($gasto->estado !== 'pendiente') {
+            if (strtolower($gasto->estado) !== 'pendiente') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Este gasto ya fue procesado anteriormente.'
                 ], 400);
             }
             
-            $gasto->estado = 'aprobado';
+            $gasto->estado = 'confirmado';
             $gasto->usuario_aprobacion_id = auth()->id();
             $gasto->save();
             
@@ -1088,7 +1088,7 @@ class TesoreroController extends Controller
         try {
             $gasto = Egreso::findOrFail($id);
             
-            if ($gasto->estado !== 'pendiente') {
+            if (strtolower($gasto->estado) !== 'pendiente') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Este gasto ya fue procesado anteriormente.'

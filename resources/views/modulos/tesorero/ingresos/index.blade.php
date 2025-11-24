@@ -231,30 +231,39 @@
     }
 
     .btn-view {
-        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
+        padding: 8px 10px !important;
+        min-width: 35px !important;
+        border: none !important;
     }
 
     .btn-view:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3) !important;
     }
 
     .btn-edit {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        padding: 8px 10px !important;
+        min-width: 35px !important;
+        border: none !important;
     }
 
     .btn-edit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3);
+        box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3) !important;
     }
 
     .btn-delete {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        padding: 8px 10px !important;
+        min-width: 35px !important;
+        border: none !important;
     }
 
     .btn-delete:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+        box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3) !important;
     }
 
     .pagination {
