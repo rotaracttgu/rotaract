@@ -37,6 +37,8 @@ class User extends Authenticatable
         'failed_login_attempts',
         'locked_until',
         'is_locked',
+        'password_changed_at',
+        'password_expires_at',
     ];
 
     protected $hidden = [
@@ -62,6 +64,8 @@ class User extends Authenticatable
             'activo' => 'boolean',
             'fecha_juramentacion' => 'date',
             'fecha_cumpleaños' => 'date',
+            'password_changed_at' => 'datetime',
+            'password_expires_at' => 'datetime',
         ];
     }
 
@@ -272,5 +276,72 @@ class User extends Authenticatable
     public function getNombreCompletoAttribute(): string
     {
         return trim($this->name . ' ' . $this->apellidos);
+    }
+
+    // ============================================
+    // MÉTODOS DE CADUCIDAD DE CONTRASEÑA
+    // ============================================
+
+    /**
+     * Verificar si la contraseña del usuario ha expirado
+     */
+    public function passwordExpired(): bool
+    {
+        if (!\App\Models\Parametro::obtener('politica_contrasenas_activa', true)) {
+            return false;
+        }
+
+        if (!$this->password_expires_at) {
+            return false;
+        }
+
+        return now()->greaterThan($this->password_expires_at);
+    }
+
+    /**
+     * Verificar cuántos días faltan para que venza la contraseña
+     * Retorna null si no hay fecha de vencimiento
+     * Retorna número negativo si ya expiró
+     */
+    public function diasParaVencerContrasena(): ?int
+    {
+        if (!$this->password_expires_at) {
+            return null;
+        }
+
+        return (int) now()->diffInDays($this->password_expires_at, false);
+    }
+
+    /**
+     * Actualizar la contraseña y recalcular fecha de vencimiento
+     */
+    public function renovarContrasena(string $nuevaContrasena): void
+    {
+        $diasVigencia = \App\Models\Parametro::obtener('dias_vigencia_contrasena', 90);
+
+        $this->password            = bcrypt($nuevaContrasena);
+        $this->password_changed_at = now();
+        $this->password_expires_at = now()->addDays($diasVigencia);
+        $this->save();
+    }
+
+    /**
+     * Verificar si debe mostrar aviso de próximo vencimiento
+     */
+    public function debeAvisarVencimiento(): bool
+    {
+        if (!\App\Models\Parametro::obtener('politica_contrasenas_activa', true)) {
+            return false;
+        }
+
+        $dias = $this->diasParaVencerContrasena();
+
+        if ($dias === null) {
+            return false;
+        }
+
+        $diasAviso = \App\Models\Parametro::obtener('dias_aviso_contrasena', 7);
+
+        return $dias >= 0 && $dias <= $diasAviso;
     }
 }

@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Mail;
 // ⭐ IMPORTAR CONTROLADORES DE CONFIGURACIÓN
 use App\Http\Controllers\Admin\Configuracion\RoleController;
 use App\Http\Controllers\Admin\Configuracion\PermissionController;
+use App\Http\Controllers\Admin\Configuracion\PasswordPolicyController;
+use App\Http\Controllers\Auth\PasswordRenewalController;
 use App\Http\Controllers\AdminController;
 
 // Página de inicio (pública)
@@ -52,6 +54,16 @@ Route::middleware('auth')->group(function () {
         ->name('profile.complete.form');
     Route::post('/completar-perfil', [CompleteProfileController::class, 'store'])
         ->name('profile.complete.store');
+});
+
+// ============================================================================
+// RUTAS PARA RENOVACIÓN DE CONTRASEÑA (CADUCIDAD)
+// ============================================================================
+Route::middleware('auth')->group(function () {
+    Route::get('/contrasena/renovar', [PasswordRenewalController::class, 'showForm'])
+        ->name('contrasena.renovar.form');
+    Route::post('/contrasena/renovar', [PasswordRenewalController::class, 'store'])
+        ->name('contrasena.renovar.store');
 });
 
 // ============================================================================
@@ -106,7 +118,7 @@ Route::get('/dashboard', function () {
     // Si no tiene un módulo específico, usar el dashboard universal dinámico
     // Este dashboard se adapta a los permisos del usuario
     return redirect()->route('universal.dashboard');
-})->middleware(['auth', 'verified', 'check.first.login'])->name('dashboard');
+})->middleware(['auth', 'verified', 'check.first.login', 'check.password.expiry'])->name('dashboard');
 
 // ============================================================================
 // RUTAS DE AUTENTICACIÓN DE DOS FACTORES (2FA)
@@ -154,7 +166,7 @@ Route::middleware(['auth', 'check.first.login'])->group(function () {
 // ============================================================================
 // RUTAS DE SUPER ADMIN
 // ============================================================================
-Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware::class . ':Super Admin'])->name('admin.')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'check.first.login', 'check.password.expiry', RoleMiddleware::class . ':Super Admin'])->name('admin.')->group(function () {
     // Dashboard de Super Admin
     Route::get('/dashboard', [DashboardController::class, 'indexTabs'])->name('dashboard');
     Route::get('/calendario', [DashboardController::class, 'calendario'])->name('calendario');
@@ -227,6 +239,16 @@ Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware:
         // RECURSOS SIN index (para create, edit, show, etc.)
         Route::resource('roles', RoleController::class)->except(['index']);
         Route::resource('permisos', PermissionController::class)->except(['index']);
+
+        // ============================================================================
+        // ⭐ POLÍTICA DE CONTRASEÑAS
+        // ============================================================================
+        Route::get('password-policy', [PasswordPolicyController::class, 'index'])
+            ->name('password-policy.index');
+        Route::put('password-policy', [PasswordPolicyController::class, 'update'])
+            ->name('password-policy.update');
+        Route::get('password-policy/usuarios', [PasswordPolicyController::class, 'usuariosEstado'])
+            ->name('password-policy.usuarios');
     });
 
     // ============================================================================
@@ -284,7 +306,7 @@ Route::prefix('admin')->middleware(['auth', 'check.first.login', RoleMiddleware:
 // ============================================================================
 // RUTAS DEL MÓDULO PRESIDENTE (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('presidente')->middleware(['auth', 'check.first.login'])->name('presidente.')->group(function () {
+Route::prefix('presidente')->middleware(['auth', 'check.first.login', 'check.password.expiry'])->name('presidente.')->group(function () {
     Route::get('/dashboard', [PresidenteController::class, 'dashboard'])->name('dashboard');
     
     // Notificaciones
@@ -373,7 +395,7 @@ Route::prefix('api/presidente/calendario')->middleware(['auth', 'check.first.log
 // ============================================================================
 // RUTAS DEL MÓDULO VICEPRESIDENTE (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login'])->name('vicepresidente.')->group(function () {
+Route::prefix('vicepresidente')->middleware(['auth', 'check.first.login', 'check.password.expiry'])->name('vicepresidente.')->group(function () {
     Route::get('/dashboard', [VicepresidenteController::class, 'dashboard'])->name('dashboard');
     
     // Notificaciones
@@ -449,7 +471,7 @@ Route::prefix('api/vicepresidente/calendario')->middleware(['auth', 'check.first
 // ============================================================================
 // RUTAS DEL MÓDULO TESORERO (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('tesorero')->middleware(['auth', 'check.first.login'])->name('tesorero.')->group(function () {
+Route::prefix('tesorero')->middleware(['auth', 'check.first.login', 'check.password.expiry'])->name('tesorero.')->group(function () {
     // Dashboard principal - ÚNICA RUTA
     Route::get('/dashboard', [TesoreroController::class, 'index'])->name('dashboard');
     Route::get('/calendario', [TesoreroController::class, 'calendario'])->name('calendario');
@@ -570,7 +592,7 @@ Route::prefix('tesorero')->middleware(['auth', 'check.first.login'])->name('teso
 // ============================================================================
 // RUTAS DEL MÓDULO SECRETARÍA (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.first.login'])->group(function () {
+Route::prefix('secretaria')->name('secretaria.')->middleware(['auth', 'check.first.login', 'check.password.expiry'])->group(function () {
     // Dashboard principal
     Route::get('/dashboard', [SecretariaController::class, 'dashboard'])->name('dashboard');
     Route::get('/calendario', [SecretariaController::class, 'calendario'])->name('calendario');
@@ -647,7 +669,7 @@ Route::prefix('api/secretaria/calendario')->middleware(['auth', 'check.first.log
 // ============================================================================
 // RUTAS DEL MÓDULO VOCERO (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('vocero')->middleware(['auth', 'check.first.login'])->name('vocero.')->group(function () {
+Route::prefix('vocero')->middleware(['auth', 'check.first.login', 'check.password.expiry'])->name('vocero.')->group(function () {
     Route::get('/', [VoceroController::class, 'index'])->name('index');
     Route::get('/bienvenida', [VoceroController::class, 'welcome'])->name('bienvenida');
     Route::get('/calendario', [VoceroController::class, 'calendario'])->name('calendario');
@@ -687,7 +709,7 @@ Route::prefix('api/calendario')->middleware(['auth', 'check.first.login'])->grou
 // ============================================================================
 // RUTAS DEL MÓDULO SOCIO (Acceso basado en permisos, no en roles)
 // ============================================================================
-Route::prefix('socio')->middleware(['auth', 'check.first.login'])->name('socio.')->group(function () {
+Route::prefix('socio')->middleware(['auth', 'check.first.login', 'check.password.expiry'])->name('socio.')->group(function () {
     
     // Dashboard principal
     Route::get('/dashboard', [SocioController::class, 'dashboard'])->name('dashboard');

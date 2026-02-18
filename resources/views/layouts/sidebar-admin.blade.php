@@ -223,6 +223,10 @@
                         <i class="fas fa-database text-xs flex-shrink-0"></i>
                         <span class="truncate">Backup</span>
                     </a>
+                    <a href="{{ route('admin.configuracion.password-policy.index') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors text-xs truncate {{ request()->routeIs('admin.configuracion.password-policy.*') ? 'bg-gray-700/30 text-gray-200' : 'text-gray-300' }}">
+                        <i class="fas fa-shield-alt text-xs flex-shrink-0"></i>
+                        <span class="truncate">Política Contraseñas</span>
+                    </a>
                 </div>
             </div>
 

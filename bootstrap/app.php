@@ -19,8 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission'=> \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
 
             // Tus middlewares personalizados
-            'ensure.role'       => \App\Http\Middleware\EnsureUserHasRole::class,
-            'check.first.login' => \App\Http\Middleware\CheckFirstLogin::class,
+            'ensure.role'            => \App\Http\Middleware\EnsureUserHasRole::class,
+            'check.first.login'      => \App\Http\Middleware\CheckFirstLogin::class,
+            'check.password.expiry'  => \App\Http\Middleware\CheckPasswordExpiration::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
