@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin\Configuracion;
 use App\Http\Controllers\Controller;
 use App\Models\Parametro;
 use App\Models\User;
+use App\Models\Notificacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 
 class PasswordPolicyController extends Controller
 {
@@ -114,11 +116,113 @@ class PasswordPolicyController extends Controller
                     'email'                => $u->email,
                     'password_changed_at'  => $u->password_changed_at?->format('d/m/Y'),
                     'password_expires_at'  => $u->password_expires_at?->format('d/m/Y'),
+                    'password_expires_at_iso'  => $u->password_expires_at?->format('Y-m-d'),
                     'dias_restantes'       => $dias,
                     'estado'               => $dias === null ? 'sin_fecha' : ($dias < 0 ? 'vencida' : ($dias <= 7 ? 'por_vencer' : 'vigente')),
                 ];
             });
 
         return response()->json(['success' => true, 'usuarios' => $usuarios]);
+    }
+
+    /**
+     * Actualizar la fecha de vencimiento de contraseña para un usuario (AJAX)
+     */
+    public function updatePasswordExpiry(Request $request)
+    {
+        $request->validate([
+            'usuario_id'   => ['required', 'integer', 'exists:users,id'],
+            'nueva_fecha'  => ['required', 'date', 'after_or_equal:today'],
+        ], [
+            'usuario_id.required'  => 'El ID de usuario es requerido.',
+            'usuario_id.exists'    => 'El usuario no existe.',
+            'nueva_fecha.required' => 'La fecha es requerida.',
+            'nueva_fecha.date'     => 'La fecha debe ser válida.',
+            'nueva_fecha.after_or_equal' => 'La fecha debe ser igual o posterior a hoy.',
+        ]);
+
+        try {
+            $user = User::findOrFail($request->usuario_id);
+            
+            $user->password_expires_at = $request->nueva_fecha;
+            $user->saveQuietly();
+
+            // Calcular días restantes
+            $dias = $user->diasParaVencerContrasena();
+
+            // 🔔 Enviar notificación de correo inmediatamente
+            $this->enviarNotificacionContrasena($user, $dias);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Fecha de vencimiento actualizada para {$user->nombre_completo}. ✉️ Correo enviado.",
+                'usuario' => [
+                    'id'                   => $user->id,
+                    'nombre'               => $user->nombre_completo,
+                    'email'                => $user->email,
+                    'password_changed_at'  => $user->password_changed_at?->format('d/m/Y'),
+                    'password_expires_at'  => $user->password_expires_at?->format('d/m/Y'),
+                    'password_expires_at_iso'  => $user->password_expires_at?->format('Y-m-d'),
+                    'dias_restantes'       => $dias,
+                    'estado'               => $dias === null ? 'sin_fecha' : ($dias < 0 ? 'vencida' : ($dias <= 7 ? 'por_vencer' : 'vigente')),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar la fecha: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Enviar notificación de contraseña por correo e interna
+     */
+    private function enviarNotificacionContrasena(User $user, int $dias): void
+    {
+        try {
+            // Enviar correo
+            \Illuminate\Support\Facades\Mail::to($user->email)
+                ->send(new \App\Mail\PasswordExpirationWarningMail($user, $dias));
+
+            // Crear notificación interna
+            Notificacion::create([
+                'usuario_id'      => $user->id,
+                'tipo'            => 'contrasena_por_vencer',
+                'titulo'          => $dias <= 2 ? "¡URGENTE! Tu contraseña vence en {$dias} día(s)" : "Tu contraseña vence en {$dias} día(s)",
+                'mensaje'         => "Tu contraseña vencerá en {$dias} día(s). Te recomendamos renovarla pronto.",
+                'icono'           => $dias <= 2 ? 'fas fa-exclamation-triangle' : 'fas fa-clock',
+                'color'           => $dias <= 2 ? 'red' : 'yellow',
+                'url'             => '/contrasena/renovar',
+                'leida'           => false,
+                'relacionado_tipo' => 'password_policy',
+            ]);
+
+            \Illuminate\Support\Facades\Log::info("Notificación de contraseña enviada a {$user->email} ({$dias} días)");
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error enviando notificación a {$user->email}: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Ejecutar notificaciones manualmente (AJAX)
+     */
+    public function ejecutarNotificacionesAhora()
+    {
+        try {
+            Artisan::call('contrasenas:notificar-vencimiento');
+            $output = Artisan::output();
+
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Notificaciones ejecutadas correctamente',
+                'output'  => $output
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error ejecutando notificaciones: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

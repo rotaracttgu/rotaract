@@ -155,13 +155,18 @@
 
         {{-- Tabla de estado de usuarios --}}
         <div class="bg-gray-800/60 border border-gray-700 rounded-xl shadow-xl overflow-hidden">
-            <div class="bg-gray-900/60 px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+            <div class="bg-gray-900/60 px-6 py-4 border-b border-gray-700 flex items-center justify-between gap-3">
                 <h2 class="text-white font-bold text-lg flex items-center gap-2">
                     <i class="fas fa-users text-blue-400"></i> Estado de Contraseñas
                 </h2>
-                <button onclick="cargarTablaUsuarios()" class="text-blue-400 hover:text-blue-300 text-sm transition-colors">
-                    <i class="fas fa-sync-alt mr-1"></i> Actualizar
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="ejecutarNotificacionesAhora()" class="text-yellow-400 hover:text-yellow-300 text-sm transition-colors px-3 py-1 rounded bg-yellow-900/20 border border-yellow-700/30 hover:border-yellow-700 flex items-center gap-1">
+                        <i class="fas fa-envelope mr-1"></i> Enviar Notificaciones
+                    </button>
+                    <button onclick="cargarTablaUsuarios()" class="text-blue-400 hover:text-blue-300 text-sm transition-colors">
+                        <i class="fas fa-sync-alt mr-1"></i> Actualizar
+                    </button>
+                </div>
             </div>
             <div id="tabla-usuarios" class="overflow-x-auto" style="max-height: 480px; overflow-y: auto;">
                 <div class="flex items-center justify-center py-12 text-gray-500">
@@ -174,9 +179,75 @@
     </div>
 </div>
 
+{{-- Modal para editar fecha de vencimiento --}}
+<div id="modalEditarFecha" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fas fa-calendar-alt text-blue-400"></i> Editar Fecha de Vencimiento
+            </h3>
+            <button onclick="cerrarModalEditar()" class="text-gray-400 hover:text-gray-200 text-2xl leading-none">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Contenido -->
+        <div class="space-y-4 mb-6">
+            <!-- Nombre del usuario -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-300 mb-2">Usuario</label>
+                <p id="editarNombre" class="text-white font-medium text-lg"></p>
+            </div>
+
+            <!-- Campo de fecha -->
+            <div>
+                <label for="editarFecha" class="block text-sm font-semibold text-gray-300 mb-2">
+                    <i class="fas fa-calendar mr-1 text-yellow-400"></i> Nueva Fecha de Vencimiento
+                </label>
+                <input 
+                    type="date" 
+                    id="editarFecha" 
+                    class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    min="{{ date('Y-m-d') }}"
+                >
+                <p class="text-gray-400 text-xs mt-2">Selecciona una fecha igual o posterior a hoy.</p>
+                <p class="text-green-400 text-xs mt-2 flex items-center gap-1">
+                    <i class="fas fa-check-circle"></i> Se enviará correo de notificación inmediatamente
+                </p>
+            </div>
+
+            <!-- Campo oculto para ID -->
+            <input type="hidden" id="editarUsuarioId">
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-3">
+            <button 
+                onclick="cerrarModalEditar()" 
+                class="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 font-medium rounded-lg transition-colors">
+                <i class="fas fa-times mr-2"></i> Cancelar
+            </button>
+            <button 
+                id="btnGuardarFecha"
+                onclick="guardarNuevaFecha()" 
+                class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors">
+                <i class="fas fa-save mr-2"></i> Guardar Cambios
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     cargarTablaUsuarios();
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('modalEditarFecha').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModalEditar();
+        }
+    });
 
     // Resaltar radio seleccionado
     document.querySelectorAll('input[name="politica_contrasenas_activa"]').forEach(radio => {
@@ -227,7 +298,14 @@ function cargarTablaUsuarios() {
                         : '<span class="text-gray-500 text-xs">—</span>'
                     }
                 </td>
-                <td class="px-4 py-3">${badgeMap[u.estado] ?? ''}</td>
+                <td class="px-4 py-3 flex items-center gap-2">
+                    ${badgeMap[u.estado] ?? ''}
+                    <button onclick="abrirModalEditar(${u.id}, '${u.nombre}', '${u.password_expires_at_iso ?? ''}')" 
+                            class="ml-auto text-blue-400 hover:text-blue-300 text-xs transition-colors" 
+                            title="Editar fecha de vencimiento">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </td>
             </tr>
         `).join('');
 
@@ -248,6 +326,143 @@ function cargarTablaUsuarios() {
     .catch(() => {
         document.getElementById('tabla-usuarios').innerHTML =
             '<div class="py-10 text-center text-red-400"><i class="fas fa-exclamation-circle text-3xl mb-3"></i><p>Error al cargar datos</p></div>';
+    });
+}
+
+/**
+ * Abre el modal para editar la fecha de vencimiento de un usuario
+ */
+function abrirModalEditar(usuarioId, nombreUsuario, fechaActual) {
+    // Poblar modal con datos
+    document.getElementById('editarUsuarioId').value = usuarioId;
+    document.getElementById('editarNombre').textContent = nombreUsuario;
+    document.getElementById('editarFecha').value = fechaActual || '';
+    
+    // Mostrar modal
+    document.getElementById('modalEditarFecha').classList.remove('hidden');
+    document.getElementById('modalEditarFecha').classList.add('flex');
+}
+
+/**
+ * Cierra el modal de edición
+ */
+function cerrarModalEditar() {
+    document.getElementById('modalEditarFecha').classList.add('hidden');
+    document.getElementById('modalEditarFecha').classList.remove('flex');
+}
+
+/**
+ * Guarda la nueva fecha de vencimiento (AJAX)
+ */
+function guardarNuevaFecha() {
+    const usuarioId = document.getElementById('editarUsuarioId').value;
+    const nuevaFecha = document.getElementById('editarFecha').value;
+    const btnGuardar = document.getElementById('btnGuardarFecha');
+    
+    if (!usuarioId || !nuevaFecha) {
+        alert('Por favor, completa todos los campos.');
+        return;
+    }
+
+    // Mostrar indicador de carga
+    btnGuardar.disabled = true;
+    btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...';
+
+    fetch('{{ route("admin.configuracion.password-policy.update-expiry") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            usuario_id: usuarioId,
+            nueva_fecha: nuevaFecha
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            // Mostrar mensaje de éxito
+            mostrarToast('✅ ' + data.message, 'success');
+            
+            // Cerrar modal
+            cerrarModalEditar();
+            
+            // Recargar tabla
+            cargarTablaUsuarios();
+        } else {
+            mostrarToast('❌ ' + (data.message || 'Error al guardar'), 'error');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        mostrarToast('❌ Error de red. Intenta nuevamente.', 'error');
+    })
+    .finally(() => {
+        btnGuardar.disabled = false;
+        btnGuardar.innerHTML = '<i class="fas fa-save mr-2"></i>Guardar Cambios';
+    });
+}
+
+/**
+ * Muestra un toast notification (notificación flotante)
+ */
+function mostrarToast(mensaje, tipo = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg font-medium max-w-sm z-[9999] ${
+        tipo === 'success' 
+            ? 'bg-green-500/20 border border-green-500/40 text-green-300' 
+            : 'bg-red-500/20 border border-red-500/40 text-red-300'
+    }`;
+    toast.innerHTML = mensaje;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+/**
+ * Ejecuta todas las notificaciones de vencimiento de contraseñas ahora
+ */
+function ejecutarNotificacionesAhora() {
+    const btn = event.target.closest('button');
+    const originalHTML = btn.innerHTML;
+    
+    // Mostrar indicador de carga
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Enviando...';
+
+    fetch('{{ route("admin.configuracion.password-policy.ejecutar-notificaciones") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            mostrarToast('✅ ' + data.message, 'success');
+            // Recargar tabla después de 1 segundo
+            setTimeout(() => cargarTablaUsuarios(), 1000);
+        } else {
+            mostrarToast('❌ ' + (data.message || 'Error'), 'error');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        mostrarToast('❌ Error de red. Intenta nuevamente.', 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
     });
 }
 </script>

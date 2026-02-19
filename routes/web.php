@@ -64,6 +64,24 @@ Route::middleware('auth')->group(function () {
         ->name('contrasena.renovar.form');
     Route::post('/contrasena/renovar', [PasswordRenewalController::class, 'store'])
         ->name('contrasena.renovar.store');
+    
+    // Ruta de diagnóstico (solo desarrollo)
+    Route::get('/debug/password-renewal-status', function () {
+        $user = auth()->user();
+        $dias = $user->diasParaVencerContrasena();
+        
+        return response()->json([
+            'usuario' => $user->nombre_completo,
+            'email' => $user->email,
+            'password_expires_at' => $user->password_expires_at?->format('d/m/Y H:i'),
+            'dias_restantes' => $dias,
+            'password_expired' => $user->passwordExpired(),
+            'status' => $dias === null ? 'sin_fecha' : ($dias < 0 ? 'vencida' : ($dias <= 7 ? 'por_vencer' : 'vigente')),
+            'renewable' => true,
+            'url_renewal' => route('contrasena.renovar.form'),
+            'url_complete' => url(route('contrasena.renovar.form')),
+        ]);
+    })->name('debug.password-renewal-status');
 });
 
 // ============================================================================
@@ -249,6 +267,10 @@ Route::prefix('admin')->middleware(['auth', 'check.first.login', 'check.password
             ->name('password-policy.update');
         Route::get('password-policy/usuarios', [PasswordPolicyController::class, 'usuariosEstado'])
             ->name('password-policy.usuarios');
+        Route::post('password-policy/actualizar-vencimiento', [PasswordPolicyController::class, 'updatePasswordExpiry'])
+            ->name('password-policy.update-expiry');
+        Route::post('password-policy/ejecutar-notificaciones', [PasswordPolicyController::class, 'ejecutarNotificacionesAhora'])
+            ->name('password-policy.ejecutar-notificaciones');
     });
 
     // ============================================================================

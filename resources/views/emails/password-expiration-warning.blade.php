@@ -65,7 +65,7 @@
         @endif
 
         <div style="text-align: center; margin: 28px 0;">
-            <a href="{{ url('/contrasena/renovar') }}" class="btn">
+            <a href="{{ route('contrasena.renovar.form') }}" class="btn">
                 🔑 Renovar mi Contraseña
             </a>
         </div>

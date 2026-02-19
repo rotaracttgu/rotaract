@@ -8,8 +8,11 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Ejecutar todos los días a las 8:00 AM la notificación de vencimiento de contraseñas
+// ============================================================================
+// NOTIFICACIÓN DE VENCIMIENTO DE CONTRASEÑAS
+// ============================================================================
+// Ejecutar cada hora para enviar notificaciones de contraseñas próximas a vencer
 Schedule::command('contrasenas:notificar-vencimiento')
-    ->dailyAt('08:00')
+    ->hourly()
     ->withoutOverlapping()
     ->runInBackground();
