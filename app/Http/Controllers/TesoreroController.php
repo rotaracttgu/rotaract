@@ -1809,8 +1809,13 @@ class TesoreroController extends Controller
     public function reporteMensual(Request $request)
     {
         $this->authorize('finanzas.exportar');
-        $mes = $request->mes ?? now()->month;
-        $anio = $request->anio ?? now()->year;
+        $validated = $request->validate([
+            'mes' => ['nullable', 'bail', 'integer', 'between:1,12'],
+            'anio' => ['nullable', 'bail', 'integer', 'digits:4', 'between:2000,2100'],
+        ]);
+
+        $mes = (int) ($validated['mes'] ?? now()->month);
+        $anio = (int) ($validated['anio'] ?? now()->year);
         
         $ingresos = Ingreso::whereMonth('fecha', $mes)
             ->whereYear('fecha', $anio)
