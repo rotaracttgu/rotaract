@@ -28,6 +28,8 @@ use App\Http\Controllers\Admin\Configuracion\PermissionController;
 use App\Http\Controllers\Admin\Configuracion\PasswordPolicyController;
 use App\Http\Controllers\Auth\PasswordRenewalController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SoporteController;
+use App\Http\Controllers\SoporteAdminController;
 
 // Página de inicio (pública)
 Route::get('/', function () {
@@ -788,6 +790,52 @@ Route::prefix('socio')->middleware(['auth', 'check.first.login', 'check.password
     Route::get('/perfil', [SocioController::class, 'perfil'])->name('perfil');
     Route::put('/perfil', [SocioController::class, 'actualizarPerfil'])->name('perfil.actualizar');
 });
+
+// ============================================================================
+// RUTAS DE SOPORTE (CREACION PARA PERFILES OPERATIVOS)
+// ============================================================================
+Route::middleware(['auth', 'check.first.login', 'check.password.expiry'])->group(function () {
+    $soportePrefixes = [
+        'socio',
+        'vocero',
+        'tesorero',
+        'secretaria',
+        'presidente',
+        'vicepresidente',
+    ];
+
+    foreach ($soportePrefixes as $prefix) {
+        Route::prefix($prefix)->name($prefix.'.soporte.')->group(function () {
+            Route::get('/soporte', [SoporteController::class, 'index'])->name('index');
+            Route::get('/soporte/crear', [SoporteController::class, 'create'])->name('create');
+            Route::post('/soporte', [SoporteController::class, 'store'])->name('store');
+            Route::get('/soporte/{ticket}', [SoporteController::class, 'show'])->name('show');
+            Route::post('/soporte/{ticket}/responder', [SoporteController::class, 'reply'])->name('reply');
+            Route::get('/soporte/{ticket}/mensajes', [SoporteController::class, 'messages'])->name('messages');
+        });
+    }
+
+    Route::get('/soporte/notificaciones/resumen', [SoporteController::class, 'notificationsSummary'])
+        ->name('soporte.notifications.summary');
+});
+
+// ============================================================================
+// RUTAS DE SOPORTE (RESPUESTA SOLO ADMIN / SUPER ADMIN)
+// ============================================================================
+Route::prefix('admin')
+    ->middleware([
+        'auth',
+        'check.first.login',
+        'check.password.expiry',
+    ])
+    ->name('admin.soporte.')
+    ->group(function () {
+        Route::get('/soporte', [SoporteAdminController::class, 'index'])->name('index');
+        Route::get('/soporte/{ticket}', [SoporteAdminController::class, 'show'])->name('show');
+        Route::post('/soporte/{ticket}/responder', [SoporteAdminController::class, 'reply'])->name('reply');
+        Route::patch('/soporte/{ticket}/estado', [SoporteAdminController::class, 'updateStatus'])->name('status');
+        Route::get('/soporte/{ticket}/mensajes', [SoporteAdminController::class, 'messages'])->name('messages');
+    });
 
 // ============================================================================
 // RUTAS DE AUTENTICACIÓN (Laravel Breeze)

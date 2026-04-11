@@ -104,6 +104,14 @@
                         @endif
                     </a>
 
+                    <a href="{{ route('socio.soporte.index') }}"
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('socio.soporte*') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636A9 9 0 105.636 18.364M8 12h8M8 8h8m-8 8h5"></path>
+                        </svg>
+                        <span class="flex-1">Soporte</span>
+                    </a>
+
                     <!-- Divider -->
                     <div class="my-3 border-t border-gray-200"></div>
                     <div class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Personal</div>

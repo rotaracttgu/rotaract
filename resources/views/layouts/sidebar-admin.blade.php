@@ -219,6 +219,10 @@
                         <i class="fas fa-history text-xs flex-shrink-0"></i>
                         <span class="truncate">Bitácora</span>
                     </a>
+                    <a href="{{ route('admin.soporte.index') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors text-xs truncate {{ request()->routeIs('admin.soporte.*') ? 'bg-gray-700/30 text-gray-200' : 'text-gray-300' }}">
+                        <i class="fas fa-headset text-xs flex-shrink-0"></i>
+                        <span class="truncate">Soporte</span>
+                    </a>
                     <a href="{{ route('admin.backup.index') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors text-xs truncate {{ request()->routeIs('admin.backup.*') ? 'bg-gray-700/30 text-gray-200' : 'text-gray-300' }}">
                         <i class="fas fa-database text-xs flex-shrink-0"></i>
                         <span class="truncate">Backup</span>

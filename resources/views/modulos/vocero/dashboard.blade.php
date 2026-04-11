@@ -409,6 +409,12 @@
                     </svg>
                     Reportes
                 </a>
+                <a class="nav-link" href="{{ route('vocero.soporte.index') }}">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636A9 9 0 105.636 18.364M8 12h8M8 8h8m-8 8h5"></path>
+                    </svg>
+                    Soporte
+                </a>
             </nav>
         </div>
 

@@ -30,9 +30,8 @@ class SecurityHeaders
 
         $response->headers->set('X-Content-Type-Options', 'nosniff');
 
-        if (! $response->headers->has('X-Frame-Options')) {
-            $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-        }
+        // Always set anti-clickjacking header so scanners can verify it reliably.
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
 
         if (! $response->headers->has('Referrer-Policy')) {
             $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');

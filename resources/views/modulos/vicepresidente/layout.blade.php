@@ -43,6 +43,14 @@
                         Inicio
                     </a>
 
+                    <a href="{{ route('vicepresidente.soporte.index') }}"
+                       class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('vicepresidente.soporte*') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636A9 9 0 105.636 18.364M8 12h8M8 8h8m-8 8h5"></path>
+                        </svg>
+                        Soporte
+                    </a>
+
                     <!-- Cartas Patrocinio -->
                     <a href="{{ route('vicepresidente.cartas.patrocinio') }}" 
                        class="flex items-center px-4 py-3 mb-1 rounded-lg text-sm font-medium transition-all {{ request()->routeIs('vicepresidente.cartas.patrocinio') ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 hover:bg-blue-50' }}">

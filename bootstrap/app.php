@@ -11,7 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+        // Run security headers first so every response path is wrapped.
+        $middleware->prepend(\App\Http\Middleware\SecurityHeaders::class);
+
+        // CORS configuration for API routes.
+        $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
 
         // TODOS LOS ALIAS EN UN SOLO LLAMADO
         $middleware->alias([

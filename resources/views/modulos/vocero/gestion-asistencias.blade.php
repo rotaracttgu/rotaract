@@ -335,6 +335,9 @@
                 <a class="nav-link {{ request()->routeIs('vocero.reportes') ? 'active' : '' }}" href="{{ route('vocero.reportes') }}">
                     <i class="fas fa-chart-bar"></i> Reportes
                 </a>
+                <a class="nav-link {{ request()->routeIs('vocero.soporte*') ? 'active' : '' }}" href="{{ route('vocero.soporte.index') }}">
+                    <i class="fas fa-headset"></i> Soporte
+                </a>
             </nav>
         </div>
 

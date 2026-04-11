@@ -23,8 +23,16 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-6">
                 <!-- Icono de Notificaciones -->
                 @php
+                    $roleNames = auth()->user()->getRoleNames();
                     $notificacionesRoute = route('admin.notificaciones');
                     $notificacionesNoLeidas = \App\Models\Notificacion::where('usuario_id', auth()->id())->where('leida', false)->count();
+
+                    $supportUnread = 0;
+                    if (\Illuminate\Support\Facades\Schema::hasTable('soporte_tickets') && \Illuminate\Support\Facades\Schema::hasTable('soporte_mensajes')) {
+                        $supportUnread = \App\Models\SoporteMensaje::where('is_admin', false)
+                            ->whereNull('read_at')
+                            ->count();
+                    }
                 @endphp
                 
                 <a href="{{ $notificacionesRoute }}" class="relative inline-flex items-center p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-150" title="Notificaciones">
@@ -37,6 +45,15 @@
                             {{ $notificacionesNoLeidas }}
                         </span>
                     @endif
+                </a>
+
+                <a href="{{ route('admin.soporte.index') }}" class="relative inline-flex items-center p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-150" title="Soporte">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636A9 9 0 105.636 18.364M8 12h8M8 8h8m-8 8h5"></path>
+                    </svg>
+                    <span id="support-badge-nav" class="absolute top-0 right-0 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-red-600 rounded-full {{ $supportUnread > 0 ? '' : 'hidden' }}">
+                        {{ $supportUnread }}
+                    </span>
                 </a>
 
                 <!-- Dropdown del Usuario -->
@@ -107,6 +124,15 @@
                     @endif
                 </span>
             </a>
+
+            <a href="{{ route('admin.soporte.index') }}" class="block w-full ps-3 pe-4 py-2 border-l-4 border-transparent text-start text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300 transition duration-150 ease-in-out">
+                <span class="flex items-center justify-between">
+                    <span>Soporte</span>
+                    <span id="support-badge-mobile" class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full {{ $supportUnread > 0 ? '' : 'hidden' }}">
+                        {{ $supportUnread }}
+                    </span>
+                </span>
+            </a>
         </div>
 
         <!-- Responsive Settings Options -->
@@ -136,3 +162,50 @@
         </div>
     </div>
 </nav>
+
+<script>
+(function () {
+    const desktopBadge = document.getElementById('support-badge-nav');
+    const mobileBadge = document.getElementById('support-badge-mobile');
+    const endpoint = '{{ route('soporte.notifications.summary') }}';
+
+    function updateBadge(count) {
+        [desktopBadge, mobileBadge].forEach((node) => {
+            if (!node) {
+                return;
+            }
+
+            if (count > 0) {
+                node.textContent = count;
+                node.classList.remove('hidden');
+            } else {
+                node.textContent = '0';
+                node.classList.add('hidden');
+            }
+        });
+    }
+
+    async function pollSupportSummary() {
+        try {
+            const response = await fetch(endpoint, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+            updateBadge(Number(data.unread_count || 0));
+        } catch (error) {
+            // silent polling
+        }
+    }
+
+    setInterval(pollSupportSummary, 8000);
+})();
+</script>
